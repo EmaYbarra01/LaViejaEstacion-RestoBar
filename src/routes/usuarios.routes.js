@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import { obtenerUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, obtenerUnUsuario, login, logout, getMe, registrarUsuario  } from '../controllers/users.controllers';
-import validarUsuario from '../helpers/validarUsuario';
+import validarUsuario from '../helpers/validarUsuario.js';
 import verificarToken from '../auth/token-verify.js';
 import verificarRol from '../auth/verificar-rol.js';
 
