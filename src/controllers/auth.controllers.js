@@ -1,4 +1,4 @@
-import User from '../models/usersSchema.js';
+import User from '../models/usuarioSchema.js';
 import PasswordReset from '../models/passwordResetSchema.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';

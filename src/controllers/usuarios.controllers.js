@@ -1,236 +1,322 @@
-import generarToken from "../auth/token-sign.js";
-import User from "../models/usersSchema.js";
+import Usuario from "../models/usuarioSchema.js";
 import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
+import generarToken from "../auth/token-sign.js";
 
+/**
+ * Obtener todos los usuarios
+ * GET /api/usuarios
+ */
 export const obtenerUsuarios = async (req, res) => {
-  // Lógica para obtener usuarios
-
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const usuarios = await Usuario.find()
+      .select('-password')
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json(usuarios);
   } catch (error) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.error(error);
-      res.status(404).json({ errores: errors.array });
-    }
+    console.error('Error al obtener usuarios:', error);
+    res.status(500).json({ 
+      mensaje: 'Error interno del servidor al obtener usuarios' 
+    });
   }
 };
 
+/**
+ * Crear un nuevo usuario
+ * POST /api/usuarios
+ */
 export const crearUsuario = async (req, res) => {
   try {
-    const usuarioNuevo = new User(req.body);
-    const salt = bcrypt.genSaltSync();
-    usuarioNuevo.password = bcrypt.hashSync(usuarioNuevo.password, salt);
-    await usuarioNuevo.save();
-    res.status(201).json({
-      mensaje: "El usuario fué creado.",
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al crear usuario",
-    });
-  }
-};
-
-// Controlador específico para registro público (siempre crea usuarios con rol 'user')
-export const registrarUsuario = async (req, res) => {
-  try {
-    // Validar que todos los campos requeridos estén presentes
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
-      return res.status(400).json({
-        mensaje: "Todos los campos son requeridos (username, email, password)"
-      });
+    // Validar datos
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errores: errors.array() });
     }
 
-    // Verificar si el usuario ya existe
-    const usuarioExistente = await User.findOne({ email: req.body.email });
+    // Verificar si el email ya existe
+    const usuarioExistente = await Usuario.findOne({ email: req.body.email });
     if (usuarioExistente) {
       return res.status(400).json({
         mensaje: "El correo electrónico ya está registrado",
       });
     }
 
-    // Crear usuario con rol forzado a 'user' (no se permite desde el frontend)
-    const usuarioNuevo = new User({
-      username: req.body.username,
-      email: req.body.email,
-      password: req.body.password,
-      role: 'user' // Siempre 'user' para registro público
-    });
+    // Verificar si el DNI ya existe
+    const dniExistente = await Usuario.findOne({ dni: req.body.dni });
+    if (dniExistente) {
+      return res.status(400).json({
+        mensaje: "El DNI ya está registrado",
+      });
+    }
+
+    // Crear usuario
+    const usuarioNuevo = new Usuario(req.body);
     
-    const salt = bcrypt.genSaltSync();
+    // Hashear password
+    const salt = bcrypt.genSaltSync(10);
     usuarioNuevo.password = bcrypt.hashSync(usuarioNuevo.password, salt);
+    
     await usuarioNuevo.save();
     
     res.status(201).json({
-      mensaje: "Usuario registrado exitosamente. Ya puedes iniciar sesión.",
-      user: {
-        username: usuarioNuevo.username,
+      mensaje: "Usuario creado exitosamente",
+      usuario: {
+        id: usuarioNuevo._id,
+        nombre: usuarioNuevo.nombre,
+        apellido: usuarioNuevo.apellido,
         email: usuarioNuevo.email,
-        role: usuarioNuevo.role
+        rol: usuarioNuevo.rol
       }
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error al crear usuario:', error);
     res.status(500).json({
-      mensaje: "Error interno del servidor al registrar usuario",
+      mensaje: "Error interno del servidor al crear usuario",
     });
   }
 };
 
+/**
+ * Obtener un usuario por ID
+ * GET /api/usuarios/:id
+ */
 export const obtenerUnUsuario = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
-    if (!user) {
+    const usuario = await Usuario.findById(req.params.id).select('-password');
+    
+    if (!usuario) {
       return res.status(404).json({
         mensaje: "Usuario no encontrado",
       });
     }
-    res.status(200).json(user);
+    
+    res.status(200).json(usuario);
   } catch (error) {
-    console.error(error);
+    console.error('Error al obtener usuario:', error);
     res.status(500).json({
       mensaje: "Error interno del servidor al obtener el usuario",
     });
   }
 };
 
-
+/**
+ * Actualizar un usuario
+ * PUT /api/usuarios/:id
+ */
 export const actualizarUsuario = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, req.body);
-    res.status(200).json({
-      mensaje: "Se actualizo correctamente el usuario",
-    });
-  } catch {
-    error;
-  }
-  {
-    console.log(error);
-    res.status(400).json({
-      mensaje: "No se editar el usuario",
-    });
-  }
-};
+    // Validar datos
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errores: errors.array() });
+    }
 
-export const eliminarUsuario = async (req, res) => {
-  try {
-    await User.findByIdAndDelete(req.params.id);
+    // Si se envía password, hashearlo
+    if (req.body.password) {
+      const salt = bcrypt.genSaltSync(10);
+      req.body.password = bcrypt.hashSync(req.body.password, salt);
+    }
+
+    const usuarioActualizado = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!usuarioActualizado) {
+      return res.status(404).json({
+        mensaje: "Usuario no encontrado",
+      });
+    }
+
     res.status(200).json({
-      mensaje: "Usuario eliminado correctamente",
+      mensaje: "Usuario actualizado correctamente",
+      usuario: usuarioActualizado
     });
   } catch (error) {
-    res.status(404).json({
-      mensaje: "Error al eliminar el usuario",
+    console.error('Error al actualizar usuario:', error);
+    
+    if (error.code === 11000) {
+      return res.status(400).json({
+        mensaje: "El email o DNI ya está registrado",
+      });
+    }
+    
+    res.status(500).json({
+      mensaje: "Error interno del servidor al actualizar usuario",
     });
   }
 };
 
+/**
+ * Eliminar un usuario (borrado lógico)
+ * DELETE /api/usuarios/:id
+ */
+export const eliminarUsuario = async (req, res) => {
+  try {
+    // Borrado lógico: marcar como inactivo
+    const usuarioEliminado = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      { activo: false },
+      { new: true }
+    ).select('-password');
 
+    if (!usuarioEliminado) {
+      return res.status(404).json({
+        mensaje: "Usuario no encontrado",
+      });
+    }
+
+    res.status(200).json({
+      mensaje: "Usuario desactivado correctamente",
+      usuario: usuarioEliminado
+    });
+  } catch (error) {
+    console.error('Error al eliminar usuario:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor al eliminar usuario",
+    });
+  }
+};
+
+/**
+ * Login de usuario
+ * POST /api/auth/login
+ */
 export const login = async (req, res) => {
   try {
-    console.log('🔍 Inicio del proceso de login');
-    console.log('📧 Request body:', req.body);
-    
     const { email, password } = req.body;
     
-    console.log('📧 Email recibido:', email);
-    console.log('🔑 Password recibido:', password ? 'Sí se recibió password' : 'No se recibió password');
-    
+    // Validar datos
+    if (!email || !password) {
+      return res.status(400).json({
+        mensaje: "Email y contraseña son requeridos"
+      });
+    }
+
     // Buscar usuario por email
-    console.log('🔍 Buscando usuario en la base de datos...');
-    let usuario = await User.findOne({ email });
-    console.log('👤 Usuario encontrado:', usuario ? `Sí - ID: ${usuario._id}` : 'No');
+    const usuario = await Usuario.findOne({ email });
     
     if (!usuario) {
-      console.log('❌ Usuario no encontrado con email:', email);
       return res.status(404).json({
-        mensaje: "Correo o password invalido (correo)",
+        mensaje: "Correo o contraseña inválidos",
       });
     }
 
-    console.log('🔑 Verificando password...');
-    console.log('🔑 Password del usuario en BD (hash):', usuario.password);
-    console.log('🔑 Password del request:', password);
-    
+    // Verificar si el usuario está activo
+    if (!usuario.activo) {
+      return res.status(403).json({
+        mensaje: "Usuario desactivado. Contacte al administrador",
+      });
+    }
+
+    // Verificar password
     const passwordValido = bcrypt.compareSync(password, usuario.password);
-    console.log('✅ Password válido:', passwordValido);
 
     if (!passwordValido) {
-      console.log('❌ Password inválido');
       return res.status(404).json({
-        mensaje: "Correo o password invalido (password)",
+        mensaje: "Correo o contraseña inválidos",
       });
     }
 
-    console.log('🎫 Generando token...');
-    const token = await generarToken(usuario._id, usuario.username, usuario.role);
-    console.log('🎫 Token generado:', token ? 'Sí' : 'No');
+    // Actualizar último acceso
+    usuario.ultimoAcceso = new Date();
+    await usuario.save();
 
-    console.log('🍪 Configurando cookie...');
-    res.cookie('jwt',token,{
-      httpOnly:true,
-      sameSite:true,
-      maxAge: 3600000 //1 hora
+    // Generar token
+    const token = await generarToken(usuario._id, usuario.nombre, usuario.rol);
+
+    // Configurar cookie
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 3600000 // 1 hora
     });
 
-    console.log('✅ Login exitoso, enviando respuesta...');
     res.status(200).json({
       mensaje: "Login exitoso",
-      user: {
-        id: usuario._id, // Agregar el ID del usuario
-        username: usuario.username,
+      usuario: {
+        id: usuario._id,
+        nombre: usuario.nombre,
+        apellido: usuario.apellido,
         email: usuario.email,
-        role: usuario.role,
-        preferences: usuario.preferences
+        rol: usuario.rol,
+        nombreCompleto: usuario.nombreCompleto
       }
     });
   } catch (error) {
-    console.error('💥 Error en login:', error);
-    console.error('💥 Stack trace:', error.stack);
+    console.error('Error en login:', error);
     res.status(500).json({
-      mensaje: "Error al loguear el usuario",
+      mensaje: "Error al iniciar sesión",
       error: error.message
     });
   }
 };
-
-
-
-
+/**
+ * Obtener información del usuario autenticado
+ * GET /api/auth/me
+ */
 export const getMe = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await User.findById(userId).select('username email role preferences');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const usuario = await Usuario.findById(userId).select('-password');
+    
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
 
     res.json({
-      id: userId, // Agregar el ID del usuario
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      preferences: user.preferences
+      id: usuario._id,
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+      email: usuario.email,
+      rol: usuario.rol,
+      nombreCompleto: usuario.nombreCompleto,
+      dni: usuario.dni,
+      telefono: usuario.telefono,
+      direccion: usuario.direccion
     });
-  } catch (err) {
-    console.error('Error in /me:', err);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error) {
+    console.error('Error en /me:', error);
+    res.status(500).json({ mensaje: 'Error del servidor' });
   }
-}
+};
 
-
-
+/**
+ * Logout de usuario
+ * POST /api/auth/logout
+ */
 export const logout = (req, res) => {
-  res.cookie('jwt','',{
-    httpOnly:true,
-    sameSite:true,
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    sameSite: 'strict',
     expires: new Date(0)
-  })
+  });
+  
   res.status(200).json({
     mensaje: "Logout exitoso"
-  })
-}
+  });
+};
+
+/**
+ * Obtener usuarios por rol
+ * GET /api/usuarios/rol/:rol
+ */
+export const obtenerUsuariosPorRol = async (req, res) => {
+  try {
+    const { rol } = req.params;
+    
+    const usuarios = await Usuario.find({ rol, activo: true })
+      .select('-password')
+      .sort({ nombre: 1 });
+    
+    res.status(200).json(usuarios);
+  } catch (error) {
+    console.error('Error al obtener usuarios por rol:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor",
+    });
+  }
+};
