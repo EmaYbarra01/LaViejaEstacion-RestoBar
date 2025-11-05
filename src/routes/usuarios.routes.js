@@ -1,45 +1,43 @@
-import {Router} from 'express';
-import { obtenerUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, obtenerUnUsuario, login, logout, getMe, registrarUsuario  } from '../controllers/users.controllers';
+import { Router } from 'express';
+import {
+    obtenerUsuarios,
+    obtenerUnUsuario,
+    obtenerUsuariosPorRol,
+    crearUsuario,
+    actualizarUsuario,
+    eliminarUsuario,
+    activarDesactivarUsuario,
+    cambiarPassword,
+    obtenerPerfil
+} from '../controllers/usuarios.controllers.js';
 import validarUsuario from '../helpers/validarUsuario.js';
 import verificarToken from '../auth/token-verify.js';
 import verificarRol from '../auth/verificar-rol.js';
 
-
 const router = Router();
 
-router.route('/users')
-    .get(verificarToken, obtenerUsuarios)  // Proteger GET
-    .post(validarUsuario, crearUsuario);   // Crear usuario no necesita token
+/**
+ * Rutas de Usuarios para La Vieja Estación - RestoBar
+ * Implementa: HU12, RN5, RF6
+ */
 
-router.route('/users/:id')
-    .get(verificarToken, obtenerUnUsuario)      // Proteger GET
-    .patch(verificarToken, actualizarUsuario)   // Proteger PATCH
-    .delete(verificarToken, eliminarUsuario);   // Proteger DELETE
+// Rutas de consulta (protegidas)
+router.get('/usuarios', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerUsuarios);
+router.get('/usuarios/rol/:rol', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerUsuariosPorRol);
+router.get('/usuarios/perfil', verificarToken, obtenerPerfil); // Usuario obtiene su propio perfil
+router.get('/usuarios/:id', verificarToken, obtenerUnUsuario);
 
-router.route('/login')
-    .post(login);  // Login no necesita token (obviamente)
+// HU12: Crear, editar usuarios y asignar roles (Solo Administrador y Gerente)
+router.post('/usuarios', verificarToken, verificarRol(['Administrador', 'Gerente']), validarUsuario, crearUsuario);
+router.put('/usuarios/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), validarUsuario, actualizarUsuario);
 
-// Ruta pública para registro (siempre crea usuarios con rol 'user')
-router.route('/register')
-    .post(validarUsuario, registrarUsuario);
+// Eliminar usuario (Solo Administrador)
+router.delete('/usuarios/:id', verificarToken, verificarRol(['Administrador']), eliminarUsuario);
 
-// Ruta para verificar si el token es válido (para el frontend)
-router.route('/verify')
-    .get(verificarToken, (req, res) => {
-        res.status(200).json({
-            success: true,
-            user: {
-                id: req.user.id,
-                username: req.user.username,
-                role: req.user.role
-            }
-        });
-    });
+// HU12: Activar/desactivar usuario
+router.patch('/usuarios/:id/estado', verificarToken, verificarRol(['Administrador', 'Gerente']), activarDesactivarUsuario);
 
- router.route('/logout')
-    .post(verificarToken, logout); // Proteger logout
-
- router.route('/me')    
-    .get(verificarToken, getMe);
+// Cambiar contraseña (el usuario puede cambiar la suya propia o admin puede cambiar cualquiera)
+router.patch('/usuarios/:id/password', verificarToken, cambiarPassword);
 
 export default router;    
