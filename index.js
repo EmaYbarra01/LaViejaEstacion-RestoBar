@@ -3,8 +3,12 @@ import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+// import swaggerUi from 'swagger-ui-express';
 import 'dotenv/config';
 import './src/database/dbConnection.js';
+
+// Swagger config con require (CommonJS)
+// const swaggerSpec = require('./src/config/swagger.config.js');
 
 // Rutas de autenticación
 import authRoutes from './src/routes/auth.routes.js';
@@ -36,6 +40,19 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// TODO: Documentación de API con Swagger - Configurar después de resolver dependencias
+// app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+//   customCss: '.swagger-ui .topbar { display: none }',
+//   customSiteTitle: 'RestoBar API Docs',
+//   customfavIcon: '/favicon.ico'
+// }));
+
+// Swagger JSON endpoint
+// app.get('/docs.json', (req, res) => {
+//   res.setHeader('Content-Type', 'application/json');
+//   res.send(swaggerSpec);
+// });
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);

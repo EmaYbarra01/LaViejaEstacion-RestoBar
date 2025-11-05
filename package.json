@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_ENV=test jest",
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage",
+    "test:verbose": "cross-env NODE_ENV=test jest --verbose",
     "dev": "nodemon --exec babel-node index.js",
     "init-db": "node scripts/initDB.js"
   },
@@ -14,12 +17,15 @@
   "type": "commonjs",
   "devDependencies": {
     "@babel/node": "^7.28.0",
-    "nodemon": "^3.1.10"
+    "@babel/preset-env": "^7.28.5",
+    "cross-env": "^10.1.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
   },
   "dependencies": {
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.3",
-    "@babel/preset-env": "^7.28.3",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
@@ -32,6 +38,8 @@
     "mongodb": "^6.19.0",
     "mongoose": "^8.18.0",
     "morgan": "^1.10.1",
-    "nodemailer": "^7.0.9"
+    "nodemailer": "^7.0.9",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }
