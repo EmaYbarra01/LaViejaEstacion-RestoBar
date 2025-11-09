@@ -1,33 +1,38 @@
 import React from 'react';
+import './ProductCard.css'; 
+import { getAllProducts } from '../../helpers/queriesProductos';
+import { useState, useEffect } from 'react';
 
-const ProductCard = ({ product }) => {
+const ProductCard = () => {
+
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        loadProducts();
+    }, []);
+
+    const loadProducts = async () => {
+        try {
+            const productsData = await getAllProducts();
+            setProducts(productsData);
+        } catch (err) {
+            console.error('Error loading products:', err);
+        }
+    };
+
+    
     return (
-        <div className="card h-100 shadow-lg">
-            <img
-                src={product.image || '/assets/sample-food.svg'}
-                alt={product.name || 'Producto'}
-                className="card-img-top rounded-top"
-                style={{ height: '180px', objectFit: 'cover' }}
-            />
-            <div className="card-body d-flex flex-column">
-                <h3 className="card-title text-center fw-bold mb-2">{product.name || 'Producto'}</h3>
-                {product.description && (
-                    <p className="card-text text-center text-secondary mb-2">
-                        {product.description}
-                    </p>
-                )}
-                {product.preparation && (
-                    <p className="card-text text-center mb-2">
-                        <span className="fw-semibold">Preparación:</span> {product.preparation}
-                    </p>
-                )}
-                <div className="mt-auto d-flex justify-content-between align-items-center">
-                    <span className="fw-bold text-warning fs-5">
-                        ${product.price || '-'}
-                    </span>
-                </div>
+
+        products.map(product => (
+            <div className='card' key={product.id}>
+                <img src={product.imgUrl} alt={product.name} />
+                <h3>{product.name}</h3>
+                <p>Codigo: {product.code}</p>
+                <p>Precio: ${product.price}</p>
             </div>
-        </div>
+        ))
+
+
     );
 };
 

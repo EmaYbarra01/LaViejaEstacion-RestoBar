@@ -44,6 +44,26 @@ const ProductFormModal = (props) => {
                         <TextField
                             fullWidth
                             margin="dense"
+                            name="stock"
+                            label="Stock"
+                            type="number"
+                            value={form.stock}
+                            onChange={handleChange}
+                            required
+                            inputProps={{ min: 0 }}
+                        />
+                        <TextField
+                            fullWidth
+                            margin="dense"
+                            name="category"
+                            label="Categoría"
+                            value={form.category}
+                            onChange={handleChange}
+                            placeholder="Ej: Smartphones, Laptops, Audio"
+                        />
+                        <TextField
+                            fullWidth
+                            margin="dense"
                             name="imgUrl"
                             label="URL de Imagen"
                             value={form.imgUrl}

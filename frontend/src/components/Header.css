@@ -6,6 +6,7 @@
   top: 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
+  min-height: 80px; /* Altura mínima para evitar saltos */
 }
 
 .nav-container {
@@ -13,10 +14,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  max-width: 1200px;
+  max-width: 1400px; /* Aumentado para dar más espacio */
   margin: 0 auto;
   flex-wrap: wrap;
   gap: 1rem;
+  min-height: 80px; /* Mantener altura consistente */
 }
 
 /* Brand */
@@ -39,6 +41,8 @@
   gap: 0.5rem;
   flex-wrap: wrap;
   align-items: center;
+  flex: 1; /* Tomar espacio disponible */
+  justify-content: center; /* Centrar los enlaces */
 }
 
 .nav-link {
@@ -111,6 +115,7 @@
   align-items: center;
   gap: 1rem;
   flex-shrink: 0;
+  white-space: nowrap; /* Evitar saltos de línea */
 }
 
 .user-welcome {
@@ -173,6 +178,101 @@
   box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
 }
 
+/* Botones del Nav (Carrito y Ventas) */
+.nav-button {
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.nav-button:hover::before {
+  left: 100%;
+}
+
+.sales-button {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sales-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cart-button {
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cart-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cart-icon {
+  font-size: 1.2rem;
+}
+
+.cart-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cart-count {
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.cart-total {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .nav-container {
@@ -198,6 +298,12 @@
     font-size: 1.5rem;
     text-align: center;
   }
+  
+  .cart-button,
+  .sales-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -206,7 +312,8 @@
     width: 100%;
   }
   
-  .nav-link {
+  .nav-link,
+  .nav-button {
     width: 100%;
     text-align: center;
     justify-content: center;
@@ -230,12 +337,20 @@
 }
 
 .nav-link,
-.logout-btn {
-  animation: fadeIn 0.5s ease-out;
+.nav-button,
+.logout-btn,
+.nav-user {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Prevenir cambios de layout cuando aparecen/desaparecen elementos */
+.nav-container {
+  transition: all 0.3s ease;
 }
 
 /* Focus states for accessibility */
 .nav-link:focus,
+.nav-button:focus,
 .logout-btn:focus {
   outline: 2px solid rgba(255, 255, 255, 0.6);
   outline-offset: 2px;
@@ -243,6 +358,7 @@
 
 /* Hover effects for better UX */
 .nav-link:hover,
+.nav-button:hover,
 .logout-btn:hover {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }

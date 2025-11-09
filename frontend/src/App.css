@@ -14,12 +14,41 @@ html {
   flex-direction: column;
 }
 
+/* Comentado: estos estilos están causando conflicto con Header.css
 header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 60px; /* Ajusta la altura según tu diseño */
+  height: 60px;
+  background: #222;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  h1 {
+    margin-right: 3rem;
+  }
+  a {
+    color: #fff;
+    background-color: #222;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 1.2rem;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+  }
+/* Comentado: estos estilos están causando conflicto con Header.css
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
   background: #222;
   color: #fff;
   display: flex;
@@ -43,9 +72,8 @@ header {
   }
   #logout-btn {
     margin-left: auto;
-
     padding: 10px 20px;
-    background-color: #f00; /* Rojo para el botón de logout */
+    background-color: #f00;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -53,10 +81,11 @@ header {
     transition: background-color 0.3s;
   }
 }
+*/
 
 .main-content {
   flex: 1;
-  margin-top: 60px; /* Igual a la altura del header */
+  padding-top: 20px; /* Espacio para el header sticky */
   margin-bottom: 50px; /* Igual a la altura del footer */
 }
 

@@ -8,7 +8,10 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Table,
 } from "@mui/material";
+import Swal from 'sweetalert2';
+import "./AdminPage.css";
 
 const Users = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -52,16 +55,33 @@ const Users = () => {
           users.map((user) => (user.id === form.id ? updatedUser : user))
         );
         setOpenModal(false);
-        alert("Usuario actualizado correctamente");
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Actualizado!',
+          text: 'Usuario actualizado correctamente',
+          confirmButtonColor: '#667eea',
+          timer: 2000
+        });
       } else {
         const newUser = await createUser(form);
         setUsers([...users, newUser]);
         setOpenModal(false);
-        alert("Usuario agregado correctamente");
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Creado!',
+          text: 'Usuario agregado correctamente',
+          confirmButtonColor: '#667eea',
+          timer: 2000
+        });
       }
     } catch (err) {
       console.error("Error submitting user:", err);
-      alert("Error al procesar el usuario");
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.mensaje || 'Error al procesar el usuario',
+        confirmButtonColor: '#667eea'
+      });
     }
   };
 
@@ -80,35 +100,63 @@ const Users = () => {
   };
 
   const handleDeleteUser = async (id) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esta acción",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#667eea',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteUser(id);
         setUsers(users.filter((user) => user.id !== id));
-        alert("Usuario eliminado correctamente");
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Eliminado!',
+          text: 'Usuario eliminado correctamente',
+          confirmButtonColor: '#667eea',
+          timer: 2000
+        });
       } catch (err) {
         console.error("Error deleting user:", err);
-        alert("Error al eliminar el usuario");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al eliminar el usuario',
+          confirmButtonColor: '#667eea'
+        });
       }
     }
   };
   return (
-    <>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => {
-          setIsEdit(false);
-          setForm({
-            name: "",
-            email: "",
-            role: "",
-            password: "",
-          });
-          handleOpenModal();
-        }}
-      >
-        Crear
-      </Button>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1 className="admin-page-title">
+          👥 Gestión de Usuarios
+        </h1>
+        <Button
+          variant="contained"
+          className="create-button"
+          onClick={() => {
+            setIsEdit(false);
+            setForm({
+              name: "",
+              email: "",
+              role: "",
+              password: "",
+            });
+            handleOpenModal();
+          }}
+        >
+          ➕ Crear Usuario
+        </Button>
+      </div>
+
       <UserFormModal
         form={form}
         handleChange={handleChange}
@@ -118,43 +166,58 @@ const Users = () => {
         onClose={handleCloseModal}
       />
 
-      <h1>Usuarios</h1>
-      <TableContainer>
-        <TableHead>
-          <TableRow>
-            <TableCell>Nombre</TableCell>
-            <TableCell>Correo Electronico</TableCell>
-            <TableCell>Rol</TableCell>
-            <TableCell>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.role}</TableCell>
-              <TableCell>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleEditUser(user)}
-                >
-                  Editar
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleDeleteUser(user.id)}
-                >
-                  Eliminar
-                </Button>
-              </TableCell>
+      <TableContainer className="admin-table-container">
+        <Table className="admin-table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Correo Electrónico</TableCell>
+              <TableCell>Rol</TableCell>
+              <TableCell>Acciones</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
+          </TableHead>
+          <TableBody>
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="empty-table">
+                  No hay usuarios registrados
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <span className={`role-badge ${user.role}`}>
+                      {user.role}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="action-buttons">
+                      <Button
+                        variant="contained"
+                        className="edit-button"
+                        onClick={() => handleEditUser(user)}
+                      >
+                        ✏️ Editar
+                      </Button>
+                      <Button
+                        variant="contained"
+                        className="delete-button"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        🗑️ Eliminar
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </TableContainer>
-    </>
+    </div>
   );
 };
 
