@@ -1,0 +1,33 @@
+#variables de entorno
+.env
+.env.*
+
+#dependencias de node
+.vscode
+node_modules
+
+#configuraciones de vscode
+.vscode/*
+!.vscode/extensions.json
+
+#archivos de build
+dist
+coverage
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+.idea
+*.sublime-workspace
+*.sublime-project
+*.tgz
+*.swp
+*.bak
+*.tmp
+*.local
+*.test.*
+debug/
+out/
