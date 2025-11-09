@@ -1,0 +1,79 @@
+/* App.css */
+
+body,
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root,
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px; /* Ajusta la altura según tu diseño */
+  background: #222;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  h1 {
+    margin-right: 3rem;
+  }
+  a {
+    color: #fff;
+    background-color: #222;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 1.2rem;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+  }
+  #logout-btn {
+    margin-left: auto;
+
+    padding: 10px 20px;
+    background-color: #f00; /* Rojo para el botón de logout */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+}
+
+.main-content {
+  flex: 1;
+  margin-top: 60px; /* Igual a la altura del header */
+  margin-bottom: 50px; /* Igual a la altura del footer */
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px; /* Ajusta la altura según tu diseño */
+  background: #222;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+nav{
+  background-color: #f00;
+}

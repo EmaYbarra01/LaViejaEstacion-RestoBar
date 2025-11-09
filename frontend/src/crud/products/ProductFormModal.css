@@ -1,0 +1,28 @@
+/* Estilos para el modal de productos */
+#product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#product-form .MuiTextField-root {
+    margin-bottom: 0.5rem;
+}
+
+.product-form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+/* Estilos adicionales para mejorar la presentación */
+.MuiDialog-paper {
+    padding: 1rem;
+}
+
+.MuiDialogTitle-root {
+    text-align: center;
+    font-weight: bold;
+    color: #1976d2;
+}

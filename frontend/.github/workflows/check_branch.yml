@@ -1,0 +1,14 @@
+name: 'Check Branch'
+
+on:
+  pull_request:
+
+jobs:
+  check_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch
+        if: ${{ github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref != 'dev' }}
+        run: |
+          echo "🚫 ERROR: Solo se permite merge a main desde dev."
+          exit 1
