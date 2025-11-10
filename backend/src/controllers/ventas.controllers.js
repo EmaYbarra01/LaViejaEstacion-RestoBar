@@ -1,6 +1,6 @@
 import Sale from '../models/salesSchema.js';
-import Product from '../models/productsSchema.js';
-import User from '../models/usersSchema.js';
+import Product from '../models/productoSchema.js';
+import User from '../models/usuarioSchema.js';
 
 // Función helper para transformar el formato de las ventas
 const transformSaleFormat = (sale) => {

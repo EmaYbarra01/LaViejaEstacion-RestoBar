@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 /**
  * Schema de Cierre de Caja para La Vieja Estación - RestoBar
@@ -483,4 +483,4 @@ cierreCajaSchema.virtual('tipoDiferencia').get(function() {
 cierreCajaSchema.set('toJSON', { virtuals: true });
 cierreCajaSchema.set('toObject', { virtuals: true });
 
-module.exports = mongoose.model('CierreCaja', cierreCajaSchema);
+export default mongoose.model('CierreCaja', cierreCajaSchema);

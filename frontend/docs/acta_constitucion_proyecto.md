@@ -9,7 +9,7 @@
 **Integrantes:**  
 - 👩‍💻 Argüello, Silvia Patricia — Legajo 61998  
 - 👨‍💻 De la Cruz, Cristian Germán — Legajo 62070  
-- 👨‍💻 Sanagua, Benjamín Edgardo — Legajo 62  
+- 👨‍💻 Sanagua, Benjamín Edgardo — Legajo 62417  
 - 👨‍💻 Ybarra, Carlos Emanuel — Legajo 62181  
 
 **Roles:**  

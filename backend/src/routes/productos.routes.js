@@ -3,14 +3,15 @@ import {
     obtenerProductos,
     obtenerUnProducto,
     obtenerProductosPorCategoria,
-    obtenerProductosDisponibles,
-    obtenerProductosConBajoStock,
+    obtenerProductosParaReposicion,
     crearProducto,
     actualizarProducto,
     eliminarProducto,
-    activarDesactivarProducto,
     actualizarStock,
-    buscarProductos
+    cambiarDisponibilidad
+    // TODO: Implementar estas funciones en productos.controllers.js
+    // obtenerProductosDisponibles (para menú público),
+    // buscarProductos
 } from '../controllers/productos.controllers.js';
 import validarProducto from '../helpers/validarProducto.js';
 import verificarToken from '../auth/token-verify.js';
@@ -30,8 +31,9 @@ router.get('/productos/menu/categoria/:categoria', obtenerProductosPorCategoria)
 
 // Rutas protegidas - Consulta (Mozo, Cajero, Cocina, Gerente, Admin)
 router.get('/productos', verificarToken, obtenerProductos);
-router.get('/productos/buscar', verificarToken, buscarProductos);
-router.get('/productos/bajo-stock', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerProductosConBajoStock);
+// TODO: Implementar buscarProductos
+// router.get('/productos/buscar', verificarToken, buscarProductos);
+router.get('/productos/bajo-stock', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerProductosParaReposicion);
 router.get('/productos/:id', verificarToken, obtenerUnProducto);
 
 // Rutas protegidas - Gestión (Solo Administrador y Gerente)
@@ -41,7 +43,7 @@ router.put('/productos/:id', verificarToken, verificarRol(['Administrador', 'Ger
 router.delete('/productos/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), eliminarProducto);
 
 // HU10: Activar/desactivar productos en tiempo real
-router.patch('/productos/:id/disponibilidad', verificarToken, verificarRol(['Administrador', 'Gerente']), activarDesactivarProducto);
+router.patch('/productos/:id/disponibilidad', verificarToken, verificarRol(['Administrador', 'Gerente']), cambiarDisponibilidad);
 
 // Actualizar stock (Administrador, Gerente)
 router.patch('/productos/:id/stock', verificarToken, verificarRol(['Administrador', 'Gerente']), actualizarStock);

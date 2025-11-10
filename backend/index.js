@@ -5,8 +5,16 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import './src/database/dbConnection.js';
-import userRoutes from './src/routes/users.routes.js';
-import productRoutes from './src/routes/products.routes.js';
+
+// Importar todas las rutas del sistema
+import authRoutes from './src/routes/auth.routes.js';
+import usuariosRoutes from './src/routes/usuarios.routes.js';
+import productosRoutes from './src/routes/productos.routes.js';
+import pedidosRoutes from './src/routes/pedidos.routes.js';
+import mesasRoutes from './src/routes/mesas.routes.js';
+import comprasRoutes from './src/routes/compras.routes.js';
+import cierreCajaRoutes from './src/routes/cierreCaja.routes.js';
+import reportesRoutes from './src/routes/reportes.routes.js';
 import salesRoutes from './src/routes/sales.routes.js';
 
 const app = express();
@@ -21,9 +29,52 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/api', userRoutes, productRoutes, salesRoutes );
+
+// Registrar todas las rutas bajo el prefijo /api
+app.use('/api', authRoutes);
+app.use('/api', usuariosRoutes);
+app.use('/api', productosRoutes);
+app.use('/api', pedidosRoutes);
+app.use('/api', mesasRoutes);
+app.use('/api', comprasRoutes);
+app.use('/api', cierreCajaRoutes);
+app.use('/api', reportesRoutes);
+app.use('/api', salesRoutes);
+
+// Ruta de bienvenida
+app.get('/', (req, res) => {
+  res.json({
+    mensaje: 'API La Vieja Estación RestoBar',
+    version: '1.0.0',
+    estado: 'Activo',
+    rutas_disponibles: {
+      auth: '/api/auth',
+      usuarios: '/api/usuarios',
+      productos: '/api/productos',
+      pedidos: '/api/pedidos',
+      mesas: '/api/mesas',
+      compras: '/api/compras',
+      cierreCaja: '/api/cierre-caja',
+      reportes: '/api/reportes',
+      sales: '/api/sales'
+    }
+  });
+});
+
+// Manejo de rutas no encontradas (404)
+app.use((req, res) => {
+  res.status(404).json({
+    mensaje: 'Ruta no encontrada',
+    ruta_solicitada: req.originalUrl
+  });
+});
+
+// Iniciar servidor
 app.set('port', process.env.PORT || 4000);
 app.listen(app.get('port'), () => {
-    console.log(`Servidor en el puerto ${app.get('port')}`);
+    console.log(`✅ Servidor activo en el puerto ${app.get('port')}`);
+    console.log(`🌐 URL: http://localhost:${app.get('port')}`);
+    console.log(`📚 API Docs: http://localhost:${app.get('port')}/api`);
 });

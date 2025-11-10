@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 /**
  * Schema de Producto para La Vieja Estación - RestoBar
@@ -87,6 +87,6 @@ productoSchema.virtual('necesitaReposicion').get(function() {
 productoSchema.set('toJSON', { virtuals: true });
 productoSchema.set('toObject', { virtuals: true });
 
-module.exports = mongoose.model('Producto', productoSchema);
+export default mongoose.model('Producto', productoSchema);
 
 // Exporta el modelo para usarlo en otros archivos
