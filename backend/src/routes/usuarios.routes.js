@@ -25,7 +25,7 @@ const router = Router();
 // Rutas de consulta (protegidas)
 router.get('/usuarios', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerUsuarios);
 router.get('/usuarios/rol/:rol', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerUsuariosPorRol);
-router.get('/usuarios/perfil', verificarToken, obtenerPerfil); // Usuario obtiene su propio perfil
+// router.get('/usuarios/perfil', verificarToken, obtenerPerfil); // TODO: Implementar obtenerPerfil en el controlador
 router.get('/usuarios/:id', verificarToken, obtenerUnUsuario);
 
 // HU12: Crear, editar usuarios y asignar roles (Solo Administrador y Gerente)
