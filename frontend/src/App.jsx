@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Reservas from "./pages/Reservas";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -58,6 +59,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/productos" element={<ProductList />} />
+          <Route path="/reservas" element={<Reservas />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

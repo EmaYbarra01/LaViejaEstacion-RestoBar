@@ -1,57 +1,107 @@
 #login-container {
-  width: 320px;
-  margin: 80px auto;
-  padding: 2rem 1.5rem;
-  border: 1.5px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  background: #fff;
+  width: 100%;
+  max-width: 420px;
+  margin: 120px auto 40px; /* Espacio para el header fijo */
+  padding: 3rem 2.5rem;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
 }
 
 #login-h2 {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 #login-form {
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 #login-form input {
-    position: relative;
-  padding: 0.7rem;
-  border: 1px solid #bbb;
-  border-radius: 5px;
+  position: relative;
+  padding: 1rem 1.2rem;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
   font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+#login-form input::placeholder {
+  color: #888;
+}
+
+#login-form input:focus {
+  outline: none;
+  border-color: #ffc107;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
 }
 
 #login-form button {
-  padding: 0.7rem;
-  background: #111;
-  color: #fff;
+  padding: 1rem;
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #000;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
 }
 
 #login-form button:hover {
-  background: #333;
+  background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+}
+
+#login-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 #toggle-password {
   position: absolute;
-  right: 10px;
+  right: 15px;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  color: #888;
+  color: #ffc107;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+#toggle-password:hover {
+  transform: translateY(-50%) scale(1.1);
 }
 
 #password-container {
@@ -67,12 +117,18 @@
 
 /* Estilos para el formulario de registro */
 .login-container {
-  min-height: calc(100vh - 160px);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+/* Contenedor del body para login */
+body:has(#login-container) {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  min-height: 100vh;
 }
 
 .login-paper {
@@ -138,6 +194,37 @@
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+  #login-container {
+    margin: 100px 20px 40px;
+    padding: 2rem 1.5rem;
+  }
+
+  #login-h2 {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #login-container {
+    margin: 80px 15px 30px;
+    padding: 1.5rem 1.2rem;
+  }
+
+  #login-h2 {
+    font-size: 1.4rem;
+  }
+
+  #login-form input {
+    padding: 0.85rem 1rem;
+  }
+
+  #login-form button {
+    padding: 0.85rem;
+  }
+}
+
+/* Responsive para otros elementos */
 @media (max-width: 600px) {
   .login-paper {
     margin: 1rem;

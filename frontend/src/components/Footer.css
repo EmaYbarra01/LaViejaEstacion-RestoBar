@@ -1,0 +1,96 @@
+/* Simple Footer Styles */
+.modern-footer {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  color: #e0e0e0;
+  padding: 40px 20px;
+  margin-top: 80px;
+  border-top: 3px solid #ffc107;
+}
+
+.footer-simple-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  text-align: center;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: center;
+}
+
+.footer-icon {
+  font-size: 2.5rem;
+  color: #ffc107;
+  filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.5));
+}
+
+.footer-brand h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.footer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-text p {
+  margin: 0;
+  color: #b0b0b0;
+  font-size: 0.95rem;
+}
+
+.footer-text p:last-child {
+  color: #ffc107;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modern-footer {
+    padding: 30px 15px;
+    margin-top: 60px;
+  }
+
+  .footer-brand {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-icon {
+    font-size: 2rem;
+  }
+
+  .footer-brand h3 {
+    font-size: 1.5rem;
+  }
+
+  .footer-text p {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-icon {
+    font-size: 1.8rem;
+  }
+
+  .footer-brand h3 {
+    font-size: 1.3rem;
+  }
+
+  .footer-text p {
+    font-size: 0.8rem;
+  }
+}

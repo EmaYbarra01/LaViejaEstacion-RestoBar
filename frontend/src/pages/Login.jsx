@@ -76,12 +76,15 @@ const handleSubmit = async (e) => {
             <h2 id='login-h2'>Login</h2>
             {(localError || error) && (
                 <div style={{ 
-                    color: 'red', 
-                    marginBottom: '10px', 
-                    padding: '8px', 
-                    border: '1px solid red', 
-                    borderRadius: '4px',
-                    backgroundColor: '#ffe6e6'
+                    color: '#ff6b6b', 
+                    marginBottom: '15px', 
+                    padding: '12px', 
+                    border: '1px solid rgba(255, 107, 107, 0.3)', 
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    width: '100%',
+                    textAlign: 'center',
+                    fontSize: '0.95rem'
                 }}>
                     {localError || error}
                 </div>
@@ -117,23 +120,29 @@ const handleSubmit = async (e) => {
                     {isLoading ? 'Ingresando...' : 'Ingresar'}
                 </button>
             </form>
-            <div style={{ textAlign: 'center', marginTop: '15px' }}>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
                 <Link 
                     to="/forgot-password" 
                     style={{ 
-                        color: '#667eea', 
+                        color: '#ffc107', 
                         textDecoration: 'none', 
                         fontSize: '14px',
-                        fontWeight: '500'
+                        fontWeight: '500',
+                        transition: 'color 0.3s ease'
                     }}
                 >
                     ¿Olvidaste tu contraseña?
                 </Link>
             </div>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <p style={{ color: '#666', fontSize: '14px' }}>
+                <p style={{ color: '#b0b0b0', fontSize: '14px', margin: 0 }}>
                     ¿No tienes cuenta?{' '}
-                    <Link to="/register" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '600' }}>
+                    <Link to="/register" style={{ 
+                        color: '#ffc107', 
+                        textDecoration: 'none', 
+                        fontWeight: '600',
+                        transition: 'color 0.3s ease'
+                    }}>
                         Regístrate aquí
                     </Link>
                 </p>
