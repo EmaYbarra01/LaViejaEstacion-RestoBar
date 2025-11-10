@@ -167,10 +167,81 @@ export const crearPedido = async (req, res) => {
 };
 
 /**
- * Actualizar estado de un pedido
- * PUT /api/pedidos/:id/estado
+ * Actualizar un pedido (antes de enviarlo a cocina)
+ * PUT /api/pedidos/:id
  */
-export const actualizarEstadoPedido = async (req, res) => {
+export const actualizarPedido = async (req, res) => {
+  try {
+    const { productos, observacionesGenerales } = req.body;
+    
+    const pedido = await Pedido.findById(req.params.id);
+    
+    if (!pedido) {
+      return res.status(404).json({
+        mensaje: "Pedido no encontrado"
+      });
+    }
+    
+    // Solo se puede actualizar si está en estado Pendiente
+    if (pedido.estado !== 'Pendiente') {
+      return res.status(400).json({
+        mensaje: "Solo se pueden actualizar pedidos en estado Pendiente"
+      });
+    }
+    
+    // Si se actualizan productos
+    if (productos && productos.length > 0) {
+      const productosActualizados = [];
+      for (let item of productos) {
+        const producto = await Producto.findById(item.producto);
+        
+        if (!producto) {
+          return res.status(404).json({
+            mensaje: `Producto ${item.producto} no encontrado`
+          });
+        }
+        
+        productosActualizados.push({
+          producto: producto._id,
+          nombre: producto.nombre,
+          cantidad: item.cantidad,
+          precioUnitario: producto.precio,
+          subtotal: producto.precio * item.cantidad,
+          observaciones: item.observaciones || ''
+        });
+      }
+      pedido.productos = productosActualizados;
+    }
+    
+    // Actualizar observaciones si se proporcionan
+    if (observacionesGenerales !== undefined) {
+      pedido.observacionesGenerales = observacionesGenerales;
+    }
+    
+    await pedido.save();
+    
+    const pedidoActualizado = await Pedido.findById(pedido._id)
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre categoria');
+    
+    res.status(200).json({
+      mensaje: "Pedido actualizado exitosamente",
+      pedido: pedidoActualizado
+    });
+  } catch (error) {
+    console.error('Error al actualizar pedido:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor al actualizar pedido"
+    });
+  }
+};
+
+/**
+ * Actualizar estado de un pedido (cambiar estado)
+ * PATCH /api/pedidos/:id/estado
+ */
+export const cambiarEstadoPedido = async (req, res) => {
   try {
     const { estado, observacion } = req.body;
     const userId = req.user?.id || req.userId;
@@ -213,9 +284,9 @@ export const actualizarEstadoPedido = async (req, res) => {
 
 /**
  * Registrar pago de un pedido
- * PUT /api/pedidos/:id/pago
+ * PATCH /api/pedidos/:id/pagar
  */
-export const registrarPagoPedido = async (req, res) => {
+export const registrarPago = async (req, res) => {
   try {
     const { metodoPago, montoPagado } = req.body;
     const cajeroId = req.user?.id || req.userId;
@@ -383,9 +454,9 @@ export const obtenerPedidosListos = async (req, res) => {
 
 /**
  * Obtener pedidos por cobrar (en caja)
- * GET /api/pedidos/por-cobrar
+ * GET /api/pedidos/caja/pendientes
  */
-export const obtenerPedidosPorCobrar = async (req, res) => {
+export const obtenerPedidosCaja = async (req, res) => {
   try {
     const pedidos = await Pedido.find({ estado: 'Servido' })
       .populate('mesa', 'numero')
@@ -401,3 +472,50 @@ export const obtenerPedidosPorCobrar = async (req, res) => {
     });
   }
 };
+
+/**
+ * Obtener pedidos por mesa
+ * GET /api/pedidos/mesa/:mesaId
+ */
+export const obtenerPedidosPorMesa = async (req, res) => {
+  try {
+    const { mesaId } = req.params;
+    
+    const pedidos = await Pedido.find({ mesa: mesaId })
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre categoria')
+      .sort({ fechaCreacion: -1 });
+    
+    res.status(200).json(pedidos);
+  } catch (error) {
+    console.error('Error al obtener pedidos por mesa:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener pedidos por mozo
+ * GET /api/pedidos/mozo/:mozoId
+ */
+export const obtenerPedidosPorMozo = async (req, res) => {
+  try {
+    const { mozoId } = req.params;
+    
+    const pedidos = await Pedido.find({ mozo: mozoId })
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre categoria')
+      .sort({ fechaCreacion: -1 });
+    
+    res.status(200).json(pedidos);
+  } catch (error) {
+    console.error('Error al obtener pedidos por mozo:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+

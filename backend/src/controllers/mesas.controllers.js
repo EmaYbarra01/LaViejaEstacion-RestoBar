@@ -231,17 +231,65 @@ export const cambiarEstadoMesa = async (req, res) => {
 };
 
 /**
- * Obtener mesas libres
+ * Obtener mesas libres/disponibles
  * GET /api/mesas/disponibles
  */
-export const obtenerMesasLibres = async (req, res) => {
+export const obtenerMesasDisponibles = async (req, res) => {
   try {
     const mesasLibres = await Mesa.find({ estado: 'Libre' })
       .sort({ numero: 1 });
     
     res.status(200).json(mesasLibres);
   } catch (error) {
-    console.error('Error al obtener mesas libres:', error);
+    console.error('Error al obtener mesas disponibles:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener mesas libres (alias)
+ * GET /api/mesas/libres
+ */
+export const obtenerMesasLibres = async (req, res) => {
+  return obtenerMesasDisponibles(req, res);
+};
+
+/**
+ * Obtener mesas por estado
+ * GET /api/mesas/estado/:estado
+ */
+export const obtenerMesasPorEstado = async (req, res) => {
+  try {
+    const { estado } = req.params;
+    
+    const mesas = await Mesa.find({ estado })
+      .sort({ numero: 1 });
+    
+    res.status(200).json(mesas);
+  } catch (error) {
+    console.error('Error al obtener mesas por estado:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener mesas por ubicación
+ * GET /api/mesas/ubicacion/:ubicacion
+ */
+export const obtenerMesasPorUbicacion = async (req, res) => {
+  try {
+    const { ubicacion } = req.params;
+    
+    const mesas = await Mesa.find({ ubicacion })
+      .sort({ numero: 1 });
+    
+    res.status(200).json(mesas);
+  } catch (error) {
+    console.error('Error al obtener mesas por ubicación:', error);
     res.status(500).json({
       mensaje: "Error interno del servidor"
     });
