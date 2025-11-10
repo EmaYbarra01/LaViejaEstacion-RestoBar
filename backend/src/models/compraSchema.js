@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 /**
  * Schema de Compra para La Vieja Estación - RestoBar
@@ -158,4 +158,4 @@ compraSchema.statics.obtenerSiguienteNumeroCompra = async function() {
     return ultima ? ultima.numeroCompra + 1 : 1;
 };
 
-module.exports = mongoose.model('Compra', compraSchema);
+export default mongoose.model('Compra', compraSchema);

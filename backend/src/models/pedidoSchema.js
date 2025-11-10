@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 /**
  * Schema de Pedido para La Vieja Estación - RestoBar
@@ -374,4 +374,4 @@ pedidoSchema.virtual('tiempoPreparacionReal').get(function() {
 pedidoSchema.set('toJSON', { virtuals: true });
 pedidoSchema.set('toObject', { virtuals: true });
 
-module.exports = mongoose.model('Pedido', pedidoSchema);
+export default mongoose.model('Pedido', pedidoSchema);

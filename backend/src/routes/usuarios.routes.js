@@ -5,10 +5,11 @@ import {
     obtenerUsuariosPorRol,
     crearUsuario,
     actualizarUsuario,
-    eliminarUsuario,
-    activarDesactivarUsuario,
-    cambiarPassword,
-    obtenerPerfil
+    eliminarUsuario
+    // TODO: Implementar estas funciones en usuarios.controllers.js
+    // activarDesactivarUsuario,
+    // cambiarPassword,
+    // obtenerPerfil
 } from '../controllers/usuarios.controllers.js';
 import validarUsuario from '../helpers/validarUsuario.js';
 import verificarToken from '../auth/token-verify.js';
@@ -34,10 +35,11 @@ router.put('/usuarios/:id', verificarToken, verificarRol(['Administrador', 'Gere
 // Eliminar usuario (Solo Administrador)
 router.delete('/usuarios/:id', verificarToken, verificarRol(['Administrador']), eliminarUsuario);
 
+// TODO: Implementar estas rutas cuando se implementen las funciones
 // HU12: Activar/desactivar usuario
-router.patch('/usuarios/:id/estado', verificarToken, verificarRol(['Administrador', 'Gerente']), activarDesactivarUsuario);
+// router.patch('/usuarios/:id/estado', verificarToken, verificarRol(['Administrador', 'Gerente']), activarDesactivarUsuario);
 
 // Cambiar contraseña (el usuario puede cambiar la suya propia o admin puede cambiar cualquiera)
-router.patch('/usuarios/:id/password', verificarToken, cambiarPassword);
+// router.patch('/usuarios/:id/password', verificarToken, cambiarPassword);
 
 export default router;    

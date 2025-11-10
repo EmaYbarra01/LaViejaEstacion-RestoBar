@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { obtenerVentas, obtenerVentasUsuario, crearVenta, obtenerUnaVenta } from "../controllers/sales.controllers.js";
+import { obtenerVentas, obtenerVentasUsuario, crearVenta, obtenerUnaVenta } from "../controllers/ventas.controllers.js";
 import verificarToken from "../auth/token-verify.js";
 import verificarRol from "../auth/verificar-rol.js";
 

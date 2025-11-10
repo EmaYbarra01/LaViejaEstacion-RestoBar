@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import {
-    login,
-    logout,
-    registro,
-    verificarToken as verificarTokenController,
     forgotPassword,
     resetPassword,
     verifyResetToken
 } from '../controllers/auth.controllers.js';
+import {
+    login,
+    logout,
+    getMe,
+    crearUsuario as registro
+} from '../controllers/usuarios.controllers.js';
 import { body } from 'express-validator';
 import resultadoValidacion from '../helpers/resultadoValidacion.js';
 import verificarToken from '../auth/token-verify.js';
@@ -60,7 +62,7 @@ router.post(
 );
 
 // GET /api/auth/verify - Verificar si el token es válido
-router.get('/verify', verificarToken, verificarTokenController);
+router.get('/verify', verificarToken, getMe);
 
 // POST /api/auth/forgot-password - Solicitar recuperación de contraseña
 router.post(

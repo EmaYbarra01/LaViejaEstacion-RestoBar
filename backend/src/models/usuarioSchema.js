@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 /**
  * Schema de Usuario para La Vieja Estación - RestoBar
@@ -81,4 +81,4 @@ usuarioSchema.set('toJSON', {
   }
 });
 
-module.exports = mongoose.model('Usuario', usuarioSchema);
+export default mongoose.model('Usuario', usuarioSchema);

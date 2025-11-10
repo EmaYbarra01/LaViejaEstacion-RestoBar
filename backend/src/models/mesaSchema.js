@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 /**
  * Schema de Mesa para La Vieja Estación - RestoBar
@@ -40,4 +40,4 @@ const mesaSchema = new Schema({
 mesaSchema.index({ numero: 1 });
 mesaSchema.index({ estado: 1 });
 
-module.exports = mongoose.model('Mesa', mesaSchema);
+export default mongoose.model('Mesa', mesaSchema);
