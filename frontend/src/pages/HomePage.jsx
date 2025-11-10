@@ -17,7 +17,7 @@ const HomePage = () => {
                 <h2 className="home-subtitle">Resto-Bar</h2>
                 <h1 className="home-title">LA VIEJA ESTACIÓN</h1>
                 <div className="home-divider"></div>
-                <p className="home-tagline">La Vieja Estación</p>
+                <p className="home-tagline">"Sabores que cuentan historias"</p>
                 <button className="home-cta-button" onClick={handleMenuClick}>
                     Ver Menú
                 </button>

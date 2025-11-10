@@ -4,11 +4,11 @@
   top: 0;
   left: 0;
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: transparent;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   z-index: 1000;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .header-container {
@@ -139,6 +139,36 @@
   box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
 }
 
+/* DateTime Display */
+.datetime-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.date-text {
+  color: #ffc107;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.time-text {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+}
+
 /* Mobile Menu Toggle */
 .mobile-menu-toggle {
   display: none;
@@ -207,6 +237,18 @@
     font-size: 0.85rem;
   }
 
+  .datetime-display {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .date-text {
+    font-size: 0.75rem;
+  }
+
+  .time-text {
+    font-size: 0.95rem;
+  }
+
   .social-icons {
     display: flex;
   }
@@ -224,6 +266,18 @@
   .purchase-btn {
     padding: 0.5rem 1.2rem;
     font-size: 0.8rem;
+  }
+
+  .datetime-display {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .date-text {
+    font-size: 0.65rem;
+  }
+
+  .time-text {
+    font-size: 0.85rem;
   }
 
   .social-icon {
