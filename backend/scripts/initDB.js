@@ -177,6 +177,7 @@ const productosData = [
         stockMinimo: 0,
         disponible: true,
         imagenUrl: 'backend/public/images/productos/milanesa napolitana.jpg'
+    },
     {
         nombre: 'Pizza Muzzarella',
         descripcion: 'Pizza grande de muzzarella (8 porciones)',
