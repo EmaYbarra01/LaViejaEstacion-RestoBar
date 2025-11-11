@@ -8,15 +8,17 @@
  * Uso: node scripts/initDB.js
  */
 
-const mongoose = require('mongoose');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 // Importar modelos
-const Usuario = require('../src/models/usuarioSchema');
-const Mesa = require('../src/models/mesaSchema');
-const Producto = require('../src/models/productoSchema');
-const Pedido = require('../src/models/pedidoSchema');
-const Compra = require('../src/models/compraSchema');
+import Usuario from '../src/models/usuarioSchema.js';
+import Mesa from '../src/models/mesaSchema.js';
+import Producto from '../src/models/productoSchema.js';
+import Pedido from '../src/models/pedidoSchema.js';
+import Compra from '../src/models/compraSchema.js';
+
+dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restobar_db';
 
@@ -268,15 +270,22 @@ async function initializeDatabase() {
 
         // Crear un pedido de ejemplo
         console.log('\n📋 Creando pedido de ejemplo...');
-        const mozo = usuarios.find(u => u.rol === 'Mozo');
+        const mozo = usuarios.find(u => u.rol === 'Mozo1' || u.rol === 'Mozo2');
         const mesa1 = mesas.find(m => m.numero === 1);
         const hamburguesaProducto = productos.find(p => p.nombre === 'Hamburguesa Completa');
         const cocaColaProducto = productos.find(p => p.nombre === 'Coca Cola 500ml');
+        
+        console.log('Mozo encontrado:', mozo ? mozo.nombre : 'NO ENCONTRADO');
+        console.log('Mesa encontrada:', mesa1 ? mesa1.numero : 'NO ENCONTRADA');
+        console.log('Hamburguesa encontrada:', hamburguesaProducto ? hamburguesaProducto.nombre : 'NO ENCONTRADA');
+        console.log('Coca Cola encontrada:', cocaColaProducto ? cocaColaProducto.nombre : 'NO ENCONTRADA');
 
         const pedidoEjemplo = new Pedido({
             numeroPedido: 1,
             mesa: mesa1._id,
+            numeroMesa: mesa1.numero,
             mozo: mozo._id,
+            nombreMozo: `${mozo.nombre} ${mozo.apellido}`,
             estado: 'Pendiente',
             productos: [
                 {
@@ -306,7 +315,7 @@ async function initializeDatabase() {
 
         // Crear una compra de ejemplo
         console.log('\n🛒 Creando compra de ejemplo...');
-        const admin = usuarios.find(u => u.rol === 'Administrador');
+        const admin = usuarios.find(u => u.rol === 'SuperAdministrador' || u.rol === 'Gerente');
 
         const compraEjemplo = new Compra({
             numeroCompra: 1,
@@ -373,16 +382,14 @@ async function initializeDatabase() {
 }
 
 // Ejecutar el script
-if (require.main === module) {
-    initializeDatabase()
-        .then(() => {
-            console.log('\n✅ Script completado exitosamente');
-            process.exit(0);
-        })
-        .catch((error) => {
-            console.error('\n❌ Error fatal:', error);
-            process.exit(1);
-        });
-}
+initializeDatabase()
+    .then(() => {
+        console.log('\n✅ Script completado exitosamente');
+        process.exit(0);
+    })
+    .catch((error) => {
+        console.error('\n❌ Error fatal:', error);
+        process.exit(1);
+    });
 
-module.exports = { initializeDatabase };
+export { initializeDatabase };
