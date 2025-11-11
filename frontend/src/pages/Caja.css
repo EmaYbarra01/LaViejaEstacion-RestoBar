@@ -1,0 +1,518 @@
+.caja-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.caja-container h1 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.caja-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+}
+
+/* Lista de pedidos pendientes */
+.pedidos-pendientes {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+}
+
+.pedidos-pendientes h2 {
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #27ae60;
+  font-size: 1.1em;
+}
+
+.pedidos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pedido-card {
+  background: #f8f9fa;
+  border: 2px solid #e1e8ed;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pedido-card:hover {
+  background: #fff;
+  border-color: #3498db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+}
+
+.pedido-card.selected {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+}
+
+.pedido-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.pedido-numero {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #2c3e50;
+}
+
+.estado-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.estado-badge.listo {
+  background: #d4edda;
+  color: #155724;
+}
+
+.estado-badge.servido {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.pedido-info p {
+  margin: 5px 0;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.pedido-total {
+  margin-top: 10px;
+  font-size: 1.1em !important;
+  color: #27ae60 !important;
+}
+
+/* Panel de cobro */
+.panel-cobro {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+}
+
+.empty-selection {
+  text-align: center;
+  padding: 80px 20px;
+  color: #7f8c8d;
+  font-size: 1.1em;
+}
+
+.pedido-detalle {
+  margin-bottom: 25px;
+}
+
+.info-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.pedido-detalle h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #34495e;
+}
+
+.productos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.productos-tabla th {
+  background: #f8f9fa;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.productos-tabla td {
+  padding: 10px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.totales {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 1em;
+}
+
+.total-row.descuento {
+  color: #27ae60;
+}
+
+.total-row.total-final {
+  font-size: 1.3em;
+  padding-top: 15px;
+  border-top: 2px solid #34495e;
+  color: #2c3e50;
+}
+
+/* Formulario de cobro */
+.form-cobro {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 2px solid #ecf0f1;
+}
+
+.form-cobro h3 {
+  margin-bottom: 15px;
+  color: #34495e;
+}
+
+.metodo-pago-opciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.metodo-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.metodo-option:hover {
+  border-color: #3498db;
+  background: #f0f8ff;
+}
+
+.metodo-option.active {
+  border-color: #2196f3;
+  background: #e3f2fd;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.metodo-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+}
+
+.badge-descuento {
+  margin-left: auto;
+  background: #27ae60;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.input-monto {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.2em;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.input-monto:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.cambio-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #d4edda;
+  border: 2px solid #28a745;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.cambio-monto {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #155724;
+}
+
+.btn-cobrar {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #27ae60, #229954);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cobrar:hover {
+  background: linear-gradient(135deg, #229954, #1e8449);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.btn-cobrar:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Modal de ticket */
+.modal-ticket {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ticket-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.ticket {
+  font-family: 'Courier New', monospace;
+  border: 2px dashed #333;
+  padding: 20px;
+  background: white;
+}
+
+.ticket h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.4em;
+}
+
+.ticket-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px dashed #999;
+}
+
+.ticket-header p {
+  margin: 5px 0;
+}
+
+.ticket-body {
+  margin: 20px 0;
+}
+
+.ticket-body p {
+  margin: 8px 0;
+}
+
+.ticket-body hr {
+  border: none;
+  border-top: 1px dashed #999;
+  margin: 15px 0;
+}
+
+.ticket-productos {
+  width: 100%;
+  margin: 15px 0;
+}
+
+.ticket-productos th,
+.ticket-productos td {
+  padding: 5px;
+  text-align: left;
+}
+
+.ticket-productos th {
+  border-bottom: 1px solid #333;
+}
+
+.ticket-totales {
+  margin-top: 15px;
+}
+
+.ticket-totales p {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+
+.descuento-line {
+  color: #27ae60;
+}
+
+.total-line {
+  font-size: 1.2em;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+
+.ticket-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed #999;
+}
+
+.ticket-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-imprimir,
+.btn-cerrar {
+  flex: 1;
+  padding: 12px;
+  font-size: 1em;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-imprimir {
+  background: #3498db;
+  color: white;
+}
+
+.btn-imprimir:hover {
+  background: #2980b9;
+}
+
+.btn-cerrar {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-cerrar:hover {
+  background: #7f8c8d;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .caja-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pedidos-pendientes,
+  .panel-cobro {
+    max-height: none;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .ticket,
+  .ticket * {
+    visibility: visible;
+  }
+
+  .ticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .ticket-actions {
+    display: none;
+  }
+}

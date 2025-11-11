@@ -1,0 +1,318 @@
+.cocina-container {
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.cocina-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.cocina-header h1 {
+  color: #2c3e50;
+  font-size: 2em;
+}
+
+.btn-actualizar {
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: 600;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-actualizar:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 1.3em;
+  color: #27ae60;
+}
+
+/* Grid de pedidos */
+.pedidos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.pedido-card-cocina {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 6px solid #3498db;
+}
+
+.pedido-card-cocina.warning {
+  border-left-color: #f39c12;
+  background: #fff8e1;
+}
+
+.pedido-card-cocina.urgent {
+  border-left-color: #e74c3c;
+  background: #ffebee;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4);
+  }
+}
+
+.pedido-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.pedido-numero-grande {
+  font-size: 2em;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.pedido-tiempo {
+  font-size: 1.3em;
+  font-weight: 600;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 20px;
+}
+
+.pedido-card-cocina.warning .pedido-tiempo {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.pedido-card-cocina.urgent .pedido-tiempo {
+  background: #f8d7da;
+  color: #721c24;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pedido-mesa-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mesa-badge {
+  font-size: 1.2em;
+  font-weight: 700;
+  padding: 6px 16px;
+  background: #3498db;
+  color: white;
+  border-radius: 20px;
+}
+
+.estado-badge-cocina {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.estado-badge-cocina.pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.estado-badge-cocina.en-preparación {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.pedido-mozo {
+  font-size: 0.95em;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+/* Lista de productos */
+.productos-lista-cocina {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.producto-item-cocina {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.producto-item-cocina:last-child {
+  border-bottom: none;
+}
+
+.cantidad-badge {
+  display: inline-block;
+  min-width: 35px;
+  padding: 4px 8px;
+  background: #2c3e50;
+  color: white;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.95em;
+}
+
+.producto-nombre {
+  flex: 1;
+  font-size: 1.05em;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.producto-observacion {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  background: #fff3cd;
+  border-left: 3px solid #ffc107;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #856404;
+}
+
+.observaciones-generales {
+  margin: 15px 0;
+  padding: 12px;
+  background: #e8f5e9;
+  border-left: 3px solid #4caf50;
+  border-radius: 4px;
+  font-size: 0.95em;
+  color: #2e7d32;
+}
+
+/* Acciones */
+.pedido-acciones {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-accion {
+  flex: 1;
+  padding: 14px;
+  font-size: 1.05em;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-preparar {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.btn-preparar:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+}
+
+.btn-listo {
+  background: linear-gradient(135deg, #27ae60, #229954);
+  color: white;
+}
+
+.btn-listo:hover {
+  background: linear-gradient(135deg, #229954, #1e8449);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+}
+
+.btn-accion:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pedidos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cocina-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .btn-actualizar {
+    width: 100%;
+  }
+
+  .pedido-card-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}
+
+/* Animaciones de entrada */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pedido-card-cocina {
+  animation: slideIn 0.4s ease;
+}

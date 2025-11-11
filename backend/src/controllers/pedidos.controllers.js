@@ -453,22 +453,193 @@ export const obtenerPedidosListos = async (req, res) => {
 };
 
 /**
- * Obtener pedidos por cobrar (en caja)
+ * HU7: Marcar pedido como "Listo" y enviarlo automáticamente a caja
+ * PUT /api/pedidos/:id/marcar-listo
+ * Cuando cocina termina un pedido, lo marca como "Listo" y queda disponible para caja
+ */
+export const marcarPedidoListo = async (req, res) => {
+  try {
+    const { observacion } = req.body;
+    const userId = req.user?.id || req.userId;
+    
+    const pedido = await Pedido.findById(req.params.id);
+    
+    if (!pedido) {
+      return res.status(404).json({
+        mensaje: "Pedido no encontrado"
+      });
+    }
+    
+    // Validar que el pedido esté en estado que permita marcarlo como listo
+    if (pedido.estado !== 'En preparación') {
+      return res.status(400).json({
+        mensaje: "Solo se pueden marcar como listos los pedidos en preparación"
+      });
+    }
+    
+    // Cambiar estado a "Listo" usando el método del modelo
+    // Esto automáticamente registra fechaListo y lo envía a la vista de caja
+    await pedido.cambiarEstado('Listo', userId, observacion || 'Pedido terminado por cocina');
+    
+    // Poblar el pedido actualizado con todos los detalles para caja
+    const pedidoCompleto = await Pedido.findById(pedido._id)
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre precio categoria')
+      .populate('historialEstados.usuario', 'nombre apellido');
+    
+    res.status(200).json({
+      mensaje: "Pedido marcado como listo y enviado a caja",
+      pedido: pedidoCompleto
+    });
+  } catch (error) {
+    console.error('Error al marcar pedido como listo:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor al marcar pedido como listo"
+    });
+  }
+};
+
+/**
+ * HU8: Obtener pedidos terminados listos para cobrar (vista de caja)
  * GET /api/pedidos/caja/pendientes
+ * Muestra pedidos con estado "Listo" o "Servido" que están pendientes de cobro
  */
 export const obtenerPedidosCaja = async (req, res) => {
   try {
-    const pedidos = await Pedido.find({ estado: 'Servido' })
-      .populate('mesa', 'numero')
+    // Obtener pedidos que están listos para cobrar
+    // Estado "Listo" = terminado por cocina, esperando cobro
+    // Estado "Servido" = entregado al cliente, esperando cobro
+    const pedidos = await Pedido.find({ 
+      estado: { $in: ['Listo', 'Servido'] } 
+    })
+      .populate('mesa', 'numero ubicacion')
       .populate('mozo', 'nombre apellido')
-      .populate('productos.producto', 'nombre categoria')
-      .sort({ fechaServido: 1 });
+      .populate('productos.producto', 'nombre precio categoria')
+      .sort({ fechaListo: 1 }); // Ordenar por el más antiguo primero
     
     res.status(200).json(pedidos);
   } catch (error) {
     console.error('Error al obtener pedidos por cobrar:', error);
     res.status(500).json({
       mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * HU8: Cobrar un pedido desde caja
+ * POST /api/pedidos/:id/cobrar
+ * El cajero registra el cobro y genera el ticket/comprobante
+ * Aplica descuento del 10% automáticamente si el pago es en efectivo (RN2)
+ */
+export const cobrarPedido = async (req, res) => {
+  try {
+    const { metodoPago, montoPagado } = req.body;
+    const cajeroId = req.user?.id || req.userId;
+    
+    // Validar datos
+    if (!metodoPago || !montoPagado) {
+      return res.status(400).json({
+        mensaje: "Método de pago y monto pagado son requeridos"
+      });
+    }
+    
+    // Validar método de pago (RN3: solo efectivo o transferencia)
+    if (!['Efectivo', 'Transferencia'].includes(metodoPago)) {
+      return res.status(400).json({
+        mensaje: "Método de pago no válido. Solo se acepta Efectivo o Transferencia"
+      });
+    }
+    
+    const pedido = await Pedido.findById(req.params.id)
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre precio categoria');
+    
+    if (!pedido) {
+      return res.status(404).json({
+        mensaje: "Pedido no encontrado"
+      });
+    }
+    
+    // Validar que el pedido esté listo para cobrar
+    if (!['Listo', 'Servido'].includes(pedido.estado)) {
+      return res.status(400).json({
+        mensaje: "Solo se pueden cobrar pedidos en estado Listo o Servido"
+      });
+    }
+    
+    if (pedido.estado === 'Cobrado') {
+      return res.status(400).json({
+        mensaje: "Este pedido ya fue cobrado"
+      });
+    }
+    
+    // Actualizar método de pago (esto activa el middleware pre-save que aplica el descuento del 10% si es efectivo)
+    pedido.metodoPago = metodoPago;
+    
+    // Guardar para que se aplique el descuento automático si corresponde
+    await pedido.save();
+    
+    // Validar que el monto pagado sea suficiente
+    if (montoPagado < pedido.total) {
+      return res.status(400).json({
+        mensaje: `El monto pagado ($${montoPagado}) es insuficiente. Total a pagar: $${pedido.total}`,
+        totalAPagar: pedido.total,
+        descuentoAplicado: pedido.descuento.monto,
+        subtotal: pedido.subtotal
+      });
+    }
+    
+    // Registrar pago usando el método del modelo
+    await pedido.registrarPago(cajeroId, metodoPago, montoPagado);
+    
+    // Liberar la mesa
+    await Mesa.findByIdAndUpdate(pedido.mesa._id, { estado: 'Libre' });
+    
+    // Poblar el pedido con todos los detalles para el ticket
+    const pedidoCobrado = await Pedido.findById(pedido._id)
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre precio categoria')
+      .populate('pago.cajero', 'nombre apellido');
+    
+    // Generar datos para el ticket/comprobante
+    const ticket = {
+      numeroPedido: pedidoCobrado.numeroPedido,
+      fecha: pedidoCobrado.pago.fecha,
+      mesa: pedidoCobrado.mesa.numero,
+      mozo: `${pedidoCobrado.mozo.nombre} ${pedidoCobrado.mozo.apellido}`,
+      cajero: `${pedidoCobrado.pago.cajero.nombre} ${pedidoCobrado.pago.cajero.apellido}`,
+      productos: pedidoCobrado.productos.map(p => ({
+        nombre: p.nombre,
+        cantidad: p.cantidad,
+        precioUnitario: p.precioUnitario,
+        subtotal: p.subtotal,
+        observaciones: p.observaciones
+      })),
+      subtotal: pedidoCobrado.subtotal,
+      descuento: {
+        porcentaje: pedidoCobrado.descuento.porcentaje,
+        monto: pedidoCobrado.descuento.monto,
+        motivo: pedidoCobrado.descuento.motivo
+      },
+      total: pedidoCobrado.total,
+      metodoPago: pedidoCobrado.metodoPago,
+      montoPagado: pedidoCobrado.pago.montoPagado,
+      cambio: pedidoCobrado.pago.cambio
+    };
+    
+    res.status(200).json({
+      mensaje: "Pago registrado exitosamente",
+      pedido: pedidoCobrado,
+      ticket: ticket
+    });
+  } catch (error) {
+    console.error('Error al cobrar pedido:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor al registrar el pago"
     });
   }
 };
