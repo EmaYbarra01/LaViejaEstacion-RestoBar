@@ -42,26 +42,35 @@ npm start
 
 ## ⚙️ Configuración de Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+Crea un archivo `.env` en la raíz del proyecto basándote en `.env.example`:
+
+```bash
+# Copia el archivo de ejemplo y edítalo con tus valores
+cp .env.example .env
+```
+
+Luego edita el archivo `.env` con tus valores reales:
 
 ```env
-# Puerto del servidor
-PORT=4000
+# Base de datos MongoDB
+MONGODB_URI=mongodb://localhost:27017/CRUD-COM12
 
-# MongoDB
-MONGODB_URI=tu_uri_de_mongodb
-
-# JWT
-JWT_SECRET=tu_secreto_jwt_muy_seguro
-
-# Nodemailer - Gmail
+# Configuración de Email (Nodemailer con Gmail)
 EMAIL_USER=tu.email@gmail.com
-EMAIL_PASS=tu_app_password_de_gmail
+EMAIL_PASS=xxxx xxxx xxxx xxxx
 EMAIL_FROM=tu.email@gmail.com
 
-# Frontend URL (para links de recuperación)
+# URL del Frontend (para enlaces en emails)
 FRONTEND_URL=http://localhost:5173
+
+# Puerto del servidor (opcional)
+PORT=3000
+
+# Clave secreta para JWT (opcional)
+JWT_SECRET=tu_clave_secreta_aqui
 ```
+
+> 💡 **Tip**: Usa `.env.example` como plantilla. Nunca subas tu archivo `.env` al repositorio.
 
 ## 📧 Configuración de Gmail para Nodemailer
 
@@ -224,7 +233,44 @@ npm run dev        # Iniciar servidor en desarrollo (con nodemon)
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📄 Licencia
+## � Verificar Conexiones
+
+### Verificar conexión a MongoDB
+
+Ejecuta el siguiente comando para comprobar que MongoDB está conectado:
+
+```bash
+node scripts/checkDb.js
+```
+
+Deberías ver algo como:
+```
+✅ Conectado a MongoDB. Base de datos: CRUD-COM12
+Estado (readyState): 1 (1 = conectado)
+```
+
+### Solución de problemas comunes
+
+#### Error: "Missing credentials for PLAIN"
+
+Si ves este error de Nodemailer, significa que las variables de entorno `EMAIL_USER`, `EMAIL_PASS` o `EMAIL_FROM` no están configuradas:
+
+1. Verifica que tienes un archivo `.env` en la carpeta `backend`
+2. Asegúrate de que las variables estén definidas correctamente
+3. Reinicia el servidor después de crear/editar el `.env`
+
+El sistema ahora incluye validación automática y usará un transportador de desarrollo (sin enviar correos reales) si faltan las credenciales, evitando que la aplicación falle.
+
+#### MongoDB no conecta
+
+Si MongoDB no se conecta:
+
+1. Verifica que MongoDB esté corriendo: `mongod --version`
+2. Comprueba la URI en `.env`: `MONGODB_URI`
+3. Para MongoDB local usa: `mongodb://localhost:27017/CRUD-COM12`
+4. Para MongoDB Atlas usa la URI completa con credenciales
+
+## �📄 Licencia
 
 Este proyecto es parte del curso de la UTN - Tecnicatura Universitaria en Programación.
 

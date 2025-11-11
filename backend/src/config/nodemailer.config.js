@@ -3,14 +3,34 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configuración del transportador de nodemailer con Gmail
-export const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Leer variables de entorno relevantes
+const { EMAIL_USER, EMAIL_PASS, EMAIL_FROM } = process.env;
+
+// Crear un transportador seguro para Gmail cuando haya credenciales.
+// Si faltan, creamos un transportador de "stream" para desarrollo que no envía correos
+// reales pero permite que la app siga funcionando y devuelve información útil.
+let transporter;
+if (!EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) {
+  console.error('❌ Variables de entorno de email faltantes. Configura EMAIL_USER, EMAIL_PASS y EMAIL_FROM en tu .env');
+  // Transportador de fallback para desarrollo (no envía correos reales)
+  transporter = nodemailer.createTransport({
+    streamTransport: true,
+    newline: 'unix',
+    buffer: true
+  });
+} else {
+  transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // true para 465, false para 587
+    auth: {
+      user: EMAIL_USER,
+      pass: EMAIL_PASS
+    }
+  });
+}
+
+export { transporter };
 
 // Verificar la configuración del transportador
 transporter.verify((error, success) => {
