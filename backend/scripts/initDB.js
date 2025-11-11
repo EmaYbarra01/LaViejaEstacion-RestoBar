@@ -23,53 +23,63 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restob
 // Datos de prueba
 const usuariosData = [
     {
-        nombre: 'Admin',
+        nombre: 'SuperAdmin',
         apellido: 'Sistema',
         email: 'admin@restobar.com',
-        password: '$2b$10$YourHashedPasswordHere', // Cambiar por hash real
-        rol: 'Administrador',
-        dni: '12345678',
-        telefono: '1234567890',
+        password: 'SA007', // Cambiar por hash real
+        rol: 'SuperAdministrador',
+        dni: '33245128',
+        telefono: '3815498754',
         activo: true
     },
     {
         nombre: 'Carlos',
         apellido: 'García',
         email: 'carlos@restobar.com',
-        password: '$2b$10$YourHashedPasswordHere',
+        password: 'GER123',
         rol: 'Gerente',
         dni: '23456789',
-        telefono: '1234567891',
+        telefono: '3814265138',
         activo: true
     },
     {
         nombre: 'María',
         apellido: 'López',
         email: 'maria@restobar.com',
-        password: '$2b$10$YourHashedPasswordHere',
-        rol: 'Mozo',
+        password: 'MOZ123',
+        rol: 'Mozo1',
         dni: '34567890',
-        telefono: '1234567892',
+        telefono: '3875423612',
         activo: true
     },
     {
-        nombre: 'Juan',
-        apellido: 'Pérez',
-        email: 'juan@restobar.com',
-        password: '$2b$10$YourHashedPasswordHere',
+        nombre: 'Mario',
+        apellido: 'García',
+        email: 'mario@restobar.com',
+        password: 'MOZ124',
+        rol: 'Mozo2',
+        dni: '31889890',
+        telefono: '3815463612',
+        activo: true
+    },
+    {
+        nombre: 'Miguel',
+        apellido: 'Ramírez',
+        email: 'miguel@restobar.com',
+        password: 'CAJ123',
         rol: 'Cajero',
         dni: '45678901',
-        telefono: '1234567893',
+        telefono: '3816477331',
         activo: true
     },
     {
         nombre: 'Ana',
         apellido: 'Martínez',
         email: 'ana@restobar.com',
-        password: '$2b$10$YourHashedPasswordHere',
-        rol: 'Cocina',
+        password: 'COC123',
+        rol: 'EncargadoCocina',
         dni: '56789012',
-        telefono: '1234567894',
+        telefono: '386459157',
         activo: true
     }
 ];
@@ -78,11 +88,11 @@ const mesasData = [
     { numero: 1, capacidad: 4, estado: 'Libre', ubicacion: 'Salón Principal' },
     { numero: 2, capacidad: 2, estado: 'Libre', ubicacion: 'Salón Principal' },
     { numero: 3, capacidad: 6, estado: 'Libre', ubicacion: 'Salón Principal' },
-    { numero: 4, capacidad: 4, estado: 'Libre', ubicacion: 'Terraza' },
-    { numero: 5, capacidad: 2, estado: 'Libre', ubicacion: 'Terraza' },
+    { numero: 4, capacidad: 4, estado: 'Libre', ubicacion: 'Salón Principal' },
+    { numero: 5, capacidad: 2, estado: 'Libre', ubicacion: 'Salón Principal' },
     { numero: 6, capacidad: 8, estado: 'Libre', ubicacion: 'Salón VIP' },
-    { numero: 7, capacidad: 4, estado: 'Libre', ubicacion: 'Salón Principal' },
-    { numero: 8, capacidad: 2, estado: 'Libre', ubicacion: 'Barra' }
+    { numero: 7, capacidad: 4, estado: 'Libre', ubicacion: 'Salón VIP' },
+    { numero: 8, capacidad: 2, estado: 'Libre', ubicacion: 'Salón VIP' }
 ];
 
 const productosData = [
@@ -107,7 +117,8 @@ const productosData = [
         stock: 60,
         stockMinimo: 15,
         disponible: true,
-        imagenUrl: '/images/productos/agua.jpg'
+        imagenUrl: 'backend/public/images/productos/agua mineral 500ml.jpg'
+        
     },
     {
         nombre: 'Cerveza Quilmes 1L',
@@ -118,7 +129,7 @@ const productosData = [
         stock: 30,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: '/images/productos/cerveza.jpg'
+        imagenUrl: 'backend/public/images/productos/cerveza quilmes 1l.jpg'
     },
     {
         nombre: 'Vino Tinto Copa',
@@ -129,8 +140,21 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/vino-tinto.jpg'
+        imagenUrl: 'backend/public/images/productos/vino tinto copa.jpg'
     },
+
+    {
+        nombre: 'Vino Blanco Copa',
+        descripcion: 'Copa de vino blanco de la casa',
+        categoria: 'Bebidas Alcohólicas',
+        precio: 2500,
+        costo: 1200,
+        stock: 20,
+        stockMinimo: 5,
+        disponible: true,
+        imagenUrl: 'backend/public/images/productos/vino blanco copa.jpg'
+    },
+
     // Comidas
     {
         nombre: 'Hamburguesa Completa',
@@ -138,10 +162,10 @@ const productosData = [
         categoria: 'Comidas',
         precio: 5500,
         costo: 2500,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 20,
+        stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/hamburguesa.jpg'
+        imagenUrl: 'backend/public/images/productos/hamburguesa completa.jpg'
     },
     {
         nombre: 'Milanesa Napolitana',
@@ -152,8 +176,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: '/images/productos/milanesa.jpg'
-    },
+        imagenUrl: 'backend/public/images/productos/milanesa napolitana.jpg'
     {
         nombre: 'Pizza Muzzarella',
         descripcion: 'Pizza grande de muzzarella (8 porciones)',
@@ -163,7 +186,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: '/images/productos/pizza.jpg'
+        imagenUrl: 'backend/public/images/productos/pizza muzzarella.jpg'
     },
     {
         nombre: 'Empanadas de Carne (docena)',
@@ -174,7 +197,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: '/images/productos/empanadas.jpg'
+        imagenUrl: 'backend/public/images/productos/empanadas de carne.jpeg'
     },
     {
         nombre: 'Ensalada Caesar',
@@ -185,7 +208,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: '/images/productos/ensalada.jpg'
+        imagenUrl: 'backend/public/images/productos/ensalada cesar.jpg'
     },
     // Postres
     {
@@ -197,7 +220,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: '/images/productos/flan.jpg'
+        imagenUrl: 'backend/public/images/productos/flan con dulce de leche.jpg'
     },
     {
         nombre: 'Helado (3 bochas)',
@@ -208,7 +231,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: '/images/productos/helado.jpg'
+        imagenUrl: 'backend/public/images/productos/helado 3 bochas.jpg'
     }
 ];
 
