@@ -167,6 +167,70 @@ export const crearPedido = async (req, res) => {
 };
 
 /**
+ * Actualizar datos de un pedido (antes de enviarlo a cocina)
+ * PUT /api/pedidos/:id
+ * Permite al mozo/administrador modificar productos y observaciones
+ */
+export const actualizarPedido = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { productos, observacionesGenerales, tiempoEstimado } = req.body;
+    const userId = req.user?.id || req.userId;
+
+    const pedido = await Pedido.findById(id);
+    if (!pedido) {
+      return res.status(404).json({ mensaje: 'Pedido no encontrado' });
+    }
+
+    // No permitir editar pedidos ya cobrados o cancelados
+    if (pedido.estado === 'Cobrado' || pedido.estado === 'Cancelado') {
+      return res.status(400).json({ mensaje: 'No se puede modificar un pedido cobrado o cancelado' });
+    }
+
+    // Si se pasan productos, validarlos y reemplazarlos
+    if (productos && Array.isArray(productos)) {
+      const productosDelPedido = [];
+      for (let item of productos) {
+        const producto = await Producto.findById(item.producto);
+        if (!producto) {
+          return res.status(404).json({ mensaje: `Producto ${item.producto} no encontrado` });
+        }
+        if (!producto.disponible) {
+          return res.status(400).json({ mensaje: `El producto ${producto.nombre} no está disponible` });
+        }
+
+        productosDelPedido.push({
+          producto: producto._id,
+          nombre: producto.nombre,
+          cantidad: item.cantidad,
+          precioUnitario: producto.precio,
+          subtotal: producto.precio * item.cantidad,
+          observaciones: item.observaciones || ''
+        });
+      }
+
+      pedido.productos = productosDelPedido;
+    }
+
+    if (typeof observacionesGenerales !== 'undefined') pedido.observacionesGenerales = observacionesGenerales;
+    if (typeof tiempoEstimado !== 'undefined') pedido.tiempoEstimado = tiempoEstimado;
+
+    // Guardar (pre-save recalcula totales)
+    await pedido.save();
+
+    const pedidoActualizado = await Pedido.findById(pedido._id)
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre categoria');
+
+    res.status(200).json({ mensaje: 'Pedido actualizado', pedido: pedidoActualizado });
+  } catch (error) {
+    console.error('Error al actualizar pedido:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor al actualizar pedido' });
+  }
+};
+
+/**
  * Actualizar estado de un pedido
  * PUT /api/pedidos/:id/estado
  */
@@ -401,3 +465,10 @@ export const obtenerPedidosPorCobrar = async (req, res) => {
     });
   }
 };
+
+// Compatibilidad de nombres exportados con las rutas
+// Algunas rutas importan `cambiarEstadoPedido` y `registrarPago`.
+// Reexportamos aliases para evitar roturas por diferencias de nombre.
+export const cambiarEstadoPedido = actualizarEstadoPedido;
+export const registrarPago = registrarPagoPedido;
+

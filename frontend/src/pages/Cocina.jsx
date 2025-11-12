@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './Cocina.css';
+import { io } from 'socket.io-client';
 
 /**
  * Componente de Vista de Cocina
@@ -9,13 +10,66 @@ const Cocina = () => {
   const [pedidosPendientes, setPedidosPendientes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
     cargarPedidosCocina();
-    
-    // Actualizar cada 30 segundos
+
+    // Inicializar socket.io para notificaciones en tiempo real (HU5/HU6)
+    const usuarioId = localStorage.getItem('userId') || null;
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3000';
+    const socket = io(backendUrl, {
+      auth: {
+        usuarioId,
+        rol: 'Cocina',
+        modulo: 'cocina'
+      },
+      transports: ['websocket', 'polling']
+    });
+
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('[Cocina] Socket conectado', socket.id);
+      socket.emit('solicitar-estado-inicial');
+    });
+
+    socket.on('nuevo-pedido-cocina', (pedido) => {
+      setPedidosPendientes(prev => {
+        const next = [...prev, pedido];
+        next.sort((a, b) => new Date(a.fechaCreacion) - new Date(b.fechaCreacion));
+        return next;
+      });
+    });
+
+    socket.on('pedido-actualizado', (data) => {
+      setPedidosPendientes(prev => {
+        // Si el pedido dejó la cola de cocina, quitarlo
+        if (['Listo', 'Servido', 'Cobrado', 'Cancelado'].includes(data.nuevoEstado)) {
+          return prev.filter(p => String(p._id) !== String(data.pedidoId));
+        }
+
+        // Si sigue en cocina, actualizar estado
+        return prev.map(p => (String(p._id) === String(data.pedidoId) ? { ...p, estado: data.nuevoEstado } : p));
+      });
+    });
+
+    socket.on('pedido-listo', (data) => {
+      setPedidosPendientes(prev => prev.filter(p => String(p._id) !== String(data.pedidoId)));
+      try { new Audio('/alert.mp3').play(); } catch(e) {}
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('[Cocina] Socket desconectado:', reason);
+    });
+
+    // Fallback: actualizar cada 30s si no hay socket
     const interval = setInterval(cargarPedidosCocina, 30000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      if (socket && socket.disconnect) socket.disconnect();
+    };
   }, []);
 
   const cargarPedidosCocina = async () => {
@@ -63,6 +117,20 @@ const Cocina = () => {
       }
 
       await cargarPedidosCocina();
+      // Emitir evento socket para notificar en tiempo real (HU5)
+      try {
+        const socket = socketRef.current;
+        if (socket && socket.connected) {
+          socket.emit('actualizar-estado-pedido', {
+            pedidoId,
+            numeroPedido: pedidoId,
+            nuevoEstado,
+            mozoId: null
+          });
+        }
+      } catch (e) {
+        console.warn('No se pudo emitir evento socket:', e.message);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,14 +142,14 @@ const Cocina = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
-      const response = await fetch(`http://localhost:3000/api/pedidos/${pedidoId}/marcar-listo`, {
-        method: 'PUT',
+      const response = await fetch(`http://localhost:3000/api/pedidos/${pedidoId}/estado`, {
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          estado: 'Listo',
           observacion: 'Pedido terminado y listo para servir'
         })
       });
@@ -93,7 +161,23 @@ const Cocina = () => {
 
       // Mostrar notificación de éxito
       alert('✅ Pedido marcado como listo y enviado a caja');
-      
+
+      // Emitir evento socket para notificar al mozo y caja (HU6)
+      try {
+        const socket = socketRef.current;
+        if (socket && socket.connected) {
+          socket.emit('marcar-pedido-listo', {
+            pedidoId,
+            numeroPedido: pedidoId,
+            nuevoEstado: 'Listo',
+            mozoId: null,
+            numeroMesa: null
+          });
+        }
+      } catch (e) {
+        console.warn('No se pudo emitir evento socket:', e.message);
+      }
+
       await cargarPedidosCocina();
       setError(null);
     } catch (err) {

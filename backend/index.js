@@ -1,4 +1,5 @@
 import express from 'express';
+import { createServer } from 'http';
 import cors from 'cors';
 import morgan from 'morgan';
 import { fileURLToPath } from 'url';
@@ -6,6 +7,7 @@ import { dirname, join } from 'path';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import './src/database/dbConnection.js';
+import { initializeSocket } from './src/config/socket.config.js';
 
 // Obtener __dirname en módulos ES
 const __filename = fileURLToPath(import.meta.url);
@@ -76,10 +78,17 @@ app.use((req, res) => {
   });
 });
 
-// Iniciar servidor
-app.set('port', process.env.PORT || 4000);
-app.listen(app.get('port'), () => {
-    console.log(`✅ Servidor activo en el puerto ${app.get('port')}`);
-    console.log(`🌐 URL: http://localhost:${app.get('port')}`);
-    console.log(`📚 API Docs: http://localhost:${app.get('port')}/api`);
+// Iniciar servidor HTTP con Socket.io
+const PORT = process.env.PORT || 4000;
+const httpServer = createServer(app);
+
+// Inicializar Socket.io (si está disponible la configuración)
+const io = initializeSocket(httpServer);
+app.set('io', io);
+
+httpServer.listen(PORT, () => {
+  console.log(`✅ Servidor activo en el puerto ${PORT}`);
+  console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log(`📚 API Docs: http://localhost:${PORT}/api`);
+  console.log('📡 Socket.io: inicializado y disponible en app.get("io")');
 });
