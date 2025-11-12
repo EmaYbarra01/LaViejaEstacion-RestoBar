@@ -6,7 +6,11 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "nodemon --exec babel-node index.js",
-        "start": "nodemon --exec babel-node index.js"
+        "start": "nodemon --exec babel-node index.js",
+        "init-db": "node scripts/initDB.js",
+        "seed-menu": "node scripts/seedMenuData.js",
+        "generate-qr": "node scripts/generarQR.js",
+        "check-db": "node scripts/checkDb.js"
     },
     "keywords": [],
     "author": "",
