@@ -8,10 +8,8 @@ import {
     actualizarProducto,
     eliminarProducto,
     actualizarStock,
-    cambiarDisponibilidad
-    // TODO: Implementar estas funciones en productos.controllers.js
-    // obtenerProductosDisponibles (para menú público),
-    // buscarProductos
+    cambiarDisponibilidad,
+    obtenerMenuPublico
 } from '../controllers/productos.controllers.js';
 import validarProducto from '../helpers/validarProducto.js';
 import verificarToken from '../auth/token-verify.js';
@@ -21,12 +19,12 @@ const router = Router();
 
 /**
  * Rutas de Productos para La Vieja Estación - RestoBar
- * Implementa: HU2, HU10, RF4
+ * Implementa: HU1, HU2, HU10, RF4
  */
 
-// Rutas públicas (accesibles por clientes y QR)
-// HU1, HU2: Menú digital accesible desde QR
-// router.get('/productos/menu', obtenerProductosDisponibles); // TODO: Implementar en el controlador
+// ===== RUTAS PÚBLICAS (SIN AUTENTICACIÓN) =====
+// HU1: Menú digital accesible desde código QR
+router.get('/menu', obtenerMenuPublico);
 router.get('/productos/menu/categoria/:categoria', obtenerProductosPorCategoria);
 
 // Rutas protegidas - Consulta (Mozo, Cajero, Cocina, Gerente, Admin)

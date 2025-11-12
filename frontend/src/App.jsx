@@ -4,6 +4,7 @@ import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import MenuPage from "./pages/MenuPage";
+import MenuDigital from "./pages/MenuDigital";
 import AdminPage from "./pages/AdminPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -58,6 +59,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/menu" element={<MenuPage />} />
+          {/* HU1: Menú digital público accesible por QR - Sin autenticación */}
+          <Route path="/menu-digital" element={<MenuDigital />} />
           <Route path="/productos" element={<ProductList />} />
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/login" element={<Login />} />

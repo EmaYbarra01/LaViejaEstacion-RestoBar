@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código QR - Menú Digital | La Vieja Estación</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background: #2d2d2d;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 3px solid #ffc107;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 193, 7, 0.6));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffc107;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 20px 0;
+            box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .qr-container img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .qr-label {
+            margin-top: 15px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .instructions {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .instructions h2 {
+            color: #ffc107;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .instructions ol {
+            text-align: left;
+            margin-left: 20px;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box p {
+            margin: 10px 0;
+            color: #e0e0e0;
+        }
+
+        .info-box strong {
+            color: #ffc107;
+        }
+
+        .print-button {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: #1a1a1a;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .print-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.6);
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(255, 193, 7, 0.3);
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .footer-note {
+            margin-top: 10px;
+        }
+
+        .qr-url {
+            color: #ffc107;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+                border: 2px solid #000;
+            }
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🍴</div>
+        <h1>La Vieja Estación</h1>
+        <p class="subtitle">Sabores que cuentan historias</p>
+
+        <div class="qr-container">
+            <img src="./qr/menu-qr.png" alt="Código QR del Menú Digital" id="qrImage">
+            <p class="qr-label">
+                📱 MENÚ DIGITAL
+            </p>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 Cómo escanear el QR</h2>
+            <ol>
+                <li>Abrí la <strong>cámara</strong> de tu smartphone</li>
+                <li>Apuntá a este código QR</li>
+                <li>Tocá la notificación que aparece</li>
+                <li>¡Explorá nuestro menú actualizado!</li>
+            </ol>
+        </div>
+
+        <div class="info-box">
+            <p><strong>✓</strong> Sin necesidad de descargar apps</p>
+            <p><strong>✓</strong> Precios siempre actualizados</p>
+            <p><strong>✓</strong> Menú completo con descripciones</p>
+            <p><strong>✓</strong> Compatible con todos los smartphones</p>
+        </div>
+
+        <button class="print-button" onclick="window.print()">
+            🖨️ Imprimir QR
+        </button>
+
+        <div class="footer">
+            <p>© 2025 La Vieja Estación. Todos los derechos reservados.</p>
+            <p class="footer-note">
+                <small>Este QR redirige a: <span id="qrUrl" class="qr-url"></span></small>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Detectar si el archivo QR existe
+        const qrImage = document.getElementById('qrImage');
+        const qrUrl = document.getElementById('qrUrl');
+        
+        // Intentar cargar la imagen
+        qrImage.onerror = function() {
+            // Si no existe la imagen, mostrar mensaje
+            this.style.display = 'none';
+            this.parentElement.innerHTML = `
+                <div style="padding: 40px; color: #ff6b6b;">
+                    <h3>⚠️ QR no generado aún</h3>
+                    <p style="margin-top: 15px; color: #999;">
+                        Ejecutá el siguiente comando para generar el código QR:
+                    </p>
+                    <code style="background: #1a1a1a; padding: 10px; display: block; margin-top: 10px; border-radius: 5px; color: #ffc107;">
+                        node scripts/generarQR.js
+                    </code>
+                </div>
+            `;
+        };
+
+        // Mostrar la URL del menú
+        const menuUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5173/menu-digital'
+            : 'https://laviejaestacion.com/menu-digital';
+        
+        qrUrl.textContent = menuUrl;
+    </script>
+</body>
+</html>
