@@ -1,0 +1,108 @@
+# Docker Compose - La Vieja Estación RestoBar
+# Sistema completo: MongoDB + Backend + Frontend
+
+version: '3.8'
+
+services:
+  # Base de datos MongoDB
+  mongodb:
+    image: mongo:8.0
+    container_name: laviejaestacion-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: laviejaestacion
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./backend/scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - laviejaestacion-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/laviejaestacion --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Backend API REST
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: laviejaestacion-backend
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      # Base de datos
+      MONGODB_URI: mongodb://admin:admin123@mongodb:27017/laviejaestacion?authSource=admin
+      
+      # Servidor
+      PORT: 4000
+      NODE_ENV: production
+      
+      # JWT
+      JWT_SECRET: change_this_secret_in_production_use_strong_password
+      
+      # Email (Nodemailer)
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      EMAIL_FROM: ${EMAIL_FROM}
+      
+      # Frontend URL
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend/public:/app/public
+      - ./backend/logs:/app/logs
+    networks:
+      - laviejaestacion-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: laviejaestacion-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:4000/api
+    ports:
+      - "3000:80"
+    networks:
+      - laviejaestacion-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Volúmenes persistentes
+volumes:
+  mongodb_data:
+    driver: local
+    name: laviejaestacion_mongodb_data
+  mongodb_config:
+    driver: local
+    name: laviejaestacion_mongodb_config
+
+# Red personalizada
+networks:
+  laviejaestacion-network:
+    driver: bridge
+    name: laviejaestacion-network
