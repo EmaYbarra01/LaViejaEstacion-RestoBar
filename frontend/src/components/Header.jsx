@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FaUtensils, FaFacebookF, FaTwitter, FaTripadvisor, FaBars, FaTimes } from 'react-icons/fa';
+import { FaUtensils, FaFacebookF, FaTwitter, FaTripadvisor, FaBars, FaTimes, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import './Header.css';
+import useUserStore from '../store/useUserStore';
 
 export default function Header() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  
+  // Obtener datos del usuario desde Zustand
+  const { user, isAuthenticated, logout } = useUserStore();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -29,6 +33,12 @@ export default function Header() {
 
   const formatTime = (date) => {
     return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setIsMenuOpen(false);
+    navigate('/login');
   };
 
   return (
@@ -58,9 +68,43 @@ export default function Header() {
           <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             SERVICIOS
           </a>
-          <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            LOGIN
-          </NavLink>
+          {!isAuthenticated ? (
+            <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              LOGIN
+            </NavLink>
+          ) : (
+            <>
+              <div className="nav-link user-info" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FaUser style={{ fontSize: '14px' }} />
+                <span>{user?.name || user?.nombreCompleto || 'Usuario'}</span>
+                <span style={{ 
+                  fontSize: '11px', 
+                  padding: '2px 8px', 
+                  background: 'rgba(255, 193, 7, 0.2)', 
+                  borderRadius: '12px',
+                  color: '#ffc107'
+                }}>
+                  {user?.role}
+                </span>
+              </div>
+              <button 
+                className="nav-link logout-btn" 
+                onClick={handleLogout}
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: '#ff6b6b'
+                }}
+              >
+                <FaSignOutAlt />
+                SALIR
+              </button>
+            </>
+          )}
           <a href="#blog" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             BLOG
           </a>

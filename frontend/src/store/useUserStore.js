@@ -17,7 +17,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}api/login`,
+        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000/'}api/login`,
         { email, password },
         {
           withCredentials: true,
@@ -28,12 +28,15 @@ const useUserStore = create((set, get) => ({
       );
       
       // Estructura del usuario basada en la respuesta del backend
+      const usuario = response.data.usuario; // El backend devuelve 'usuario', no 'user'
       const userData = {
-        _id: response.data.user?._id || response.data.user?.id, // MongoDB usa _id
-        id: response.data.user?._id || response.data.user?.id,  // Mantener compatibilidad
-        name: response.data.user?.username,
-        email: response.data.user?.email || email,
-        role: response.data.user?.role || 'user'
+        _id: usuario._id || usuario.id, // MongoDB usa _id
+        id: usuario._id || usuario.id,  // Mantener compatibilidad
+        name: usuario.nombre,
+        apellido: usuario.apellido,
+        nombreCompleto: usuario.nombreCompleto,
+        email: usuario.email || email,
+        role: usuario.rol // El backend devuelve 'rol', no 'role'
       };
       
       // Actualizar el estado global
@@ -43,6 +46,8 @@ const useUserStore = create((set, get) => ({
         isLoading: false, 
         error: null 
       });
+      
+      console.log('✅ Login exitoso - Usuario:', userData);
       
       return {
         success: true,
@@ -71,7 +76,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}api/me`,
+        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000/'}api/me`,
         {
           withCredentials: true
         }
@@ -126,7 +131,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}api/logout`,
+        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000/'}api/logout`,
         {},
         {
           withCredentials: true

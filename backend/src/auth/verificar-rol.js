@@ -15,7 +15,16 @@ const verificarRol = (...rolesPermitidos) => {
         }
 
         // Verificar que el rol del usuario esté en los roles permitidos
-        if (!rolesPermitidos.includes(req.rol)) {
+        // Soporta roles con números (ej: "Mozo1" matchea con "Mozo")
+        console.log(`[verificar-rol] Verificando rol: "${req.rol}" contra [${rolesPermitidos.join(', ')}]`);
+        
+        const roleMatch = rolesPermitidos.some(rolPermitido => 
+            req.rol === rolPermitido || req.rol.startsWith(rolPermitido)
+        );
+        
+        console.log(`[verificar-rol] Match encontrado: ${roleMatch}`);
+        
+        if (!roleMatch) {
             return res.status(403).json({
                 mensaje: `Acceso denegado. Se requiere uno de los siguientes roles: ${rolesPermitidos.join(', ')}`
             });

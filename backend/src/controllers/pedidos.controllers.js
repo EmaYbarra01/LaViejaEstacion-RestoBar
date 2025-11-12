@@ -92,7 +92,7 @@ export const crearPedido = async (req, res) => {
     
     // Verificar que el mozo existe
     const mozoDoc = await Usuario.findById(mozo);
-    if (!mozoDoc || mozoDoc.rol !== 'Mozo') {
+    if (!mozoDoc || !mozoDoc.rol.startsWith('Mozo')) {
       return res.status(400).json({
         mensaje: "Mozo no válido"
       });
@@ -126,15 +126,23 @@ export const crearPedido = async (req, res) => {
     }
     
     // Obtener siguiente número de pedido
-    const numeroPedido = await Pedido.obtenerSiguienteNumeroPedido();
+    const numeroPedido = await Pedido.generarNumeroPedido();
+    
+    // Calcular subtotal y total
+    const subtotal = productosDelPedido.reduce((acc, p) => acc + p.subtotal, 0);
+    const total = subtotal; // Sin descuento inicial
     
     // Crear pedido
     const nuevoPedido = new Pedido({
       numeroPedido,
+      numeroMesa: mesaDoc.numero,
       mesa,
       mozo,
+      nombreMozo: `${mozoDoc.nombre} ${mozoDoc.apellido}`,
       productos: productosDelPedido,
       observacionesGenerales: observacionesGenerales || '',
+      subtotal,
+      total,
       historialEstados: [{
         estado: 'Pendiente',
         fecha: new Date(),
@@ -154,6 +162,16 @@ export const crearPedido = async (req, res) => {
       .populate('mozo', 'nombre apellido')
       .populate('productos.producto', 'nombre categoria');
     
+    // HU4: Emitir evento Socket.io para notificar a cocina
+    const io = req.app.get('io');
+    if (io) {
+      io.to('cocina').emit('nuevo-pedido-cocina', {
+        pedido: pedidoCompleto,
+        mensaje: `Nuevo pedido #${pedidoCompleto.numeroPedido} - Mesa ${pedidoCompleto.numeroMesa}`
+      });
+      console.log(`[Socket.io] Evento 'nuevo-pedido-cocina' emitido para pedido #${pedidoCompleto.numeroPedido}`);
+    }
+    
     res.status(201).json({
       mensaje: "Pedido creado exitosamente",
       pedido: pedidoCompleto
@@ -161,7 +179,9 @@ export const crearPedido = async (req, res) => {
   } catch (error) {
     console.error('Error al crear pedido:', error);
     res.status(500).json({
-      mensaje: "Error interno del servidor al crear pedido"
+      mensaje: "Error interno del servidor al crear pedido",
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
@@ -471,7 +491,7 @@ export const marcarPedidoListo = async (req, res) => {
     }
     
     // Validar que el pedido esté en estado que permita marcarlo como listo
-    if (pedido.estado !== 'En preparación') {
+    if (pedido.estado !== 'En Preparación') {
       return res.status(400).json({
         mensaje: "Solo se pueden marcar como listos los pedidos en preparación"
       });
