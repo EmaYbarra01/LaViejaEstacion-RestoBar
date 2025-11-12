@@ -19,12 +19,28 @@ const navigate = useNavigate();
 // Obtener funciones y estado del store de Zustand
 const { login, isLoading, error, clearError, user, isAuthenticated } = useUserStore();
 
-// Si ya está autenticado, redirigir
+// Si ya está autenticado, redirigir según el rol
 useEffect(() => {
     if (isAuthenticated && user) {
-        if (user.role === 'admin' || user.role === 'superadmin') {
+        console.log('Usuario autenticado:', user);
+        
+        // Normalizar el rol para comparación (sin importar mayúsculas/minúsculas)
+        const rol = user.role?.toLowerCase() || '';
+        
+        if (rol === 'administrador' || rol === 'admin' || rol === 'superadmin') {
+            console.log('Redirigiendo a /admin/products');
             navigate('/admin/products');
+        } else if (rol === 'mozo' || rol.startsWith('mozo')) {
+            console.log('Redirigiendo a /productos (vista mozo)');
+            navigate('/productos');
+        } else if (rol === 'encargadococina' || rol.includes('cocina')) {
+            console.log('Redirigiendo a / (vista cocina)');
+            navigate('/');
+        } else if (rol === 'cajero' || rol.includes('caja')) {
+            console.log('Redirigiendo a / (vista cajero)');
+            navigate('/');
         } else {
+            console.log('Redirigiendo a / (home)');
             navigate('/');
         }
     }

@@ -1,8 +1,23 @@
 import jwt from 'jsonwebtoken';
 
 const verificarToken = (req, res, next) => {
-    // Obtener el token solo de las cookies
-    const token = req.cookies?.jwt;
+    console.log('\n' + '='.repeat(80));
+    console.log('🔐 VERIFICAR TOKEN - TIMESTAMP:', new Date().toISOString());
+    console.log('📍 Método:', req.method, '| URL:', req.originalUrl);
+    console.log('='.repeat(80));
+    
+    // Obtener el token de cookies o del header Authorization
+    let token = req.cookies?.jwt;
+    
+    // Si no hay token en cookies, buscar en el header Authorization
+    if (!token) {
+        const authHeader = req.headers.authorization || req.headers.Authorization;
+        console.log('[DEBUG] Header Authorization:', authHeader);
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            token = authHeader.substring(7); // Remover "Bearer " del inicio
+            console.log('[DEBUG] Token extraído del header');
+        }
+    }
     
     if(!token){
         return res.status(401).json({

@@ -10,6 +10,7 @@
 
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 
 // Importar modelos
 import Usuario from '../src/models/usuarioSchema.js';
@@ -25,9 +26,9 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restob
 // Datos de prueba
 const usuariosData = [
     {
-        nombre: 'SuperAdmin',
-        apellido: 'Sistema',
-        email: 'admin@restobar.com',
+        nombre: 'Juan',
+        apellido: 'Suarez',
+        email: 'juan@restobar.com',
         password: 'SA007', // Cambiar por hash real
         rol: 'SuperAdministrador',
         dni: '33245128',
@@ -49,7 +50,7 @@ const usuariosData = [
         apellido: 'López',
         email: 'maria@restobar.com',
         password: 'MOZ123',
-        rol: 'Mozo1',
+        rol: 'Mozo',
         dni: '34567890',
         telefono: '3875423612',
         activo: true
@@ -59,7 +60,7 @@ const usuariosData = [
         apellido: 'García',
         email: 'mario@restobar.com',
         password: 'MOZ124',
-        rol: 'Mozo2',
+        rol: 'Mozo',
         dni: '31889890',
         telefono: '3815463612',
         activo: true
@@ -119,7 +120,7 @@ const productosData = [
         stock: 60,
         stockMinimo: 15,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/agua mineral 500ml.jpg'
+        imagenUrl: '/images/productos/agua-mineral-500ml.jpg'
         
     },
     {
@@ -131,7 +132,7 @@ const productosData = [
         stock: 30,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/cerveza quilmes 1l.jpg'
+        imagenUrl: '/images/productos/cerveza-quilmes-1l.jpg'
     },
     {
         nombre: 'Vino Tinto Copa',
@@ -142,7 +143,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/vino tinto copa.jpg'
+        imagenUrl: '/images/productos/vino-tinto-copa.jpg'
     },
 
     {
@@ -154,7 +155,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/vino blanco copa.jpg'
+        imagenUrl: '/images/productos/vino-blanco-copa.jpg'
     },
 
     // Comidas
@@ -167,7 +168,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/hamburguesa completa.jpg'
+        imagenUrl: '/images/productos/hamburguesa-completa.jpg'
     },
     {
         nombre: 'Milanesa Napolitana',
@@ -178,7 +179,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/milanesa napolitana.jpg'
+        imagenUrl: '/images/productos/milanesa-napolitana.jpg'
     },
     {
         nombre: 'Pizza Muzzarella',
@@ -189,7 +190,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/pizza muzzarella.jpg'
+        imagenUrl: '/images/productos/pizza-muzzarella.jpg'
     },
     {
         nombre: 'Empanadas de Carne (docena)',
@@ -200,7 +201,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/empanadas de carne.jpeg'
+        imagenUrl: '/images/productos/empanadas-de-carne.jpeg'
     },
     {
         nombre: 'Ensalada Caesar',
@@ -211,7 +212,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/ensalada cesar.jpg'
+        imagenUrl: '/images/productos/ensalada-cesar.jpg'
     },
     // Postres
     {
@@ -223,7 +224,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/flan con dulce de leche.jpg'
+        imagenUrl: '/images/productos/flan-dulce-leche.jpg'
     },
     {
         nombre: 'Helado (3 bochas)',
@@ -234,7 +235,7 @@ const productosData = [
         stock: 0,
         stockMinimo: 0,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/helado 3 bochas.jpg'
+        imagenUrl: '/images/productos/helado-3-bochas.jpg'
     }
 ];
 
@@ -253,10 +254,29 @@ async function initializeDatabase() {
         await Compra.deleteMany({});
         console.log('✅ Colecciones limpiadas');
 
-        // Insertar usuarios
+        // Insertar usuarios con contraseñas hasheadas
         console.log('\n👥 Insertando usuarios...');
-        const usuarios = await Usuario.insertMany(usuariosData);
-        console.log(`✅ ${usuarios.length} usuarios creados`);
+        const usuarios = [];
+        
+        for (const userData of usuariosData) {
+            try {
+                // Hashear la contraseña antes de crear el usuario
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(userData.password, salt);
+                
+                const usuario = await Usuario.create({
+                    ...userData,
+                    password: hashedPassword
+                });
+                
+                usuarios.push(usuario);
+                console.log(`   ✓ ${usuario.nombre} ${usuario.apellido} (${usuario.rol})`);
+            } catch (error) {
+                console.error(`   ✗ Error al crear ${userData.nombre}:`, error.message);
+            }
+        }
+        
+        console.log(`✅ ${usuarios.length} usuarios creados de ${usuariosData.length} intentados`);
 
         // Insertar mesas
         console.log('\n🪑 Insertando mesas...');
@@ -265,8 +285,23 @@ async function initializeDatabase() {
 
         // Insertar productos
         console.log('\n🍔 Insertando productos...');
-        const productos = await Producto.insertMany(productosData);
-        console.log(`✅ ${productos.length} productos creados`);
+        const productos = [];
+        
+        for (const productoData of productosData) {
+            try {
+                const producto = await Producto.create(productoData);
+                productos.push(producto);
+                console.log(`   ✓ ${producto.nombre} creado`);
+            } catch (error) {
+                console.error(`   ✗ Error al crear ${productoData.nombre}:`, error.message);
+            }
+        }
+        
+        console.log(`✅ ${productos.length} productos creados de ${productosData.length} intentados`);
+        
+        // Verificar que los productos estén realmente en la BD
+        const countProductos = await Producto.countDocuments();
+        console.log(`📊 Verificación: ${countProductos} productos en la base de datos`);
 
         // Crear un pedido de ejemplo
         console.log('\n📋 Creando pedido de ejemplo...');

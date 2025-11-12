@@ -236,6 +236,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       mensaje: "Login exitoso",
+      token: token, // ⚠️ AGREGADO: Enviar token en response para clientes que no usan cookies
       usuario: {
         id: usuario._id,
         nombre: usuario.nombre,
