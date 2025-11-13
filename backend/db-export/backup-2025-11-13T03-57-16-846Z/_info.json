@@ -1,0 +1,13 @@
+{
+  "database": "restobar_db",
+  "exportDate": "2025-11-13T03:57:16.893Z",
+  "mongodbUri": "mongodb://localhost:27017/restobar_db",
+  "collections": {
+    "reservas": 4,
+    "mesas": 0,
+    "usuarios": 0,
+    "productos": 0,
+    "pedidos": 0
+  },
+  "totalDocuments": 4
+}

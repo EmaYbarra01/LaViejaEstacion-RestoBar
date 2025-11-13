@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { crearReserva } from '../api/reservas.api';
 import './Reservas.css';
 
 const Reservas = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nombre: '',
+    cliente: '',
     email: '',
     telefono: '',
     fecha: '',
     hora: '',
-    personas: '2',
+    comensales: 2,
+    numeroMesa: '',
     comentarios: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,39 +32,72 @@ const Reservas = () => {
     setMessage({ type: '', text: '' });
 
     // Validación básica
-    if (!formData.nombre || !formData.email || !formData.telefono || !formData.fecha || !formData.hora) {
+    if (!formData.cliente || !formData.email || !formData.telefono || !formData.fecha || !formData.hora) {
       setMessage({ type: 'error', text: 'Por favor, completa todos los campos obligatorios.' });
       setIsSubmitting(false);
       return;
     }
 
     try {
-      // Simular envío de reserva (aquí puedes conectar con tu backend)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Preparar datos para enviar al backend
+      const reservaData = {
+        cliente: formData.cliente,
+        email: formData.email,
+        telefono: formData.telefono,
+        fecha: formData.fecha,
+        hora: formData.hora,
+        comensales: parseInt(formData.comensales),
+        numeroMesa: formData.numeroMesa ? parseInt(formData.numeroMesa) : undefined,
+        comentarios: formData.comentarios
+      };
+
+      console.log('[RESERVAS] Enviando reserva:', reservaData);
+
+      // Enviar reserva al backend
+      const response = await crearReserva(reservaData);
       
-      setMessage({ 
-        type: 'success', 
-        text: '¡Reserva realizada con éxito! Te enviaremos un email de confirmación.' 
-      });
-      
-      // Limpiar formulario después de 3 segundos
-      setTimeout(() => {
-        setFormData({
-          nombre: '',
-          email: '',
-          telefono: '',
-          fecha: '',
-          hora: '',
-          personas: '2',
-          comentarios: ''
+      console.log('[RESERVAS] Respuesta del servidor:', response);
+
+      if (response.success) {
+        setMessage({ 
+          type: 'success', 
+          text: '¡Reserva realizada con éxito! Te enviaremos un email de confirmación.' 
         });
-        setMessage({ type: '', text: '' });
-      }, 3000);
+        
+        // Limpiar formulario después de 3 segundos
+        setTimeout(() => {
+          setFormData({
+            cliente: '',
+            email: '',
+            telefono: '',
+            fecha: '',
+            hora: '',
+            comensales: 2,
+            numeroMesa: '',
+            comentarios: ''
+          });
+          setMessage({ type: '', text: '' });
+        }, 3000);
+      } else {
+        throw new Error(response.mensaje || 'Error al crear la reserva');
+      }
       
     } catch (error) {
+      console.error('[RESERVAS] Error:', error);
+      
+      let errorMessage = 'Hubo un error al procesar tu reserva. Por favor, intenta nuevamente.';
+      
+      if (error.mensaje) {
+        errorMessage = error.mensaje;
+      } else if (error.errores && Array.isArray(error.errores)) {
+        errorMessage = error.errores.join('. ');
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       setMessage({ 
         type: 'error', 
-        text: 'Hubo un error al procesar tu reserva. Por favor, intenta nuevamente.' 
+        text: errorMessage
       });
     } finally {
       setIsSubmitting(false);
@@ -127,12 +162,12 @@ const Reservas = () => {
             )}
 
             <div className="form-group">
-              <label htmlFor="nombre">Nombre completo *</label>
+              <label htmlFor="cliente">Nombre completo *</label>
               <input
                 type="text"
-                id="nombre"
-                name="nombre"
-                value={formData.nombre}
+                id="cliente"
+                name="cliente"
+                value={formData.cliente}
                 onChange={handleChange}
                 placeholder="Tu nombre"
                 required
@@ -196,20 +231,33 @@ const Reservas = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="personas">Personas *</label>
+                <label htmlFor="comensales">Comensales *</label>
                 <select
-                  id="personas"
-                  name="personas"
-                  value={formData.personas}
+                  id="comensales"
+                  name="comensales"
+                  value={formData.comensales}
                   onChange={handleChange}
                   required
                 >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(num => (
                     <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'personas'}</option>
                   ))}
-                  <option value="10+">Más de 10 personas</option>
                 </select>
               </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="numeroMesa">Número de mesa (opcional)</label>
+              <input
+                type="number"
+                id="numeroMesa"
+                name="numeroMesa"
+                value={formData.numeroMesa}
+                onChange={handleChange}
+                placeholder="Dejar vacío para asignación automática"
+                min="1"
+              />
+              <small className="form-hint">Si tienes preferencia por una mesa específica, indícala aquí</small>
             </div>
 
             <div className="form-group">
