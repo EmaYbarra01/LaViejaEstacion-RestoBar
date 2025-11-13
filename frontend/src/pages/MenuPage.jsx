@@ -48,7 +48,9 @@ const MenuPage = () => {
 
     const fetchProductos = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/api/productos');
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+            const response = await axios.get(`${API_URL}/productos`);
+            console.log('Productos cargados desde BD:', response.data);
             setProductos(response.data);
             setLoading(false);
         } catch (error) {
@@ -59,22 +61,20 @@ const MenuPage = () => {
 
     const categorizeProducts = () => {
         const comidas = productos.filter(p => 
-            p.categoria?.toLowerCase() === 'comida' || 
-            p.tipo?.toLowerCase() === 'comida'
+            p.categoria === 'Comidas'
         );
         const bebidas = productos.filter(p => 
-            p.categoria?.toLowerCase() === 'bebida' || 
-            p.tipo?.toLowerCase() === 'bebida'
+            p.categoria === 'Bebidas' || 
+            p.categoria === 'Bebidas Alcohólicas'
         );
         const postres = productos.filter(p => 
-            p.categoria?.toLowerCase() === 'postre' || 
-            p.tipo?.toLowerCase() === 'postre'
+            p.categoria === 'Postres'
         );
 
         return { 
-            comidas: comidas.length > 0 ? comidas : comidaEstatica.map((c, i) => ({_id: `c-${i}`, nombre: c.name, precio: c.price, descripcion: c.description, ingredientes: c.preparation})),
-            bebidas: bebidas.length > 0 ? bebidas : bebidasEstaticas.map((b, i) => ({_id: `b-${i}`, nombre: b.name, precio: b.price, descripcion: b.tipo})),
-            postres: postres.length > 0 ? postres : postresEstaticos.map((p, i) => ({_id: `p-${i}`, nombre: p.name, precio: p.price, ingredientes: p.ingredientes}))
+            comidas,
+            bebidas,
+            postres
         };
     };
 
@@ -122,21 +122,18 @@ const MenuPage = () => {
                                         <div key={item._id} className="menu-card">
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
-                                                <span className="card-price">${item.precio}</span>
+                                                <span className="card-price">R$ {item.precio?.toFixed(2)}</span>
                                             </div>
                                             {item.descripcion && (
                                                 <p className="card-description">{item.descripcion}</p>
                                             )}
-                                            {item.ingredientes && (
-                                                <p className="card-detail">
-                                                    <strong>Ingredientes:</strong> {item.ingredientes}
-                                                </p>
-                                            )}
-                                            {item.stock !== undefined && (
-                                                <span className="card-badge">
-                                                    {item.stock > 0 ? 'Disponible' : 'Agotado'}
-                                                </span>
-                                            )}
+                                            <div className="card-footer-info">
+                                                {item.disponible !== false && item.stock > 0 ? (
+                                                    <span className="card-badge disponible">✓ Disponible</span>
+                                                ) : (
+                                                    <span className="card-badge agotado">✗ No disponible</span>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -163,21 +160,23 @@ const MenuPage = () => {
                                         <div key={item._id} className="menu-card">
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
-                                                <span className="card-price">${item.precio}</span>
+                                                <span className="card-price">R$ {item.precio?.toFixed(2)}</span>
                                             </div>
                                             {item.descripcion && (
                                                 <p className="card-description">{item.descripcion}</p>
                                             )}
-                                            {item.tipo && (
+                                            {item.categoria && (
                                                 <p className="card-detail">
-                                                    <strong>Tipo:</strong> {item.tipo}
+                                                    <strong>Tipo:</strong> {item.categoria}
                                                 </p>
                                             )}
-                                            {item.stock !== undefined && (
-                                                <span className="card-badge">
-                                                    {item.stock > 0 ? 'Disponible' : 'Agotado'}
-                                                </span>
-                                            )}
+                                            <div className="card-footer-info">
+                                                {item.disponible !== false && item.stock > 0 ? (
+                                                    <span className="card-badge disponible">✓ Disponible</span>
+                                                ) : (
+                                                    <span className="card-badge agotado">✗ No disponible</span>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -204,21 +203,18 @@ const MenuPage = () => {
                                         <div key={item._id} className="menu-card">
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
-                                                <span className="card-price">${item.precio}</span>
+                                                <span className="card-price">R$ {item.precio?.toFixed(2)}</span>
                                             </div>
                                             {item.descripcion && (
                                                 <p className="card-description">{item.descripcion}</p>
                                             )}
-                                            {item.ingredientes && (
-                                                <p className="card-detail">
-                                                    <strong>Ingredientes:</strong> {item.ingredientes}
-                                                </p>
-                                            )}
-                                            {item.stock !== undefined && (
-                                                <span className="card-badge">
-                                                    {item.stock > 0 ? 'Disponible' : 'Agotado'}
-                                                </span>
-                                            )}
+                                            <div className="card-footer-info">
+                                                {item.disponible !== false && item.stock > 0 ? (
+                                                    <span className="card-badge disponible">✓ Disponible</span>
+                                                ) : (
+                                                    <span className="card-badge agotado">✗ No disponible</span>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

@@ -2,11 +2,13 @@
 .modern-footer {
   background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
   color: #e0e0e0;
-  padding: 20px;
+  padding: 30px 20px;
   margin-top: auto;
   border-top: 2px solid #ffc107;
   position: relative;
   z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .footer-simple-container {
@@ -15,8 +17,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px;
+  justify-content: center;
+  gap: 20px;
   text-align: center;
+  padding: 0 20px;
 }
 
 .footer-brand {
@@ -27,9 +31,10 @@
 }
 
 .footer-icon {
-  font-size: 2.5rem;
+  font-size: 2rem;
   color: #ffc107;
   filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.5));
+  flex-shrink: 0;
 }
 
 .footer-brand h3 {
@@ -61,17 +66,19 @@
 /* Responsive */
 @media (max-width: 768px) {
   .modern-footer {
-    padding: 30px 15px;
-    margin-top: 60px;
+    padding: 25px 15px;
+  }
+
+  .footer-simple-container {
+    padding: 0 10px;
   }
 
   .footer-brand {
-    flex-direction: column;
     gap: 10px;
   }
 
   .footer-icon {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .footer-brand h3 {
@@ -84,15 +91,23 @@
 }
 
 @media (max-width: 480px) {
+  .modern-footer {
+    padding: 20px 10px;
+  }
+
+  .footer-simple-container {
+    gap: 15px;
+  }
+
   .footer-icon {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 
   .footer-brand h3 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
   .footer-text p {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 }

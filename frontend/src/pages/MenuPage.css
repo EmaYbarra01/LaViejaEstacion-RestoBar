@@ -235,18 +235,32 @@
   line-height: 1.5;
 }
 
+.card-footer-info {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 193, 7, 0.2);
+}
+
 .card-badge {
   display: inline-block;
   padding: 5px 15px;
-  background: rgba(255, 193, 7, 0.2);
-  border: 1px solid #ffc107;
   border-radius: 20px;
-  color: #ffc107;
   font-size: 0.85rem;
   font-weight: 600;
-  margin-top: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.card-badge.disponible {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4caf50;
+  color: #4caf50;
+}
+
+.card-badge.agotado {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid #f44336;
+  color: #f44336;
 }
 
 .back-button {
