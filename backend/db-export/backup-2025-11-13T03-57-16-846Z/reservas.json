@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "69154a3470ed5c5bd22aca4e",
+    "cliente": "cristian german",
+    "email": "aseffd@mail.com",
+    "telefono": "3817878064",
+    "fecha": "2025-11-14T00:00:00.000Z",
+    "hora": "21:00",
+    "comensales": 2,
+    "mesa": null,
+    "numeroMesa": null,
+    "estado": "Pendiente",
+    "comentarios": "ocasion especial",
+    "createdAt": "2025-11-13T03:02:12.210Z",
+    "updatedAt": "2025-11-13T03:02:12.210Z"
+  },
+  {
+    "_id": "69154b4aed48ee8952b680b5",
+    "cliente": "cristian german",
+    "email": "cristiangermandelacruz29@gmail.com",
+    "telefono": "3816689090",
+    "fecha": "2025-11-14T00:00:00.000Z",
+    "hora": "22:30",
+    "comensales": 2,
+    "mesa": null,
+    "numeroMesa": null,
+    "estado": "Pendiente",
+    "comentarios": "ocasion especial",
+    "createdAt": "2025-11-13T03:06:50.763Z",
+    "updatedAt": "2025-11-13T03:06:50.763Z"
+  },
+  {
+    "_id": "69154e3bed48ee8952b680b7",
+    "cliente": "Maria Garcia",
+    "email": "maria.garcia@example.com",
+    "telefono": "3816123456",
+    "fecha": "2025-11-15T00:00:00.000Z",
+    "hora": "20:00",
+    "comensales": 6,
+    "mesa": null,
+    "numeroMesa": null,
+    "estado": "Pendiente",
+    "comentarios": "Celebracion de cumpleanos",
+    "createdAt": "2025-11-13T03:19:23.419Z",
+    "updatedAt": "2025-11-13T03:19:23.419Z"
+  },
+  {
+    "_id": "69155049fdd84dcb06db8640",
+    "cliente": "cristian german",
+    "email": "cristiangermandelacruz29@gmail.com",
+    "telefono": "3816689090",
+    "fecha": "2025-11-14T00:00:00.000Z",
+    "hora": "22:27",
+    "comensales": 2,
+    "mesa": null,
+    "numeroMesa": null,
+    "estado": "Pendiente",
+    "comentarios": "cumple",
+    "createdAt": "2025-11-13T03:28:09.894Z",
+    "updatedAt": "2025-11-13T03:28:09.894Z"
+  }
+]
