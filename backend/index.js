@@ -19,6 +19,7 @@ import usuariosRoutes from './src/routes/usuarios.routes.js';
 import productosRoutes from './src/routes/productos.routes.js';
 import pedidosRoutes from './src/routes/pedidos.routes.js';
 import mesasRoutes from './src/routes/mesas.routes.js';
+import reservasRoutes from './src/routes/reservas.routes.js';
 // import comprasRoutes from './src/routes/compras.routes.js'; // Temporalmente comentado
 // import cierreCajaRoutes from './src/routes/cierreCaja.routes.js'; // Temporalmente comentado
 // import reportesRoutes from './src/routes/reportes.routes.js'; // Temporalmente comentado
@@ -45,6 +46,7 @@ app.use('/api', usuariosRoutes);
 app.use('/api', productosRoutes);
 app.use('/api', pedidosRoutes);
 app.use('/api', mesasRoutes);
+app.use('/api/reservas', reservasRoutes);
 // app.use('/api', comprasRoutes); // Temporalmente comentado
 // app.use('/api', cierreCajaRoutes); // Temporalmente comentado
 // app.use('/api', reportesRoutes); // Temporalmente comentado
@@ -62,6 +64,7 @@ app.get('/', (req, res) => {
       productos: '/api/productos',
       pedidos: '/api/pedidos',
       mesas: '/api/mesas',
+      reservas: '/api/reservas',
       compras: '/api/compras',
       cierreCaja: '/api/cierre-caja',
       reportes: '/api/reportes',
