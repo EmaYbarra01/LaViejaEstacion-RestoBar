@@ -122,7 +122,7 @@ const MenuPage = () => {
                                         <div key={item._id} className="menu-card">
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
-                                                <span className="card-price">R$ {item.precio?.toFixed(2)}</span>
+                                                <span className="card-price">${item.precio?.toFixed(2)}</span>
                                             </div>
                                             {item.descripcion && (
                                                 <p className="card-description">{item.descripcion}</p>
@@ -160,7 +160,7 @@ const MenuPage = () => {
                                         <div key={item._id} className="menu-card">
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
-                                                <span className="card-price">R$ {item.precio?.toFixed(2)}</span>
+                                                <span className="card-price">${item.precio?.toFixed(2)}</span>
                                             </div>
                                             {item.descripcion && (
                                                 <p className="card-description">{item.descripcion}</p>
@@ -203,7 +203,7 @@ const MenuPage = () => {
                                         <div key={item._id} className="menu-card">
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
-                                                <span className="card-price">R$ {item.precio?.toFixed(2)}</span>
+                                                <span className="card-price">${item.precio?.toFixed(2)}</span>
                                             </div>
                                             {item.descripcion && (
                                                 <p className="card-description">{item.descripcion}</p>
