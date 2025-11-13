@@ -2,9 +2,11 @@
 .modern-footer {
   background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
   color: #e0e0e0;
-  padding: 40px 20px;
-  margin-top: 80px;
-  border-top: 3px solid #ffc107;
+  padding: 20px;
+  margin-top: auto;
+  border-top: 2px solid #ffc107;
+  position: relative;
+  z-index: 1;
 }
 
 .footer-simple-container {
