@@ -176,8 +176,8 @@ const productosData = [
         categoria: 'Comidas',
         precio: 6000,
         costo: 3000,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 15,
+        stockMinimo: 5,
         disponible: true,
         imagenUrl: '/images/productos/milanesa-napolitana.jpg'
     },
@@ -187,8 +187,8 @@ const productosData = [
         categoria: 'Comidas',
         precio: 7000,
         costo: 3500,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 10,
+        stockMinimo: 3,
         disponible: true,
         imagenUrl: '/images/productos/pizza-muzzarella.jpg'
     },
@@ -198,8 +198,8 @@ const productosData = [
         categoria: 'Comidas',
         precio: 4500,
         costo: 2000,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 25,
+        stockMinimo: 10,
         disponible: true,
         imagenUrl: '/images/productos/empanadas-de-carne.jpeg'
     },
@@ -209,8 +209,8 @@ const productosData = [
         categoria: 'Comidas',
         precio: 4000,
         costo: 1800,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 12,
+        stockMinimo: 5,
         disponible: true,
         imagenUrl: '/images/productos/ensalada-cesar.jpg'
     },
@@ -221,8 +221,8 @@ const productosData = [
         categoria: 'Postres',
         precio: 2500,
         costo: 1000,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 20,
+        stockMinimo: 5,
         disponible: true,
         imagenUrl: '/images/productos/flan-dulce-leche.jpg'
     },
@@ -232,8 +232,8 @@ const productosData = [
         categoria: 'Postres',
         precio: 3000,
         costo: 1500,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 30,
+        stockMinimo: 10,
         disponible: true,
         imagenUrl: '/images/productos/helado-3-bochas.jpg'
     }
@@ -305,7 +305,7 @@ async function initializeDatabase() {
 
         // Crear un pedido de ejemplo
         console.log('\n📋 Creando pedido de ejemplo...');
-        const mozo = usuarios.find(u => u.rol === 'Mozo1' || u.rol === 'Mozo2');
+        const mozo = usuarios.find(u => u.rol === 'Mozo');
         const mesa1 = mesas.find(m => m.numero === 1);
         const hamburguesaProducto = productos.find(p => p.nombre === 'Hamburguesa Completa');
         const cocaColaProducto = productos.find(p => p.nombre === 'Coca Cola 500ml');

@@ -4,11 +4,9 @@
   top: 0;
   left: 0;
   width: 100%;
-  background: transparent;
-  -webkit-backdrop-filter: blur(5px);
-  backdrop-filter: blur(5px);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   z-index: 1000;
-  box-shadow: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .header-container {
@@ -17,8 +15,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
+  padding: 0.8rem 2rem;
   position: relative;
+  gap: 1rem;
 }
 
 /* Logo */
@@ -34,9 +33,10 @@
 }
 
 .logo-icon {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   color: #ffc107;
   filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.5));
+  flex-shrink: 0;
 }
 
 /* Navigation */
