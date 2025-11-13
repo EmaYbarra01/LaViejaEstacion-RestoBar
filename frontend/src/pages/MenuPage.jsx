@@ -49,7 +49,7 @@ const MenuPage = () => {
     const fetchProductos = async () => {
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-            const response = await axios.get(`${API_URL}/productos`);
+            const response = await axios.get(`${API_URL}/menu`);
             console.log('Productos cargados desde BD:', response.data);
             setProductos(response.data);
             setLoading(false);

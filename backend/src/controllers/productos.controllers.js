@@ -280,36 +280,14 @@ export const obtenerProductosParaReposicion = async (req, res) => {
  */
 export const obtenerMenuPublico = async (req, res) => {
   try {
-    // Obtener solo productos disponibles y ordenados por categoría y nombre
-    const productos = await Producto.find({ disponible: true })
-      .select('nombre descripcion categoria precio imagenUrl')
+    // Obtener todos los productos con su stock (no solo disponibles)
+    // para que MenuPage.jsx pueda mostrar badges de disponibilidad
+    const productos = await Producto.find({})
+      .select('nombre descripcion categoria precio imagenUrl disponible stock')
       .sort({ categoria: 1, nombre: 1 });
     
-    // Agrupar productos por categoría
-    const menuPorCategoria = {};
-    
-    productos.forEach(producto => {
-      const categoria = producto.categoria || 'Otros';
-      
-      if (!menuPorCategoria[categoria]) {
-        menuPorCategoria[categoria] = [];
-      }
-      
-      menuPorCategoria[categoria].push({
-        id: producto._id,
-        nombre: producto.nombre,
-        descripcion: producto.descripcion,
-        precio: producto.precio,
-        imagenUrl: producto.imagenUrl
-      });
-    });
-    
-    res.status(200).json({
-      restaurante: "La Vieja Estación",
-      slogan: "Sabores que cuentan historias",
-      menu: menuPorCategoria,
-      ultimaActualizacion: new Date()
-    });
+    // Devolver array simple de productos
+    res.status(200).json(productos);
   } catch (error) {
     console.error('Error al obtener menú público:', error);
     res.status(500).json({
