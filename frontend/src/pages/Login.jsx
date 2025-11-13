@@ -27,12 +27,12 @@ useEffect(() => {
         // Normalizar el rol para comparación (sin importar mayúsculas/minúsculas)
         const rol = user.role?.toLowerCase() || '';
         
-        if (rol === 'administrador' || rol === 'admin' || rol === 'superadmin') {
+        if (rol === 'administrador' || rol === 'admin' || rol === 'superadmin' || rol === 'superadministrador') {
             console.log('Redirigiendo a /admin/products');
             navigate('/admin/products');
         } else if (rol === 'mozo' || rol.startsWith('mozo')) {
-            console.log('Redirigiendo a /productos (vista mozo)');
-            navigate('/productos');
+            console.log('Redirigiendo a /mozo (módulo del mozo)');
+            navigate('/mozo');
         } else if (rol === 'encargadococina' || rol.includes('cocina')) {
             console.log('Redirigiendo a / (vista cocina)');
             navigate('/');

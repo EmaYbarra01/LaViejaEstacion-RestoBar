@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Reservas from "./pages/Reservas";
+import Mozo from "./pages/Mozo";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -32,22 +33,10 @@ function App() {
   const openSales = () => setIsSalesOpen(true)
   const closeSales = () => setIsSalesOpen(false)
   // Inicializar la autenticación al cargar la aplicación
-  const { isLoading } = useAuthInitializer();
+  useAuthInitializer();
 
-  // Mostrar un loading mientras se inicializa la autenticación
-  if (isLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px'
-      }}>
-        Cargando...
-      </div>
-    );
-  }
+  // No bloquear la UI mientras se verifica la autenticación
+  // Dejar que las rutas protegidas manejen su propio loading
 
   return (
     <>
@@ -63,6 +52,12 @@ function App() {
           <Route path="/menu-digital" element={<MenuDigital />} />
           <Route path="/productos" element={<ProductList />} />
           <Route path="/reservas" element={<Reservas />} />
+          {/* Módulo del Mozo - Gestión de pedidos - SOLO para mozos */}
+          <Route path="/mozo" element={
+            <ProtectedRoute role={['Mozo', 'Mozo1', 'Mozo2']}>
+              <Mozo />
+            </ProtectedRoute>
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
