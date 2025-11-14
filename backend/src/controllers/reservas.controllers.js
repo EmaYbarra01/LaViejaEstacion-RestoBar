@@ -5,8 +5,9 @@
 
 import Reserva from '../models/reservaSchema.js';
 import Mesa from '../models/mesaSchema.js';
-import { enviarEmailConfirmacion, enviarEmailCancelacion } from '../helpers/emailHelper.js';
+import { enviarEmailConfirmacion, enviarEmailCancelacion, enviarNotificacionRestobar } from '../helpers/emailHelper.js';
 import { generarToken, generarExpiracion, tokenExpirado, generarUrlConfirmacion, generarUrlCancelacion } from '../helpers/tokenHelper.js';
+import { validarHorarioAtencion, validarAnticipacion, validarComensales } from '../config/reservasConfig.js';
 
 /**
  * Crear una nueva reserva
@@ -31,6 +32,33 @@ const crearReserva = async (req, res) => {
           hora: !hora,
           comensales: !comensales
         }
+      });
+    }
+
+    // Validar número de comensales según reglas de negocio
+    const validacionComensales = validarComensales(comensales);
+    if (!validacionComensales.valido) {
+      return res.status(400).json({
+        success: false,
+        mensaje: validacionComensales.mensaje
+      });
+    }
+
+    // Validar anticipación de la reserva
+    const validacionAnticipacion = validarAnticipacion(fecha, hora);
+    if (!validacionAnticipacion.valido) {
+      return res.status(400).json({
+        success: false,
+        mensaje: validacionAnticipacion.mensaje
+      });
+    }
+
+    // Validar horario de atención
+    const validacionHorario = validarHorarioAtencion(fecha, hora);
+    if (!validacionHorario.valido) {
+      return res.status(400).json({
+        success: false,
+        mensaje: validacionHorario.mensaje
       });
     }
 
@@ -110,17 +138,30 @@ const crearReserva = async (req, res) => {
 
     console.log('[RESERVAS] Reserva creada exitosamente:', nuevaReserva._id);
 
-    // Enviar email de confirmación (no bloquear la respuesta)
+    // Enviar email de confirmación al cliente (no bloquear la respuesta)
     enviarEmailConfirmacion(nuevaReserva, token)
       .then(resultado => {
         if (resultado.success) {
-          console.log('[RESERVAS] ✅ Email de confirmación enviado');
+          console.log('[RESERVAS] ✅ Email de confirmación enviado al cliente');
         } else {
-          console.warn('[RESERVAS] ⚠️ No se pudo enviar email:', resultado.mensaje);
+          console.warn('[RESERVAS] ⚠️ No se pudo enviar email al cliente:', resultado.mensaje);
         }
       })
       .catch(error => {
-        console.error('[RESERVAS] ❌ Error al enviar email:', error.message);
+        console.error('[RESERVAS] ❌ Error al enviar email al cliente:', error.message);
+      });
+
+    // Enviar notificación al restobar (no bloquear la respuesta)
+    enviarNotificacionRestobar(nuevaReserva)
+      .then(resultado => {
+        if (resultado.success) {
+          console.log('[RESERVAS] ✅ Notificación enviada al restobar');
+        } else {
+          console.warn('[RESERVAS] ⚠️ No se pudo enviar notificación al restobar:', resultado.mensaje);
+        }
+      })
+      .catch(error => {
+        console.error('[RESERVAS] ❌ Error al enviar notificación al restobar:', error.message);
       });
 
     res.status(201).json({
@@ -1009,6 +1050,111 @@ const cancelarReservaToken = async (req, res) => {
   }
 };
 
+/**
+ * Verificar disponibilidad de mesas para una fecha y hora específica
+ * GET /api/reservas/disponibilidad/:fecha/:hora
+ */
+const verificarDisponibilidad = async (req, res) => {
+  try {
+    const { fecha, hora } = req.params;
+    const { comensales } = req.query;
+
+    console.log('[DISPONIBILIDAD] Verificando:', { fecha, hora, comensales });
+
+    // Validar horario de atención
+    const validacionHorario = validarHorarioAtencion(fecha, hora);
+    if (!validacionHorario.valido) {
+      return res.status(400).json({
+        disponible: false,
+        mensaje: validacionHorario.mensaje
+      });
+    }
+
+    // Obtener todas las mesas
+    const todasLasMesas = await Mesa.find({ disponible: true });
+
+    // Obtener reservas confirmadas para esa fecha y hora
+    const reservasOcupadas = await Reserva.find({
+      fecha: fecha,
+      hora: hora,
+      estado: { $in: ['Pendiente', 'Confirmada'] }
+    });
+
+    const mesasOcupadasIds = reservasOcupadas.map(r => r.numeroMesa?.toString());
+    const mesasDisponibles = todasLasMesas.filter(
+      mesa => !mesasOcupadasIds.includes(mesa.numero?.toString())
+    );
+
+    // Filtrar por capacidad si se especificaron comensales
+    let mesasFiltradas = mesasDisponibles;
+    if (comensales) {
+      const numComensales = parseInt(comensales);
+      mesasFiltradas = mesasDisponibles.filter(m => m.capacidad >= numComensales);
+    }
+
+    return res.status(200).json({
+      disponible: mesasFiltradas.length > 0,
+      mensaje: mesasFiltradas.length > 0 
+        ? `Hay ${mesasFiltradas.length} mesa(s) disponible(s)` 
+        : 'No hay mesas disponibles para esa fecha y hora',
+      mesasDisponibles: mesasFiltradas.map(m => ({
+        numero: m.numero,
+        capacidad: m.capacidad,
+        ubicacion: m.ubicacion
+      })),
+      totalMesas: todasLasMesas.length,
+      mesasOcupadas: mesasOcupadasIds.length
+    });
+
+  } catch (error) {
+    console.error('[ERROR] Error al verificar disponibilidad:', error);
+    return res.status(500).json({
+      disponible: false,
+      mensaje: 'Error al verificar disponibilidad',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Obtener reservas por email de cliente
+ * GET /api/reservas/cliente/:email
+ */
+const obtenerReservasPorCliente = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    console.log('[RESERVAS] Buscando reservas para:', email);
+
+    const reservas = await Reserva.find({ email })
+      .sort({ fecha: -1, hora: -1 })
+      .lean();
+
+    // Calcular estadísticas
+    const estadisticas = {
+      total: reservas.length,
+      pendientes: reservas.filter(r => r.estado === 'Pendiente').length,
+      confirmadas: reservas.filter(r => r.estado === 'Confirmada').length,
+      canceladas: reservas.filter(r => r.estado === 'Cancelada').length,
+      completadas: reservas.filter(r => r.estado === 'Completada').length
+    };
+
+    return res.status(200).json({
+      success: true,
+      reservas,
+      estadisticas
+    });
+
+  } catch (error) {
+    console.error('[ERROR] Error al obtener reservas del cliente:', error);
+    return res.status(500).json({
+      success: false,
+      mensaje: 'Error al obtener reservas',
+      error: error.message
+    });
+  }
+};
+
 export {
   crearReserva,
   obtenerReservas,
@@ -1019,5 +1165,7 @@ export {
   completarReserva,
   obtenerReservasPorFecha,
   confirmarReservaToken,
-  cancelarReservaToken
+  cancelarReservaToken,
+  verificarDisponibilidad,
+  obtenerReservasPorCliente
 };
