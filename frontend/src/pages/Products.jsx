@@ -22,9 +22,14 @@ const Products = () => {
     name: "",
     code: "",
     price: "",
+    cost: "",
     imgUrl: "",
     stock: "",
+    minimumStock: "",
     category: "",
+    description: "",
+    unit: "Unidad",
+    available: true
   });
 
   useEffect(() => {
@@ -94,9 +99,14 @@ const Products = () => {
       name: "",
       code: "",
       price: "",
+      cost: "",
       imgUrl: "",
       stock: "",
+      minimumStock: "",
       category: "",
+      description: "",
+      unit: "Unidad",
+      available: true
     });
   };
 
@@ -181,12 +191,12 @@ const Products = () => {
         <Table className="admin-table">
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Nombre</TableCell>
-              <TableCell>Código</TableCell>
               <TableCell>Categoría</TableCell>
               <TableCell>Precio</TableCell>
+              <TableCell>Costo</TableCell>
               <TableCell>Stock</TableCell>
+              <TableCell>Estado</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -199,23 +209,62 @@ const Products = () => {
               </TableRow>
             ) : (
               products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>{product.id}</TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.code}</TableCell>
+                <TableRow key={product.id} sx={{ 
+                  backgroundColor: product.available ? 'inherit' : '#ffebee',
+                  opacity: product.available ? 1 : 0.7
+                }}>
+                  <TableCell>
+                    <strong>{product.name}</strong>
+                    {product.description && (
+                      <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
+                        {product.description.substring(0, 50)}
+                        {product.description.length > 50 && '...'}
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <span className="role-badge user">
                       {product.category || 'General'}
                     </span>
                   </TableCell>
-                  <TableCell>${product.price}</TableCell>
-                  <TableCell>{product.stock || 0}</TableCell>
+                  <TableCell>
+                    <strong style={{ color: '#2e7d32' }}>${product.price}</strong>
+                  </TableCell>
+                  <TableCell>
+                    ${product.cost || 0}
+                    {product.cost && product.price && (
+                      <div style={{ fontSize: '0.8em', color: '#1976d2' }}>
+                        Margen: {(((product.price - product.cost) / product.cost) * 100).toFixed(0)}%
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <span style={{ 
+                      color: product.stock <= (product.minimumStock || 0) ? '#d32f2f' : '#2e7d32',
+                      fontWeight: 'bold'
+                    }}>
+                      {product.stock || 0}
+                    </span>
+                    {product.stock <= (product.minimumStock || 0) && (
+                      <div style={{ fontSize: '0.8em', color: '#d32f2f' }}>
+                        ⚠️ Stock bajo
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {product.available ? (
+                      <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>✅ Disponible</span>
+                    ) : (
+                      <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>❌ No disponible</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="action-buttons">
                       <Button
                         variant="contained"
                         className="edit-button"
                         onClick={() => handleEditProduct(product)}
+                        size="small"
                       >
                         ✏️ Editar
                       </Button>
@@ -223,6 +272,7 @@ const Products = () => {
                         variant="contained"
                         className="delete-button"
                         onClick={() => handleDeleteProduct(product.id)}
+                        size="small"
                       >
                         🗑️ Eliminar
                       </Button>

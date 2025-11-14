@@ -63,7 +63,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
-            <ProtectedRoute role={['admin','superadmin']}>
+            <ProtectedRoute role={['Administrador', 'SuperAdministrador', 'Gerente']}>
                 <AdminPage />
             </ProtectedRoute>
           }>        
