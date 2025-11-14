@@ -22,6 +22,9 @@ import ProductList from './components/carrito/ProductList'
 import Cart from './components/carrito/Cart'
 import SalesHistory from './components/carrito/SalesHistory'
 import NotificationContainer from './components/carrito/NotificationContainer'
+import AdminReservas from "./pages/AdminReservas";
+import CalendarioReservas from "./pages/CalendarioReservas";
+import MisReservas from "./pages/MisReservas";
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false)
@@ -70,7 +73,10 @@ function App() {
             <Route path="products" element={<Products />} />
             <Route path="users" element={<Users />} />
             <Route path="sales" element={<AdminSales />} />
+            <Route path="reservas" element={<AdminReservas />} />
+            <Route path="calendario" element={<CalendarioReservas />} />
           </Route>
+          <Route path="/mis-reservas" element={<MisReservas />} />
 
         </Routes>
       </div>

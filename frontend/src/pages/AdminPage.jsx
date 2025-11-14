@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { FaBox, FaUsers, FaChartLine, FaArrowLeft } from "react-icons/fa";
+import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList } from "react-icons/fa";
 import "./AdminPage.css";
 
 const AdminPage = () => {
@@ -96,6 +96,40 @@ const AdminPage = () => {
           })}
         >
           <FaChartLine /> Ventas
+        </NavLink>
+        <NavLink 
+          to="/admin/reservas" 
+          className="nav-link"
+          style={({ isActive }) => ({
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '1rem 1.5rem',
+            textDecoration: 'none',
+            color: isActive ? '#667eea' : '#666',
+            borderBottom: isActive ? '3px solid #667eea' : '3px solid transparent',
+            fontWeight: isActive ? 'bold' : 'normal',
+            transition: 'all 0.3s'
+          })}
+        >
+          <FaClipboardList /> Reservas
+        </NavLink>
+        <NavLink 
+          to="/admin/calendario" 
+          className="nav-link"
+          style={({ isActive }) => ({
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '1rem 1.5rem',
+            textDecoration: 'none',
+            color: isActive ? '#667eea' : '#666',
+            borderBottom: isActive ? '3px solid #667eea' : '3px solid transparent',
+            fontWeight: isActive ? 'bold' : 'normal',
+            transition: 'all 0.3s'
+          })}
+        >
+          <FaCalendarAlt /> Calendario
         </NavLink>
       </nav>
 
