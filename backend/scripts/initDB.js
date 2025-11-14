@@ -305,7 +305,23 @@ async function initializeDatabase() {
 
         // Crear un pedido de ejemplo
         console.log('\n📋 Creando pedido de ejemplo...');
-        const mozo = usuarios.find(u => u.rol === 'Mozo');
+        // Buscar mozo por cualquier rol posible y crear si no existe
+        let mozo = usuarios.find(u => u.rol === 'Mozo' || u.rol === 'Mozo1' || u.rol === 'Mozo2');
+        if (!mozo) {
+            console.log('🆕 Mozo no encontrado, creando mozo de ejemplo...');
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash('mozo123', salt);
+            mozo = await Usuario.create({
+                nombre: 'Mozo',
+                apellido: 'Ejemplo',
+                email: 'mozoejemplo@restobar.com',
+                password: hashedPassword,
+                rol: 'Mozo1'
+            });
+            usuarios.push(mozo);
+            console.log(`   ✓ ${mozo.nombre} ${mozo.apellido} (Mozo1) creado`);
+}
+
         const mesa1 = mesas.find(m => m.numero === 1);
         const hamburguesaProducto = productos.find(p => p.nombre === 'Hamburguesa Completa');
         const cocaColaProducto = productos.find(p => p.nombre === 'Coca Cola 500ml');
@@ -314,6 +330,15 @@ async function initializeDatabase() {
         console.log('Mesa encontrada:', mesa1 ? mesa1.numero : 'NO ENCONTRADA');
         console.log('Hamburguesa encontrada:', hamburguesaProducto ? hamburguesaProducto.nombre : 'NO ENCONTRADA');
         console.log('Coca Cola encontrada:', cocaColaProducto ? cocaColaProducto.nombre : 'NO ENCONTRADA');
+        // Validación de datos requeridos antes de crear el pedido
+        if (!mesa1 || !mozo || !hamburguesaProducto || !cocaColaProducto) {
+            console.error('❌ No se puede crear el pedido de ejemplo. Faltan datos:');
+            if (!mesa1) console.error('Mesa no encontrada');
+            if (!mozo) console.error('Mozo no encontrado');
+            if (!hamburguesaProducto) console.error('Producto Hamburguesa Completa no encontrado');
+            if (!cocaColaProducto) console.error('Producto Coca Cola 500ml no encontrado');
+            process.exit(1);
+        }
 
         const pedidoEjemplo = new Pedido({
             numeroPedido: 1,

@@ -12,6 +12,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Reservas from "./pages/Reservas";
 import Mozo from "./pages/Mozo";
+import CocinaView from "./pages/CocinaView";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -56,6 +57,12 @@ function App() {
           <Route path="/mozo" element={
             <ProtectedRoute role={['Mozo', 'Mozo1', 'Mozo2']}>
               <Mozo />
+            </ProtectedRoute>
+          } />
+          {/* Módulo de Cocina - Gestión de pedidos - SOLO para EncargadoCocina */}
+          <Route path="/cocina" element={
+            <ProtectedRoute role={['EncargadoCocina', 'Cocina']}>
+              <CocinaView />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />

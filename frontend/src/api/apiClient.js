@@ -9,10 +9,14 @@ const apiClient = axios.create({
 // Añade token desde localStorage en cada request si existe
 apiClient.interceptors.request.use((config) => {
   try {
-    const token = localStorage.getItem('accessToken')
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
     if (token) {
       config.headers = config.headers || {}
       config.headers['Authorization'] = `Bearer ${token}`
+      // DEBUG: mostrar petición y header para depuración
+      try {
+        console.log('[apiClient] Enviando request]', config.method, config.url, 'Authorization:', `Bearer ${token}`);
+      } catch (e) {}
     }
   } catch (e) {
     // ignore
@@ -27,6 +31,7 @@ apiClient.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       try {
         localStorage.removeItem('accessToken')
+        localStorage.removeItem('token')
       } catch (e) {}
       // opcional: redirigir a /login
       if (typeof window !== 'undefined') window.location.href = '/login'
@@ -36,3 +41,4 @@ apiClient.interceptors.response.use(
 )
 
 export default apiClient
+export { API_BASE }
