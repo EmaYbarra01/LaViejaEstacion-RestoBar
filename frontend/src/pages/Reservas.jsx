@@ -12,7 +12,6 @@ const Reservas = () => {
     fecha: '',
     hora: '',
     comensales: 2,
-    numeroMesa: '',
     comentarios: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,7 +46,6 @@ const Reservas = () => {
         fecha: formData.fecha,
         hora: formData.hora,
         comensales: parseInt(formData.comensales),
-        numeroMesa: formData.numeroMesa ? parseInt(formData.numeroMesa) : undefined,
         comentarios: formData.comentarios
       };
 
@@ -59,9 +57,20 @@ const Reservas = () => {
       console.log('[RESERVAS] Respuesta del servidor:', response);
 
       if (response.success) {
+        // Construir mensaje de éxito
+        let mensajeExito = '¡Reserva realizada con éxito! ';
+        
+        if (response.mesaAsignada) {
+          mensajeExito += `Se te ha asignado la Mesa ${response.mesaAsignada.numero}. `;
+        } else {
+          mensajeExito += 'El administrador asignará tu mesa pronto. ';
+        }
+        
+        mensajeExito += 'Te enviaremos un email de confirmación.';
+        
         setMessage({ 
           type: 'success', 
-          text: '¡Reserva realizada con éxito! Te enviaremos un email de confirmación.' 
+          text: mensajeExito
         });
         
         // Limpiar formulario después de 3 segundos
@@ -73,7 +82,6 @@ const Reservas = () => {
             fecha: '',
             hora: '',
             comensales: 2,
-            numeroMesa: '',
             comentarios: ''
           });
           setMessage({ type: '', text: '' });
@@ -247,17 +255,10 @@ const Reservas = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="numeroMesa">Número de mesa (opcional)</label>
-              <input
-                type="number"
-                id="numeroMesa"
-                name="numeroMesa"
-                value={formData.numeroMesa}
-                onChange={handleChange}
-                placeholder="Dejar vacío para asignación automática"
-                min="1"
-              />
-              <small className="form-hint">Si tienes preferencia por una mesa específica, indícala aquí</small>
+              <div className="info-asignacion-automatica">
+                <span className="icon-info">ℹ️</span>
+                <p><strong>Asignación de mesa por el administrador:</strong> Una vez recibida tu reserva, nuestro equipo asignará la mejor mesa disponible según el número de comensales y tus preferencias. Recibirás la confirmación con el número de mesa asignada por email.</p>
+              </div>
             </div>
 
             <div className="form-group">
@@ -267,7 +268,7 @@ const Reservas = () => {
                 name="comentarios"
                 value={formData.comentarios}
                 onChange={handleChange}
-                placeholder="Alergias, preferencias de mesa, ocasión especial, etc."
+                placeholder="Alergias, preferencias de ubicación, ocasión especial, etc."
                 rows="4"
               />
             </div>

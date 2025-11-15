@@ -48,13 +48,39 @@ const MenuPage = () => {
 
     const fetchProductos = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-            const response = await axios.get(`${API_URL}/productos`);
-            console.log('Productos cargados desde BD:', response.data);
-            setProductos(response.data);
+            // VITE_API_BASE_URL debe incluir /api al final
+            const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+            // La ruta correcta es /menu (no /productos/menu)
+            // porque el router se monta en /api, no en /api/productos
+            const response = await axios.get(`${API_URL}/menu`);
+            console.log('Menú público cargado:', response.data);
+            
+            // El endpoint /menu devuelve estructura: { menu: { categoria: [productos] } }
+            // Necesitamos convertirlo a un array plano para el resto del código
+            if (response.data.menu) {
+                const productosArray = [];
+                Object.entries(response.data.menu).forEach(([categoria, items]) => {
+                    items.forEach(item => {
+                        productosArray.push({
+                            _id: item.id,
+                            nombre: item.nombre,
+                            descripcion: item.descripcion,
+                            precio: item.precio,
+                            categoria: categoria,
+                            imagenUrl: item.imagenUrl,
+                            disponible: true,
+                            stock: 1 // Asumimos que está disponible
+                        });
+                    });
+                });
+                setProductos(productosArray);
+            } else {
+                setProductos([]);
+            }
             setLoading(false);
         } catch (error) {
             console.error('Error al cargar productos:', error);
+            console.error('Detalles del error:', error.response?.data || error.message);
             setLoading(false);
         }
     };

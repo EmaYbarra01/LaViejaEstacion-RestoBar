@@ -5,6 +5,8 @@
   padding: 120px 20px 60px;
   position: relative;
   overflow: hidden;
+  /* Asegurar que el contenido sea visible */
+  z-index: 1;
 }
 
 .servicios-page::before {
@@ -36,6 +38,9 @@
   letter-spacing: 4px;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  /* Debug: hacer más visible */
+  background: rgba(255, 193, 7, 0.1);
+  padding: 10px;
 }
 
 .servicios-divider {

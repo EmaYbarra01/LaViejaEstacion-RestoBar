@@ -60,7 +60,9 @@ export const getAllProducts = async () => {
       withCredentials: true
     });
     // Adaptar cada producto del backend al formato frontend
-    return response.data.map(adaptProductFromBackend);
+    // El backend puede devolver un array directamente o un objeto con propiedad 'productos'
+    const data = Array.isArray(response.data) ? response.data : (response.data.productos || []);
+    return data.map(adaptProductFromBackend);
   } catch (error) {
     console.error('Error al obtener productos:', error);
     throw error;

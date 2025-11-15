@@ -33,9 +33,11 @@ const Users = () => {
   const loadUsers = async () => {
     try {
       const usersData = await getAllUsers();
-      setUsers(usersData);
+      // Asegurar que siempre sea un array
+      setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (err) {
       console.error("Error fetching users:", err);
+      setUsers([]); // Establecer array vacío en caso de error
     }
   };
 

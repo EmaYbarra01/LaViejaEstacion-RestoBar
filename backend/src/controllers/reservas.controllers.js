@@ -35,6 +35,15 @@ const crearReserva = async (req, res) => {
       });
     }
 
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        mensaje: 'Por favor ingrese un email válido'
+      });
+    }
+
     // Validar número de comensales según reglas de negocio
     const validacionComensales = validarComensales(comensales);
     if (!validacionComensales.valido) {
@@ -74,9 +83,23 @@ const crearReserva = async (req, res) => {
       });
     }
 
-    // Si se especificó una mesa, verificar que esté disponible
+    // Obtener mesas reservadas para esa fecha y hora (solo si el admin quiere asignar mesa)
     let mesaAsignada = null;
+    
     if (numeroMesa) {
+      // Solo si el administrador especifica una mesa al crear/editar la reserva
+      console.log('[RESERVAS] Administrador asignando mesa:', numeroMesa);
+      
+      const reservasExistentes = await Reserva.find({
+        fecha: fechaReserva,
+        hora: hora,
+        estado: { $in: ['Pendiente', 'Confirmada'] }
+      });
+
+      const mesasOcupadasIds = reservasExistentes
+        .filter(r => r.mesa)
+        .map(r => r.mesa.toString());
+
       mesaAsignada = await Mesa.findOne({ numero: numeroMesa });
       
       if (!mesaAsignada) {
@@ -94,23 +117,11 @@ const crearReserva = async (req, res) => {
         });
       }
 
-      // Verificar si ya hay una reserva para esa mesa en ese horario
-      const reservaExistente = await Reserva.findOne({
-        mesa: mesaAsignada._id,
-        fecha: fechaReserva,
-        hora: hora,
-        estado: { $in: ['Pendiente', 'Confirmada'] }
-      });
-
-      if (reservaExistente) {
+      // Verificar si ya está reservada
+      if (mesasOcupadasIds.includes(mesaAsignada._id.toString())) {
         return res.status(409).json({
           success: false,
-          mensaje: `La mesa ${numeroMesa} ya está reservada para esa fecha y hora`,
-          reservaExistente: {
-            cliente: reservaExistente.cliente,
-            fecha: reservaExistente.fecha,
-            hora: reservaExistente.hora
-          }
+          mensaje: `La mesa ${numeroMesa} ya está reservada para esa fecha y hora. Por favor elige otra mesa o un horario diferente.`
         });
       }
     }
@@ -164,10 +175,20 @@ const crearReserva = async (req, res) => {
         console.error('[RESERVAS] ❌ Error al enviar notificación al restobar:', error.message);
       });
 
+    // Mensaje de éxito
+    const mensajeExito = mesaAsignada 
+      ? `¡Reserva creada exitosamente! Se te ha asignado la Mesa ${mesaAsignada.numero}. Te enviaremos un email de confirmación con todos los detalles.`
+      : '¡Reserva creada exitosamente! El administrador asignará tu mesa y te enviaremos un email de confirmación.';
+
     res.status(201).json({
       success: true,
-      mensaje: 'Reserva creada exitosamente. Te enviaremos un email de confirmación.',
-      reserva: nuevaReserva
+      mensaje: mensajeExito,
+      reserva: nuevaReserva,
+      mesaAsignada: mesaAsignada ? {
+        numero: mesaAsignada.numero,
+        capacidad: mesaAsignada.capacidad,
+        ubicacion: mesaAsignada.ubicacion
+      } : null
     });
 
   } catch (error) {

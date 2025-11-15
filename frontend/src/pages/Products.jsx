@@ -41,9 +41,11 @@ const Products = () => {
   const loadProducts = async () => {
     try {
       const productsData = await getAllProducts();
-      setProducts(productsData);
+      // Asegurar que siempre sea un array
+      setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (err) {
       console.error("Error fetching products:", err);
+      setProducts([]); // Establecer array vacío en caso de error
     }
   };
 

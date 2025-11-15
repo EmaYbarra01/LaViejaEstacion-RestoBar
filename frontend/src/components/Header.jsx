@@ -62,12 +62,12 @@ export default function Header() {
           <NavLink to="/menu" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             MENÚ
           </NavLink>
+          <NavLink to="/servicios" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+            SERVICIOS
+          </NavLink>
           <NavLink to="/reservas" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             RESERVAS
           </NavLink>
-          <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            SERVICIOS
-          </a>
           {!isAuthenticated ? (
             <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               LOGIN
