@@ -526,7 +526,146 @@ const enviarEmailCancelacion = async (reserva) => {
   }
 };
 
+/**
+ * Enviar notificación al restobar sobre nueva reserva pendiente
+ */
+const enviarNotificacionRestobar = async (reserva) => {
+  try {
+    const transporter = crearTransporter();
+    
+    if (!transporter) {
+      console.warn('[EMAIL] No se puede enviar notificación - transporter no configurado');
+      return { success: false, mensaje: 'Transporter no configurado' };
+    }
+
+    const fechaFormateada = formatearFecha(reserva.fecha);
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+          .info-row:last-child { border-bottom: none; }
+          .label { font-weight: bold; color: #667eea; }
+          .value { color: #333; }
+          .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }
+          .button { display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 10px 5px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🔔 Nueva Reserva Pendiente</h1>
+            <p>Se ha recibido una nueva solicitud de reserva</p>
+          </div>
+          <div class="content">
+            <div class="alert">
+              <strong>⚠️ Acción requerida:</strong> Esta reserva está pendiente de confirmación.
+            </div>
+            
+            <div class="info-box">
+              <h2 style="color: #667eea; margin-top: 0;">Datos de la Reserva</h2>
+              <div class="info-row">
+                <span class="label">Cliente:</span>
+                <span class="value">${reserva.cliente}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Email:</span>
+                <span class="value">${reserva.email}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Teléfono:</span>
+                <span class="value">${reserva.telefono}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Fecha:</span>
+                <span class="value">${fechaFormateada}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Hora:</span>
+                <span class="value">${reserva.hora}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Comensales:</span>
+                <span class="value">${reserva.comensales} persona(s)</span>
+              </div>
+              ${reserva.numeroMesa ? `
+              <div class="info-row">
+                <span class="label">Mesa solicitada:</span>
+                <span class="value">Mesa #${reserva.numeroMesa}</span>
+              </div>
+              ` : ''}
+              ${reserva.comentarios ? `
+              <div class="info-row">
+                <span class="label">Comentarios:</span>
+                <span class="value">${reserva.comentarios}</span>
+              </div>
+              ` : ''}
+              <div class="info-row">
+                <span class="label">Estado:</span>
+                <span class="value" style="color: #ffc107; font-weight: bold;">Pendiente</span>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <p><strong>Acciones disponibles:</strong></p>
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/reservas" class="button">
+                Ver en Panel Admin
+              </a>
+            </div>
+
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-top: 20px;">
+              <p style="margin: 0;"><strong>💡 Recordatorio:</strong></p>
+              <ul style="margin: 10px 0;">
+                <li>Confirma o rechaza la reserva desde el panel de administración</li>
+                <li>El cliente recibirá un email cuando cambies el estado de la reserva</li>
+                <li>Las reservas pendientes por más de 24 horas pueden ser canceladas automáticamente</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'Sistema Reservas <noreply@laviejaestacion.com>',
+      to: process.env.EMAIL_RESTOBAR || process.env.EMAIL_USER, // Email del restobar
+      subject: `🔔 Nueva Reserva Pendiente - ${fechaFormateada} ${reserva.hora}`,
+      html: htmlContent
+    };
+
+    console.log(`[EMAIL] Enviando notificación al restobar...`);
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log('[EMAIL] ✅ Notificación al restobar enviada:', info.messageId);
+
+    return {
+      success: true,
+      mensaje: 'Notificación enviada al restobar',
+      messageId: info.messageId
+    };
+
+  } catch (error) {
+    console.error('[EMAIL] ❌ Error al enviar notificación al restobar:', error);
+    
+    return {
+      success: false,
+      mensaje: 'Error al enviar notificación al restobar',
+      error: error.message
+    };
+  }
+};
+
 export {
   enviarEmailConfirmacion,
-  enviarEmailCancelacion
+  enviarEmailCancelacion,
+  enviarNotificacionRestobar
 };

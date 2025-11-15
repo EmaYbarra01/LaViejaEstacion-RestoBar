@@ -126,3 +126,29 @@ export const deleteProduct = async (id) => {
     throw error;
   }
 };
+
+// Verificar si un código de producto ya existe
+export const checkProductCodeExists = async (code, excludeId = null) => {
+  try {
+    const products = await getAllProducts();
+    return products.some(product => 
+      product.code === code && product.id !== excludeId
+    );
+  } catch (error) {
+    console.error('Error al verificar código:', error);
+    return false;
+  }
+};
+
+// Verificar si un nombre de producto ya existe
+export const checkProductNameExists = async (name, excludeId = null) => {
+  try {
+    const products = await getAllProducts();
+    return products.some(product => 
+      product.name.toLowerCase() === name.toLowerCase() && product.id !== excludeId
+    );
+  } catch (error) {
+    console.error('Error al verificar nombre:', error);
+    return false;
+  }
+};

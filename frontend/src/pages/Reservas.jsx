@@ -288,6 +288,74 @@ const Reservas = () => {
               Volver al Inicio
             </button>
           </form>
+
+          {/* Instrucciones post-reserva */}
+          <div className="post-reserva-info">
+            <h3>📋 ¿Qué sigue después de hacer tu reserva?</h3>
+            <div className="instrucciones-pasos">
+              <div className="paso">
+                <span className="paso-numero">1</span>
+                <div className="paso-content">
+                  <h4>Revisa tu correo electrónico</h4>
+                  <p>Recibirás un email con los detalles de tu reserva y un enlace de confirmación.</p>
+                </div>
+              </div>
+              <div className="paso">
+                <span className="paso-numero">2</span>
+                <div className="paso-content">
+                  <h4>Confirma tu reserva</h4>
+                  <p>Haz clic en el enlace del correo para confirmar tu asistencia. Tu reserva quedará en estado "Pendiente" hasta que la confirmes.</p>
+                </div>
+              </div>
+              <div className="paso">
+                <span className="paso-numero">3</span>
+                <div className="paso-content">
+                  <h4>Espera la confirmación final</h4>
+                  <p>El restaurante revisará tu reserva y te enviará un correo de confirmación definitiva.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="contacto-alternativo">
+              <h4>⚠️ ¿No recibiste el correo de confirmación?</h4>
+              <p>Si escribiste mal tu email o no te llegó el correo en los próximos minutos:</p>
+              <ul>
+                <li>Revisa tu carpeta de spam o correo no deseado</li>
+                <li>Verifica que escribiste correctamente tu dirección de email</li>
+                <li>Contáctanos directamente:</li>
+              </ul>
+              <div className="contacto-directo">
+                <div className="contacto-item">
+                  <span className="contacto-icon">📧</span>
+                  <div>
+                    <strong>Email:</strong>
+                    <a href="mailto:cristiangermandelacruz29@gmail.com">
+                      cristiangermandelacruz29@gmail.com
+                    </a>
+                  </div>
+                </div>
+                <div className="contacto-item">
+                  <span className="contacto-icon">📞</span>
+                  <div>
+                    <strong>Teléfono:</strong>
+                    <a href="tel:+543816364592">+54 381 636-4592</a>
+                  </div>
+                </div>
+                <div className="contacto-item">
+                  <span className="contacto-icon">📍</span>
+                  <div>
+                    <strong>Dirección:</strong>
+                    <span>Ruta Nacional N°9, km. 1361</span>
+                  </div>
+                </div>
+              </div>
+              <p className="nota-importante">
+                <strong>Importante:</strong> Si necesitas cancelar o modificar tu reserva, 
+                puedes hacerlo desde el enlace que recibirás en el correo o contactándonos 
+                directamente con al menos 2 horas de anticipación.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

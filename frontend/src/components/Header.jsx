@@ -74,6 +74,40 @@ export default function Header() {
             </NavLink>
           ) : (
             <>
+              {/* Mostrar Panel de Admin solo para administradores y gerentes */}
+              {(user?.role === 'Administrador' || user?.role === 'SuperAdministrador' || user?.role === 'Gerente') && (
+                <NavLink 
+                  to="/admin/products" 
+                  className="nav-link" 
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  🛠️ ADMIN
+                </NavLink>
+              )}
+              
+              {/* Mostrar Panel de Mozo solo para mozos */}
+              {(user?.role === 'Mozo' || user?.role === 'Mozo1' || user?.role === 'Mozo2') && (
+                <NavLink 
+                  to="/mozo" 
+                  className="nav-link" 
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ 
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  📋 MOZO
+                </NavLink>
+              )}
+              
               <div className="nav-link user-info" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FaUser style={{ fontSize: '14px' }} />
                 <span>{user?.name || user?.nombreCompleto || 'Usuario'}</span>
