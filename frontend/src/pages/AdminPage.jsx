@@ -1,9 +1,12 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList } from "react-icons/fa";
+import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
+import useUserStore from "../store/useUserStore";
 import "./AdminPage.css";
 
 const AdminPage = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
+  const isSuperAdmin = user?.role === 'SuperAdministrador';
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f7fa' }}>
@@ -131,6 +134,25 @@ const AdminPage = () => {
         >
           <FaCalendarAlt /> Calendario
         </NavLink>
+        {isSuperAdmin && (
+          <NavLink 
+            to="/admin/empleados" 
+            className="nav-link"
+            style={({ isActive }) => ({
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '1rem 1.5rem',
+              textDecoration: 'none',
+              color: isActive ? '#ff9800' : '#666',
+              borderBottom: isActive ? '3px solid #ff9800' : '3px solid transparent',
+              fontWeight: isActive ? 'bold' : 'normal',
+              transition: 'all 0.3s'
+            })}
+          >
+            <FaUserTie /> Empleados
+          </NavLink>
+        )}
       </nav>
 
       {/* Contenido */}

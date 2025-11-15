@@ -25,6 +25,7 @@ import NotificationContainer from './components/carrito/NotificationContainer'
 import AdminReservas from "./pages/AdminReservas";
 import CalendarioReservas from "./pages/CalendarioReservas";
 import MisReservas from "./pages/MisReservas";
+import Empleados from "./pages/Empleados";
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false)
@@ -75,6 +76,11 @@ function App() {
             <Route path="sales" element={<AdminSales />} />
             <Route path="reservas" element={<AdminReservas />} />
             <Route path="calendario" element={<CalendarioReservas />} />
+            <Route path="empleados" element={
+              <ProtectedRoute role={['SuperAdministrador']}>
+                <Empleados />
+              </ProtectedRoute>
+            } />
           </Route>
           <Route path="/mis-reservas" element={<MisReservas />} />
 
