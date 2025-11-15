@@ -56,92 +56,42 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className={`header-nav ${isMenuOpen ? 'active' : ''}`}>
-          <NavLink to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            INICIO
-          </NavLink>
-          <NavLink to="/menu" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            MENÚ
-          </NavLink>
-          <NavLink to="/reservas" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            RESERVAS
-          </NavLink>
-          <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            SERVICIOS
-          </a>
-          {!isAuthenticated ? (
-            <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-              LOGIN
-            </NavLink>
-          ) : (
+          {/* Mostrar navegación solo si NO es EncargadoCocina */}
+          {user?.role !== 'EncargadoCocina' ? (
             <>
-              {/* Mostrar Panel de Admin solo para administradores y gerentes */}
-              {(user?.role === 'Administrador' || user?.role === 'SuperAdministrador' || user?.role === 'Gerente') && (
-                <NavLink 
-                  to="/admin/products" 
-                  className="nav-link" 
-                  onClick={() => setIsMenuOpen(false)}
-                  style={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  🛠️ ADMIN
-                </NavLink>
-              )}
-              
-              {/* Mostrar Panel de Mozo solo para mozos */}
-              {(user?.role === 'Mozo' || user?.role === 'Mozo1' || user?.role === 'Mozo2') && (
-                <NavLink 
-                  to="/mozo" 
-                  className="nav-link" 
-                  onClick={() => setIsMenuOpen(false)}
-                  style={{ 
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  📋 MOZO
-                </NavLink>
-              )}
-              
+              <NavLink to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                INICIO
+              </NavLink>
+              <NavLink to="/menu" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                MENÚ
+              </NavLink>
+              <NavLink to="/reservas" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                RESERVAS
+              </NavLink>
+              <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                SERVICIOS
+              </a>
+              <a href="#blog" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                BLOG
+              </a>
+            </>
+          ) : null}
+          {/* Mostrar botón de salir y datos de usuario para cualquier usuario autenticado */}
+          {isAuthenticated && (
+            <>
               <div className="nav-link user-info" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FaUser style={{ fontSize: '14px' }} />
                 <span>{user?.name || user?.nombreCompleto || 'Usuario'}</span>
-                <span style={{ 
-                  fontSize: '11px', 
-                  padding: '2px 8px', 
-                  background: 'rgba(255, 193, 7, 0.2)', 
-                  borderRadius: '12px',
-                  color: '#ffc107'
-                }}>
+                <span style={{ fontSize: '11px', padding: '2px 8px', background: 'rgba(255, 193, 7, 0.2)', borderRadius: '12px', color: '#ffc107' }}>
                   {user?.role}
                 </span>
               </div>
-              <button 
-                className="nav-link logout-btn" 
-                onClick={handleLogout}
-                style={{ 
-                  background: 'transparent', 
-                  border: 'none', 
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  color: '#ff6b6b'
-                }}
-              >
+              <button className="nav-link logout-btn" onClick={handleLogout} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: '#ff6b6b' }}>
                 <FaSignOutAlt />
                 SALIR
               </button>
             </>
           )}
-          <a href="#blog" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            BLOG
-          </a>
         </nav>
 
         {/* Social Icons & DateTime */}

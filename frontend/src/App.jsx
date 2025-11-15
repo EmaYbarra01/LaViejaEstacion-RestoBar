@@ -47,8 +47,8 @@ function App() {
 
   return (
     <>
-      {/* Mostrar Header solo si el usuario no es EncargadoCocina */}
-      {!(user?.role === 'EncargadoCocina') && <Header onCartClick={openCart} onSalesClick={openSales} />}
+      {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
+      <Header onCartClick={openCart} onSalesClick={openSales} />
       <NotificationContainer />
       <Cart isOpen={isCartOpen} onClose={closeCart} />
       <SalesHistory isOpen={isSalesOpen} onClose={closeSales} />
