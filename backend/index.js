@@ -25,6 +25,7 @@ import cocinaRoutes from './src/routes/cocina.routes.js';
 // import cierreCajaRoutes from './src/routes/cierreCaja.routes.js'; // Temporalmente comentado
 // import reportesRoutes from './src/routes/reportes.routes.js'; // Temporalmente comentado
 import salesRoutes from './src/routes/sales.routes.js';
+import empleadosRoutes from './src/routes/empleados.routes.js';
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api', cocinaRoutes);
 // app.use('/api', cierreCajaRoutes); // Temporalmente comentado
 // app.use('/api', reportesRoutes); // Temporalmente comentado
 app.use('/api', salesRoutes);
+app.use('/api/empleados', empleadosRoutes);
 
 // Ruta de bienvenida
 app.get('/', (req, res) => {
@@ -70,7 +72,8 @@ app.get('/', (req, res) => {
       compras: '/api/compras',
       cierreCaja: '/api/cierre-caja',
       reportes: '/api/reportes',
-      sales: '/api/sales'
+      sales: '/api/sales',
+      empleados: '/api/empleados'
     }
   });
 });
