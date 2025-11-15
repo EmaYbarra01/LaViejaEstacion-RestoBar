@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Reservas from "./pages/Reservas";
 import Mozo from "./pages/Mozo";
+import CocinaView from "./pages/CocinaView";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -27,16 +28,18 @@ import AdminReservas from "./pages/AdminReservas";
 import CalendarioReservas from "./pages/CalendarioReservas";
 import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
+import useUserStore from './store/useUserStore';
 
 function App() {
-  const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isSalesOpen, setIsSalesOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSalesOpen, setIsSalesOpen] = useState(false);
+  const { user } = useUserStore();
 
-  const openCart = () => setIsCartOpen(true)
-  const closeCart = () => setIsCartOpen(false)
-  
-  const openSales = () => setIsSalesOpen(true)
-  const closeSales = () => setIsSalesOpen(false)
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
+  const openSales = () => setIsSalesOpen(true);
+  const closeSales = () => setIsSalesOpen(false);
+
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
 
@@ -45,7 +48,8 @@ function App() {
 
   return (
     <>
-      <Header onCartClick={openCart} onSalesClick={openSales} />
+      {/* Mostrar Header solo si el usuario no es EncargadoCocina */}
+      {!(user?.role === 'EncargadoCocina') && <Header onCartClick={openCart} onSalesClick={openSales} />}
       <NotificationContainer />
       <Cart isOpen={isCartOpen} onClose={closeCart} />
       <SalesHistory isOpen={isSalesOpen} onClose={closeSales} />
@@ -60,8 +64,14 @@ function App() {
           <Route path="/reservas" element={<Reservas />} />
           {/* Módulo del Mozo - Gestión de pedidos - SOLO para mozos */}
           <Route path="/mozo" element={
-            <ProtectedRoute role={['Mozo', 'Mozo1', 'Mozo2']}>
+            <ProtectedRoute role={["Mozo", "Mozo1", "Mozo2"]}>
               <Mozo />
+            </ProtectedRoute>
+          } />
+          {/* Módulo de Cocina - Gestión de pedidos - SOLO para EncargadoCocina */}
+          <Route path="/cocina" element={
+            <ProtectedRoute role={["EncargadoCocina", "Cocina"]}>
+              <CocinaView />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />
@@ -69,7 +79,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
-            <ProtectedRoute role={['Administrador', 'SuperAdministrador', 'Gerente']}>
+            <ProtectedRoute role={["Administrador", "SuperAdministrador", "Gerente"]}>
                 <AdminPage />
             </ProtectedRoute>
           }>        
@@ -79,7 +89,7 @@ function App() {
             <Route path="reservas" element={<AdminReservas />} />
             <Route path="calendario" element={<CalendarioReservas />} />
             <Route path="empleados" element={
-              <ProtectedRoute role={['SuperAdministrador']}>
+              <ProtectedRoute role={["SuperAdministrador"]}>
                 <Empleados />
               </ProtectedRoute>
             } />

@@ -33,7 +33,7 @@ const app = express();
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'], // Múltiples orígenes permitidos
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan('dev'));
@@ -49,7 +49,7 @@ app.use('/api', productosRoutes);
 app.use('/api', pedidosRoutes);
 app.use('/api', mesasRoutes);
 app.use('/api/reservas', reservasRoutes);
-app.use('/api', cocinaRoutes);
+app.use('/api/cocina', cocinaRoutes);
 // app.use('/api', comprasRoutes); // Temporalmente comentado
 // app.use('/api', cierreCajaRoutes); // Temporalmente comentado
 // app.use('/api', reportesRoutes); // Temporalmente comentado
@@ -59,7 +59,6 @@ app.use('/api/empleados', empleadosRoutes);
 // Ruta de bienvenida
 app.get('/', (req, res) => {
   res.json({
-    mensaje: 'API La Vieja Estación RestoBar',
     version: '1.0.0',
     estado: 'Activo',
     rutas_disponibles: {

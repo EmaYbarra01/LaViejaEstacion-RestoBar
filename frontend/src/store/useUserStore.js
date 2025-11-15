@@ -43,7 +43,10 @@ const useUserStore = create((set, get) => ({
       
       // Guardar token en localStorage para peticiones futuras
       if (token) {
-        localStorage.setItem('token', token);
+        try {
+          localStorage.setItem('token', token);
+          localStorage.setItem('accessToken', token);
+        } catch (e) {}
       }
       
       // Actualizar el estado global
@@ -82,10 +85,12 @@ const useUserStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.get(
         import.meta.env.VITE_API_ME || 'http://localhost:4000/api/me',
         {
-          withCredentials: true
+          withCredentials: true,
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         }
       );
       

@@ -33,14 +33,29 @@ export const getPedidosCocina = async (req, res) => {
     const pedidos = await Pedido.find(filtro)
       .populate('mesa', 'numero ubicacion')
       .populate('mozo', 'nombre apellido')
-      .populate('productos.producto', 'nombre categoria')
+      .populate('productos.producto', 'nombre categoria precio')
       .sort({ fechaCreacion: 1 }) // Más antiguos primero
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean(); // Convertir a objeto plano para manipular
+
+    // Formatear pedidos para la respuesta
+    const pedidosFormateados = pedidos.map(pedido => ({
+      ...pedido,
+      productos: pedido.productos.map(item => ({
+        _id: item._id,
+        nombre: item.nombre,
+        cantidad: item.cantidad,
+        precioUnitario: item.precioUnitario,
+        subtotal: item.subtotal,
+        observaciones: item.observaciones || '',
+        producto: item.producto // Info poblada del catálogo
+      }))
+    }));
     
     res.status(200).json({
       success: true,
-      count: pedidos.length,
-      pedidos
+      count: pedidosFormateados.length,
+      pedidos: pedidosFormateados
     });
     
   } catch (error) {
@@ -128,6 +143,28 @@ export const updateEstadoPedido = async (req, res) => {
     }
     
     await pedido.save();
+    console.log('[Cocina] Pedido guardado en DB:', pedido._id.toString(), 'estado:', pedido.estado, 'productosCount:', (pedido.productos||[]).length);
+    
+    // Poblar para respuesta
+    await pedido.populate([
+      { path: 'mesa', select: 'numero ubicacion' },
+      { path: 'mozo', select: 'nombre apellido' },
+      { path: 'productos.producto', select: 'nombre categoria precio' }
+    ]);
+
+    // Formatear productos
+    const pedidoFormateado = {
+      ...pedido.toObject(),
+      productos: pedido.productos.map(item => ({
+        _id: item._id,
+        nombre: item.nombre,
+        cantidad: item.cantidad,
+        precioUnitario: item.precioUnitario,
+        subtotal: item.subtotal,
+        observaciones: item.observaciones || '',
+        producto: item.producto
+      }))
+    };
     
     // Emitir evento por socket.io si está disponible
     const io = req.app.get('io');
@@ -136,7 +173,7 @@ export const updateEstadoPedido = async (req, res) => {
         pedidoId: pedido._id,
         estadoAnterior,
         nuevoEstado: estado,
-        pedido
+        pedido: pedidoFormateado
       });
       
       // Si se marcó como listo, notificar específicamente
@@ -149,17 +186,10 @@ export const updateEstadoPedido = async (req, res) => {
       }
     }
     
-    // Poblar para respuesta
-    await pedido.populate([
-      { path: 'mesa', select: 'numero ubicacion' },
-      { path: 'mozo', select: 'nombre apellido' },
-      { path: 'productos.producto', select: 'nombre categoria' }
-    ]);
-    
     res.status(200).json({
       success: true,
       mensaje: `Pedido actualizado a estado: ${estado}`,
-      pedido
+      pedido: pedidoFormateado
     });
     
   } catch (error) {
