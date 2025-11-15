@@ -41,7 +41,8 @@ function App() {
 
   return (
     <>
-      <Header onCartClick={openCart} onSalesClick={openSales} />
+{/* Mostrar Header solo si el usuario no es EncargadoCocina */}
+      {!(useUserStore.getState().user?.role === 'EncargadoCocina') &&       <Header onCartClick={openCart} onSalesClick={openSales} />
       <NotificationContainer />
       <Cart isOpen={isCartOpen} onClose={closeCart} />
       <SalesHistory isOpen={isSalesOpen} onClose={closeSales} />
