@@ -118,10 +118,23 @@ const usePedidosCocina = (options = {}) => {
   useEffect(() => {
     const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace('/api', '');
     
+    // Intentar obtener usuarioId del localStorage o Zustand
+    let usuarioId = null;
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const userData = JSON.parse(userStr);
+        usuarioId = userData.id || userData._id;
+      }
+    } catch (e) {
+      // Ignorar si no hay user en localStorage
+    }
+    
     const socket = io(BACKEND_URL, {
       auth: {
         rol: 'EncargadoCocina',
-        modulo: 'cocina'
+        modulo: 'cocina',
+        usuarioId: usuarioId
       },
       transports: ['websocket', 'polling']
     });

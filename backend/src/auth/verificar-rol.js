@@ -14,11 +14,14 @@ const verificarRol = (...rolesPermitidos) => {
             });
         }
 
+        // Aplanar el array si se pasó como verificarRol(['rol1', 'rol2'])
+        const roles = Array.isArray(rolesPermitidos[0]) ? rolesPermitidos[0] : rolesPermitidos;
+        
         // Verificar que el rol del usuario esté en los roles permitidos
         // Soporta roles con números (ej: "Mozo1" matchea con "Mozo")
-        console.log(`[verificar-rol] Verificando rol: "${req.rol}" contra [${rolesPermitidos.join(', ')}]`);
+        console.log(`[verificar-rol] Verificando rol: "${req.rol}" contra [${roles.join(', ')}]`);
         
-        const roleMatch = rolesPermitidos.some(rolPermitido => 
+        const roleMatch = roles.some(rolPermitido => 
             req.rol === rolPermitido || req.rol.startsWith(rolPermitido)
         );
         
@@ -26,7 +29,7 @@ const verificarRol = (...rolesPermitidos) => {
         
         if (!roleMatch) {
             return res.status(403).json({
-                mensaje: `Acceso denegado. Se requiere uno de los siguientes roles: ${rolesPermitidos.join(', ')}`
+                mensaje: `Acceso denegado. Se requiere uno de los siguientes roles: ${roles.join(', ')}`
             });
         }
 

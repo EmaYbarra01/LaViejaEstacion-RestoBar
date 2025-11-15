@@ -4,38 +4,6 @@ import { FaHamburger, FaCocktail, FaIceCream, FaArrowLeft, FaChevronDown } from 
 import axios from 'axios';
 import './MenuPage.css';
 
-// Datos de ejemplo (puedes reemplazarlos con datos de la BD)
-const comidaEstatica = [
-  { name: 'Hamburguesa Clásica', price: 1200, description: 'Carne de res, queso cheddar, lechuga, tomate y mayonesa.', preparation: 'Preparada con ingredientes frescos y pan artesanal.' },
-  { name: 'Pizza Margarita', price: 1500, description: 'Salsa de tomate, mozzarella fresca y albahaca.', preparation: 'Horneada en horno de piedra para un sabor auténtico.' },
-  { name: 'Ensalada César', price: 900, description: 'Lechuga romana, crutones, queso parmesano y aderezo César.', preparation: 'Aderezo casero con un toque de anchoas.' },
-  { name: 'Milanesa Napolitana', price: 1700, description: 'Carne empanada, salsa de tomate, jamón y queso.', preparation: 'Acompañada de papas fritas.' },
-  { name: 'Empanadas Salteñas', price: 300, description: 'Carne cortada a cuchillo, cebolla y huevo.', preparation: 'Cocidas al horno de barro.' },
-  { name: 'Lomo Completo', price: 2000, description: 'Lomo, jamón, queso, huevo y vegetales.', preparation: 'En pan artesanal.' },
-  { name: 'Tarta de Verduras', price: 800, description: 'Masa casera, espinaca y ricota.', preparation: 'Acompañada de ensalada.' },
-  { name: 'Pollo al Curry', price: 1600, description: 'Pollo, salsa curry y arroz basmati.', preparation: 'Receta especial de la casa.' },
-];
-
-const bebidasEstaticas = [
-  { name: 'Cerveza Artesanal', price: 600, tipo: 'Alcohol' },
-  { name: 'Vino Malbec', price: 900, tipo: 'Alcohol' },
-  { name: 'Agua Mineral', price: 250, tipo: 'Sin alcohol' },
-  { name: 'Gaseosa Cola', price: 350, tipo: 'Sin alcohol' },
-  { name: 'Jugo Natural', price: 400, tipo: 'Sin alcohol' },
-  { name: 'Fernet con Coca', price: 700, tipo: 'Alcohol' },
-  { name: 'Gin Tonic', price: 800, tipo: 'Alcohol' },
-  { name: 'Café Expreso', price: 300, tipo: 'Caliente' },
-];
-
-const postresEstaticos = [
-  { name: 'Flan Casero', price: 500, ingredientes: 'Leche, huevos, azúcar, vainilla' },
-  { name: 'Helado Artesanal', price: 600, ingredientes: 'Leche, crema, frutas' },
-  { name: 'Tarta de Manzana', price: 550, ingredientes: 'Manzana, masa, azúcar' },
-  { name: 'Brownie con Helado', price: 700, ingredientes: 'Chocolate, nuez, helado' },
-  { name: 'Cheesecake', price: 650, ingredientes: 'Queso crema, galleta, frutos rojos' },
-  { name: 'Tiramisú', price: 700, ingredientes: 'Café, queso mascarpone, cacao' },
-];
-
 const MenuPage = () => {
     const navigate = useNavigate();
     const [productos, setProductos] = useState([]);
@@ -49,17 +17,29 @@ const MenuPage = () => {
     const fetchProductos = async () => {
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-            const response = await axios.get(`${API_URL}/productos`);
+            const response = await axios.get(`${API_URL}/menu`);
             console.log('Productos cargados desde BD:', response.data);
-            setProductos(response.data);
+            
+            // El backend devuelve un array simple de productos
+            if (Array.isArray(response.data)) {
+                setProductos(response.data);
+            } else {
+                setProductos([]);
+                console.warn('La respuesta no es un array:', response.data);
+            }
+            
             setLoading(false);
         } catch (error) {
             console.error('Error al cargar productos:', error);
+            console.error('Detalles del error:', error.response?.data || error.message);
             setLoading(false);
         }
     };
 
     const categorizeProducts = () => {
+        console.log('Total productos:', productos.length);
+        console.log('Productos:', productos);
+        
         const comidas = productos.filter(p => 
             p.categoria === 'Comidas'
         );
@@ -70,6 +50,10 @@ const MenuPage = () => {
         const postres = productos.filter(p => 
             p.categoria === 'Postres'
         );
+
+        console.log('Comidas:', comidas.length);
+        console.log('Bebidas:', bebidas.length);
+        console.log('Postres:', postres.length);
 
         return { 
             comidas,
@@ -120,6 +104,18 @@ const MenuPage = () => {
                                 <div className="menu-grid">
                                     {comidas.map((item) => (
                                         <div key={item._id} className="menu-card">
+                                            {item.imagenUrl && (
+                                                <div className="card-image">
+                                                    <img 
+                                                        src={item.imagenUrl} 
+                                                        alt={item.nombre}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://via.placeholder.com/300x200?text=Imagen+No+Disponible';
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
                                                 <span className="card-price">${item.precio?.toFixed(2)}</span>
@@ -158,6 +154,18 @@ const MenuPage = () => {
                                 <div className="menu-grid">
                                     {bebidas.map((item) => (
                                         <div key={item._id} className="menu-card">
+                                            {item.imagenUrl && (
+                                                <div className="card-image">
+                                                    <img 
+                                                        src={item.imagenUrl} 
+                                                        alt={item.nombre}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://via.placeholder.com/300x200?text=Imagen+No+Disponible';
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
                                                 <span className="card-price">${item.precio?.toFixed(2)}</span>
@@ -201,6 +209,18 @@ const MenuPage = () => {
                                 <div className="menu-grid">
                                     {postres.map((item) => (
                                         <div key={item._id} className="menu-card">
+                                            {item.imagenUrl && (
+                                                <div className="card-image">
+                                                    <img 
+                                                        src={item.imagenUrl} 
+                                                        alt={item.nombre}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://via.placeholder.com/300x200?text=Imagen+No+Disponible';
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
                                             <div className="card-header">
                                                 <h3 className="card-name">{item.nombre}</h3>
                                                 <span className="card-price">${item.precio?.toFixed(2)}</span>

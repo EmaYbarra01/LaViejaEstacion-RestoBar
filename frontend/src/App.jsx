@@ -5,6 +5,9 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import MenuPage from "./pages/MenuPage";
 import MenuDigital from "./pages/MenuDigital";
+import ServiciosPage from "./pages/ServiciosPage";
+import QuienesSomos from "./pages/QuienesSomos";
+import EquipoDesarrollo from "./pages/EquipoDesarrollo";
 import AdminPage from "./pages/AdminPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -12,6 +15,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Reservas from "./pages/Reservas";
 import Mozo from "./pages/Mozo";
+import CocinaView from "./pages/CocinaView";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -22,16 +26,22 @@ import ProductList from './components/carrito/ProductList'
 import Cart from './components/carrito/Cart'
 import SalesHistory from './components/carrito/SalesHistory'
 import NotificationContainer from './components/carrito/NotificationContainer'
+import AdminReservas from "./pages/AdminReservas";
+import CalendarioReservas from "./pages/CalendarioReservas";
+import MisReservas from "./pages/MisReservas";
+import Empleados from "./pages/Empleados";
+import useUserStore from './store/useUserStore';
 
 function App() {
-  const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isSalesOpen, setIsSalesOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSalesOpen, setIsSalesOpen] = useState(false);
+  const { user } = useUserStore();
 
-  const openCart = () => setIsCartOpen(true)
-  const closeCart = () => setIsCartOpen(false)
-  
-  const openSales = () => setIsSalesOpen(true)
-  const closeSales = () => setIsSalesOpen(false)
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
+  const openSales = () => setIsSalesOpen(true);
+  const closeSales = () => setIsSalesOpen(false);
+
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
 
@@ -40,6 +50,7 @@ function App() {
 
   return (
     <>
+      {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
       <Header onCartClick={openCart} onSalesClick={openSales} />
       <NotificationContainer />
       <Cart isOpen={isCartOpen} onClose={closeCart} />
@@ -50,12 +61,21 @@ function App() {
           <Route path="/menu" element={<MenuPage />} />
           {/* HU1: Menú digital público accesible por QR - Sin autenticación */}
           <Route path="/menu-digital" element={<MenuDigital />} />
+          <Route path="/servicios" element={<ServiciosPage />} />
+          <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
           <Route path="/productos" element={<ProductList />} />
           <Route path="/reservas" element={<Reservas />} />
           {/* Módulo del Mozo - Gestión de pedidos - SOLO para mozos */}
           <Route path="/mozo" element={
-            <ProtectedRoute role={['Mozo', 'Mozo1', 'Mozo2']}>
+            <ProtectedRoute role={["Mozo", "Mozo1", "Mozo2"]}>
               <Mozo />
+            </ProtectedRoute>
+          } />
+          {/* Módulo de Cocina - Gestión de pedidos - SOLO para EncargadoCocina */}
+          <Route path="/cocina" element={
+            <ProtectedRoute role={["EncargadoCocina", "Cocina"]}>
+              <CocinaView />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />
@@ -63,14 +83,22 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
-            <ProtectedRoute role={['admin','superadmin']}>
+            <ProtectedRoute role={["Administrador", "SuperAdministrador", "Gerente"]}>
                 <AdminPage />
             </ProtectedRoute>
           }>        
             <Route path="products" element={<Products />} />
             <Route path="users" element={<Users />} />
             <Route path="sales" element={<AdminSales />} />
+            <Route path="reservas" element={<AdminReservas />} />
+            <Route path="calendario" element={<CalendarioReservas />} />
+            <Route path="empleados" element={
+              <ProtectedRoute role={["SuperAdministrador"]}>
+                <Empleados />
+              </ProtectedRoute>
+            } />
           </Route>
+          <Route path="/mis-reservas" element={<MisReservas />} />
 
         </Routes>
       </div>

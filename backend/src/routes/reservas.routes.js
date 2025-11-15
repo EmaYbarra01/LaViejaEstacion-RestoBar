@@ -16,7 +16,9 @@ import {
   completarReserva,
   obtenerReservasPorFecha,
   confirmarReservaToken,
-  cancelarReservaToken
+  cancelarReservaToken,
+  verificarDisponibilidad,
+  obtenerReservasPorCliente
 } from '../controllers/reservas.controllers.js';
 
 // Middleware de autenticación (opcional, descomentar si quieres proteger las rutas)
@@ -44,6 +46,24 @@ router.get('/confirmar/:token', confirmarReservaToken);
  * @access  Public
  */
 router.get('/cancelar/:token', cancelarReservaToken);
+
+/**
+ * @route   GET /api/reservas/disponibilidad/:fecha/:hora
+ * @desc    Verificar disponibilidad de mesas para fecha y hora
+ * @param   fecha - Fecha en formato YYYY-MM-DD
+ * @param   hora - Hora en formato HH:MM
+ * @query   comensales - Número de comensales (opcional)
+ * @access  Public
+ */
+router.get('/disponibilidad/:fecha/:hora', verificarDisponibilidad);
+
+/**
+ * @route   GET /api/reservas/cliente/:email
+ * @desc    Obtener todas las reservas de un cliente por email
+ * @param   email - Email del cliente
+ * @access  Public
+ */
+router.get('/cliente/:email', obtenerReservasPorCliente);
 
 /**
  * @route   GET /api/reservas

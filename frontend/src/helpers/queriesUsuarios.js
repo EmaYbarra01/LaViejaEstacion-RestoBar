@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const URL_USUARIOS = import.meta.env.VITE_API_USUARIOS;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const URL_USUARIOS = `${API_URL}/usuarios`;
 
 // Obtener todos los usuarios
 export const getAllUsers = async () => {
@@ -8,7 +9,9 @@ export const getAllUsers = async () => {
     const response = await axios.get(URL_USUARIOS, {
       withCredentials: true
     });
-    return response.data;
+    // El backend puede devolver un array directamente o un objeto con propiedad 'usuarios'
+    const data = Array.isArray(response.data) ? response.data : (response.data.usuarios || []);
+    return data;
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
     throw error;

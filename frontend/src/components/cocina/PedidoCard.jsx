@@ -155,19 +155,34 @@ const PedidoCard = ({ pedido, onCambiarEstado }) => {
       {/* Lista de productos */}
       <div className="pedido-productos">
         <h4>Productos:</h4>
-        <ul>
-          {pedido.productos && pedido.productos.map((item, index) => (
-            <li key={index} className="producto-item">
-              <span className="producto-cantidad">{item.cantidad}x</span>
-              <span className="producto-nombre">{item.nombre}</span>
-              {item.observaciones && (
-                <p className="producto-observaciones">
-                  📝 {item.observaciones}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
+        {pedido.productos && pedido.productos.length > 0 ? (
+          <ul>
+            {pedido.productos.map((item, index) => {
+              // Manejar diferentes estructuras de datos
+              const cantidad = item.cantidad || 0;
+              const nombre = item.nombre || (item.producto?.nombre) || 'Producto sin nombre';
+              const observaciones = item.observaciones || '';
+              const precioUnitario = item.precioUnitario || 0;
+              
+              return (
+                <li key={item._id || index} className="producto-item">
+                  <div className="producto-info">
+                    <span className="producto-cantidad">{cantidad}x</span>
+                    <span className="producto-nombre">{nombre}</span>
+                    <span className="producto-precio">${precioUnitario.toFixed(2)}</span>
+                  </div>
+                  {observaciones && (
+                    <p className="producto-observaciones">
+                      📝 {observaciones}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="sin-productos">⚠️ Sin productos registrados</p>
+        )}
       </div>
 
       {/* Observaciones generales */}

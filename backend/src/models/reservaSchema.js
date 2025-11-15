@@ -20,7 +20,14 @@ const reservaSchema = new mongoose.Schema({
     required: [true, 'El email es obligatorio'],
     trim: true,
     lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Por favor ingrese un email válido']
+    validate: {
+      validator: function(value) {
+        // Validación más estricta de formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value);
+      },
+      message: 'Por favor ingrese un email válido'
+    }
   },
   
   telefono: {

@@ -47,16 +47,24 @@ const ProtectedRoute = ({ children, role }) => {
         return <Navigate to="/login" replace />;
     }
 
+    // DEBUG: mostrar usuario y token local para diagnosticar 403s
+    try {
+        console.log('[ProtectedRoute] user:', user);
+        console.log('[ProtectedRoute] token localStorage:', localStorage.getItem('token') || localStorage.getItem('accessToken'));
+    } catch (e) {}
+
     // Si se requiere un rol específico, verificar que el usuario lo tenga
     if (role) {
-        // Si role es un array, verificar que el usuario tenga uno de esos roles
+        const userRole = (user?.role || '').toString().toLowerCase();
+        // Si role es un array, verificar que el usuario tenga uno de esos roles (normalizando)
         if (Array.isArray(role)) {
-            if (!role.includes(user.role)) {
+            const allowed = role.map(r => r.toString().toLowerCase());
+            if (!allowed.includes(userRole)) {
                 return <Navigate to="/login" replace />;
             }
         } else {
-            // Si role es un string, verificar que coincida exactamente
-            if (user.role !== role) {
+            // Si role es un string, verificar que coincida (normalizando)
+            if (userRole !== String(role).toLowerCase()) {
                 return <Navigate to="/login" replace />;
             }
         }

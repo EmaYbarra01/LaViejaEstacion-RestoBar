@@ -181,8 +181,15 @@
   box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
 }
 
-.form-group select {
+..form-group select {
   cursor: pointer;
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.form-group select option {
+  background: #2a2a2a;
+  color: #ffffff;
 }
 
 .form-group textarea {
@@ -245,6 +252,37 @@
 .back-btn:hover {
   background: rgba(255, 193, 7, 0.1);
   transform: translateY(-2px);
+}
+
+/* Información de asignación automática */
+.info-asignacion-automatica {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+  border-left: 4px solid #2196f3;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.info-asignacion-automatica .icon-info {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.info-asignacion-automatica p {
+  margin: 0;
+  color: #b0b0b0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.info-asignacion-automatica strong {
+  color: #2196f3;
+  display: block;
+  margin-bottom: 4px;
 }
 
 /* Animaciones */
@@ -338,3 +376,195 @@
     font-size: 1.5rem;
   }
 }
+
+/* Estilos para información post-reserva */
+.post-reserva-info {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 12px;
+  margin-top: 40px;
+  border: 2px solid #e0e0e0;
+}
+
+.post-reserva-info h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.instrucciones-pasos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.paso {
+  display: flex;
+  gap: 15px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.paso:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.paso-numero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.paso-content h4 {
+  color: #333;
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+.paso-content p {
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.contacto-alternativo {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 25px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.contacto-alternativo h4 {
+  color: #856404;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.contacto-alternativo p {
+  color: #856404;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.contacto-alternativo ul {
+  color: #856404;
+  margin: 10px 0 20px 20px;
+}
+
+.contacto-alternativo ul li {
+  margin-bottom: 8px;
+}
+
+.contacto-directo {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.contacto-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contacto-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  text-align: center;
+}
+
+.contacto-item div {
+  flex: 1;
+}
+
+.contacto-item strong {
+  display: block;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.contacto-item a {
+  color: #ffc107;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.contacto-item a:hover {
+  color: #ff9800;
+  text-decoration: underline;
+}
+
+.contacto-item span {
+  color: #666;
+}
+
+.nota-importante {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #ff9800;
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+
+.nota-importante strong {
+  color: #ff9800;
+}
+
+/* Responsive para información post-reserva */
+@media (max-width: 768px) {
+  .post-reserva-info {
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  .post-reserva-info h3 {
+    font-size: 1.3rem;
+  }
+
+  .paso {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .paso-numero {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+
+  .contacto-directo {
+    padding: 15px;
+  }
+
+  .contacto-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .contacto-icon {
+    width: auto;
+  }
+}
+
