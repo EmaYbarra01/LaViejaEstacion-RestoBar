@@ -40,6 +40,12 @@ const verificarToken = (req, res, next) => {
         req.nombre = payload.nombreUsuario;
         req.rol = payload.rol;
         
+        console.log('[DEBUG] Usuario autenticado:', {
+            id: req.id,
+            nombre: req.nombre,
+            rol: req.rol
+        });
+        
     }
     catch (error) {
         console.log(error);
