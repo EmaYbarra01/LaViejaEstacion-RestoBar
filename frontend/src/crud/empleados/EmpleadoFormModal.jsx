@@ -113,13 +113,9 @@ const EmpleadoFormModal = (props) => {
                                     label="Cargo *"
                                 >
                                     <MenuItem value="Mozo">Mozo</MenuItem>
-                                    <MenuItem value="Cocinero">Cocinero</MenuItem>
+                                    <MenuItem value="Encargado de Cocina">Encargado de Cocina</MenuItem>
                                     <MenuItem value="Cajero">Cajero</MenuItem>
-                                    <MenuItem value="Barman">Barman</MenuItem>
-                                    <MenuItem value="Limpieza">Limpieza</MenuItem>
-                                    <MenuItem value="Seguridad">Seguridad</MenuItem>
                                     <MenuItem value="Gerente">Gerente</MenuItem>
-                                    <MenuItem value="Otro">Otro</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>

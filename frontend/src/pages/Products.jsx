@@ -9,16 +9,26 @@ import {
   TableCell,
   TableBody,
   Table,
+  Chip,
+  Alert
 } from "@mui/material";
 import Swal from 'sweetalert2';
+import useUserStore from '../store/useUserStore';
 import "./AdminPage.css";
 
 const Products = () => {
+  const { user } = useUserStore();
+  const isSuperAdmin = user?.role === 'SuperAdministrador';
+  const isGerente = user?.role === 'Gerente';
+  const canEdit = isSuperAdmin; // Solo SuperAdmin puede editar productos
+  const canView = isSuperAdmin || isGerente; // Ambos pueden ver
+  
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [codeError, setCodeError] = useState("");
   const [nameError, setNameError] = useState("");
+  const [lowStockCount, setLowStockCount] = useState(0);
 
   const [form, setForm] = useState({
     name: "",
@@ -42,7 +52,12 @@ const Products = () => {
     try {
       const productsData = await getAllProducts();
       // Asegurar que siempre sea un array
-      setProducts(Array.isArray(productsData) ? productsData : []);
+      const productsArray = Array.isArray(productsData) ? productsData : [];
+      setProducts(productsArray);
+      
+      // Calcular productos con stock bajo
+      const lowStock = productsArray.filter(p => p.stock <= p.minimumStock).length;
+      setLowStockCount(lowStock);
     } catch (err) {
       console.error("Error fetching products:", err);
       setProducts([]); // Establecer array vacío en caso de error
@@ -219,20 +234,45 @@ const Products = () => {
     <div className="admin-page">
       <div className="admin-page-header">
         <h1 className="admin-page-title">
-          📦 Gestión de Productos
+          {isGerente ? '🔍 Supervisión de Productos' : '📦 Gestión de Productos'}
         </h1>
-        <Button
-          variant="contained"
-          className="create-button"
-          onClick={() => {
-            setIsEdit(false);
-            resetForm();
-            handleOpenModal();
-          }}
-        >
-          ➕ Crear Producto
-        </Button>
+        {isGerente && (
+          <Chip 
+            label="Solo Lectura" 
+            color="warning" 
+            size="small" 
+            style={{ marginLeft: '10px' }}
+          />
+        )}
+        {canEdit && (
+          <Button
+            variant="contained"
+            className="create-button"
+            onClick={() => {
+              setIsEdit(false);
+              resetForm();
+              handleOpenModal();
+            }}
+          >
+            ➕ Crear Producto
+          </Button>
+        )}
       </div>
+
+      {/* Banner de Solo Lectura para Gerente */}
+      {isGerente && (
+        <div style={{ padding: '10px', background: '#fff3cd', borderRadius: '8px', marginBottom: '20px', border: '1px solid #ffc107' }}>
+          <p style={{ margin: 0, color: '#856404' }}>📋 Solo visualización - Sin edición permitida</p>
+        </div>
+      )}
+
+      {/* Alertas de Stock Bajo */}
+      {lowStockCount > 0 && (
+        <Alert severity="warning" style={{ marginBottom: '20px' }}>
+          <strong>⚠️ Atención:</strong> Hay {lowStockCount} producto{lowStockCount > 1 ? 's' : ''} con stock bajo o agotado.
+          {isGerente && ' Contacte al SuperAdministrador para realizar reposición.'}
+        </Alert>
+      )}
 
       <ProductFormModal
         form={form}
@@ -317,24 +357,28 @@ const Products = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="action-buttons">
-                      <Button
-                        variant="contained"
-                        className="edit-button"
-                        onClick={() => handleEditProduct(product)}
-                        size="small"
-                      >
-                        ✏️ Editar
-                      </Button>
-                      <Button
-                        variant="contained"
-                        className="delete-button"
-                        onClick={() => handleDeleteProduct(product.id)}
-                        size="small"
-                      >
-                        🗑️ Eliminar
-                      </Button>
-                    </div>
+                    {canEdit ? (
+                      <div className="action-buttons">
+                        <Button
+                          variant="contained"
+                          className="edit-button"
+                          onClick={() => handleEditProduct(product)}
+                          size="small"
+                        >
+                          ✏️ Editar
+                        </Button>
+                        <Button
+                          variant="contained"
+                          className="delete-button"
+                          onClick={() => handleDeleteProduct(product.id)}
+                          size="small"
+                        >
+                          🗑️ Eliminar
+                        </Button>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#999', fontSize: '0.9rem' }}>Solo visualización</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

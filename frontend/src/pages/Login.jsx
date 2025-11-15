@@ -49,15 +49,18 @@ const handleSubmit = async (e) => {
         console.log('Resultado del login:', result);
         
         if (result.success) {
-            const rol = result.user?.role?.toLowerCase() || '';
+            const rol = result.user?.role || '';
             
-            if (rol === 'administrador' || rol === 'admin' || rol === 'superadmin' || rol === 'superadministrador') {
-                navigate('/admin/products', { replace: true });
-            } else if (rol === 'mozo' || rol.startsWith('mozo')) {
+            // Redirigir según rol exacto
+            if (rol === 'SuperAdministrador') {
+                navigate('/admin/dashboard', { replace: true });
+            } else if (rol === 'Gerente') {
+                navigate('/admin/dashboard', { replace: true });
+            } else if (rol === 'Mozo') {
                 navigate('/mozo', { replace: true });
-            } else if (rol === 'encargadococina' || rol.includes('cocina')) {
-                navigate('/cocina', { replace: true });
-            } else if (rol === 'cajero' || rol.includes('caja')) {
+            } else if (rol === 'EncargadoCocina') {
+                navigate('/encargado-cocina', { replace: true });
+            } else if (rol === 'Cajero') {
                 navigate('/', { replace: true });
             } else {
                 navigate('/', { replace: true });
