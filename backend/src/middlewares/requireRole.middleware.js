@@ -25,6 +25,7 @@ export const requireRole = (rolesPermitidos) => {
       try {
         console.log('[requireRole] req.user:', JSON.stringify(req.user));
         console.log('[requireRole] rolesPermitidos:', JSON.stringify(rolesPermitidos));
+        console.log('[requireRole] rol recibido:', req.user.rol || req.user.role);
       } catch (e) {
         // no bloquear por error de logging
       }
@@ -43,6 +44,7 @@ export const requireRole = (rolesPermitidos) => {
       });
 
       if (!allowed) {
+        console.log('[requireRole] Acceso denegado. Rol actual:', userRol, 'Roles permitidos:', roles);
         return res.status(403).json({
           mensaje: `Acceso denegado. Se requiere uno de los siguientes roles: ${roles.join(', ')}`,
           rolActual: req.user.rol || req.user.role || null

@@ -15,7 +15,12 @@ apiClient.interceptors.request.use((config) => {
       config.headers['Authorization'] = `Bearer ${token}`
       // DEBUG: mostrar petición y header para depuración
       try {
-        console.log('[apiClient] Enviando request]', config.method, config.url, 'Authorization:', `Bearer ${token}`);
+        console.log('[apiClient] Enviando request:', {
+          method: config.method,
+          url: config.url,
+          headers: config.headers,
+          data: config.data
+        });
       } catch (e) {}
     }
   } catch (e) {
