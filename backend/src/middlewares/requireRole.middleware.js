@@ -65,7 +65,7 @@ export const requireRole = (rolesPermitidos) => {
 /**
  * Alias para roles específicos comunes
  */
-export const requireCocina = requireRole(['EncargadoCocina', 'Cocina', 'Administrador']);
+export const requireCocina = requireRole(['EncargadoCocina', 'Administrador']);
 export const requireCajero = requireRole(['Cajero', 'Administrador']);
 export const requireMozo = requireRole(['Mozo', 'Mozo1', 'Mozo2', 'Administrador']);
 export const requireAdmin = requireRole(['Administrador', 'SuperAdministrador']);

@@ -211,8 +211,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // Verificar password
-    const passwordValido = bcrypt.compareSync(password, usuario.password);
+    // Verificar password usando el método del schema
+    const passwordValido = await usuario.compararPassword(password);
 
     if (!passwordValido) {
       return res.status(404).json({

@@ -64,7 +64,22 @@ export const updateEmpleado = async (id, empleadoData) => {
 };
 
 /**
- * Eliminar (desactivar) un empleado
+ * Desactivar un empleado (soft delete)
+ */
+export const desactivarEmpleado = async (id) => {
+  try {
+    const response = await axios.patch(`${URL_EMPLEADOS}/${id}/desactivar`, {}, {
+      withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al desactivar empleado:', error);
+    throw error;
+  }
+};
+
+/**
+ * Eliminar permanentemente un empleado
  */
 export const deleteEmpleado = async (id) => {
   try {
@@ -138,6 +153,40 @@ export const getPagos = async (id) => {
     return response.data;
   } catch (error) {
     console.error('Error al obtener pagos:', error);
+    throw error;
+  }
+};
+
+/**
+ * Registrar inasistencia de un empleado
+ */
+export const registrarInasistencia = async (id, inasistenciaData) => {
+  try {
+    const response = await axios.post(`${URL_EMPLEADOS}/${id}/inasistencia`, inasistenciaData, {
+      withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al registrar inasistencia:', error);
+    throw error;
+  }
+};
+
+/**
+ * Obtener historial de inasistencias de un empleado
+ */
+export const getInasistencias = async (id, mes = null, anio = null) => {
+  try {
+    let url = `${URL_EMPLEADOS}/${id}/inasistencias`;
+    if (mes && anio) {
+      url += `?mes=${mes}&anio=${anio}`;
+    }
+    const response = await axios.get(url, {
+      withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener inasistencias:', error);
     throw error;
   }
 };

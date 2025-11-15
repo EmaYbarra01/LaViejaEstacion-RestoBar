@@ -21,7 +21,7 @@ const Cocina = () => {
     const socket = io(backendUrl, {
       auth: {
         usuarioId,
-        rol: 'Cocina',
+        rol: 'EncargadoCocina',
         modulo: 'cocina'
       },
       transports: ['websocket', 'polling']

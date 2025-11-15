@@ -3,36 +3,79 @@ import Usuario from '../models/usuarioSchema.js';
 
 /**
  * Obtener todos los empleados con información de usuario
+ * Muestra tanto usuarios MADRE como empleados creados
  */
 export const obtenerEmpleados = async (req, res) => {
   try {
+    // Obtener todos los usuarios del sistema
+    const todosLosUsuarios = await Usuario.find({ activo: true })
+      .select('-password')
+      .sort({ fechaIngreso: 1 });
+
+    // Obtener todos los empleados (con información extendida)
     const empleados = await Empleado.find()
-      .populate('usuario', '-password') // Excluir password
+      .populate('usuario', '-password')
       .sort({ fechaContratacion: -1 });
 
-    // Calcular días trabajados del mes actual
+    // Crear un Map de empleados por ID de usuario para búsqueda rápida
+    const empleadosMap = new Map();
+    empleados.forEach(emp => {
+      if (emp.usuario) {
+        empleadosMap.set(emp.usuario._id.toString(), emp);
+      }
+    });
+
     const mesActual = new Date().getMonth() + 1;
     const anioActual = new Date().getFullYear();
 
-    const empleadosConInfo = empleados.map(emp => {
-      const diasTrabajados = emp.diasTrabajadosMes(mesActual, anioActual);
-      const pagadoMesActual = emp.estaPagadoMes(mesActual, anioActual);
+    // Construir la lista combinada
+    const listaCombinada = todosLosUsuarios.map(usuario => {
+      const empleado = empleadosMap.get(usuario._id.toString());
       
-      return {
-        _id: emp._id,
-        usuario: emp.usuario,
-        cargo: emp.cargo,
-        salarioMensual: emp.salarioMensual,
-        fechaContratacion: emp.fechaContratacion,
-        activo: emp.activo,
-        diasTrabajados,
-        pagadoMesActual,
-        totalAsistencias: emp.asistencias.length,
-        totalPagos: emp.pagos.length
-      };
+      if (empleado) {
+        // Es un empleado con registro completo
+        const diasTrabajados = empleado.diasTrabajadosMes(mesActual, anioActual);
+        const diasInasistencias = empleado.inasistenciasMes ? empleado.inasistenciasMes(mesActual, anioActual) : 0;
+        const pagadoMesActual = empleado.estaPagadoMes(mesActual, anioActual);
+        
+        return {
+          _id: empleado._id,
+          usuario: usuario,
+          cargo: empleado.cargo,
+          salarioMensual: empleado.salarioMensual,
+          fechaContratacion: empleado.fechaContratacion,
+          activo: empleado.activo,
+          esUsuarioMadre: false,
+          tieneRegistroEmpleado: true,
+          diasTrabajados,
+          diasInasistencias,
+          pagadoMesActual,
+          totalAsistencias: empleado.asistencias.length,
+          totalInasistencias: empleado.inasistencias ? empleado.inasistencias.length : 0,
+          totalPagos: empleado.pagos.length
+        };
+      } else {
+        // Es un usuario MADRE (sin registro de empleado)
+        return {
+          _id: usuario._id,
+          usuario: usuario,
+          cargo: usuario.rol,
+          salarioMensual: 0,
+          fechaContratacion: usuario.fechaIngreso,
+          activo: usuario.activo,
+          esUsuarioMadre: true,
+          tieneRegistroEmpleado: false,
+          diasTrabajados: 0,
+          diasInasistencias: 0,
+          pagadoMesActual: false,
+          totalAsistencias: 0,
+          totalInasistencias: 0,
+          totalPagos: 0
+        };
+      }
     });
 
-    res.json(empleadosConInfo);
+    res.json(listaCombinada);
   } catch (error) {
     console.error('Error al obtener empleados:', error);
     res.status(500).json({ 
@@ -89,6 +132,18 @@ export const crearEmpleado = async (req, res) => {
       }
     }
 
+    // Mapear cargo a rol del sistema
+    let rolSistema = 'Mozo'; // Rol por defecto
+    if (cargo === 'Encargado de Cocina') {
+      rolSistema = 'EncargadoCocina';
+    } else if (cargo === 'Cajero') {
+      rolSistema = 'Cajero';
+    } else if (cargo === 'Gerente') {
+      rolSistema = 'Gerente';
+    } else if (cargo === 'Mozo') {
+      rolSistema = 'Mozo';
+    }
+
     // Crear el usuario con la contraseña proporcionada
     const nuevoUsuario = new Usuario({
       nombre,
@@ -97,7 +152,7 @@ export const crearEmpleado = async (req, res) => {
       password: password || 'empleado123', // Usar la contraseña proporcionada o una por defecto
       dni: dni || 'SIN-DNI-' + Date.now(), // Generar DNI temporal si no se proporciona
       telefono: telefono || '',
-      rol: 'Mozo', // Rol por defecto para empleados
+      rol: rolSistema, // Asignar rol según el cargo
       activo: true,
       fechaIngreso: new Date()
     });
@@ -165,9 +220,9 @@ export const actualizarEmpleado = async (req, res) => {
 };
 
 /**
- * Eliminar un empleado (soft delete)
+ * Desactivar un empleado (soft delete)
  */
-export const eliminarEmpleado = async (req, res) => {
+export const desactivarEmpleado = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -182,6 +237,44 @@ export const eliminarEmpleado = async (req, res) => {
     res.json({
       message: 'Empleado desactivado exitosamente',
       empleado
+    });
+  } catch (error) {
+    console.error('Error al desactivar empleado:', error);
+    res.status(500).json({ 
+      message: 'Error al desactivar empleado', 
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Eliminar un empleado permanentemente (solo SuperAdministrador)
+ */
+export const eliminarEmpleado = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const empleado = await Empleado.findById(id).populate('usuario');
+    if (!empleado) {
+      return res.status(404).json({ message: 'Empleado no encontrado' });
+    }
+
+    // Guardar información antes de eliminar
+    const nombreCompleto = `${empleado.usuario.nombre} ${empleado.usuario.apellido}`;
+    const usuarioId = empleado.usuario._id;
+
+    // Eliminar primero el registro de empleado
+    await Empleado.findByIdAndDelete(id);
+
+    // Eliminar el usuario asociado
+    await Usuario.findByIdAndDelete(usuarioId);
+
+    res.json({
+      message: 'Empleado y usuario eliminados permanentemente',
+      eliminado: {
+        nombre: nombreCompleto,
+        cargo: empleado.cargo
+      }
     });
   } catch (error) {
     console.error('Error al eliminar empleado:', error);
@@ -342,6 +435,81 @@ export const obtenerPagos = async (req, res) => {
     console.error('Error al obtener pagos:', error);
     res.status(500).json({ 
       message: 'Error al obtener pagos', 
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Registrar inasistencia de un empleado
+ */
+export const registrarInasistencia = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fecha, motivo = 'Sin registrar asistencia', observaciones = '' } = req.body;
+
+    const empleado = await Empleado.findById(id);
+    if (!empleado) {
+      return res.status(404).json({ message: 'Empleado no encontrado' });
+    }
+
+    empleado.inasistencias.push({
+      fecha: fecha || new Date(),
+      motivo,
+      observaciones
+    });
+
+    await empleado.save();
+
+    res.json({
+      message: 'Inasistencia registrada exitosamente',
+      inasistencia: empleado.inasistencias[empleado.inasistencias.length - 1]
+    });
+  } catch (error) {
+    console.error('Error al registrar inasistencia:', error);
+    res.status(500).json({ 
+      message: 'Error al registrar inasistencia', 
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Obtener historial de inasistencias de un empleado
+ */
+export const obtenerInasistencias = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { mes, anio } = req.query;
+
+    const empleado = await Empleado.findById(id).populate('usuario', '-password');
+    if (!empleado) {
+      return res.status(404).json({ message: 'Empleado no encontrado' });
+    }
+
+    let inasistencias = empleado.inasistencias || [];
+
+    // Filtrar por mes/año si se proporcionan
+    if (mes && anio) {
+      inasistencias = inasistencias.filter(i => {
+        const fecha = new Date(i.fecha);
+        return fecha.getMonth() + 1 === parseInt(mes) && 
+               fecha.getFullYear() === parseInt(anio);
+      });
+    }
+
+    res.json({
+      empleado: {
+        _id: empleado._id,
+        usuario: empleado.usuario,
+        cargo: empleado.cargo
+      },
+      inasistencias: inasistencias.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+    });
+  } catch (error) {
+    console.error('Error al obtener inasistencias:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener inasistencias', 
       error: error.message 
     });
   }

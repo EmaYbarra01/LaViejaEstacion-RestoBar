@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
 import useUserStore from "../store/useUserStore";
 import "./AdminPage.css";
@@ -7,6 +7,8 @@ const AdminPage = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
   const isSuperAdmin = user?.role === 'SuperAdministrador';
+  const isGerente = user?.role === 'Gerente';
+  const canViewEmpleados = isSuperAdmin || isGerente;
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f7fa' }}>
@@ -49,6 +51,23 @@ const AdminPage = () => {
         maxWidth: '1400px',
         margin: '0 auto'
       }}>
+        <NavLink 
+          to="/admin/dashboard" 
+          className="nav-link"
+          style={({ isActive }) => ({
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '1rem 1.5rem',
+            textDecoration: 'none',
+            color: isActive ? '#667eea' : '#666',
+            borderBottom: isActive ? '3px solid #667eea' : '3px solid transparent',
+            fontWeight: isActive ? 'bold' : 'normal',
+            transition: 'all 0.3s'
+          })}
+        >
+          <FaChartLine /> Dashboard
+        </NavLink>
         <NavLink 
           to="/admin/products" 
           className="nav-link"
@@ -134,7 +153,7 @@ const AdminPage = () => {
         >
           <FaCalendarAlt /> Calendario
         </NavLink>
-        {isSuperAdmin && (
+        {canViewEmpleados && (
           <NavLink 
             to="/admin/empleados" 
             className="nav-link"
@@ -152,6 +171,71 @@ const AdminPage = () => {
           >
             <FaUserTie /> Empleados
           </NavLink>
+        )}
+        {/* Módulos Operativos - Solo para Gerente y SuperAdmin */}
+        {canViewEmpleados && (
+          <>
+            <div style={{ 
+              height: '30px', 
+              width: '1px', 
+              background: '#e0e0e0', 
+              margin: '0 1rem',
+              display: 'inline-block',
+              verticalAlign: 'middle'
+            }} />
+            <Link 
+              to="/mozo" 
+              className="nav-link"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '1rem 1.5rem',
+                textDecoration: 'none',
+                color: '#666',
+                borderBottom: '3px solid transparent',
+                fontWeight: 'normal',
+                transition: 'all 0.3s',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = '#4caf50';
+                e.target.style.borderBottomColor = '#4caf50';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = '#666';
+                e.target.style.borderBottomColor = 'transparent';
+              }}
+            >
+              🍽️ Módulo Mozo
+            </Link>
+            <Link 
+              to="/encargado-cocina" 
+              className="nav-link"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '1rem 1.5rem',
+                textDecoration: 'none',
+                color: '#666',
+                borderBottom: '3px solid transparent',
+                fontWeight: 'normal',
+                transition: 'all 0.3s',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = '#f44336';
+                e.target.style.borderBottomColor = '#f44336';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = '#666';
+                e.target.style.borderBottomColor = 'transparent';
+              }}
+            >
+              👨‍🍳 Encargado Cocina
+            </Link>
+          </>
         )}
       </nav>
 
