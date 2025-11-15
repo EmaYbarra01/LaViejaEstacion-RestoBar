@@ -4,11 +4,14 @@ import {
   obtenerEmpleadoPorId,
   crearEmpleado,
   actualizarEmpleado,
+  desactivarEmpleado,
   eliminarEmpleado,
   registrarAsistencia,
   registrarPago,
   obtenerAsistencias,
-  obtenerPagos
+  obtenerPagos,
+  registrarInasistencia,
+  obtenerInasistencias
 } from '../controllers/empleados.controllers.js';
 import verificarToken from '../auth/token-verify.js';
 import verificarRol from '../auth/verificar-rol.js';
@@ -21,18 +24,20 @@ const router = Router();
  */
 
 // Obtener todos los empleados
+// Gerente puede ver para supervisión
 router.get(
   '/',
   verificarToken,
-  verificarRol(['SuperAdministrador']),
+  verificarRol(['SuperAdministrador', 'Gerente']),
   obtenerEmpleados
 );
 
 // Obtener un empleado por ID
+// Gerente puede ver para supervisión
 router.get(
   '/:id',
   verificarToken,
-  verificarRol(['SuperAdministrador']),
+  verificarRol(['SuperAdministrador', 'Gerente']),
   obtenerEmpleadoPorId
 );
 
@@ -52,7 +57,15 @@ router.put(
   actualizarEmpleado
 );
 
-// Eliminar (desactivar) un empleado
+// Desactivar un empleado (soft delete)
+router.patch(
+  '/:id/desactivar',
+  verificarToken,
+  verificarRol(['SuperAdministrador']),
+  desactivarEmpleado
+);
+
+// Eliminar permanentemente un empleado (solo SuperAdministrador)
 router.delete(
   '/:id',
   verificarToken,
@@ -77,19 +90,38 @@ router.post(
 );
 
 // Obtener historial de asistencias de un empleado
+// Gerente puede ver para supervisión
 router.get(
   '/:id/asistencias',
   verificarToken,
-  verificarRol(['SuperAdministrador']),
+  verificarRol(['SuperAdministrador', 'Gerente']),
   obtenerAsistencias
 );
 
 // Obtener historial de pagos de un empleado
+// Gerente puede ver para supervisión
 router.get(
   '/:id/pagos',
   verificarToken,
-  verificarRol(['SuperAdministrador']),
+  verificarRol(['SuperAdministrador', 'Gerente']),
   obtenerPagos
+);
+
+// Registrar inasistencia de un empleado
+router.post(
+  '/:id/inasistencia',
+  verificarToken,
+  verificarRol(['SuperAdministrador']),
+  registrarInasistencia
+);
+
+// Obtener historial de inasistencias de un empleado
+// Gerente puede ver para supervisión
+router.get(
+  '/:id/inasistencias',
+  verificarToken,
+  verificarRol(['SuperAdministrador', 'Gerente']),
+  obtenerInasistencias
 );
 
 export default router;

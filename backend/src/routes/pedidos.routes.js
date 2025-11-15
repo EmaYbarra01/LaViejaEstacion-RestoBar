@@ -26,6 +26,7 @@ const router = Router();
  */
 
 // Rutas de consulta general (protegidas)
+// Gerente y SuperAdministrador pueden ver todos los pedidos para supervisión
 router.get('/pedidos', verificarToken, obtenerPedidos);
 router.get('/pedidos/:id', verificarToken, obtenerUnPedido);
 router.get('/pedidos/estado/:estado', verificarToken, obtenerPedidosPorEstado);
@@ -33,12 +34,12 @@ router.get('/pedidos/mesa/:mesaId', verificarToken, obtenerPedidosPorMesa);
 router.get('/pedidos/mozo/:mozoId', verificarToken, obtenerPedidosPorMozo);
 
 // HU5: Vista de cocina - Pedidos pendientes para cocina
-// ⚠️ Temporalmente sin verificarRol hasta resolver caché
-router.get('/pedidos/cocina/pendientes', verificarToken, obtenerPedidosCocina);
+// Gerente y SuperAdministrador pueden ver para supervisión
+router.get('/pedidos/cocina/pendientes', verificarToken, verificarRol(['EncargadoCocina', 'Gerente', 'SuperAdministrador']), obtenerPedidosCocina);
 
 // HU7, HU8: Vista de caja - Pedidos listos para cobrar (Listo o Servido)
-// ⚠️ Temporalmente sin verificarRol
-router.get('/pedidos/caja/pendientes', verificarToken, obtenerPedidosCaja);
+// Gerente y SuperAdministrador pueden ver para supervisión
+router.get('/pedidos/caja/pendientes', verificarToken, verificarRol(['Cajero', 'Gerente', 'SuperAdministrador']), obtenerPedidosCaja);
 
 // HU3: Mozo crea pedido
 // ⚠️ Temporalmente sin verificarRol hasta resolver caché de Node.js
@@ -63,9 +64,9 @@ router.put('/pedidos/:id/marcar-listo', verificarToken, marcarPedidoListo);
 router.post('/pedidos/:id/cobrar', verificarToken, cobrarPedido);
 
 // HU8 (alternativa): Registrar pago (método antiguo, mantener para compatibilidad)
-router.patch('/pedidos/:id/pagar', verificarToken, verificarRol(['Cajero', 'Administrador']), registrarPago);
+router.patch('/pedidos/:id/pagar', verificarToken, verificarRol(['Cajero', 'SuperAdministrador']), registrarPago);
 
 // Cancelar pedido
-router.delete('/pedidos/:id', verificarToken, verificarRol(['Mozo', 'Administrador']), cancelarPedido);
+router.delete('/pedidos/:id', verificarToken, verificarRol(['Mozo', 'SuperAdministrador']), cancelarPedido);
 
 export default router;

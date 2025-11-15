@@ -23,13 +23,13 @@ dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restobar_db';
 
-// Datos de prueba
+// Datos de prueba - USUARIOS MADRE del sistema
 const usuariosData = [
     {
         nombre: 'Juan',
         apellido: 'Suarez',
         email: 'juan@restobar.com',
-        password: 'SA007', // Cambiar por hash real
+        password: 'SA007',
         rol: 'SuperAdministrador',
         dni: '33245128',
         telefono: '3815498754',
@@ -254,29 +254,22 @@ async function initializeDatabase() {
         await Compra.deleteMany({});
         console.log('✅ Colecciones limpiadas');
 
-        // Insertar usuarios con contraseñas hasheadas
-        console.log('\n👥 Insertando usuarios...');
+        // Insertar usuarios MADRE del sistema
+        console.log('\n👥 Insertando usuarios base del sistema...');
         const usuarios = [];
         
         for (const userData of usuariosData) {
             try {
-                // Hashear la contraseña antes de crear el usuario
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(userData.password, salt);
-                
-                const usuario = await Usuario.create({
-                    ...userData,
-                    password: hashedPassword
-                });
-                
+                // Crear usuario (el schema hashea la password automáticamente)
+                const usuario = await Usuario.create(userData);
                 usuarios.push(usuario);
-                console.log(`   ✓ ${usuario.nombre} ${usuario.apellido} (${usuario.rol})`);
+                console.log(`   ✓ ${usuario.nombre} ${usuario.apellido} (${usuario.rol}) - Password: ${userData.password}`);
             } catch (error) {
                 console.error(`   ✗ Error al crear ${userData.nombre}:`, error.message);
             }
         }
         
-        console.log(`✅ ${usuarios.length} usuarios creados de ${usuariosData.length} intentados`);
+        console.log(`✅ ${usuarios.length} usuarios base creados`);
 
         // Insertar mesas
         console.log('\n🪑 Insertando mesas...');
