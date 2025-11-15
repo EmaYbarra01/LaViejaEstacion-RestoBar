@@ -16,8 +16,9 @@ const useUserStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}/api/login`,
+        `${API_URL}/login`,
         { email, password },
         {
           withCredentials: true,
@@ -43,7 +44,10 @@ const useUserStore = create((set, get) => ({
       
       // Guardar token en localStorage para peticiones futuras
       if (token) {
-        localStorage.setItem('token', token);
+        try {
+          localStorage.setItem('token', token);
+          localStorage.setItem('accessToken', token);
+        } catch (e) {}
       }
       
       // Actualizar el estado global
@@ -82,10 +86,13 @@ const useUserStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+      const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}/api/me`,
+        `${API_URL}/me`,
         {
-          withCredentials: true
+          withCredentials: true,
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         }
       );
       
@@ -144,7 +151,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}/api/logout`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/logout`,
         {},
         {
           withCredentials: true

@@ -171,6 +171,12 @@
   border-left: 3px solid #2196f3;
 }
 
+.producto-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .producto-cantidad {
   display: inline-block;
   background: #2196f3;
@@ -178,14 +184,21 @@
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-weight: bold;
-  margin-right: 0.5rem;
   min-width: 35px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .producto-nombre {
   font-weight: 600;
   color: #333;
+  flex: 1;
+}
+
+.producto-precio {
+  font-weight: 600;
+  color: #4caf50;
+  flex-shrink: 0;
 }
 
 .producto-observaciones {
@@ -196,6 +209,15 @@
   font-size: 0.85rem;
   color: #666;
   font-style: italic;
+}
+
+.sin-productos {
+  padding: 1rem;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
 /* Observaciones generales */

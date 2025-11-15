@@ -8,7 +8,6 @@ export default function Header() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
-  
   // Obtener datos del usuario desde Zustand
   const { user, isAuthenticated, logout } = useUserStore();
 
@@ -16,7 +15,6 @@ export default function Header() {
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -27,7 +25,6 @@ export default function Header() {
   const formatDate = (date) => {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    
     return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
   };
 
@@ -45,71 +42,54 @@ export default function Header() {
     <header className="modern-header">
       <div className="header-container">
         {/* Logo */}
-        <div className="header-logo" onClick={() => navigate('/')}>
-          <FaUtensils className="logo-icon" />
-        </div>
-
+        <div className="header-logo" onClick={() => navigate('/')}> <FaUtensils className="logo-icon" /> </div>
         {/* Mobile Menu Toggle */}
         <button className="mobile-menu-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
-
         {/* Navigation */}
         <nav className={`header-nav ${isMenuOpen ? 'active' : ''}`}>
-          <NavLink to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            INICIO
-          </NavLink>
-          <NavLink to="/menu" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            MENÚ
-          </NavLink>
-          <NavLink to="/reservas" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            RESERVAS
-          </NavLink>
-          <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            SERVICIOS
-          </a>
-          {!isAuthenticated ? (
-            <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-              LOGIN
-            </NavLink>
-          ) : (
+          {/* Mostrar navegación solo si NO es EncargadoCocina */}
+          {user?.role !== 'EncargadoCocina' ? (
+            <>
+              <NavLink to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                INICIO
+              </NavLink>
+              <NavLink to="/menu" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                MENÚ
+              </NavLink>
+              <NavLink to="/reservas" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                RESERVAS
+              </NavLink>
+              <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                SERVICIOS
+              </a>
+              <NavLink to="/quienes-somos" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                QUIÉNES SOMOS
+              </NavLink>
+            </>
+          ) : null}
+          {/* Mostrar botón de salir y datos de usuario para cualquier usuario autenticado */}
+          {isAuthenticated ? (
             <>
               <div className="nav-link user-info" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FaUser style={{ fontSize: '14px' }} />
                 <span>{user?.name || user?.nombreCompleto || 'Usuario'}</span>
-                <span style={{ 
-                  fontSize: '11px', 
-                  padding: '2px 8px', 
-                  background: 'rgba(255, 193, 7, 0.2)', 
-                  borderRadius: '12px',
-                  color: '#ffc107'
-                }}>
+                <span style={{ fontSize: '11px', padding: '2px 8px', background: 'rgba(255, 193, 7, 0.2)', borderRadius: '12px', color: '#ffc107' }}>
                   {user?.role}
                 </span>
               </div>
-              <button 
-                className="nav-link logout-btn" 
-                onClick={handleLogout}
-                style={{ 
-                  background: 'transparent', 
-                  border: 'none', 
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  color: '#ff6b6b'
-                }}
-              >
+              <button className="nav-link logout-btn" onClick={handleLogout} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: '#ff6b6b' }}>
                 <FaSignOutAlt />
                 SALIR
               </button>
             </>
+          ) : (
+            <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              LOGIN
+            </NavLink>
           )}
-          <a href="#blog" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-            BLOG
-          </a>
         </nav>
-
         {/* Social Icons & DateTime */}
         <div className="header-actions">
           <div className="social-icons">

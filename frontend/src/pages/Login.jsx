@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './Login.css';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import useUserStore from '../store/useUserStore';
 
 const Login = () => {
@@ -15,36 +15,13 @@ const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [localError, setLocalError] = useState("");
 const navigate = useNavigate();
+const location = useLocation();
+const hasRedirected = useRef(false);
 
 // Obtener funciones y estado del store de Zustand
 const { login, isLoading, error, clearError, user, isAuthenticated } = useUserStore();
 
-// Si ya está autenticado, redirigir según el rol
-useEffect(() => {
-    if (isAuthenticated && user) {
-        console.log('Usuario autenticado:', user);
-        
-        // Normalizar el rol para comparación (sin importar mayúsculas/minúsculas)
-        const rol = user.role?.toLowerCase() || '';
-        
-        if (rol === 'administrador' || rol === 'admin' || rol === 'superadmin' || rol === 'superadministrador') {
-            console.log('Redirigiendo a /admin/products');
-            navigate('/admin/products');
-        } else if (rol === 'mozo' || rol.startsWith('mozo')) {
-            console.log('Redirigiendo a /mozo (módulo del mozo)');
-            navigate('/mozo');
-        } else if (rol === 'encargadococina' || rol.includes('cocina')) {
-            console.log('Redirigiendo a / (vista cocina)');
-            navigate('/');
-        } else if (rol === 'cajero' || rol.includes('caja')) {
-            console.log('Redirigiendo a / (vista cajero)');
-            navigate('/');
-        } else {
-            console.log('Redirigiendo a / (home)');
-            navigate('/');
-        }
-    }
-}, [isAuthenticated, user, navigate]);
+// NO redirigir automáticamente - solo en handleSubmit después del login exitoso
 
 // Limpiar errores cuando el usuario empiece a escribir
 useEffect(() => {
@@ -72,8 +49,19 @@ const handleSubmit = async (e) => {
         console.log('Resultado del login:', result);
         
         if (result.success) {
-            // El store ya se encarga de actualizar el estado global
-            // La redirección se maneja en el useEffect de arriba
+            const rol = result.user?.role?.toLowerCase() || '';
+            
+            if (rol === 'administrador' || rol === 'admin' || rol === 'superadmin' || rol === 'superadministrador') {
+                navigate('/admin/products', { replace: true });
+            } else if (rol === 'mozo' || rol.startsWith('mozo')) {
+                navigate('/mozo', { replace: true });
+            } else if (rol === 'encargadococina' || rol.includes('cocina')) {
+                navigate('/cocina', { replace: true });
+            } else if (rol === 'cajero' || rol.includes('caja')) {
+                navigate('/', { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
         } else {
             setLocalError(result.message || 'Error en el login');
         }

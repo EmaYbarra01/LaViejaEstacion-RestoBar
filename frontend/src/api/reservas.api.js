@@ -4,6 +4,7 @@
  */
 
 import axios from 'axios';
+import apiClient from './apiClient';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const RESERVAS_URL = `${API_URL}/api/reservas`;
@@ -15,7 +16,7 @@ const RESERVAS_URL = `${API_URL}/api/reservas`;
  */
 export const crearReserva = async (reservaData) => {
   try {
-    const response = await axios.post(RESERVAS_URL, reservaData);
+    const response = await apiClient.post('/reservas', reservaData);
     return response.data;
   } catch (error) {
     console.error('[API] Error al crear reserva:', error.response?.data || error.message);

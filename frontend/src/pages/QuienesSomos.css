@@ -1,0 +1,327 @@
+/* QuienesSomos.css */
+.quienes-somos-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 120px 20px 40px;
+}
+
+.quienes-somos-header {
+  text-align: center;
+  margin-bottom: 60px;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.quienes-somos-header h1 {
+  font-size: 4rem;
+  font-weight: 800;
+  color: #ffc107;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.quienes-somos-header p {
+  font-size: 1.3rem;
+  color: #e0e0e0;
+  letter-spacing: 2px;
+  font-weight: 300;
+}
+
+.header-divider {
+  width: 150px;
+  height: 3px;
+  background: linear-gradient(to right, transparent, #ffc107, transparent);
+  margin: 1.5rem auto;
+}
+
+.quienes-somos-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Sección de historia */
+.historia-section {
+  margin-bottom: 80px;
+  animation: fadeInUp 1s ease-out;
+}
+
+.historia-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  border-radius: 20px;
+  padding: 50px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 193, 7, 0.1);
+}
+
+.historia-image {
+  width: 100%;
+  height: 450px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.historia-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.historia-image:hover img {
+  transform: scale(1.05);
+}
+
+.historia-text h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffc107;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.historia-text p {
+  font-size: 1.1rem;
+  color: #b0b0b0;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+/* Sección de valores */
+.valores-section {
+  margin-bottom: 80px;
+  animation: fadeInUp 1.2s ease-out;
+}
+
+.valores-section h2 {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffc107;
+  margin-bottom: 50px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
+
+.valores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.valor-card {
+  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  border-radius: 15px;
+  padding: 40px 30px;
+  text-align: center;
+  transition: all 0.4s ease;
+  border: 1px solid rgba(255, 193, 7, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.valor-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 35px rgba(255, 193, 7, 0.3);
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.valor-icon {
+  font-size: 4rem;
+  color: #ffc107;
+  margin-bottom: 20px;
+}
+
+.valor-card h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.valor-card p {
+  font-size: 1rem;
+  color: #b0b0b0;
+  line-height: 1.6;
+}
+
+/* Sección de misión y visión */
+.mision-vision-section {
+  margin-bottom: 80px;
+  animation: fadeInUp 1.4s ease-out;
+}
+
+.mision-vision-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.mision-card,
+.vision-card {
+  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  border-radius: 20px;
+  padding: 50px 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 193, 7, 0.1);
+  transition: all 0.4s ease;
+}
+
+.mision-card:hover,
+.vision-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(255, 193, 7, 0.2);
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.mision-card h2,
+.vision-card h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffc107;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.mision-card p,
+.vision-card p {
+  font-size: 1.1rem;
+  color: #b0b0b0;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+/* Botón de volver */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 30px;
+  background: transparent;
+  color: #ffc107;
+  border: 2px solid #ffc107;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 40px auto;
+  display: flex;
+  justify-content: center;
+  max-width: 220px;
+}
+
+.back-button:hover {
+  background: #ffc107;
+  color: #000;
+  transform: translateX(-5px);
+}
+
+/* Animaciones */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .historia-content {
+    grid-template-columns: 1fr;
+    padding: 40px;
+  }
+
+  .mision-vision-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .quienes-somos-page {
+    padding: 100px 15px 30px;
+  }
+
+  .quienes-somos-header h1 {
+    font-size: 2.5rem;
+    letter-spacing: 3px;
+  }
+
+  .quienes-somos-header p {
+    font-size: 1.1rem;
+  }
+
+  .historia-content {
+    padding: 30px 20px;
+  }
+
+  .historia-image {
+    height: 300px;
+  }
+
+  .historia-text h2 {
+    font-size: 2rem;
+  }
+
+  .valores-section h2 {
+    font-size: 2rem;
+  }
+
+  .valores-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mision-card,
+  .vision-card {
+    padding: 30px 25px;
+  }
+
+  .mision-card h2,
+  .vision-card h2 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .quienes-somos-header h1 {
+    font-size: 2rem;
+  }
+
+  .historia-text h2 {
+    font-size: 1.5rem;
+  }
+
+  .valores-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .valor-icon {
+    font-size: 3rem;
+  }
+}

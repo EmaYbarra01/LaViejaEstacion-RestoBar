@@ -109,7 +109,7 @@ const productosData = [
         stock: 50,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: '/images/productos/coca-cola.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop'
     },
     {
         nombre: 'Agua Mineral 500ml',
@@ -120,7 +120,7 @@ const productosData = [
         stock: 60,
         stockMinimo: 15,
         disponible: true,
-        imagenUrl: '/images/productos/agua-mineral-500ml.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop'
         
     },
     {
@@ -132,7 +132,7 @@ const productosData = [
         stock: 30,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: '/images/productos/cerveza-quilmes-1l.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop'
     },
     {
         nombre: 'Vino Tinto Copa',
@@ -143,7 +143,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/vino-tinto-copa.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=300&fit=crop'
     },
 
     {
@@ -155,7 +155,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/vino-blanco-copa.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=400&h=300&fit=crop'
     },
 
     // Comidas
@@ -168,7 +168,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/hamburguesa-completa.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop'
     },
     {
         nombre: 'Milanesa Napolitana',
@@ -179,7 +179,7 @@ const productosData = [
         stock: 15,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/milanesa-napolitana.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?w=400&h=300&fit=crop'
     },
     {
         nombre: 'Pizza Muzzarella',
@@ -190,7 +190,7 @@ const productosData = [
         stock: 10,
         stockMinimo: 3,
         disponible: true,
-        imagenUrl: '/images/productos/pizza-muzzarella.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop'
     },
     {
         nombre: 'Empanadas de Carne (docena)',
@@ -201,7 +201,7 @@ const productosData = [
         stock: 25,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: '/images/productos/empanadas-de-carne.jpeg'
+        imagenUrl: 'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=400&h=300&fit=crop'
     },
     {
         nombre: 'Ensalada Caesar',
@@ -212,7 +212,7 @@ const productosData = [
         stock: 12,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/ensalada-cesar.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=300&fit=crop'
     },
     // Postres
     {
@@ -224,7 +224,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: '/images/productos/flan-dulce-leche.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&h=300&fit=crop'
     },
     {
         nombre: 'Helado (3 bochas)',
@@ -235,7 +235,7 @@ const productosData = [
         stock: 30,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: '/images/productos/helado-3-bochas.jpg'
+        imagenUrl: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=300&fit=crop'
     }
 ];
 
@@ -305,7 +305,23 @@ async function initializeDatabase() {
 
         // Crear un pedido de ejemplo
         console.log('\n📋 Creando pedido de ejemplo...');
-        const mozo = usuarios.find(u => u.rol === 'Mozo');
+        // Buscar mozo por cualquier rol posible y crear si no existe
+        let mozo = usuarios.find(u => u.rol === 'Mozo' || u.rol === 'Mozo1' || u.rol === 'Mozo2');
+        if (!mozo) {
+            console.log('🆕 Mozo no encontrado, creando mozo de ejemplo...');
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash('mozo123', salt);
+            mozo = await Usuario.create({
+                nombre: 'Mozo',
+                apellido: 'Ejemplo',
+                email: 'mozoejemplo@restobar.com',
+                password: hashedPassword,
+                rol: 'Mozo1'
+            });
+            usuarios.push(mozo);
+            console.log(`   ✓ ${mozo.nombre} ${mozo.apellido} (Mozo1) creado`);
+}
+
         const mesa1 = mesas.find(m => m.numero === 1);
         const hamburguesaProducto = productos.find(p => p.nombre === 'Hamburguesa Completa');
         const cocaColaProducto = productos.find(p => p.nombre === 'Coca Cola 500ml');
@@ -314,6 +330,15 @@ async function initializeDatabase() {
         console.log('Mesa encontrada:', mesa1 ? mesa1.numero : 'NO ENCONTRADA');
         console.log('Hamburguesa encontrada:', hamburguesaProducto ? hamburguesaProducto.nombre : 'NO ENCONTRADA');
         console.log('Coca Cola encontrada:', cocaColaProducto ? cocaColaProducto.nombre : 'NO ENCONTRADA');
+        // Validación de datos requeridos antes de crear el pedido
+        if (!mesa1 || !mozo || !hamburguesaProducto || !cocaColaProducto) {
+            console.error('❌ No se puede crear el pedido de ejemplo. Faltan datos:');
+            if (!mesa1) console.error('Mesa no encontrada');
+            if (!mozo) console.error('Mozo no encontrado');
+            if (!hamburguesaProducto) console.error('Producto Hamburguesa Completa no encontrado');
+            if (!cocaColaProducto) console.error('Producto Coca Cola 500ml no encontrado');
+            process.exit(1);
+        }
 
         const pedidoEjemplo = new Pedido({
             numeroPedido: 1,

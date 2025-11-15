@@ -29,16 +29,27 @@ const verificarToken = (req, res, next) => {
         const payload = jwt.verify(token, process.env.JWT_SECRET_KEY)
         
         // Asignar datos del usuario al request desde el token
+        // Normalizar propiedades: algunas partes del código esperan 'rol',
+        // otras 'role' o 'username'. Proporcionamos todas las variantes.
         req.user = {
             id: payload.usuarioId,
             username: payload.nombreUsuario,
+            nombreUsuario: payload.nombreUsuario,
+            // mantener ambas claves de rol para compatibilidad
+            rol: payload.rol,
             role: payload.rol
         };
-        
-        // Mantener compatibilidad con código existente
+
+        // Mantener compatibilidad con código existente en otros lugares
         req.id = payload.usuarioId;
         req.nombre = payload.nombreUsuario;
         req.rol = payload.rol;
+        
+        console.log('[DEBUG] Usuario autenticado:', {
+            id: req.id,
+            nombre: req.nombre,
+            rol: req.rol
+        });
         
     }
     catch (error) {

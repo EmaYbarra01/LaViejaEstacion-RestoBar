@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(() => {
     try {
-      return localStorage.getItem('accessToken')
+      return localStorage.getItem('accessToken') || localStorage.getItem('token')
     } catch (e) {
       return null
     }
@@ -35,7 +35,9 @@ export function AuthProvider({ children }) {
     const accessToken = data.accessToken || data.token || null
     if (accessToken) {
       try {
+        // Guardar en ambas claves por compatibilidad
         localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('token', accessToken)
       } catch (e) {}
       setToken(accessToken)
     }
@@ -46,6 +48,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     try {
       localStorage.removeItem('accessToken')
+      localStorage.removeItem('token')
     } catch (e) {}
     setToken(null)
     setUser(null)
