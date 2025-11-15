@@ -70,7 +70,7 @@ export default function Header() {
             </>
           ) : null}
           {/* Mostrar botón de salir y datos de usuario para cualquier usuario autenticado */}
-          {isAuthenticated && (
+          {isAuthenticated ? (
             <>
               <div className="nav-link user-info" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FaUser style={{ fontSize: '14px' }} />
@@ -84,6 +84,10 @@ export default function Header() {
                 SALIR
               </button>
             </>
+          ) : (
+            <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              LOGIN
+            </NavLink>
           )}
         </nav>
         {/* Social Icons & DateTime */}
