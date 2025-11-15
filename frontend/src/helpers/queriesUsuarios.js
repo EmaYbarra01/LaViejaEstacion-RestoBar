@@ -8,7 +8,9 @@ export const getAllUsers = async () => {
     const response = await axios.get(URL_USUARIOS, {
       withCredentials: true
     });
-    return response.data;
+    // El backend puede devolver un array directamente o un objeto con propiedad 'usuarios'
+    const data = Array.isArray(response.data) ? response.data : (response.data.usuarios || []);
+    return data;
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
     throw error;

@@ -5,6 +5,9 @@ import './ServiciosPage.css';
 
 const ServiciosPage = () => {
     const navigate = useNavigate();
+    
+    // Debug: verificar que el componente se está renderizando
+    console.log('ServiciosPage renderizado');
 
     const handleReservaClick = () => {
         navigate('/reservas');

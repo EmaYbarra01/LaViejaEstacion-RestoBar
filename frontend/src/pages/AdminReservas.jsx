@@ -23,6 +23,8 @@ const AdminReservas = () => {
   // Modal de edición
   const [showEditModal, setShowEditModal] = useState(false);
   const [reservaEditar, setReservaEditar] = useState(null);
+  const [mesas, setMesas] = useState([]);
+  const [mesasDisponibles, setMesasDisponibles] = useState([]);
 
   // Obtener reservas del backend
   const fetchReservas = async () => {
@@ -53,7 +55,58 @@ const AdminReservas = () => {
 
   useEffect(() => {
     fetchReservas();
+    fetchMesas();
   }, [page, filtroEstado, filtroFecha]);
+
+  // Obtener todas las mesas
+  const fetchMesas = async () => {
+    try {
+      // Obtener token de autenticación
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.get(`${API_URL}/mesas`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.data) {
+        const mesasData = Array.isArray(response.data) ? response.data : response.data.mesas || [];
+        console.log('Mesas cargadas:', mesasData);
+        setMesas(mesasData);
+      }
+    } catch (err) {
+      console.error('Error al obtener mesas:', err);
+      console.error('Detalles:', err.response?.data);
+    }
+  };
+
+  // Verificar mesas disponibles para una fecha y hora específica
+  const verificarMesasDisponibles = async (fecha, hora) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.get(
+        `${API_URL}/reservas/disponibilidad/${fecha}/${hora}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      console.log('Disponibilidad:', response.data);
+      
+      if (response.data.disponible) {
+        setMesasDisponibles(response.data.mesasDisponibles || []);
+      } else {
+        setMesasDisponibles([]);
+      }
+    } catch (err) {
+      console.error('Error al verificar disponibilidad:', err);
+      setMesasDisponibles([]);
+    }
+  };
 
   // Filtrar por búsqueda en cliente
   const reservasFiltradas = reservas.filter(reserva => 
@@ -79,11 +132,15 @@ const AdminReservas = () => {
   };
 
   // Manejar edición
-  const handleEditar = (reserva) => {
+  const handleEditar = async (reserva) => {
+    const fechaFormateada = new Date(reserva.fecha).toISOString().split('T')[0];
     setReservaEditar({
       ...reserva,
-      fecha: new Date(reserva.fecha).toISOString().split('T')[0]
+      fecha: fechaFormateada,
+      numeroMesa: reserva.numeroMesa || ''
     });
+    // Verificar mesas disponibles para esa fecha y hora
+    await verificarMesasDisponibles(fechaFormateada, reserva.hora);
     setShowEditModal(true);
   };
 
@@ -92,7 +149,13 @@ const AdminReservas = () => {
     e.preventDefault();
     
     try {
-      await axios.put(`${API_URL}/reservas/${reservaEditar._id}`, reservaEditar);
+      // Preparar datos para enviar
+      const datosActualizados = {
+        ...reservaEditar,
+        numeroMesa: reservaEditar.numeroMesa ? parseInt(reservaEditar.numeroMesa) : null
+      };
+      
+      await axios.put(`${API_URL}/reservas/${reservaEditar._id}`, datosActualizados);
       setShowEditModal(false);
       fetchReservas();
       alert('Reserva actualizada correctamente');
@@ -399,6 +462,46 @@ const AdminReservas = () => {
                   onChange={(e) => setReservaEditar({...reservaEditar, comensales: parseInt(e.target.value)})}
                   required
                 />
+              </div>
+
+              <div className="form-grupo">
+                <label>Mesa Asignada</label>
+                <select
+                  value={reservaEditar.numeroMesa || ''}
+                  onChange={(e) => setReservaEditar({...reservaEditar, numeroMesa: e.target.value})}
+                >
+                  <option value="">Sin asignar</option>
+                  {mesas.length > 0 ? (
+                    mesas.map(mesa => {
+                      const estaDisponible = mesasDisponibles.length === 0 || 
+                                           mesasDisponibles.some(m => m.numero === mesa.numero) ||
+                                           mesa.numero === reservaEditar.numeroMesa;
+                      
+                      return (
+                        <option 
+                          key={mesa._id || mesa.numero} 
+                          value={mesa.numero}
+                          disabled={!estaDisponible && mesa.numero !== reservaEditar.numeroMesa}
+                        >
+                          Mesa {mesa.numero} - Cap: {mesa.capacidad} personas
+                          {mesa.ubicacion ? ` - ${mesa.ubicacion}` : ''}
+                          {!estaDisponible && mesa.numero !== reservaEditar.numeroMesa ? ' (Ocupada)' : ''}
+                        </option>
+                      );
+                    })
+                  ) : (
+                    <option value="" disabled>No hay mesas disponibles</option>
+                  )}
+                </select>
+                <small style={{color: '#b0b0b0', fontSize: '0.85rem', marginTop: '5px', display: 'block'}}>
+                  {mesas.length === 0 ? (
+                    '⚠️ No se pudieron cargar las mesas. Verifica que existan mesas en el sistema.'
+                  ) : reservaEditar.numeroMesa ? (
+                    `✅ Mesa ${reservaEditar.numeroMesa} asignada`
+                  ) : (
+                    'ℹ️ Selecciona una mesa para asignar al cliente'
+                  )}
+                </small>
               </div>
 
               <div className="form-grupo">

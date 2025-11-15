@@ -8,7 +8,6 @@ export default function Header() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
-  
   // Obtener datos del usuario desde Zustand
   const { user, isAuthenticated, logout } = useUserStore();
 
@@ -16,7 +15,6 @@ export default function Header() {
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -27,7 +25,6 @@ export default function Header() {
   const formatDate = (date) => {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    
     return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
   };
 
@@ -45,15 +42,11 @@ export default function Header() {
     <header className="modern-header">
       <div className="header-container">
         {/* Logo */}
-        <div className="header-logo" onClick={() => navigate('/')}>
-          <FaUtensils className="logo-icon" />
-        </div>
-
+        <div className="header-logo" onClick={() => navigate('/')}> <FaUtensils className="logo-icon" /> </div>
         {/* Mobile Menu Toggle */}
         <button className="mobile-menu-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
-
         {/* Navigation */}
         <nav className={`header-nav ${isMenuOpen ? 'active' : ''}`}>
           {/* Mostrar navegación solo si NO es EncargadoCocina */}
@@ -93,7 +86,6 @@ export default function Header() {
             </>
           )}
         </nav>
-
         {/* Social Icons & DateTime */}
         <div className="header-actions">
           <div className="social-icons">
