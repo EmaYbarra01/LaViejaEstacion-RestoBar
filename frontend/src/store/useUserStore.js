@@ -17,7 +17,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}/api/login`,
+        import.meta.env.VITE_API_LOGIN || 'http://localhost:4000/api/login',
         { email, password },
         {
           withCredentials: true,
@@ -83,7 +83,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}/api/me`,
+        import.meta.env.VITE_API_ME || 'http://localhost:4000/api/me',
         {
           withCredentials: true
         }
@@ -144,7 +144,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}/api/logout`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/logout`,
         {},
         {
           withCredentials: true

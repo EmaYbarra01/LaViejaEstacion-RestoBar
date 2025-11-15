@@ -15,7 +15,7 @@ import {
 import "./ProductFormModal.css";
 
 const ProductFormModal = (props) => {
-    const { form, handleChange, handleSubmit, isEdit, open, onClose } = props;
+    const { form, handleChange, handleSubmit, isEdit, open, onClose, codeError, nameError } = props;
     
     // Categorías disponibles (deben coincidir con el backend)
     const categorias = [
@@ -56,7 +56,8 @@ const ProductFormModal = (props) => {
                                 label="Nombre del Producto *"
                                 placeholder="Ej: Pizza Napolitana"
                                 required
-                                helperText="Nombre del producto tal como aparecerá en el menú"
+                                error={!!nameError}
+                                helperText={nameError || "Nombre del producto tal como aparecerá en el menú"}
                             />
                         </Grid>
 
@@ -69,7 +70,8 @@ const ProductFormModal = (props) => {
                                 value={form.code || ''}
                                 onChange={handleChange}
                                 placeholder="Ej: PROD-001"
-                                helperText="Código interno (opcional)"
+                                error={!!codeError}
+                                helperText={codeError || "Código interno (opcional)"}
                             />
                         </Grid>
 
