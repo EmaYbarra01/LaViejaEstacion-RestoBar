@@ -40,16 +40,19 @@ const Mozo = () => {
   const cargarPedidosAbiertos = async () => {
     try {
       const token = localStorage.getItem('token');
+      // Cargar todos los pedidos activos (excepto Cancelado y Cobrado)
       const response = await axios.get(`${API_URL}/pedidos`, {
-        params: {
-          estado: 'Pendiente,En Preparación,Listo,Entregado'
-        },
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       
-      setPedidos(response.data);
+      // Filtrar solo pedidos activos en el frontend
+      const pedidosActivos = response.data.filter(p => 
+        !['Cancelado', 'Cobrado'].includes(p.estado)
+      );
+      
+      setPedidos(pedidosActivos);
       setError(null);
     } catch (error) {
       console.error('Error al cargar pedidos:', error);
@@ -136,7 +139,13 @@ const Mozo = () => {
   };
 
   const pedidosFiltrados = pedidos.filter(pedido => {
-    const cumpleFiltroEstado = filtroEstado === 'todos' || pedido.estado === filtroEstado;
+    // Normalizar filtro: "En Cocina" debe buscar "En Preparación"
+    let estadoBuscado = filtroEstado;
+    if (filtroEstado === 'En Cocina') {
+      estadoBuscado = 'En Preparación';
+    }
+    
+    const cumpleFiltroEstado = filtroEstado === 'todos' || pedido.estado === estadoBuscado;
     const cumpleBusqueda = busqueda === '' || 
       pedido.numeroPedido?.toLowerCase().includes(busqueda.toLowerCase()) ||
       pedido.numeroMesa?.toString().includes(busqueda) ||
@@ -260,8 +269,8 @@ const Mozo = () => {
           ⏰ Pendientes ({pedidos.filter(p => p.estado === 'Pendiente').length})
         </button>
         <button
-          className={`filtro-chip ${filtroEstado === 'En Preparación' ? 'active' : ''}`}
-          onClick={() => setFiltroEstado('En Preparación')}
+          className={`filtro-chip ${filtroEstado === 'En Cocina' ? 'active' : ''}`}
+          onClick={() => setFiltroEstado('En Cocina')}
         >
           👨‍🍳 En Cocina ({pedidos.filter(p => p.estado === 'En Preparación').length})
         </button>
@@ -321,7 +330,7 @@ const Mozo = () => {
                 </h3>
                 
                 <div className="card-precio">
-                  R$ {pedido.total?.toFixed(2) || '0.00'}
+                  ${pedido.total?.toFixed(2) || '0.00'}
                 </div>
                 
                 <div className="card-fecha">
@@ -384,7 +393,7 @@ const Mozo = () => {
                       </div>
                     </div>
                     <div className="producto-precio-view">
-                      R$ {producto.precio.toFixed(2)}
+                      ${producto.precio.toFixed(2)}
                     </div>
                   </div>
                 ))
@@ -422,7 +431,7 @@ const Mozo = () => {
               <div className="resumen-icon">💰</div>
               <div className="resumen-info">
                 <span className="resumen-label">Total General</span>
-                <span className="resumen-valor">R$ {calcularTotalPedidos().toFixed(2)}</span>
+                <span className="resumen-valor">${calcularTotalPedidos().toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -448,13 +457,13 @@ const Mozo = () => {
                     {pedido.productos.map((item, idx) => (
                       <div key={idx} className="cuenta-producto-linea">
                         <span>{item.cantidad}x {item.nombre}</span>
-                        <span>R$ {(item.cantidad * item.precioUnitario).toFixed(2)}</span>
+                        <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
                   <div className="cuenta-pedido-total">
                     <span>Total:</span>
-                    <span className="cuenta-total-valor">R$ {pedido.total?.toFixed(2) || '0.00'}</span>
+                    <span className="cuenta-total-valor">${pedido.total?.toFixed(2) || '0.00'}</span>
                   </div>
                 </div>
               ))

@@ -31,6 +31,7 @@ import CalendarioReservas from "./pages/CalendarioReservas";
 import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
 import Dashboard from "./pages/Dashboard";
+import SuperadminDashboard from "./pages/SuperadminDashboard";
 import useUserStore from './store/useUserStore';
 
 function App() {
@@ -88,7 +89,7 @@ function App() {
                 <AdminPage />
             </ProtectedRoute>
           }>        
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard" element={<SuperadminDashboard />} />
             <Route path="products" element={<Products />} />
             <Route path="users" element={<Users />} />
             <Route path="sales" element={<AdminSales />} />

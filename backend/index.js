@@ -26,6 +26,7 @@ import cocinaRoutes from './src/routes/cocina.routes.js';
 // import reportesRoutes from './src/routes/reportes.routes.js'; // Temporalmente comentado
 import salesRoutes from './src/routes/sales.routes.js';
 import empleadosRoutes from './src/routes/empleados.routes.js';
+import dashboardRoutes from './src/routes/dashboard.routes.js';
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use('/api/cocina', cocinaRoutes);
 // app.use('/api', reportesRoutes); // Temporalmente comentado
 app.use('/api', salesRoutes);
 app.use('/api/empleados', empleadosRoutes);
+app.use('/api', dashboardRoutes);
 
 // Ruta de bienvenida
 app.get('/', (req, res) => {
