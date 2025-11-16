@@ -5,9 +5,6 @@ import './ServiciosPage.css';
 
 const ServiciosPage = () => {
     const navigate = useNavigate();
-    
-    // Debug: verificar que el componente se está renderizando
-    console.log('ServiciosPage renderizado');
 
     const handleReservaClick = () => {
         navigate('/reservas');
@@ -17,7 +14,7 @@ const ServiciosPage = () => {
         <div className="servicios-page">
             <div className="servicios-container">
                 <div className="servicios-header">
-                    <h2 className="servicios-title">Nuestros Servicios</h2>
+                    <h1 className="servicios-title">Nuestros Servicios</h1>
                     <div className="servicios-divider"></div>
                     <p className="servicios-subtitle">Disfruta de La Vieja Estación como prefieras</p>
                 </div>
@@ -28,7 +25,7 @@ const ServiciosPage = () => {
                         <div className="service-icon-wrapper">
                             <FaUtensils className="service-icon" />
                         </div>
-                        <h3 className="service-title">Servicio en Local</h3>
+                        <h3 className="service-card-title">Servicio en Local</h3>
                         <p className="service-description">
                             Disfruta de nuestro ambiente acogedor con atención personalizada de nuestros mozos.
                         </p>
@@ -43,7 +40,7 @@ const ServiciosPage = () => {
                         <div className="service-icon-wrapper">
                             <FaTruck className="service-icon" />
                         </div>
-                        <h3 className="service-title">Delivery</h3>
+                        <h3 className="service-card-title">Delivery</h3>
                         <p className="service-description">
                             Recibe tus platos favoritos en la comodidad de tu hogar, calientes y en el menor tiempo.
                         </p>
@@ -58,7 +55,7 @@ const ServiciosPage = () => {
                         <div className="service-icon-wrapper">
                             <FaShoppingBag className="service-icon" />
                         </div>
-                        <h3 className="service-title">Retiro en Local</h3>
+                        <h3 className="service-card-title">Retiro en Local</h3>
                         <p className="service-description">
                             Ordena por adelantado y retira tu pedido listo para llevar sin esperas.
                         </p>
@@ -73,7 +70,7 @@ const ServiciosPage = () => {
                         <div className="service-icon-wrapper">
                             <FaCalendarAlt className="service-icon" />
                         </div>
-                        <h3 className="service-title">Reservas de Mesas</h3>
+                        <h3 className="service-card-title">Reservas de Mesas</h3>
                         <p className="service-description">
                             Asegura tu mesa con anticipación para eventos especiales o cenas importantes.
                         </p>

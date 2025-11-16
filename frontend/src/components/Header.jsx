@@ -61,9 +61,9 @@ export default function Header() {
               <NavLink to="/reservas" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                 RESERVAS
               </NavLink>
-              <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <NavLink to="/servicios" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                 SERVICIOS
-              </a>
+              </NavLink>
               <NavLink to="/quienes-somos" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                 QUIÉNES SOMOS
               </NavLink>

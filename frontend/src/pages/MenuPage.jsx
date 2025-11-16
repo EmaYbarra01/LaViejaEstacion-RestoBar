@@ -9,6 +9,9 @@ const MenuPage = () => {
     const [productos, setProductos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedCategory, setExpandedCategory] = useState('comida');
+    
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
     useEffect(() => {
         fetchProductos();
@@ -16,7 +19,6 @@ const MenuPage = () => {
 
     const fetchProductos = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
             const response = await axios.get(`${API_URL}/menu`);
             console.log('Productos cargados desde BD:', response.data);
             
@@ -34,6 +36,17 @@ const MenuPage = () => {
             console.error('Detalles del error:', error.response?.data || error.message);
             setLoading(false);
         }
+    };
+    
+    // Función para construir la URL completa de la imagen
+    const getImageUrl = (imagenUrl) => {
+        if (!imagenUrl) return null;
+        // Si la URL ya es completa (http/https), devolverla tal cual
+        if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://')) {
+            return imagenUrl;
+        }
+        // Si es una ruta relativa, agregar la URL del backend
+        return `${BACKEND_URL}${imagenUrl}`;
     };
 
     const categorizeProducts = () => {
@@ -107,11 +120,11 @@ const MenuPage = () => {
                                             {item.imagenUrl && (
                                                 <div className="card-image">
                                                     <img 
-                                                        src={item.imagenUrl} 
+                                                        src={getImageUrl(item.imagenUrl)} 
                                                         alt={item.nombre}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
-                                                            e.target.src = 'https://via.placeholder.com/300x200?text=Imagen+No+Disponible';
+                                                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%23ddd" width="300" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="16"%3EImagen No Disponible%3C/text%3E%3C/svg%3E';
                                                         }}
                                                     />
                                                 </div>
@@ -157,11 +170,11 @@ const MenuPage = () => {
                                             {item.imagenUrl && (
                                                 <div className="card-image">
                                                     <img 
-                                                        src={item.imagenUrl} 
+                                                        src={getImageUrl(item.imagenUrl)} 
                                                         alt={item.nombre}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
-                                                            e.target.src = 'https://via.placeholder.com/300x200?text=Imagen+No+Disponible';
+                                                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%23ddd" width="300" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="16"%3EImagen No Disponible%3C/text%3E%3C/svg%3E';
                                                         }}
                                                     />
                                                 </div>
@@ -212,11 +225,11 @@ const MenuPage = () => {
                                             {item.imagenUrl && (
                                                 <div className="card-image">
                                                     <img 
-                                                        src={item.imagenUrl} 
+                                                        src={getImageUrl(item.imagenUrl)} 
                                                         alt={item.nombre}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
-                                                            e.target.src = 'https://via.placeholder.com/300x200?text=Imagen+No+Disponible';
+                                                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%23ddd" width="300" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="16"%3EImagen No Disponible%3C/text%3E%3C/svg%3E';
                                                         }}
                                                     />
                                                 </div>
