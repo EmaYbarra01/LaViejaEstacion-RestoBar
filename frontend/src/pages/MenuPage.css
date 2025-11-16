@@ -113,7 +113,7 @@
 
 .accordion-content {
   padding: 30px 20px;
-  background: #1f1f1f;
+  background: #252525;
   animation: slideDown 0.3s ease;
 }
 
@@ -162,7 +162,7 @@
 }
 
 .menu-card {
-  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  background: linear-gradient(145deg, #353535, #2a2a2a);
   border-radius: 15px;
   padding: 0; /* Sin padding para que la imagen llegue al borde */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);

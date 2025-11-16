@@ -546,14 +546,15 @@
 }
 
 .producto-item-view {
-  background: white;
+  background: linear-gradient(145deg, #2a2a2a, #252525);
   border-radius: 12px;
   padding: 1rem;
   display: flex;
   gap: 1rem;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.3s;
+  border: 1px solid rgba(255, 193, 7, 0.1);
 }
 
 .producto-item-view:hover {
@@ -575,13 +576,13 @@
 
 .producto-info-view h4 {
   margin: 0 0 0.5rem 0;
-  color: #1a1a2e;
+  color: #ffffff;
   font-size: 1.1rem;
 }
 
 .producto-descripcion-small {
   margin: 0 0 0.5rem 0;
-  color: #6b7280;
+  color: #b0b0b0;
   font-size: 0.875rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -605,7 +606,7 @@
 }
 
 .producto-stock {
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 .producto-precio-view {
@@ -617,11 +618,11 @@
 }
 
 .no-productos {
-  background: white;
+  background: #2a2a2a;
   border-radius: 12px;
   padding: 3rem;
   text-align: center;
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 /* ============================================
