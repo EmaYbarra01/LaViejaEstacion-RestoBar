@@ -3,13 +3,17 @@ import {
   getAllEmpleados, 
   createEmpleado, 
   updateEmpleado, 
+  desactivarEmpleado,
   deleteEmpleado,
   registrarAsistencia,
-  registrarPago
+  registrarPago,
+  registrarInasistencia
 } from "../helpers/queriesEmpleados";
 import EmpleadoFormModal from "../crud/empleados/EmpleadoFormModal";
 import AsistenciaModal from "../crud/empleados/AsistenciaModal";
 import PagoModal from "../crud/empleados/PagoModal";
+import InasistenciaModal from "../crud/empleados/InasistenciaModal";
+import useUserStore from '../store/useUserStore';
 import {
   Button,
   TableContainer,
@@ -21,22 +25,39 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  Paper
+  Paper,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EventIcon from '@mui/icons-material/Event';
 import PaymentIcon from '@mui/icons-material/Payment';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import BlockIcon from '@mui/icons-material/Block';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Swal from 'sweetalert2';
 import "./AdminPage.css";
 
 const Empleados = () => {
+  const { user } = useUserStore();
+  const isSuperAdmin = user?.role === 'SuperAdministrador';
+  const isGerente = user?.role === 'Gerente';
+  const canEdit = isSuperAdmin; // Solo SuperAdministrador puede editar
+  const canView = isSuperAdmin || isGerente; // Ambos pueden ver
+  
   const [empleados, setEmpleados] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [openAsistenciaModal, setOpenAsistenciaModal] = useState(false);
   const [openPagoModal, setOpenPagoModal] = useState(false);
+  const [openInasistenciaModal, setOpenInasistenciaModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuEmpleado, setMenuEmpleado] = useState(null);
 
   const [form, setForm] = useState({
     nombre: "",
@@ -63,6 +84,12 @@ const Empleados = () => {
     anio: new Date().getFullYear(),
     monto: "",
     metodoPago: "Efectivo",
+    observaciones: ""
+  });
+
+  const [inasistenciaForm, setInasistenciaForm] = useState({
+    fecha: new Date().toISOString().split('T')[0],
+    motivo: "Sin registrar asistencia",
     observaciones: ""
   });
 
@@ -107,6 +134,14 @@ const Empleados = () => {
     const { name, value } = e.target;
     setPagoForm({
       ...pagoForm,
+      [name]: value,
+    });
+  };
+
+  const handleInasistenciaChange = (e) => {
+    const { name, value } = e.target;
+    setInasistenciaForm({
+      ...inasistenciaForm,
       [name]: value,
     });
   };
@@ -264,6 +299,15 @@ const Empleados = () => {
     setSelectedEmpleado(null);
   };
 
+  const resetInasistenciaForm = () => {
+    setInasistenciaForm({
+      fecha: new Date().toISOString().split('T')[0],
+      motivo: "Sin registrar asistencia",
+      observaciones: ""
+    });
+    setSelectedEmpleado(null);
+  };
+
   const handleEdit = (empleado) => {
     setIsEdit(true);
     setSelectedEmpleado(empleado);
@@ -275,13 +319,13 @@ const Empleados = () => {
     setOpenModal(true);
   };
 
-  const handleDelete = async (empleado) => {
+  const handleDesactivar = async (empleado) => {
     const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: `Se desactivará el empleado ${empleado.usuario?.nombre} ${empleado.usuario?.apellido}`,
+      title: '¿Desactivar empleado?',
+      html: `Se desactivará a <strong>${empleado.usuario?.nombre} ${empleado.usuario?.apellido}</strong><br><small>Podrás reactivarlo después editándolo</small>`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
+      confirmButtonColor: '#ff9800',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, desactivar',
       cancelButtonText: 'Cancelar'
@@ -289,7 +333,7 @@ const Empleados = () => {
 
     if (result.isConfirmed) {
       try {
-        await deleteEmpleado(empleado._id);
+        await desactivarEmpleado(empleado._id);
         await Swal.fire({
           icon: 'success',
           title: 'Desactivado',
@@ -304,6 +348,45 @@ const Empleados = () => {
           icon: 'error',
           title: 'Error',
           text: 'No se pudo desactivar el empleado',
+          confirmButtonColor: '#667eea'
+        });
+      }
+    }
+  };
+
+  const handleEliminar = async (empleado) => {
+    const result = await Swal.fire({
+      title: '⚠️ ¡ADVERTENCIA!',
+      html: `<p>Vas a <strong style="color: #d32f2f;">ELIMINAR PERMANENTEMENTE</strong> a:</p>
+             <p><strong>${empleado.usuario?.nombre} ${empleado.usuario?.apellido}</strong></p>
+             <p style="color: #d32f2f; font-weight: bold;">Esta acción NO se puede deshacer</p>
+             <p>Se eliminarán todos los datos del empleado y su usuario</p>`,
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonColor: '#d32f2f',
+      cancelButtonColor: '#757575',
+      confirmButtonText: 'Sí, eliminar permanentemente',
+      cancelButtonText: 'Cancelar',
+      focusCancel: true
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteEmpleado(empleado._id);
+        await Swal.fire({
+          icon: 'success',
+          title: 'Eliminado',
+          text: 'Empleado eliminado permanentemente',
+          confirmButtonColor: '#667eea',
+          timer: 2000
+        });
+        loadEmpleados();
+      } catch (err) {
+        console.error("Error al eliminar empleado:", err);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo eliminar el empleado',
           confirmButtonColor: '#667eea'
         });
       }
@@ -334,6 +417,44 @@ const Empleados = () => {
     setOpenPagoModal(true);
   };
 
+  const handleOpenInasistencia = (empleado) => {
+    setSelectedEmpleado(empleado);
+    setInasistenciaForm({
+      fecha: new Date().toISOString().split('T')[0],
+      motivo: "Sin registrar asistencia",
+      observaciones: ""
+    });
+    setOpenInasistenciaModal(true);
+  };
+
+  const handleInasistenciaSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      await registrarInasistencia(selectedEmpleado._id, inasistenciaForm);
+      
+      await Swal.fire({
+        icon: 'warning',
+        title: '❌ Inasistencia Registrada',
+        text: 'La inasistencia se registró correctamente',
+        confirmButtonColor: '#f44336',
+        timer: 2000
+      });
+      
+      setOpenInasistenciaModal(false);
+      resetInasistenciaForm();
+      loadEmpleados();
+    } catch (err) {
+      console.error("Error al registrar inasistencia:", err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || 'Error al registrar la inasistencia',
+        confirmButtonColor: '#667eea'
+      });
+    }
+  };
+
   const handleOpenCreate = () => {
     resetForm();
     setIsEdit(false);
@@ -343,19 +464,24 @@ const Empleados = () => {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1 className="admin-title">👥 Gestión de Empleados</h1>
-        <Button
-          variant="contained"
-          onClick={handleOpenCreate}
-          sx={{
-            bgcolor: '#667eea',
-            '&:hover': { bgcolor: '#5568d3' },
-            fontWeight: 'bold',
-            boxShadow: 3
-          }}
-        >
-          ➕ Agregar Empleado
-        </Button>
+        <h1 className="admin-title">
+          👥 {isGerente ? 'Supervisión de Empleados' : 'Gestión de Empleados'}
+          {isGerente && <Chip label="Solo Lectura" size="small" color="info" sx={{ ml: 2 }} />}
+        </h1>
+        {canEdit && (
+          <Button
+            variant="contained"
+            onClick={handleOpenCreate}
+            sx={{
+              bgcolor: '#667eea',
+              '&:hover': { bgcolor: '#5568d3' },
+              fontWeight: 'bold',
+              boxShadow: 3
+            }}
+          >
+            ➕ Agregar Empleado
+          </Button>
+        )}
       </div>
 
       <Paper elevation={3} sx={{ mt: 3 }}>
@@ -367,7 +493,8 @@ const Empleados = () => {
                 <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Cargo</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Salario</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }} align="center">Días Trabajados</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }} align="center">Asistencias</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }} align="center">Inasistencias</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }} align="center">Pago Mes</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }} align="center">Estado</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }} align="center">Acciones</TableCell>
@@ -376,7 +503,7 @@ const Empleados = () => {
             <TableBody>
               {empleados.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
                     No hay empleados registrados
                   </TableCell>
                 </TableRow>
@@ -384,7 +511,21 @@ const Empleados = () => {
                 empleados.map((empleado) => (
                   <TableRow key={empleado._id} hover>
                     <TableCell>
-                      {empleado.usuario?.nombre} {empleado.usuario?.apellido}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>{empleado.usuario?.nombre} {empleado.usuario?.apellido}</span>
+                        {empleado.esUsuarioMadre && (
+                          <Chip 
+                            label="BASE" 
+                            size="small" 
+                            color="secondary"
+                            sx={{ 
+                              fontWeight: 'bold',
+                              backgroundColor: '#ffc107',
+                              color: '#000'
+                            }}
+                          />
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>{empleado.usuario?.email}</TableCell>
                     <TableCell>
@@ -406,6 +547,13 @@ const Empleados = () => {
                       />
                     </TableCell>
                     <TableCell align="center">
+                      <Chip 
+                        label={empleado.diasInasistencias || 0} 
+                        size="small" 
+                        color="error"
+                      />
+                    </TableCell>
+                    <TableCell align="center">
                       {empleado.pagadoMesActual ? (
                         <Chip label="✅ Pagado" size="small" color="success" />
                       ) : (
@@ -420,42 +568,72 @@ const Empleados = () => {
                       )}
                     </TableCell>
                     <TableCell align="center">
-                      <Tooltip title="Registrar Asistencia">
-                        <IconButton 
-                          onClick={() => handleOpenAsistencia(empleado)}
-                          color="success"
-                          size="small"
-                        >
-                          <EventIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Registrar Pago">
-                        <IconButton 
-                          onClick={() => handleOpenPago(empleado)}
-                          color="warning"
-                          size="small"
-                        >
-                          <PaymentIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Editar">
-                        <IconButton 
-                          onClick={() => handleEdit(empleado)}
-                          color="primary"
-                          size="small"
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Desactivar">
-                        <IconButton 
-                          onClick={() => handleDelete(empleado)}
-                          color="error"
-                          size="small"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
+                      {canEdit ? (
+                        <>
+                          {/* Solo permitir acciones de empleado si tiene registro completo */}
+                          {!empleado.esUsuarioMadre && (
+                            <>
+                              <Tooltip title="Registrar Asistencia">
+                                <IconButton 
+                                  onClick={() => handleOpenAsistencia(empleado)}
+                                  color="success"
+                                  size="small"
+                                >
+                                  <EventIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Registrar Inasistencia">
+                                <IconButton 
+                                  onClick={() => handleOpenInasistencia(empleado)}
+                                  color="error"
+                                  size="small"
+                                >
+                                  <EventBusyIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Registrar Pago">
+                                <IconButton 
+                                  onClick={() => handleOpenPago(empleado)}
+                                  color="warning"
+                                  size="small"
+                                >
+                                  <PaymentIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
+                          <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - No editable" : "Editar"}>
+                            <span>
+                              <IconButton 
+                                onClick={() => !empleado.esUsuarioMadre && handleEdit(empleado)}
+                                color="primary"
+                                size="small"
+                                disabled={empleado.esUsuarioMadre}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                          <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - No eliminable" : "Más opciones"}>
+                            <span>
+                              <IconButton 
+                                onClick={(e) => {
+                                  if (!empleado.esUsuarioMadre) {
+                                    setAnchorEl(e.currentTarget);
+                                    setMenuEmpleado(empleado);
+                                  }
+                                }}
+                                size="small"
+                                disabled={empleado.esUsuarioMadre}
+                              >
+                                <MoreVertIcon />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        </>
+                      ) : (
+                        <Chip label="Solo visualización" size="small" color="default" variant="outlined" />
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -500,6 +678,55 @@ const Empleados = () => {
         }}
         empleado={selectedEmpleado}
       />
+
+      <InasistenciaModal
+        form={inasistenciaForm}
+        handleChange={handleInasistenciaChange}
+        handleSubmit={handleInasistenciaSubmit}
+        open={openInasistenciaModal}
+        onClose={() => {
+          setOpenInasistenciaModal(false);
+          resetInasistenciaForm();
+        }}
+        empleado={selectedEmpleado}
+      />
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => {
+          setAnchorEl(null);
+          setMenuEmpleado(null);
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem 
+          onClick={() => {
+            handleDesactivar(menuEmpleado);
+            setAnchorEl(null);
+            setMenuEmpleado(null);
+          }}
+        >
+          <ListItemIcon>
+            <BlockIcon fontSize="small" color="warning" />
+          </ListItemIcon>
+          <ListItemText>Desactivar</ListItemText>
+        </MenuItem>
+        <MenuItem 
+          onClick={() => {
+            handleEliminar(menuEmpleado);
+            setAnchorEl(null);
+            setMenuEmpleado(null);
+          }}
+          sx={{ color: '#d32f2f' }}
+        >
+          <ListItemIcon>
+            <DeleteForeverIcon fontSize="small" sx={{ color: '#d32f2f' }} />
+          </ListItemIcon>
+          <ListItemText>Eliminar Permanentemente</ListItemText>
+        </MenuItem>
+      </Menu>
     </div>
   );
 };

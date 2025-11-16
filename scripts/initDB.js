@@ -67,7 +67,7 @@ const usuariosData = [
         apellido: 'Martínez',
         email: 'ana@restobar.com',
         password: '$2b$10$YourHashedPasswordHere',
-        rol: 'Cocina',
+        rol: 'Encargado de cocina',
         dni: '56789012',
         telefono: '1234567894',
         activo: true

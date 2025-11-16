@@ -28,12 +28,12 @@ router.get('/mesas/ubicacion/:ubicacion', verificarToken, obtenerMesasPorUbicaci
 router.get('/mesas/:id', verificarToken, obtenerUnaMesa);
 
 // Rutas de gestión (Solo Administrador y Gerente)
-router.post('/mesas', verificarToken, verificarRol(['Administrador', 'Gerente']), crearMesa);
-router.put('/mesas/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), actualizarMesa);
-router.delete('/mesas/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), eliminarMesa);
+router.post('/mesas', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), crearMesa);
+router.put('/mesas/:id', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), actualizarMesa);
+router.delete('/mesas/:id', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), eliminarMesa);
 
 // HU11: Cambiar estado de mesa (Libre, Ocupada, Reservada)
 // RN4: Solo permite estados válidos
-router.patch('/mesas/:id/estado', verificarToken, verificarRol(['Mozo', 'Administrador', 'Gerente']), cambiarEstadoMesa);
+router.patch('/mesas/:id/estado', verificarToken, verificarRol(['Mozo', 'SuperAdministrador', 'Gerente']), cambiarEstadoMesa);
 
 export default router;

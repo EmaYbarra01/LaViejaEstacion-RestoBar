@@ -32,7 +32,8 @@ const usuarioSchema = new Schema({
   rol: {
     type: String,
     required: true,
-    enum: ['Administrador', 'Gerente', 'Mozo', 'Mozo1', 'Mozo2', 'Cajero', 'Cocina', 'EncargadoCocina', 'SuperAdministrador'],
+    // Roles alineados con initDB.js (fuente de verdad)
+    enum: ['SuperAdministrador', 'Gerente', 'Mozo', 'Cajero', 'EncargadoCocina'],
     default: 'Mozo'
   },
   dni: {

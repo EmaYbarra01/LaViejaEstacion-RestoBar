@@ -4,11 +4,14 @@ import axios from 'axios';
 import './Mozo.css';
 import PedidoDetalle from '../components/mozo/PedidoDetalle';
 import CrearPedidoModal from '../components/mozo/CrearPedidoModal';
+import useUserStore from '../store/useUserStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 const Mozo = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
+  const isGerente = user?.role === 'Gerente' || user?.role === 'SuperAdministrador';
   const [pedidos, setPedidos] = useState([]);
   const [mesas, setMesas] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -179,6 +182,21 @@ const Mozo = () => {
           </button>
         </div>
       </div>
+
+      {/* Banner de Solo Lectura para Gerente */}
+      {isGerente && (
+        <div style={{ 
+          padding: '12px 20px', 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+          color: 'white',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          borderBottom: '3px solid #ffc107',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        }}>
+          🔍 MODO SUPERVISIÓN - Solo Lectura (No se pueden crear/editar pedidos)
+        </div>
+      )}
 
       {/* Navegación por pestañas */}
       <div className="mozo-tabs">

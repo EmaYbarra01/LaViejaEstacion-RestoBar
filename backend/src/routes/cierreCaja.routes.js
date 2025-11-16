@@ -20,19 +20,19 @@ const router = Router();
  */
 
 // Rutas de consulta (Solo Cajero, Administrador y Gerente)
-router.get('/cierres-caja', verificarToken, verificarRol(['Cajero', 'Administrador', 'Gerente']), obtenerCierresCaja);
-router.get('/cierres-caja/activo', verificarToken, verificarRol(['Cajero', 'Administrador', 'Gerente']), obtenerCierreActivo);
-router.get('/cierres-caja/fecha', verificarToken, verificarRol(['Cajero', 'Administrador', 'Gerente']), obtenerCierresCajaPorFecha);
-router.get('/cierres-caja/turno/:turno', verificarToken, verificarRol(['Cajero', 'Administrador', 'Gerente']), obtenerCierresCajaPorTurno);
-router.get('/cierres-caja/:id', verificarToken, verificarRol(['Cajero', 'Administrador', 'Gerente']), obtenerUnCierreCaja);
+router.get('/cierres-caja', verificarToken, verificarRol(['Cajero', 'SuperAdministrador', 'Gerente']), obtenerCierresCaja);
+router.get('/cierres-caja/activo', verificarToken, verificarRol(['Cajero', 'SuperAdministrador', 'Gerente']), obtenerCierreActivo);
+router.get('/cierres-caja/fecha', verificarToken, verificarRol(['Cajero', 'SuperAdministrador', 'Gerente']), obtenerCierresCajaPorFecha);
+router.get('/cierres-caja/turno/:turno', verificarToken, verificarRol(['Cajero', 'SuperAdministrador', 'Gerente']), obtenerCierresCajaPorTurno);
+router.get('/cierres-caja/:id', verificarToken, verificarRol(['Cajero', 'SuperAdministrador', 'Gerente']), obtenerUnCierreCaja);
 
 // HU14: Realizar cierre de caja (Solo Cajero y Administrador)
-router.post('/cierres-caja', verificarToken, verificarRol(['Cajero', 'Administrador']), crearCierreCaja);
+router.post('/cierres-caja', verificarToken, verificarRol(['Cajero', 'SuperAdministrador']), crearCierreCaja);
 
 // Actualizar cierre de caja
-router.put('/cierres-caja/:id', verificarToken, verificarRol(['Cajero', 'Administrador']), actualizarCierreCaja);
+router.put('/cierres-caja/:id', verificarToken, verificarRol(['Cajero', 'SuperAdministrador']), actualizarCierreCaja);
 
 // Revisar/auditar cierre de caja (Solo Administrador y Gerente)
-router.patch('/cierres-caja/:id/revisar', verificarToken, verificarRol(['Administrador', 'Gerente']), revisarCierreCaja);
+router.patch('/cierres-caja/:id/revisar', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), revisarCierreCaja);
 
 export default router;

@@ -29,6 +29,21 @@ const asistenciaSchema = new Schema({
   }
 }, { _id: false });
 
+const inasistenciaSchema = new Schema({
+  fecha: {
+    type: Date,
+    required: true
+  },
+  motivo: {
+    type: String,
+    default: 'Sin registrar asistencia'
+  },
+  observaciones: {
+    type: String,
+    default: ''
+  }
+}, { _id: false });
+
 const pagoSchema = new Schema({
   mes: {
     type: Number, // 1-12
@@ -78,6 +93,7 @@ const empleadoSchema = new Schema({
     default: Date.now
   },
   asistencias: [asistenciaSchema],
+  inasistencias: [inasistenciaSchema],
   pagos: [pagoSchema],
   activo: {
     type: Boolean,
@@ -127,6 +143,25 @@ empleadoSchema.methods.diasTrabajadosMes = function(mes, anio) {
 // Método para verificar si está pagado un mes
 empleadoSchema.methods.estaPagadoMes = function(mes, anio) {
   return this.pagos.some(p => p.mes === mes && p.anio === anio);
+};
+
+// Método para registrar inasistencia
+empleadoSchema.methods.registrarInasistencia = function(fecha, motivo = 'Sin registrar asistencia', observaciones = '') {
+  this.inasistencias.push({
+    fecha,
+    motivo,
+    observaciones
+  });
+  return this.save();
+};
+
+// Método para obtener inasistencias de un mes
+empleadoSchema.methods.inasistenciasMes = function(mes, anio) {
+  return this.inasistencias.filter(i => {
+    const fecha = new Date(i.fecha);
+    return fecha.getMonth() + 1 === mes && 
+           fecha.getFullYear() === anio;
+  }).length;
 };
 
 export default mongoose.model('Empleado', empleadoSchema);

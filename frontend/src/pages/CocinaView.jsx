@@ -2,6 +2,7 @@ import { useState } from 'react';
 import usePedidosCocina from '../hooks/usePedidosCocina';
 import PedidoCard from '../components/cocina/PedidoCard';
 import { fetchEstadisticasCocina } from '../api/cocinaAPI';
+import useUserStore from '../store/useUserStore';
 import './CocinaView.css';
 
 /**
@@ -16,6 +17,8 @@ import './CocinaView.css';
  * - Interfaz intuitiva con indicadores visuales
  */
 const CocinaView = () => {
+  const { user } = useUserStore();
+  const isGerente = user?.role === 'Gerente' || user?.role === 'SuperAdministrador';
   const [vistaActiva, setVistaActiva] = useState('todos'); // todos, pendientes, preparacion, listos
   const [estadisticas, setEstadisticas] = useState(null);
   
@@ -112,6 +115,21 @@ const CocinaView = () => {
           </button>
         </div>
       </header>
+
+      {/* Banner de Solo Lectura para Gerente */}
+      {isGerente && (
+        <div style={{ 
+          padding: '12px 20px', 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+          color: 'white',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          borderBottom: '3px solid #ffc107',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        }}>
+          🔍 MODO SUPERVISIÓN - Solo Lectura (No se pueden cambiar estados de pedidos)
+        </div>
+      )}
 
       {/* Estadísticas */}
       {estadisticas && (

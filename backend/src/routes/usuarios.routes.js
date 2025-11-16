@@ -5,7 +5,9 @@ import {
     obtenerUsuariosPorRol,
     crearUsuario,
     actualizarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    login,
+    getMe
     // TODO: Implementar estas funciones en usuarios.controllers.js
     // activarDesactivarUsuario,
     // cambiarPassword,
@@ -22,22 +24,27 @@ const router = Router();
  * Implementa: HU12, RN5, RF6
  */
 
+// Rutas de acceso directo para compatibilidad con frontend
+// Estas rutas duplican las de /api/auth/* para evitar errores de cliente
+router.post('/login', login);
+router.get('/me', verificarToken, getMe);
+
 // Rutas de consulta (protegidas)
-router.get('/usuarios', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerUsuarios);
-router.get('/usuarios/rol/:rol', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerUsuariosPorRol);
+router.get('/usuarios', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerUsuarios);
+router.get('/usuarios/rol/:rol', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerUsuariosPorRol);
 // router.get('/usuarios/perfil', verificarToken, obtenerPerfil); // TODO: Implementar obtenerPerfil en el controlador
 router.get('/usuarios/:id', verificarToken, obtenerUnUsuario);
 
 // HU12: Crear, editar usuarios y asignar roles (Solo Administrador y Gerente)
-router.post('/usuarios', verificarToken, verificarRol(['Administrador', 'Gerente']), validarUsuario, crearUsuario);
-router.put('/usuarios/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), validarUsuario, actualizarUsuario);
+router.post('/usuarios', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), validarUsuario, crearUsuario);
+router.put('/usuarios/:id', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), validarUsuario, actualizarUsuario);
 
 // Eliminar usuario (Solo Administrador)
-router.delete('/usuarios/:id', verificarToken, verificarRol(['Administrador']), eliminarUsuario);
+router.delete('/usuarios/:id', verificarToken, verificarRol(['SuperAdministrador']), eliminarUsuario);
 
 // TODO: Implementar estas rutas cuando se implementen las funciones
 // HU12: Activar/desactivar usuario
-// router.patch('/usuarios/:id/estado', verificarToken, verificarRol(['Administrador', 'Gerente']), activarDesactivarUsuario);
+// router.patch('/usuarios/:id/estado', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), activarDesactivarUsuario);
 
 // Cambiar contraseña (el usuario puede cambiar la suya propia o admin puede cambiar cualquiera)
 // router.patch('/usuarios/:id/password', verificarToken, cambiarPassword);

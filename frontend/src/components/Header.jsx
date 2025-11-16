@@ -49,8 +49,8 @@ export default function Header() {
         </button>
         {/* Navigation */}
         <nav className={`header-nav ${isMenuOpen ? 'active' : ''}`}>
-          {/* Mostrar navegación solo si NO es EncargadoCocina */}
-          {user?.role !== 'EncargadoCocina' ? (
+          {/* Ocultar navegación de cliente para empleados operativos */}
+          {!['Mozo', 'Cajero', 'EncargadoCocina', 'Gerente', 'SuperAdministrador'].includes(user?.role) ? (
             <>
               <NavLink to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                 INICIO
@@ -69,6 +69,26 @@ export default function Header() {
               </NavLink>
             </>
           ) : null}
+          
+          {/* Pestañas específicas por rol */}
+          {user?.role === 'Mozo' && (
+            <NavLink to="/mozo" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#4caf50' }}>
+              🍽️ MI MÓDULO
+            </NavLink>
+          )}
+          
+          {user?.role === 'EncargadoCocina' && (
+            <NavLink to="/encargado-cocina" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#f44336' }}>
+              👨‍🍳 MI MÓDULO
+            </NavLink>
+          )}
+          
+          {(user?.role === 'SuperAdministrador' || user?.role === 'Gerente') && (
+            <NavLink to="/admin/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#667eea' }}>
+              🛠️ PANEL ADMIN
+            </NavLink>
+          )}
+          
           {/* Mostrar botón de salir y datos de usuario para cualquier usuario autenticado */}
           {isAuthenticated ? (
             <>

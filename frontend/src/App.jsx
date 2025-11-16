@@ -30,6 +30,7 @@ import AdminReservas from "./pages/AdminReservas";
 import CalendarioReservas from "./pages/CalendarioReservas";
 import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
+import Dashboard from "./pages/Dashboard";
 import useUserStore from './store/useUserStore';
 
 function App() {
@@ -66,15 +67,15 @@ function App() {
           <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
           <Route path="/productos" element={<ProductList />} />
           <Route path="/reservas" element={<Reservas />} />
-          {/* Módulo del Mozo - Gestión de pedidos - SOLO para mozos */}
+          {/* Módulo del Mozo - Gestión de pedidos - Mozos + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/mozo" element={
-            <ProtectedRoute role={["Mozo", "Mozo1", "Mozo2"]}>
+            <ProtectedRoute role={["Mozo", "Gerente", "SuperAdministrador"]}>
               <Mozo />
             </ProtectedRoute>
           } />
-          {/* Módulo de Cocina - Gestión de pedidos - SOLO para EncargadoCocina */}
-          <Route path="/cocina" element={
-            <ProtectedRoute role={["EncargadoCocina", "Cocina"]}>
+          {/* Módulo de Cocina - Gestión de pedidos - EncargadoCocina + Supervisión (Gerente, SuperAdmin) */}
+          <Route path="/encargado-cocina" element={
+            <ProtectedRoute role={["EncargadoCocina", "Gerente", "SuperAdministrador"]}>
               <CocinaView />
             </ProtectedRoute>
           } />
@@ -83,17 +84,18 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
-            <ProtectedRoute role={["Administrador", "SuperAdministrador", "Gerente"]}>
+            <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
                 <AdminPage />
             </ProtectedRoute>
           }>        
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<Products />} />
             <Route path="users" element={<Users />} />
             <Route path="sales" element={<AdminSales />} />
             <Route path="reservas" element={<AdminReservas />} />
             <Route path="calendario" element={<CalendarioReservas />} />
             <Route path="empleados" element={
-              <ProtectedRoute role={["SuperAdministrador"]}>
+              <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
                 <Empleados />
               </ProtectedRoute>
             } />
