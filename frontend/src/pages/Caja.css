@@ -5,6 +5,7 @@
 .caja-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  padding-top: 80px;
   padding-bottom: 2rem;
 }
 
@@ -17,6 +18,9 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 80px;
+  z-index: 100;
 }
 
 .caja-header .header-left {

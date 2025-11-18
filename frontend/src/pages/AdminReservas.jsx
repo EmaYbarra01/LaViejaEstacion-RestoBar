@@ -149,19 +149,42 @@ const AdminReservas = () => {
     e.preventDefault();
     
     try {
+      const token = localStorage.getItem('token');
+      
       // Preparar datos para enviar
       const datosActualizados = {
         ...reservaEditar,
         numeroMesa: reservaEditar.numeroMesa ? parseInt(reservaEditar.numeroMesa) : null
       };
       
-      await axios.put(`${API_URL}/reservas/${reservaEditar._id}`, datosActualizados);
+      console.log('[ADMIN RESERVAS] Enviando actualización:', datosActualizados);
+      
+      const response = await axios.put(
+        `${API_URL}/reservas/${reservaEditar._id}`, 
+        datosActualizados,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('[ADMIN RESERVAS] Respuesta:', response.data);
+      
       setShowEditModal(false);
       fetchReservas();
-      alert('Reserva actualizada correctamente');
+      
+      // Mostrar mensaje de éxito con información de la mesa
+      if (response.data.reserva && response.data.reserva.numeroMesa) {
+        alert(`Reserva actualizada correctamente. Mesa ${response.data.reserva.numeroMesa} asignada. Se enviará un email al cliente.`);
+      } else {
+        alert(response.data.mensaje || 'Reserva actualizada correctamente');
+      }
     } catch (err) {
-      console.error('Error al actualizar reserva:', err);
-      alert('Error al actualizar la reserva');
+      console.error('[ADMIN RESERVAS] Error al actualizar reserva:', err);
+      console.error('[ADMIN RESERVAS] Detalles:', err.response?.data);
+      alert(err.response?.data?.mensaje || 'Error al actualizar la reserva. Por favor, intenta nuevamente.');
     }
   };
 
