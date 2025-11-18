@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import useUserStore from '../../store/useUserStore';
+import useSocket from '../../hooks/useSocket';
 import './CrearPedidoModal.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const BACKEND_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 
 const CrearPedidoModal = ({ mesas, onClose }) => {
   const { user } = useUserStore();
+  const { on, off } = useSocket('mozos'); // Conectar a la sala 'mozos'
   const [paso, setPaso] = useState(1); // 1: Mesa, 2: Productos, 3: Confirmación
   const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [productos, setProductos] = useState([]);
@@ -22,6 +25,26 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
     console.log('Mesas recibidas:', mesas);
     cargarProductos();
   }, [mesas]);
+
+  // Escuchar actualizaciones de productos en tiempo real
+  useEffect(() => {
+    const handleProductosActualizados = (data) => {
+      console.log('🔄 Productos actualizados en modal:', data);
+      setProductos(prevProductos => {
+        const productosMap = new Map(prevProductos.map(p => [p._id, p]));
+        data.productos.forEach(productoActualizado => {
+          productosMap.set(productoActualizado._id, productoActualizado);
+        });
+        return Array.from(productosMap.values());
+      });
+    };
+
+    on('productos-actualizados', handleProductosActualizados);
+
+    return () => {
+      off('productos-actualizados', handleProductosActualizados);
+    };
+  }, [on, off]);
 
   const cargarProductos = async () => {
     try {
@@ -99,6 +122,15 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
     );
   };
 
+  // Función para construir la URL completa de la imagen
+  const getImageUrl = (imagenUrl) => {
+    if (!imagenUrl) return null;
+    if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://')) {
+      return imagenUrl;
+    }
+    return `${BACKEND_URL}${imagenUrl}`;
+  };
+
   const calcularTotal = () => {
     return productosSeleccionados.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
   };
@@ -148,22 +180,45 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
         confirmButtonColor: '#28a745'
       });
       
+      // Los productos y mesas se actualizarán automáticamente vía Socket.io
       onClose();
     } catch (error) {
       console.error('Error al crear pedido:', error);
-      alert('Error al crear el pedido: ' + (error.response?.data?.mensaje || error.message));
+      
+      // Mensaje de error más descriptivo
+      let errorMessage = 'Error al crear el pedido';
+      if (error.response) {
+        // El servidor respondió con un código de error
+        errorMessage = error.response.data?.msg || error.response.data?.message || `Error: ${error.response.status}`;
+        if (error.response.status === 404) {
+          errorMessage = 'Ruta no encontrada. Verifica que el backend esté corriendo en http://localhost:4000';
+        } else if (error.response.status === 401) {
+          errorMessage = 'No autorizado. Tu sesión puede haber expirado. Inicia sesión nuevamente.';
+        }
+      } else if (error.request) {
+        // La petición se hizo pero no hubo respuesta
+        errorMessage = 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.';
+      }
+      
+      alert('Error al crear el pedido: ' + errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const productosFiltrados = productos.filter(p => {
-    const cumpleCategoria = p.categoria === categoriaSeleccionada;
-    const cumpleBusqueda = busqueda === '' || 
-      p.nombre.toLowerCase().includes(busqueda.toLowerCase());
     const estaDisponible = p.disponible !== false && p.stock > 0;
     
-    return cumpleCategoria && cumpleBusqueda && estaDisponible;
+    // Si hay búsqueda, ignorar categoría y buscar en todos los productos
+    if (busqueda !== '') {
+      const cumpleBusqueda = p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+                             (p.descripcion && p.descripcion.toLowerCase().includes(busqueda.toLowerCase()));
+      return cumpleBusqueda && estaDisponible;
+    }
+    
+    // Si no hay búsqueda, filtrar solo por categoría
+    const cumpleCategoria = p.categoria === categoriaSeleccionada;
+    return cumpleCategoria && estaDisponible;
   });
 
   return (
@@ -241,9 +296,16 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
                       className="producto-card"
                       onClick={() => handleAgregarProducto(producto)}
                     >
-                      {producto.foto && (
+                      {producto.imagenUrl && (
                         <div className="producto-imagen">
-                          <img src={producto.foto} alt={producto.nombre} />
+                          <img 
+                            src={getImageUrl(producto.imagenUrl)} 
+                            alt={producto.nombre}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = 'none';
+                            }}
+                          />
                         </div>
                       )}
                       <div className="producto-info">
@@ -251,7 +313,8 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
                         <p className="producto-descripcion">{producto.descripcion}</p>
                         <div className="producto-footer">
                           <span className="producto-precio">${producto.precio.toFixed(2)}</span>
-                          {producto.stock < 10 && (
+                          <span className="producto-stock">Stock: {producto.stock}</span>
+                          {producto.stock < 10 && producto.stock > 0 && (
                             <span className="producto-stock-bajo">⚠️ Stock bajo</span>
                           )}
                         </div>

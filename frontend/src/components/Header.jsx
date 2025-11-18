@@ -61,9 +61,9 @@ export default function Header() {
               <NavLink to="/reservas" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                 RESERVAS
               </NavLink>
-              <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <NavLink to="/servicios" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                 SERVICIOS
-              </a>
+              </NavLink>
               <NavLink to="/quienes-somos" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                 QUIÉNES SOMOS
               </NavLink>
@@ -80,6 +80,12 @@ export default function Header() {
           {user?.role === 'EncargadoCocina' && (
             <NavLink to="/encargado-cocina" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#f44336' }}>
               👨‍🍳 MI MÓDULO
+            </NavLink>
+          )}
+          
+          {user?.role === 'Cajero' && (
+            <NavLink to="/caja" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#ffc107' }}>
+              💰 MI MÓDULO
             </NavLink>
           )}
           

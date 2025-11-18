@@ -4,11 +4,32 @@
   color: #e0e0e0;
   padding: 25px 0;
   margin: 0;
-  border-top: 2px solid #ffc107;
+  border-top: 2px solid transparent;
   position: relative;
   z-index: 1;
   width: 100%;
   box-sizing: border-box;
+  background-image: 
+    linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%),
+    linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(255, 193, 7, 0.4) 25%,
+      rgba(255, 193, 7, 0.8) 50%,
+      rgba(255, 193, 7, 0.4) 75%,
+      transparent 100%
+    );
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  animation: footerGlow 3s ease-in-out infinite;
+}
+
+@keyframes footerGlow {
+  0%, 100% {
+    background-position: 0 0, 0% 50%;
+  }
+  50% {
+    background-position: 0 0, 100% 50%;
+  }
 }
 
 .footer-simple-container {

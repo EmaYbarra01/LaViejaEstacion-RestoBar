@@ -52,6 +52,7 @@
   background: #2a2a2a;
   border: 1px solid #3a3a3a;
   transition: all 0.3s ease;
+  scroll-margin-top: 120px; /* Espacio para header fijo */
 }
 
 .accordion-item:hover {
@@ -114,17 +115,20 @@
 .accordion-content {
   padding: 30px 20px;
   background: #252525;
-  animation: slideDown 0.3s ease;
+  animation: expandAccordion 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  overflow: hidden;
 }
 
-@keyframes slideDown {
+@keyframes expandAccordion {
   from {
     opacity: 0;
+    transform: translateY(-20px);
     max-height: 0;
   }
   to {
     opacity: 1;
-    max-height: 2000px;
+    transform: translateY(0);
+    max-height: 5000px;
   }
 }
 

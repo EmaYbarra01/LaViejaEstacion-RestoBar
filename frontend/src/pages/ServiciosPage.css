@@ -1,12 +1,9 @@
 /* ServiciosPage.css */
 .servicios-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+  background: #1a1a1a;
   padding: 120px 20px 60px;
   position: relative;
-  overflow: hidden;
-  /* Asegurar que el contenido sea visible */
-  z-index: 1;
 }
 
 .servicios-page::before {
@@ -33,14 +30,13 @@
 .servicios-title {
   font-size: 3.5rem;
   font-weight: 800;
-  color: #ffc107;
+  color: #ffc107 !important;
   text-transform: uppercase;
   letter-spacing: 4px;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  /* Debug: hacer más visible */
-  background: rgba(255, 193, 7, 0.1);
-  padding: 10px;
+  display: block !important;
+  visibility: visible !important;
 }
 
 .servicios-divider {
@@ -65,8 +61,8 @@
 }
 
 .service-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 2px solid #ffc107 !important;
   border-radius: 20px;
   padding: 40px 30px;
   text-align: center;
@@ -75,6 +71,8 @@
   overflow: hidden;
   backdrop-filter: blur(10px);
   animation: fadeInUp 0.8s ease-out backwards;
+  display: block !important;
+  visibility: visible !important;
 }
 
 .service-card:nth-child(1) { animation-delay: 0.1s; }
@@ -117,8 +115,6 @@
   justify-content: center;
   box-shadow: 0 10px 30px rgba(255, 193, 7, 0.3);
   transition: all 0.4s ease;
-  position: relative;
-  z-index: 1;
 }
 
 .service-card:hover .service-icon-wrapper {
@@ -131,14 +127,12 @@
   color: #000;
 }
 
-.service-title {
+.service-card-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 15px;
   letter-spacing: 1px;
-  position: relative;
-  z-index: 1;
 }
 
 .service-description {
@@ -146,16 +140,12 @@
   color: #b0b0b0;
   line-height: 1.6;
   margin-bottom: 25px;
-  position: relative;
-  z-index: 1;
 }
 
 .service-features {
   list-style: none;
   padding: 0;
   margin: 0 0 20px 0;
-  position: relative;
-  z-index: 1;
 }
 
 .service-features li {
@@ -196,8 +186,6 @@
   letter-spacing: 1px;
   transition: all 0.3s ease;
   box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
-  position: relative;
-  z-index: 1;
 }
 
 .service-cta:hover {
@@ -213,6 +201,7 @@
 .back-button {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   margin: 0 auto;
   padding: 15px 40px;
@@ -225,6 +214,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  width: fit-content;
 }
 
 .back-button:hover {
@@ -321,7 +311,7 @@
     font-size: 1.5rem;
   }
 
-  .service-title {
+  .service-card-title {
     font-size: 1.2rem;
   }
 

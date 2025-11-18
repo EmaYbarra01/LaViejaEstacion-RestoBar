@@ -109,7 +109,7 @@ const productosData = [
         stock: 50,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/coca cola 500.jpg'
     },
     {
         nombre: 'Agua Mineral 500ml',
@@ -120,7 +120,7 @@ const productosData = [
         stock: 60,
         stockMinimo: 15,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/agua mineral 500ml.jpg'
         
     },
     {
@@ -132,7 +132,7 @@ const productosData = [
         stock: 30,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/cerveza quilmes 1L.jpg'
     },
     {
         nombre: 'Vino Tinto Copa',
@@ -143,7 +143,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/vino tinto copa.jpg'
     },
 
     {
@@ -155,7 +155,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/vino blanco copa.jpg'
     },
 
     // Comidas
@@ -168,7 +168,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/hamburguesa completa.jpg'
     },
     {
         nombre: 'Milanesa Napolitana',
@@ -179,7 +179,7 @@ const productosData = [
         stock: 15,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/milanesa napolitana.jpg'
     },
     {
         nombre: 'Pizza Muzzarella',
@@ -190,7 +190,7 @@ const productosData = [
         stock: 10,
         stockMinimo: 3,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/pizza muzzarella.jpg'
     },
     {
         nombre: 'Empanadas de Carne (docena)',
@@ -201,7 +201,7 @@ const productosData = [
         stock: 25,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/empanadas de carne.jpeg'
     },
     {
         nombre: 'Ensalada Caesar',
@@ -212,7 +212,7 @@ const productosData = [
         stock: 12,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/ensalada cesar.jpg'
     },
     // Postres
     {
@@ -224,7 +224,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/flan con dulce de leche.jpg'
     },
     {
         nombre: 'Helado (3 bochas)',
@@ -235,7 +235,7 @@ const productosData = [
         stock: 30,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=300&fit=crop'
+        imagenUrl: '/images/productos/helado 3 bochas.jpg'
     }
 ];
 

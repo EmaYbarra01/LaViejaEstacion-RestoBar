@@ -61,7 +61,7 @@ const handleSubmit = async (e) => {
             } else if (rol === 'EncargadoCocina') {
                 navigate('/encargado-cocina', { replace: true });
             } else if (rol === 'Cajero') {
-                navigate('/', { replace: true });
+                navigate('/caja', { replace: true });
             } else {
                 navigate('/', { replace: true });
             }

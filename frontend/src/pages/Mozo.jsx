@@ -4,13 +4,16 @@ import axios from 'axios';
 import './Mozo.css';
 import PedidoDetalle from '../components/mozo/PedidoDetalle';
 import CrearPedidoModal from '../components/mozo/CrearPedidoModal';
+import SocketNotification from '../components/SocketNotification';
 import useUserStore from '../store/useUserStore';
+import useSocket from '../hooks/useSocket';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 const Mozo = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
+  const { on, off } = useSocket('mozos'); // Conectar a la sala 'mozos'
   const isGerente = user?.role === 'Gerente' || user?.role === 'SuperAdministrador';
   const [pedidos, setPedidos] = useState([]);
   const [mesas, setMesas] = useState([]);
@@ -22,6 +25,7 @@ const Mozo = () => {
   const [busqueda, setBusqueda] = useState('');
   const [error, setError] = useState(null);
   const [vistaActiva, setVistaActiva] = useState('pedidos'); // pedidos, menu, cuenta
+  const [notification, setNotification] = useState(null);
 
   // Obtener pedidos abiertos
   useEffect(() => {
@@ -29,13 +33,73 @@ const Mozo = () => {
     cargarMesas();
     cargarProductos();
     
-    // Actualizar cada 30 segundos
+    // Actualizar cada 30 segundos como respaldo
     const interval = setInterval(() => {
       cargarPedidosAbiertos();
     }, 30000);
     
     return () => clearInterval(interval);
   }, []);
+
+  // Escuchar eventos de Socket.io para actualizaciones en tiempo real
+  useEffect(() => {
+    // Actualización de mesas
+    const handleMesaActualizada = (data) => {
+      console.log('🔄 Mesa actualizada:', data);
+      setMesas(prevMesas => 
+        prevMesas.map(mesa => 
+          mesa._id === data.mesaId 
+            ? { ...mesa, estado: data.estado }
+            : mesa
+        )
+      );
+      setNotification({
+        message: `Mesa ${data.numeroMesa} ahora está ${data.estado}`,
+        type: 'info'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    };
+
+    // Actualización de productos (stock)
+    const handleProductosActualizados = (data) => {
+      console.log('🔄 Productos actualizados:', data);
+      setProductos(prevProductos => {
+        const productosMap = new Map(prevProductos.map(p => [p._id, p]));
+        data.productos.forEach(productoActualizado => {
+          productosMap.set(productoActualizado._id, productoActualizado);
+        });
+        return Array.from(productosMap.values());
+      });
+      setNotification({
+        message: 'Stock de productos actualizado',
+        type: 'success'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    };
+
+    // Nuevo pedido creado
+    const handleNuevoPedido = () => {
+      console.log('🔄 Nuevo pedido creado, recargando lista...');
+      cargarPedidosAbiertos();
+      setNotification({
+        message: 'Nuevo pedido creado',
+        type: 'success'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    };
+
+    // Suscribirse a eventos
+    on('mesa-actualizada', handleMesaActualizada);
+    on('productos-actualizados', handleProductosActualizados);
+    on('nuevo-pedido-cocina', handleNuevoPedido);
+
+    // Cleanup
+    return () => {
+      off('mesa-actualizada', handleMesaActualizada);
+      off('productos-actualizados', handleProductosActualizados);
+      off('nuevo-pedido-cocina', handleNuevoPedido);
+    };
+  }, [on, off]);
 
   const cargarPedidosAbiertos = async () => {
     try {
@@ -494,6 +558,14 @@ const Mozo = () => {
           {error}
           <button onClick={() => setError(null)}>✕</button>
         </div>
+      )}
+
+      {/* Notificación de Socket.io */}
+      {notification && (
+        <SocketNotification
+          message={notification.message}
+          type={notification.type}
+        />
       )}
     </div>
   );
