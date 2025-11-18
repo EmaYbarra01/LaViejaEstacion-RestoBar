@@ -344,6 +344,9 @@ const actualizarReserva = async (req, res) => {
     }
 
     // Si se cambió la mesa
+    let mesaAsignadaAhora = false;
+    const mesaAnterior = reserva.numeroMesa;
+    
     if (numeroMesa) {
       const mesaNueva = await Mesa.findOne({ numero: numeroMesa });
       
@@ -363,15 +366,39 @@ const actualizarReserva = async (req, res) => {
 
       reserva.mesa = mesaNueva._id;
       reserva.numeroMesa = mesaNueva.numero;
+      
+      // Detectar si es la primera asignación de mesa o un cambio
+      if (!mesaAnterior || mesaAnterior !== mesaNueva.numero) {
+        mesaAsignadaAhora = true;
+      }
     }
 
     await reserva.save();
 
     console.log('[RESERVAS] Reserva actualizada:', reserva._id);
 
+    // Si se asignó o cambió la mesa, enviar email al cliente
+    if (mesaAsignadaAhora && reserva.numeroMesa) {
+      console.log('[RESERVAS] Enviando email de asignación de mesa al cliente...');
+      
+      enviarEmailConfirmacion(reserva, reserva.confirmationToken)
+        .then(resultado => {
+          if (resultado.success) {
+            console.log('[RESERVAS] ✅ Email de asignación de mesa enviado al cliente');
+          } else {
+            console.warn('[RESERVAS] ⚠️ No se pudo enviar email de asignación de mesa:', resultado.mensaje);
+          }
+        })
+        .catch(error => {
+          console.error('[RESERVAS] ❌ Error al enviar email de asignación de mesa:', error.message);
+        });
+    }
+
     res.status(200).json({
       success: true,
-      mensaje: 'Reserva actualizada exitosamente',
+      mensaje: mesaAsignadaAhora 
+        ? `Reserva actualizada exitosamente. Mesa ${reserva.numeroMesa} asignada. Se enviará un email al cliente.`
+        : 'Reserva actualizada exitosamente',
       reserva
     });
 

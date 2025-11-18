@@ -117,13 +117,26 @@ export const crearCierreCaja = async (req, res) => {
     const pedidosParaCierre = pedidosCobrados.map(p => ({
       pedidoId: p._id,
       numeroPedido: p.numeroPedido,
-      mesa: p.mesa.numero || p.mesa,
-      mozo: `${p.mozo.nombre} ${p.mozo.apellido}`,
+      mesa: p.mesa?.numero || p.numeroMesa || 'N/A',
+      mozo: p.mozo ? `${p.mozo.nombre} ${p.mozo.apellido}` : p.nombreMozo || 'N/A',
       metodoPago: p.metodoPago,
       monto: p.total,
-      descuento: p.descuento.monto || 0,
-      horaPago: p.pago.fecha || p.fechaCobrado
+      descuento: p.descuento?.monto || 0,
+      horaPago: p.pago?.fecha || p.fechaCobrado || new Date()
     }));
+    
+    // Calcular totales por método de pago
+    const ventasEfectivo = pedidosParaCierre.filter(p => p.metodoPago === 'Efectivo');
+    const ventasTransferencia = pedidosParaCierre.filter(p => p.metodoPago === 'Transferencia');
+    
+    const totalVentasEfectivo = ventasEfectivo.reduce((sum, p) => sum + p.monto, 0);
+    const totalVentasTransferencia = ventasTransferencia.reduce((sum, p) => sum + p.monto, 0);
+    const totalDescuentos = pedidosParaCierre.reduce((sum, p) => sum + p.descuento, 0);
+    const totalVentas = totalVentasEfectivo + totalVentasTransferencia;
+    
+    // Calcular efectivo en caja (inicial + ventas en efectivo - gastos)
+    const totalGastos = (gastos || []).reduce((sum, g) => sum + (g.monto || 0), 0);
+    const efectivoEnCaja = (montoInicial || 0) + totalVentasEfectivo - totalGastos;
     
     // Crear cierre de caja
     const nuevoCierre = new CierreCaja({
@@ -134,6 +147,19 @@ export const crearCierreCaja = async (req, res) => {
       horaInicio: new Date(horaInicio),
       horaFin: new Date(horaFin),
       montoInicial: montoInicial || 0,
+      ventasPorMetodo: {
+        efectivo: {
+          cantidad: ventasEfectivo.length,
+          total: totalVentasEfectivo
+        },
+        transferencia: {
+          cantidad: ventasTransferencia.length,
+          total: totalVentasTransferencia
+        }
+      },
+      totalVentas,
+      totalDescuentos,
+      efectivoEnCaja,
       efectivoContado: efectivoContado || 0,
       desgloseBilletes: desgloseBilletes || {},
       gastos: gastos || [],

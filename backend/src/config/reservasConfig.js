@@ -18,7 +18,7 @@ export const CONFIGURACION_RESERVAS = {
   duracionReserva: 2,
   
   // Tiempo mínimo de anticipación para reservar (en horas)
-  anticipacionMinima: 2,
+  anticipacionMinima: 24,
   
   // Tiempo máximo de anticipación para reservar (en días)
   anticipacionMaxima: 30,
@@ -90,19 +90,26 @@ export const validarHorarioAtencion = (fecha, hora) => {
     };
   }
   
-  // Si cierra después de medianoche (ej: 00:00)
+  // Si cierra después de medianoche (ej: 00:00, 01:00, etc.)
   if (horario.cierra === '00:00' || horario.cierra < horario.abre) {
-    // Permitir reservas hasta las 23:30
-    if (horaReserva > '23:30') {
+    // Permitir reservas hasta las 22:00 (última admisión para dar tiempo de cenar)
+    if (horaReserva > '22:00') {
       return {
         valido: false,
-        mensaje: `Última reserva a las 23:30. El restaurante cierra a la ${horario.cierra}.`
+        mensaje: `Última reserva a las 22:00. El restaurante cierra a la medianoche.`
       };
     }
   } else {
-    // Calcular hora límite (1 hora antes del cierre para dar tiempo de cenar)
+    // Calcular hora límite (2 horas antes del cierre para dar tiempo de cenar)
     const [horasCierre, minutosCierre] = horario.cierra.split(':').map(Number);
-    const horaLimite = `${String(horasCierre - 1).padStart(2, '0')}:${String(minutosCierre).padStart(2, '0')}`;
+    let horasLimite = horasCierre - 2;
+    
+    // Asegurar que no sea negativo
+    if (horasLimite < 0) {
+      horasLimite = 22; // Por defecto última reserva a las 22:00
+    }
+    
+    const horaLimite = `${String(horasLimite).padStart(2, '0')}:${String(minutosCierre).padStart(2, '0')}`;
     
     if (horaReserva > horaLimite) {
       return {
