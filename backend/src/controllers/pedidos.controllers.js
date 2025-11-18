@@ -323,6 +323,41 @@ export const cambiarEstadoPedido = async (req, res) => {
       .populate('productos.producto', 'nombre categoria')
       .populate('historialEstados.usuario', 'nombre apellido');
     
+    // Emitir eventos de Socket.io según el estado
+    const io = req.app.get('io');
+    if (io) {
+      // Notificar a todas las salas sobre la actualización
+      io.to('mozos').emit('pedido-actualizado', {
+        pedido: pedidoActualizado,
+        estado: estado
+      });
+      
+      io.to('cocina').emit('pedido-actualizado', {
+        pedido: pedidoActualizado,
+        estado: estado
+      });
+      
+      // Si el pedido fue marcado como Entregado, notificar a caja
+      if (estado === 'Entregado') {
+        io.to('caja').emit('pedido-listo', {
+          pedido: pedidoActualizado,
+          mensaje: `Pedido #${pedidoActualizado.numeroPedido} entregado y listo para cobrar`
+        });
+        console.log(`[Socket.io] Pedido #${pedidoActualizado.numeroPedido} notificado a caja como listo para cobrar`);
+      }
+      
+      // Si el pedido fue marcado como Listo, notificar a mozos y caja
+      if (estado === 'Listo') {
+        io.to('caja').emit('pedido-listo', {
+          pedido: pedidoActualizado,
+          mensaje: `Pedido #${pedidoActualizado.numeroPedido} listo en cocina`
+        });
+        console.log(`[Socket.io] Pedido #${pedidoActualizado.numeroPedido} marcado como listo`);
+      }
+      
+      console.log(`[Socket.io] Estado de pedido actualizado: ${estado}`);
+    }
+    
     res.status(200).json({
       mensaje: "Estado actualizado correctamente",
       pedido: pedidoActualizado
@@ -554,22 +589,22 @@ export const marcarPedidoListo = async (req, res) => {
 };
 
 /**
- * HU8: Obtener pedidos terminados listos para cobrar (vista de caja)
+ * HU8: Obtener pedidos pendientes de cobro (vista de caja)
  * GET /api/pedidos/caja/pendientes
- * Muestra pedidos con estado "Listo" o "Servido" que están pendientes de cobro
+ * Muestra TODOS los pedidos activos pendientes de cobro (excepto Cancelado y Cobrado)
  */
 export const obtenerPedidosCaja = async (req, res) => {
   try {
-    // Obtener pedidos que están listos para cobrar
-    // Estado "Listo" = terminado por cocina, esperando cobro
-    // Estado "Servido" = entregado al cliente, esperando cobro
+    // Obtener TODOS los pedidos activos que aún no han sido cobrados
+    // Incluye: Pendiente, En Preparación, Listo, Entregado
+    // Excluye: Cancelado, Cobrado
     const pedidos = await Pedido.find({ 
-      estado: { $in: ['Listo', 'Servido'] } 
+      estado: { $nin: ['Cancelado', 'Cobrado'] } 
     })
       .populate('mesa', 'numero ubicacion')
       .populate('mozo', 'nombre apellido')
       .populate('productos.producto', 'nombre precio categoria')
-      .sort({ fechaListo: 1 }); // Ordenar por el más antiguo primero
+      .sort({ fechaCreacion: -1 }); // Ordenar por el más reciente primero
     
     res.status(200).json(pedidos);
   } catch (error) {
@@ -616,10 +651,10 @@ export const cobrarPedido = async (req, res) => {
       });
     }
     
-    // Validar que el pedido esté listo para cobrar
-    if (!['Listo', 'Servido'].includes(pedido.estado)) {
+    // Validar que el pedido no esté cancelado ni ya cobrado
+    if (pedido.estado === 'Cancelado') {
       return res.status(400).json({
-        mensaje: "Solo se pueden cobrar pedidos en estado Listo o Servido"
+        mensaje: "No se puede cobrar un pedido cancelado"
       });
     }
     

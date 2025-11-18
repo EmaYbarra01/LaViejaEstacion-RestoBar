@@ -45,15 +45,28 @@ const Caja = () => {
     };
 
     const handlePedidoActualizado = () => {
+      console.log('🔄 Pedido actualizado, recargando lista...');
       cargarPedidosPendientes();
+    };
+
+    const handleNuevoPedido = (data) => {
+      console.log('🔔 Nuevo pedido creado:', data);
+      cargarPedidosPendientes();
+      setNotification({
+        message: `Nuevo pedido creado: Mesa ${data.pedido?.numeroMesa || 'N/A'}`,
+        type: 'info'
+      });
+      setTimeout(() => setNotification(null), 4000);
     };
 
     on('pedido-listo', handlePedidoListo);
     on('pedido-actualizado', handlePedidoActualizado);
+    on('nuevo-pedido-cocina', handleNuevoPedido);
 
     return () => {
       off('pedido-listo', handlePedidoListo);
       off('pedido-actualizado', handlePedidoActualizado);
+      off('nuevo-pedido-cocina', handleNuevoPedido);
     };
   }, [on, off]);
 

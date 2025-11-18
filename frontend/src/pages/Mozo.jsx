@@ -88,16 +88,29 @@ const Mozo = () => {
       setTimeout(() => setNotification(null), 3000);
     };
 
+    // Estado de pedido actualizado
+    const handlePedidoActualizado = (data) => {
+      console.log('🔄 Estado de pedido actualizado:', data);
+      cargarPedidosAbiertos();
+      setNotification({
+        message: `Pedido actualizado: ${data.estado}`,
+        type: 'info'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    };
+
     // Suscribirse a eventos
     on('mesa-actualizada', handleMesaActualizada);
     on('productos-actualizados', handleProductosActualizados);
     on('nuevo-pedido-cocina', handleNuevoPedido);
+    on('pedido-actualizado', handlePedidoActualizado);
 
     // Cleanup
     return () => {
       off('mesa-actualizada', handleMesaActualizada);
       off('productos-actualizados', handleProductosActualizados);
       off('nuevo-pedido-cocina', handleNuevoPedido);
+      off('pedido-actualizado', handlePedidoActualizado);
     };
   }, [on, off]);
 
@@ -164,6 +177,9 @@ const Mozo = () => {
   };
 
   const handleCrearPedido = () => {
+    if (isGerente) {
+      return; // No permitir crear pedidos en modo supervisión
+    }
     setMostrarCrearPedido(true);
   };
 
@@ -351,9 +367,11 @@ const Mozo = () => {
         {pedidosFiltrados.length === 0 ? (
           <div className="no-pedidos">
             <p>No hay pedidos {filtroEstado !== 'todos' ? `en estado "${filtroEstado}"` : 'disponibles'}</p>
-            <button className="btn-crear-pedido" onClick={handleCrearPedido}>
-              + Crear Nuevo Pedido
-            </button>
+            {!isGerente && (
+              <button className="btn-crear-pedido" onClick={handleCrearPedido}>
+                + Crear Nuevo Pedido
+              </button>
+            )}
           </div>
         ) : (
           pedidosFiltrados.map((pedido) => (
@@ -421,9 +439,11 @@ const Mozo = () => {
       </div>
 
           {/* Botón flotante para crear pedido */}
-          <button className="btn-fab" onClick={handleCrearPedido}>
-            +
-          </button>
+          {!isGerente && (
+            <button className="btn-fab" onClick={handleCrearPedido}>
+              +
+            </button>
+          )}
         </>
       )}
 
@@ -541,6 +561,7 @@ const Mozo = () => {
         <PedidoDetalle
           pedido={pedidoSeleccionado}
           onClose={handleCerrarDetalle}
+          isReadOnly={isGerente}
         />
       )}
 
