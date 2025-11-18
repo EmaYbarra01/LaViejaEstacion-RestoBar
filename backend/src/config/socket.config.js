@@ -181,6 +181,14 @@ export const initializeSocket = (httpServer) => {
         });
 
         // ====================================================================
+        // EVENTO: UNIRSE A UNA SALA MANUALMENTE
+        // ====================================================================
+        socket.on('join-room', (room) => {
+            socket.join(room);
+            console.log(`[Socket.io] Cliente ${socket.id} se unió manualmente a sala: ${room}`);
+        });
+
+        // ====================================================================
         // EVENTO: SOLICITAR ESTADO INICIAL
         // ====================================================================
         /**

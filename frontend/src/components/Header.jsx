@@ -83,6 +83,12 @@ export default function Header() {
             </NavLink>
           )}
           
+          {user?.role === 'Cajero' && (
+            <NavLink to="/caja" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#ffc107' }}>
+              💰 MI MÓDULO
+            </NavLink>
+          )}
+          
           {(user?.role === 'SuperAdministrador' || user?.role === 'Gerente') && (
             <NavLink to="/admin/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#667eea' }}>
               🛠️ PANEL ADMIN

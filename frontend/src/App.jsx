@@ -16,6 +16,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Reservas from "./pages/Reservas";
 import Mozo from "./pages/Mozo";
 import CocinaView from "./pages/CocinaView";
+import Caja from "./pages/Caja";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -78,6 +79,12 @@ function App() {
           <Route path="/encargado-cocina" element={
             <ProtectedRoute role={["EncargadoCocina", "Gerente", "SuperAdministrador"]}>
               <CocinaView />
+            </ProtectedRoute>
+          } />
+          {/* Módulo de Caja - Gestión de cobros - Cajero + Supervisión (Gerente, SuperAdmin) */}
+          <Route path="/caja" element={
+            <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
+              <Caja />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />

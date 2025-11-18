@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaHamburger, FaCocktail, FaIceCream, FaArrowLeft, FaChevronDown } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import './MenuPage.css';
 
@@ -78,7 +79,27 @@ const MenuPage = () => {
     const { comidas, bebidas, postres } = categorizeProducts();
 
     const toggleCategory = (category) => {
-        setExpandedCategory(expandedCategory === category ? null : category);
+        if (expandedCategory === category) {
+            // Si ya está expandida, colapsarla
+            setExpandedCategory(null);
+        } else {
+            // Expandir nueva categoría
+            setExpandedCategory(category);
+            // Scroll suave hacia la categoría después de un pequeño delay
+            setTimeout(() => {
+                const element = document.getElementById(`accordion-${category}`);
+                if (element) {
+                    const headerOffset = 100; // Offset para header fijo
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        }
     };
 
     if (loading) {
@@ -101,7 +122,7 @@ const MenuPage = () => {
                 {/* Acordeones de Categorías */}
                 <div className="menu-accordions">
                     {/* Comidas */}
-                    <div className="accordion-item">
+                    <div className="accordion-item" id="accordion-comida">
                         <div 
                             className={`accordion-header ${expandedCategory === 'comida' ? 'active' : ''}`}
                             onClick={() => toggleCategory('comida')}
@@ -112,11 +133,28 @@ const MenuPage = () => {
                             </div>
                             <FaChevronDown className={`chevron ${expandedCategory === 'comida' ? 'rotated' : ''}`} />
                         </div>
+                        <AnimatePresence>
                         {expandedCategory === 'comida' && (
-                            <div className="accordion-content">
+                            <motion.div 
+                                className="accordion-content"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
                                 <div className="menu-grid">
-                                    {comidas.map((item) => (
-                                        <div key={item._id} className="menu-card">
+                                    {comidas.map((item, index) => (
+                                        <motion.div 
+                                            key={item._id} 
+                                            className="menu-card"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            whileHover={{ 
+                                                y: -8, 
+                                                boxShadow: "0 15px 40px rgba(255, 193, 7, 0.4)" 
+                                            }}
+                                        >
                                             {item.imagenUrl && (
                                                 <div className="card-image">
                                                     <img 
@@ -143,15 +181,16 @@ const MenuPage = () => {
                                                     <span className="card-badge agotado">✗ No disponible</span>
                                                 )}
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
+                        </AnimatePresence>
                     </div>
 
                     {/* Bebidas */}
-                    <div className="accordion-item">
+                    <div className="accordion-item" id="accordion-bebidas">
                         <div 
                             className={`accordion-header ${expandedCategory === 'bebidas' ? 'active' : ''}`}
                             onClick={() => toggleCategory('bebidas')}
@@ -162,11 +201,28 @@ const MenuPage = () => {
                             </div>
                             <FaChevronDown className={`chevron ${expandedCategory === 'bebidas' ? 'rotated' : ''}`} />
                         </div>
+                        <AnimatePresence>
                         {expandedCategory === 'bebidas' && (
-                            <div className="accordion-content">
+                            <motion.div 
+                                className="accordion-content"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
                                 <div className="menu-grid">
-                                    {bebidas.map((item) => (
-                                        <div key={item._id} className="menu-card">
+                                    {bebidas.map((item, index) => (
+                                        <motion.div 
+                                            key={item._id} 
+                                            className="menu-card"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            whileHover={{ 
+                                                y: -8, 
+                                                boxShadow: "0 15px 40px rgba(255, 193, 7, 0.4)" 
+                                            }}
+                                        >
                                             {item.imagenUrl && (
                                                 <div className="card-image">
                                                     <img 
@@ -198,15 +254,16 @@ const MenuPage = () => {
                                                     <span className="card-badge agotado">✗ No disponible</span>
                                                 )}
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
+                        </AnimatePresence>
                     </div>
 
                     {/* Postres */}
-                    <div className="accordion-item">
+                    <div className="accordion-item" id="accordion-postres">
                         <div 
                             className={`accordion-header ${expandedCategory === 'postres' ? 'active' : ''}`}
                             onClick={() => toggleCategory('postres')}
@@ -217,11 +274,28 @@ const MenuPage = () => {
                             </div>
                             <FaChevronDown className={`chevron ${expandedCategory === 'postres' ? 'rotated' : ''}`} />
                         </div>
+                        <AnimatePresence>
                         {expandedCategory === 'postres' && (
-                            <div className="accordion-content">
+                            <motion.div 
+                                className="accordion-content"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
                                 <div className="menu-grid">
-                                    {postres.map((item) => (
-                                        <div key={item._id} className="menu-card">
+                                    {postres.map((item, index) => (
+                                        <motion.div 
+                                            key={item._id} 
+                                            className="menu-card"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            whileHover={{ 
+                                                y: -8, 
+                                                boxShadow: "0 15px 40px rgba(255, 193, 7, 0.4)" 
+                                            }}
+                                        >
                                             {item.imagenUrl && (
                                                 <div className="card-image">
                                                     <img 
@@ -248,11 +322,12 @@ const MenuPage = () => {
                                                     <span className="card-badge agotado">✗ No disponible</span>
                                                 )}
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
+                        </AnimatePresence>
                     </div>
                 </div>
 

@@ -115,6 +115,13 @@ export const crearPedido = async (req, res) => {
         });
       }
       
+      // Verificar stock suficiente
+      if (producto.stock < item.cantidad) {
+        return res.status(400).json({
+          mensaje: `Stock insuficiente para ${producto.nombre}. Stock disponible: ${producto.stock}`
+        });
+      }
+      
       productosDelPedido.push({
         producto: producto._id,
         nombre: producto.nombre,
@@ -153,6 +160,14 @@ export const crearPedido = async (req, res) => {
     
     await nuevoPedido.save();
     
+    // Descontar stock de los productos
+    for (let item of productos) {
+      await Producto.findByIdAndUpdate(
+        item.producto,
+        { $inc: { stock: -item.cantidad } }
+      );
+    }
+    
     // Actualizar estado de la mesa a Ocupada
     await Mesa.findByIdAndUpdate(mesa, { estado: 'Ocupada' });
     
@@ -165,11 +180,29 @@ export const crearPedido = async (req, res) => {
     // HU4: Emitir evento Socket.io para notificar a cocina
     const io = req.app.get('io');
     if (io) {
+      // Notificar nuevo pedido a cocina
       io.to('cocina').emit('nuevo-pedido-cocina', {
         pedido: pedidoCompleto,
         mensaje: `Nuevo pedido #${pedidoCompleto.numeroPedido} - Mesa ${pedidoCompleto.numeroMesa}`
       });
       console.log(`[Socket.io] Evento 'nuevo-pedido-cocina' emitido para pedido #${pedidoCompleto.numeroPedido}`);
+      
+      // Notificar actualización de mesa a todos los mozos
+      io.to('mozos').emit('mesa-actualizada', {
+        mesaId: mesa,
+        estado: 'Ocupada',
+        numeroMesa: mesaDoc.numero
+      });
+      console.log(`[Socket.io] Evento 'mesa-actualizada' emitido para mesa ${mesaDoc.numero}`);
+      
+      // Notificar actualización de productos (stock descontado)
+      const productosActualizados = await Producto.find({ 
+        _id: { $in: productos.map(p => p.producto) } 
+      });
+      io.to('mozos').emit('productos-actualizados', {
+        productos: productosActualizados
+      });
+      console.log(`[Socket.io] Evento 'productos-actualizados' emitido`);
     }
     
     res.status(201).json({

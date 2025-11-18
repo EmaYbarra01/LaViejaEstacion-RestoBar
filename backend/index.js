@@ -22,7 +22,7 @@ import mesasRoutes from './src/routes/mesas.routes.js';
 import reservasRoutes from './src/routes/reservas.routes.js';
 import cocinaRoutes from './src/routes/cocina.routes.js';
 // import comprasRoutes from './src/routes/compras.routes.js'; // Temporalmente comentado
-// import cierreCajaRoutes from './src/routes/cierreCaja.routes.js'; // Temporalmente comentado
+import cierreCajaRoutes from './src/routes/cierreCaja.routes.js';
 // import reportesRoutes from './src/routes/reportes.routes.js'; // Temporalmente comentado
 import salesRoutes from './src/routes/sales.routes.js';
 import empleadosRoutes from './src/routes/empleados.routes.js';
@@ -52,7 +52,7 @@ app.use('/api', mesasRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/cocina', cocinaRoutes);
 // app.use('/api', comprasRoutes); // Temporalmente comentado
-// app.use('/api', cierreCajaRoutes); // Temporalmente comentado
+app.use('/api', cierreCajaRoutes);
 // app.use('/api', reportesRoutes); // Temporalmente comentado
 app.use('/api', salesRoutes);
 app.use('/api/empleados', empleadosRoutes);

@@ -400,3 +400,116 @@ export const obtenerUltimoCierre = async (req, res) => {
     });
   }
 };
+
+/**
+ * Obtener cierre de caja activo (abierto)
+ * GET /api/cierres-caja/activo
+ */
+export const obtenerCierreActivo = async (req, res) => {
+  try {
+    const cierreActivo = await CierreCaja.findOne({ estado: 'Abierto' })
+      .populate('realizadoPor', 'nombre apellido')
+      .sort({ fechaCierre: -1 });
+    
+    res.status(200).json(cierreActivo);
+  } catch (error) {
+    console.error('Error al obtener cierre activo:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener cierres de caja por fecha
+ * GET /api/cierres-caja/fecha?fechaInicio=...&fechaFin=...
+ */
+export const obtenerCierresCajaPorFecha = async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin } = req.query;
+    
+    if (!fechaInicio || !fechaFin) {
+      return res.status(400).json({
+        mensaje: "Se requieren fechaInicio y fechaFin"
+      });
+    }
+    
+    const cierres = await CierreCaja.find({
+      fechaCierre: {
+        $gte: new Date(fechaInicio),
+        $lte: new Date(fechaFin)
+      }
+    })
+      .populate('realizadoPor', 'nombre apellido')
+      .populate('revisadoPor', 'nombre apellido')
+      .sort({ fechaCierre: -1 });
+    
+    res.status(200).json(cierres);
+  } catch (error) {
+    console.error('Error al obtener cierres por fecha:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener cierres de caja por turno
+ * GET /api/cierres-caja/turno/:turno
+ */
+export const obtenerCierresCajaPorTurno = async (req, res) => {
+  try {
+    const { turno } = req.params;
+    
+    if (!['Mañana', 'Tarde', 'Noche', 'Completo'].includes(turno)) {
+      return res.status(400).json({
+        mensaje: "Turno inválido. Valores permitidos: Mañana, Tarde, Noche, Completo"
+      });
+    }
+    
+    const cierres = await CierreCaja.find({ turno })
+      .populate('realizadoPor', 'nombre apellido')
+      .populate('revisadoPor', 'nombre apellido')
+      .sort({ fechaCierre: -1 });
+    
+    res.status(200).json(cierres);
+  } catch (error) {
+    console.error('Error al obtener cierres por turno:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener pedidos cobrados pendientes de cierre
+ * GET /api/cierres-caja/pedidos-pendientes
+ */
+export const obtenerPedidosPendientesCierre = async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin } = req.query;
+    
+    const query = {
+      estado: 'Cobrado'
+    };
+    
+    if (fechaInicio && fechaFin) {
+      query.fechaCobrado = {
+        $gte: new Date(fechaInicio),
+        $lte: new Date(fechaFin)
+      };
+    }
+    
+    const pedidos = await Pedido.find(query)
+      .populate('mesa', 'numero')
+      .populate('mozo', 'nombre apellido')
+      .sort({ fechaCobrado: -1 });
+    
+    res.status(200).json(pedidos);
+  } catch (error) {
+    console.error('Error al obtener pedidos pendientes:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
