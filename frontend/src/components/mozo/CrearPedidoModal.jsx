@@ -65,7 +65,12 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
 
   const handleSeleccionarMesa = (mesa) => {
     if (mesa.estado === 'Ocupada') {
-      alert('Esta mesa ya está ocupada');
+      Swal.fire({
+        title: 'Mesa ocupada',
+        text: 'Esta mesa ya está ocupada',
+        icon: 'warning',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
     setMesaSeleccionada(mesa);
@@ -137,17 +142,32 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
 
   const handleCrearPedido = async () => {
     if (!mesaSeleccionada) {
-      alert('Selecciona una mesa');
+      Swal.fire({
+        title: 'Mesa requerida',
+        text: 'Selecciona una mesa',
+        icon: 'warning',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
 
     if (productosSeleccionados.length === 0) {
-      alert('Agrega al menos un producto');
+      Swal.fire({
+        title: 'Productos requeridos',
+        text: 'Agrega al menos un producto',
+        icon: 'warning',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
 
     if (!user || !user.id) {
-      alert('Error: Usuario no autenticado');
+      Swal.fire({
+        title: 'Error de autenticación',
+        text: 'Usuario no autenticado',
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
       return;
     }
 
@@ -200,7 +220,12 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
         errorMessage = 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.';
       }
       
-      alert('Error al crear el pedido: ' + errorMessage);
+      Swal.fire({
+        title: 'Error al crear pedido',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
     } finally {
       setLoading(false);
     }

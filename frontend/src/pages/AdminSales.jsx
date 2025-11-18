@@ -11,7 +11,7 @@ function AdminSales() {
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useUserStore();
 
-  const URL_SALES = import.meta.env.VITE_API_SALES || 'http://localhost:4000/api/sales';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
   useEffect(() => {
     fetchAllSales();
@@ -20,12 +20,39 @@ function AdminSales() {
   const fetchAllSales = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${URL_SALES}/all`, {
-        withCredentials: true // Para enviar el token JWT
+      const token = localStorage.getItem('token');
+      
+      // Obtener pedidos cobrados (ventas realizadas)
+      const response = await axios.get(`${API_URL}/pedidos`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { estado: 'Cobrado' }
       });
       
       if (response.data && Array.isArray(response.data)) {
-        setSales(response.data);
+        // Transformar pedidos a formato de ventas
+        const ventasFormateadas = response.data.map(pedido => ({
+          id: pedido._id,
+          numeroPedido: pedido.numeroPedido,
+          mesa: pedido.numeroMesa,
+          mozo: pedido.nombreMozo,
+          customerInfo: {
+            name: pedido.nombreMozo,
+            email: pedido.mozo?.email || 'N/A'
+          },
+          items: pedido.productos.map(item => ({
+            name: item.nombre,
+            quantity: item.cantidad,
+            price: item.precioUnitario
+          })),
+          total: pedido.total,
+          subtotal: pedido.subtotal,
+          metodoPago: pedido.metodoPago,
+          descuento: pedido.descuento,
+          date: pedido.fechaCobrado || pedido.fechaCreacion,
+          cajero: pedido.pago?.cajero?.nombre || 'N/A'
+        }));
+        
+        setSales(ventasFormateadas);
       }
     } catch (error) {
       console.error('Error al obtener ventas:', error);
@@ -33,9 +60,7 @@ function AdminSales() {
         icon: 'error',
         title: 'Error',
         text: 'No se pudieron cargar las ventas',
-        background: '#1a1a2e',
-        color: '#ffffff',
-        confirmButtonColor: '#0f3460'
+        confirmButtonColor: '#d33'
       });
     } finally {
       setLoading(false);
@@ -68,9 +93,10 @@ function AdminSales() {
     
     const search = searchTerm.toLowerCase();
     return salesList.filter(sale => 
-      sale.customerInfo?.name?.toLowerCase().includes(search) ||
-      sale.customerInfo?.email?.toLowerCase().includes(search) ||
-      sale.id?.toLowerCase().includes(search)
+      sale.mozo?.toLowerCase().includes(search) ||
+      sale.numeroPedido?.toLowerCase().includes(search) ||
+      sale.mesa?.toString().includes(search) ||
+      sale.cajero?.toLowerCase().includes(search)
     );
   };
 
@@ -169,7 +195,7 @@ function AdminSales() {
         <div className="search-container">
           <input
             type="text"
-            placeholder="🔍 Buscar por cliente, email o ID..."
+            placeholder="🔍 Buscar por pedido, mozo, mesa o cajero..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -188,11 +214,13 @@ function AdminSales() {
           <table className="admin-table">
             <thead>
               <tr>
-                <th>ID Venta</th>
-                <th>Cliente</th>
-                <th>Email</th>
+                <th>N° Pedido</th>
+                <th>Mesa</th>
+                <th>Mozo</th>
+                <th>Cajero</th>
                 <th>Productos</th>
                 <th>Cantidad</th>
+                <th>Método Pago</th>
                 <th>Total</th>
                 <th>Fecha</th>
                 <th>Acciones</th>
@@ -202,19 +230,20 @@ function AdminSales() {
               {filteredSales.map((sale) => (
                 <tr key={sale.id}>
                   <td>
-                    <span className="sale-id" title={sale.id}>
-                      {sale.id.substring(0, 8)}...
+                    <span className="sale-id" title={sale.numeroPedido}>
+                      {sale.numeroPedido}
                     </span>
                   </td>
                   <td>
-                    <strong>{sale.customerInfo?.name || 'Usuario eliminado'}</strong>
+                    <strong>Mesa {sale.mesa}</strong>
                   </td>
-                  <td>{sale.customerInfo?.email || 'N/A'}</td>
+                  <td>{sale.mozo}</td>
+                  <td>{sale.cajero}</td>
                   <td>
                     <div className="sale-items">
                       {sale.items.slice(0, 2).map((item, idx) => (
                         <span key={idx} className="item-name">
-                          {item.name || 'Producto eliminado'}
+                          {item.name || 'Producto'}
                         </span>
                       ))}
                       {sale.items.length > 2 && (
@@ -230,7 +259,17 @@ function AdminSales() {
                     </span>
                   </td>
                   <td>
-                    <strong className="sale-total">${sale.total.toFixed(2)}</strong>
+                    <span className={`badge badge-${sale.metodoPago?.toLowerCase()}`}>
+                      {sale.metodoPago || 'N/A'}
+                    </span>
+                  </td>
+                  <td>
+                    <strong className="sale-total">${sale.total?.toFixed(2)}</strong>
+                    {sale.descuento?.monto > 0 && (
+                      <small style={{display: 'block', color: '#10b981'}}>
+                        (Desc: ${sale.descuento.monto.toFixed(2)})
+                      </small>
+                    )}
                   </td>
                   <td>
                     <span className="sale-date">
@@ -259,7 +298,7 @@ function AdminSales() {
     const itemsList = sale.items
       .map((item, idx) => `
         <div style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
-          <strong>${item.name || 'Producto eliminado'}</strong><br/>
+          <strong>${item.name || 'Producto'}</strong><br/>
           Precio: $${item.price} × ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}
         </div>
       `)
@@ -269,19 +308,28 @@ function AdminSales() {
       title: '📋 Detalle de Venta',
       html: `
         <div style="text-align: left;">
-          <p><strong>ID:</strong> ${sale.id}</p>
-          <p><strong>Cliente:</strong> ${sale.customerInfo?.name || 'Usuario eliminado'}</p>
-          <p><strong>Email:</strong> ${sale.customerInfo?.email || 'N/A'}</p>
+          <p><strong>Número de Pedido:</strong> ${sale.numeroPedido}</p>
+          <p><strong>Mesa:</strong> ${sale.mesa}</p>
+          <p><strong>Mozo:</strong> ${sale.mozo}</p>
+          <p><strong>Cajero:</strong> ${sale.cajero}</p>
+          <p><strong>Método de Pago:</strong> ${sale.metodoPago || 'N/A'}</p>
           <p><strong>Fecha:</strong> ${new Date(sale.date).toLocaleString('es-AR')}</p>
           <hr/>
           <h4 style="margin-top: 15px;">Productos:</h4>
           ${itemsList}
           <hr/>
-          <h3 style="text-align: right; margin-top: 15px;">Total: $${sale.total.toFixed(2)}</h3>
+          <div style="text-align: right; margin-top: 15px;">
+            <p><strong>Subtotal:</strong> $${sale.subtotal?.toFixed(2)}</p>
+            ${sale.descuento?.monto > 0 ? `
+              <p style="color: #10b981;">
+                <strong>Descuento (${sale.descuento.porcentaje}%):</strong> 
+                -$${sale.descuento.monto.toFixed(2)}
+              </p>
+            ` : ''}
+            <h3><strong>TOTAL:</strong> $${sale.total?.toFixed(2)}</h3>
+          </div>
         </div>
       `,
-      background: '#1a1a2e',
-      color: '#ffffff',
       confirmButtonColor: '#0f3460',
       width: '600px'
     });

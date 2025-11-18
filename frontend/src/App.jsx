@@ -23,10 +23,6 @@ import Users from "./pages/Users";
 import AdminSales from "./pages/AdminSales";
 import ProtectedRoute from "./components/ProtectedRoute";
 import useAuthInitializer from "./hooks/useAuthInitializer";
-import ProductList from './components/carrito/ProductList'
-import Cart from './components/carrito/Cart'
-import SalesHistory from './components/carrito/SalesHistory'
-import NotificationContainer from './components/carrito/NotificationContainer'
 import AdminReservas from "./pages/AdminReservas";
 import CalendarioReservas from "./pages/CalendarioReservas";
 import MisReservas from "./pages/MisReservas";
@@ -36,14 +32,7 @@ import SuperadminDashboard from "./pages/SuperadminDashboard";
 import useUserStore from './store/useUserStore';
 
 function App() {
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isSalesOpen, setIsSalesOpen] = useState(false);
   const { user } = useUserStore();
-
-  const openCart = () => setIsCartOpen(true);
-  const closeCart = () => setIsCartOpen(false);
-  const openSales = () => setIsSalesOpen(true);
-  const closeSales = () => setIsSalesOpen(false);
 
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
@@ -54,10 +43,7 @@ function App() {
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
-      <Header onCartClick={openCart} onSalesClick={openSales} />
-      <NotificationContainer />
-      <Cart isOpen={isCartOpen} onClose={closeCart} />
-      <SalesHistory isOpen={isSalesOpen} onClose={closeSales} />
+      <Header />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -67,7 +53,6 @@ function App() {
           <Route path="/servicios" element={<ServiciosPage />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
-          <Route path="/productos" element={<ProductList />} />
           <Route path="/reservas" element={<Reservas />} />
           {/* Módulo del Mozo - Gestión de pedidos - Mozos + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/mozo" element={

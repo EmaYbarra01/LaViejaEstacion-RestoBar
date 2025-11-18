@@ -214,6 +214,8 @@
   font-size: 0.85rem;
   color: #d1d5db;
 }
+
+.categorias-tabs {
   display: flex;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
