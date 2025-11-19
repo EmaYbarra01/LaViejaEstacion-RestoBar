@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { FaSearch, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaClock, FaCalendarAlt, FaUsers, FaTable } from 'react-icons/fa';
 import './AdminReservas.css';
 
@@ -117,17 +118,38 @@ const AdminReservas = () => {
 
   // Manejar eliminación
   const handleEliminar = async (id) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar esta reserva?')) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: '¿Eliminar reserva?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await axios.delete(`${API_URL}/reservas/${id}`);
       fetchReservas();
-      alert('Reserva eliminada correctamente');
+      
+      await Swal.fire({
+        icon: 'success',
+        title: 'Reserva eliminada',
+        text: 'La reserva fue eliminada correctamente',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
       console.error('Error al eliminar reserva:', err);
-      alert('Error al eliminar la reserva');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo eliminar la reserva',
+        confirmButtonColor: '#3085d6'
+      });
     }
   };
 
@@ -175,21 +197,59 @@ const AdminReservas = () => {
       setShowEditModal(false);
       fetchReservas();
       
-      // Mostrar mensaje de éxito con información de la mesa
+      // Mostrar mensaje de éxito con SweetAlert
       if (response.data.reserva && response.data.reserva.numeroMesa) {
-        alert(`Reserva actualizada correctamente. Mesa ${response.data.reserva.numeroMesa} asignada. Se enviará un email al cliente.`);
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Reserva actualizada!',
+          html: `
+            <div style="text-align: left;">
+              <p><strong>Mesa asignada:</strong> Mesa ${response.data.reserva.numeroMesa}</p>
+              <p>📧 Se enviará un email al cliente con los detalles de la mesa asignada.</p>
+            </div>
+          `,
+          confirmButtonColor: '#667eea',
+          timer: 3000
+        });
       } else {
-        alert(response.data.mensaje || 'Reserva actualizada correctamente');
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Reserva actualizada!',
+          text: response.data.mensaje || 'Los cambios se guardaron correctamente',
+          confirmButtonColor: '#667eea',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
     } catch (err) {
       console.error('[ADMIN RESERVAS] Error al actualizar reserva:', err);
       console.error('[ADMIN RESERVAS] Detalles:', err.response?.data);
-      alert(err.response?.data?.mensaje || 'Error al actualizar la reserva. Por favor, intenta nuevamente.');
+      
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error al actualizar',
+        text: err.response?.data?.mensaje || 'No se pudo actualizar la reserva. Por favor, intenta nuevamente.',
+        confirmButtonColor: '#3085d6'
+      });
     }
   };
 
   // Cambiar estado de reserva
   const handleCambiarEstado = async (id, nuevoEstado) => {
+    // Confirmar cambio de estado
+    const confirmResult = await Swal.fire({
+      title: `¿Cambiar estado a ${nuevoEstado}?`,
+      text: 'El cliente recibirá una notificación por email',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#667eea',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, cambiar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
     try {
       if (nuevoEstado === 'Confirmada') {
         await axios.patch(`${API_URL}/reservas/${id}/confirmar`);
@@ -198,11 +258,33 @@ const AdminReservas = () => {
       } else {
         await axios.put(`${API_URL}/reservas/${id}`, { estado: nuevoEstado });
       }
+      
       fetchReservas();
-      alert(`Reserva marcada como ${nuevoEstado}`);
+      
+      // Mostrar alerta de éxito
+      await Swal.fire({
+        icon: 'success',
+        title: `¡Estado actualizado!`,
+        html: `
+          <div style="text-align: center;">
+            <p>La reserva fue marcada como <strong>${nuevoEstado}</strong></p>
+            ${nuevoEstado === 'Confirmada' ? '<p>📧 Se envió un email de confirmación al cliente</p>' : ''}
+            ${nuevoEstado === 'Completada' ? '<p>✅ La reserva fue completada exitosamente</p>' : ''}
+          </div>
+        `,
+        confirmButtonColor: '#667eea',
+        timer: 3000,
+        showConfirmButton: false
+      });
     } catch (err) {
       console.error('Error al cambiar estado:', err);
-      alert('Error al cambiar el estado de la reserva');
+      
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cambiar el estado de la reserva',
+        confirmButtonColor: '#3085d6'
+      });
     }
   };
 

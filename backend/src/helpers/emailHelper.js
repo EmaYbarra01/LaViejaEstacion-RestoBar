@@ -12,33 +12,35 @@ dotenv.config();
  * Configurar el transporter de Nodemailer
  */
 const crearTransporter = () => {
-  // Si se usa un servicio conocido (Gmail, Outlook, etc.)
-  if (process.env.EMAIL_SERVICE) {
-    return nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+  const { EMAIL_USER, EMAIL_PASS } = process.env;
+  
+  if (!EMAIL_USER || !EMAIL_PASS) {
+    console.warn('[EMAIL] No se encontró configuración de email (EMAIL_USER o EMAIL_PASS). Verifica tu archivo .env');
+    return null;
   }
 
-  // Si se usa SMTP personalizado
-  if (process.env.EMAIL_HOST) {
+  // Intentar con Gmail usando múltiples configuraciones
+  try {
+    console.log('[EMAIL] Creando transporter para Gmail con configuración robusta...');
+    
     return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT) || 587,
-      secure: process.env.EMAIL_SECURE === 'true',
+      service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+        user: EMAIL_USER,
+        pass: EMAIL_PASS
+      },
+      tls: {
+        rejectUnauthorized: false,
+        ciphers: 'SSLv3'
+      },
+      connectionTimeout: 10000, // 10 segundos
+      greetingTimeout: 10000,
+      socketTimeout: 10000
     });
+  } catch (error) {
+    console.error('[EMAIL] Error al crear transporter:', error.message);
+    return null;
   }
-
-  // Si no hay configuración, devolver null
-  console.warn('[EMAIL] No se encontró configuración de email. Verifica tu archivo .env');
-  return null;
 };
 
 /**
@@ -349,9 +351,10 @@ const enviarEmailConfirmacion = async (reserva, token = null) => {
 
     if (!transporter) {
       console.error('[EMAIL] No se pudo crear el transporter. Verifica la configuración en .env');
+      console.warn('[EMAIL] ⚠️  EMAILS DESACTIVADOS - La reserva se guardó pero no se envió email');
       return {
         success: false,
-        mensaje: 'Email no configurado'
+        mensaje: 'Email no configurado - La reserva se guardó correctamente'
       };
     }
 
@@ -365,14 +368,14 @@ const enviarEmailConfirmacion = async (reserva, token = null) => {
     }
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM || 'La Vieja Estación RestoBar <noreply@laviejaestacion.com>',
+      from: `"La Vieja Estación Resto-Bar" <${process.env.EMAIL_FROM || 'laviejaestacionbar@gmail.com'}>`,
       to: reserva.email,
       subject: `Confirmación de Reserva - ${formatearFecha(reserva.fecha)} ${reserva.hora}`,
       text: plantillaTextoPlano(reserva),
       html: plantillaConfirmacionReserva(reserva, token)
     };
 
-    console.log(`[EMAIL] Enviando confirmación a ${reserva.email}...`);
+    console.log(`[EMAIL] 📤 Enviando confirmación a ${reserva.email}...`);
 
     const info = await transporter.sendMail(mailOptions);
 
@@ -385,19 +388,23 @@ const enviarEmailConfirmacion = async (reserva, token = null) => {
     };
 
   } catch (error) {
-    console.error('[EMAIL] ❌ Error al enviar email:', error);
+    console.error('[EMAIL] ❌ Error al enviar email:', error.message);
     
     // Errores comunes y sus soluciones
     if (error.code === 'EAUTH') {
-      console.error('[EMAIL] Error de autenticación. Verifica EMAIL_USER y EMAIL_PASS en .env');
+      console.error('[EMAIL] ⚠️  Error de autenticación. Verifica EMAIL_USER y EMAIL_PASS en .env');
       console.error('[EMAIL] Si usas Gmail, necesitas una "Contraseña de aplicación"');
-    } else if (error.code === 'ESOCKET') {
-      console.error('[EMAIL] Error de conexión. Verifica EMAIL_HOST y EMAIL_PORT en .env');
+      console.error('[EMAIL] https://myaccount.google.com/apppasswords');
+    } else if (error.code === 'ESOCKET' || error.code === 'ECONNRESET' || error.code === 'EPROTOCOL') {
+      console.error('[EMAIL] ⚠️  Error de conexión. Posibles causas:');
+      console.error('[EMAIL] 1. Firewall o Antivirus bloqueando la conexión SMTP');
+      console.error('[EMAIL] 2. Contraseña de aplicación incorrecta');
+      console.error('[EMAIL] 3. Verificación en 2 pasos no activada en Gmail');
     }
 
     return {
       success: false,
-      mensaje: 'Error al enviar email',
+      mensaje: `Error al enviar email: ${error.message}`,
       error: error.message
     };
   }
