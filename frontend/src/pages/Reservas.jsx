@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { crearReserva } from '../api/reservas.api';
+import Swal from 'sweetalert2';
 import './Reservas.css';
 
 const Reservas = () => {
@@ -57,35 +58,49 @@ const Reservas = () => {
       console.log('[RESERVAS] Respuesta del servidor:', response);
 
       if (response.success) {
-        // Construir mensaje de éxito
-        let mensajeExito = '¡Reserva realizada con éxito! ';
-        
-        if (response.mesaAsignada) {
-          mensajeExito += `Se te ha asignado la Mesa ${response.mesaAsignada.numero}. `;
-        } else {
-          mensajeExito += 'El administrador asignará tu mesa pronto. ';
-        }
-        
-        mensajeExito += 'Te enviaremos un email de confirmación.';
-        
-        setMessage({ 
-          type: 'success', 
-          text: mensajeExito
+        // Mostrar SweetAlert de éxito
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Reserva Enviada!',
+          html: `
+            <div style="text-align: left;">
+              <p><strong>Tu reserva ha sido enviada exitosamente.</strong></p>
+              <br>
+              <p>📧 Hemos enviado un correo de confirmación a:</p>
+              <p style="color: #667eea; font-weight: bold; text-align: center;">${formData.email}</p>
+              <br>
+              <p>📬 También enviamos una notificación al restaurante:</p>
+              <p style="color: #667eea; font-weight: bold; text-align: center;">laviejaestacionbar@gmail.com</p>
+              <br>
+              ${response.mesaAsignada 
+                ? `<p>🪑 <strong>Mesa asignada:</strong> Mesa ${response.mesaAsignada.numero}</p>` 
+                : '<p>⏳ El administrador asignará tu mesa pronto.</p>'
+              }
+              <br>
+              <p style="font-size: 14px; color: #666;">
+                <strong>Próximos pasos:</strong><br>
+                1️⃣ Revisa tu correo electrónico<br>
+                2️⃣ Confirma tu reserva desde el enlace<br>
+                3️⃣ Espera la confirmación final del restaurante
+              </p>
+            </div>
+          `,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#667eea',
+          allowOutsideClick: false
         });
         
-        // Limpiar formulario después de 3 segundos
-        setTimeout(() => {
-          setFormData({
-            cliente: '',
-            email: '',
-            telefono: '',
-            fecha: '',
-            hora: '',
-            comensales: 2,
-            comentarios: ''
-          });
-          setMessage({ type: '', text: '' });
-        }, 3000);
+        // Limpiar formulario
+        setFormData({
+          cliente: '',
+          email: '',
+          telefono: '',
+          fecha: '',
+          hora: '',
+          comensales: 2,
+          comentarios: ''
+        });
+        setMessage({ type: '', text: '' });
       } else {
         throw new Error(response.mensaje || 'Error al crear la reserva');
       }
@@ -330,8 +345,8 @@ const Reservas = () => {
                   <span className="contacto-icon">📧</span>
                   <div>
                     <strong>Email:</strong>
-                    <a href="mailto:cristiangermandelacruz29@gmail.com">
-                      cristiangermandelacruz29@gmail.com
+                    <a href="mailto:laviejaestacionbar@gmail.com">
+                      laviejaestacionbar@gmail.com
                     </a>
                   </div>
                 </div>

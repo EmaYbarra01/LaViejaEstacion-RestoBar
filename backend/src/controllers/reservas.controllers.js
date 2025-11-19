@@ -149,17 +149,24 @@ const crearReserva = async (req, res) => {
 
     console.log('[RESERVAS] Reserva creada exitosamente:', nuevaReserva._id);
 
+    // Variables para controlar el estado de envío de emails
+    let emailClienteEnviado = false;
+    let emailRestobarEnviado = false;
+
     // Enviar email de confirmación al cliente (no bloquear la respuesta)
     enviarEmailConfirmacion(nuevaReserva, token)
       .then(resultado => {
         if (resultado.success) {
           console.log('[RESERVAS] ✅ Email de confirmación enviado al cliente');
+          emailClienteEnviado = true;
         } else {
-          console.warn('[RESERVAS] ⚠️ No se pudo enviar email al cliente:', resultado.mensaje);
+          console.warn('[RESERVAS] ⚠️  No se pudo enviar email al cliente:', resultado.mensaje);
+          console.warn('[RESERVAS] 💡 La reserva se guardó correctamente en la base de datos');
         }
       })
       .catch(error => {
         console.error('[RESERVAS] ❌ Error al enviar email al cliente:', error.message);
+        console.warn('[RESERVAS] 💡 La reserva se guardó correctamente en la base de datos');
       });
 
     // Enviar notificación al restobar (no bloquear la respuesta)
@@ -167,12 +174,15 @@ const crearReserva = async (req, res) => {
       .then(resultado => {
         if (resultado.success) {
           console.log('[RESERVAS] ✅ Notificación enviada al restobar');
+          emailRestobarEnviado = true;
         } else {
-          console.warn('[RESERVAS] ⚠️ No se pudo enviar notificación al restobar:', resultado.mensaje);
+          console.warn('[RESERVAS] ⚠️  No se pudo enviar notificación al restobar:', resultado.mensaje);
+          console.warn('[RESERVAS] 💡 Revisa las reservas en el panel de administración');
         }
       })
       .catch(error => {
         console.error('[RESERVAS] ❌ Error al enviar notificación al restobar:', error.message);
+        console.warn('[RESERVAS] 💡 Revisa las reservas en el panel de administración');
       });
 
     // Mensaje de éxito
