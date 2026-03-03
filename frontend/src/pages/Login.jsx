@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './Login.css';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import useUserStore from '../store/useUserStore';
 
 const Login = () => {
@@ -15,20 +15,13 @@ const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [localError, setLocalError] = useState("");
 const navigate = useNavigate();
+const location = useLocation();
+const hasRedirected = useRef(false);
 
 // Obtener funciones y estado del store de Zustand
 const { login, isLoading, error, clearError, user, isAuthenticated } = useUserStore();
 
-// Si ya está autenticado, redirigir
-useEffect(() => {
-    if (isAuthenticated && user) {
-        if (user.role === 'admin' || user.role === 'superadmin') {
-            navigate('/admin/products');
-        } else {
-            navigate('/');
-        }
-    }
-}, [isAuthenticated, user, navigate]);
+// NO redirigir automáticamente - solo en handleSubmit después del login exitoso
 
 // Limpiar errores cuando el usuario empiece a escribir
 useEffect(() => {
@@ -56,8 +49,22 @@ const handleSubmit = async (e) => {
         console.log('Resultado del login:', result);
         
         if (result.success) {
-            // El store ya se encarga de actualizar el estado global
-            // La redirección se maneja en el useEffect de arriba
+            const rol = result.user?.role || '';
+            
+            // Redirigir según rol exacto
+            if (rol === 'SuperAdministrador') {
+                navigate('/admin/dashboard', { replace: true });
+            } else if (rol === 'Gerente') {
+                navigate('/admin/dashboard', { replace: true });
+            } else if (rol === 'Mozo') {
+                navigate('/mozo', { replace: true });
+            } else if (rol === 'EncargadoCocina') {
+                navigate('/encargado-cocina', { replace: true });
+            } else if (rol === 'Cajero') {
+                navigate('/caja', { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
         } else {
             setLocalError(result.message || 'Error en el login');
         }

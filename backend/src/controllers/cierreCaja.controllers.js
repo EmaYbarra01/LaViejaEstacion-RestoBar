@@ -117,13 +117,26 @@ export const crearCierreCaja = async (req, res) => {
     const pedidosParaCierre = pedidosCobrados.map(p => ({
       pedidoId: p._id,
       numeroPedido: p.numeroPedido,
-      mesa: p.mesa.numero || p.mesa,
-      mozo: `${p.mozo.nombre} ${p.mozo.apellido}`,
+      mesa: p.mesa?.numero || p.numeroMesa || 'N/A',
+      mozo: p.mozo ? `${p.mozo.nombre} ${p.mozo.apellido}` : p.nombreMozo || 'N/A',
       metodoPago: p.metodoPago,
       monto: p.total,
-      descuento: p.descuento.monto || 0,
-      horaPago: p.pago.fecha || p.fechaCobrado
+      descuento: p.descuento?.monto || 0,
+      horaPago: p.pago?.fecha || p.fechaCobrado || new Date()
     }));
+    
+    // Calcular totales por método de pago
+    const ventasEfectivo = pedidosParaCierre.filter(p => p.metodoPago === 'Efectivo');
+    const ventasTransferencia = pedidosParaCierre.filter(p => p.metodoPago === 'Transferencia');
+    
+    const totalVentasEfectivo = ventasEfectivo.reduce((sum, p) => sum + p.monto, 0);
+    const totalVentasTransferencia = ventasTransferencia.reduce((sum, p) => sum + p.monto, 0);
+    const totalDescuentos = pedidosParaCierre.reduce((sum, p) => sum + p.descuento, 0);
+    const totalVentas = totalVentasEfectivo + totalVentasTransferencia;
+    
+    // Calcular efectivo en caja (inicial + ventas en efectivo - gastos)
+    const totalGastos = (gastos || []).reduce((sum, g) => sum + (g.monto || 0), 0);
+    const efectivoEnCaja = (montoInicial || 0) + totalVentasEfectivo - totalGastos;
     
     // Crear cierre de caja
     const nuevoCierre = new CierreCaja({
@@ -134,6 +147,19 @@ export const crearCierreCaja = async (req, res) => {
       horaInicio: new Date(horaInicio),
       horaFin: new Date(horaFin),
       montoInicial: montoInicial || 0,
+      ventasPorMetodo: {
+        efectivo: {
+          cantidad: ventasEfectivo.length,
+          total: totalVentasEfectivo
+        },
+        transferencia: {
+          cantidad: ventasTransferencia.length,
+          total: totalVentasTransferencia
+        }
+      },
+      totalVentas,
+      totalDescuentos,
+      efectivoEnCaja,
       efectivoContado: efectivoContado || 0,
       desgloseBilletes: desgloseBilletes || {},
       gastos: gastos || [],
@@ -395,6 +421,119 @@ export const obtenerUltimoCierre = async (req, res) => {
     res.status(200).json(ultimoCierre);
   } catch (error) {
     console.error('Error al obtener último cierre:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener cierre de caja activo (abierto)
+ * GET /api/cierres-caja/activo
+ */
+export const obtenerCierreActivo = async (req, res) => {
+  try {
+    const cierreActivo = await CierreCaja.findOne({ estado: 'Abierto' })
+      .populate('realizadoPor', 'nombre apellido')
+      .sort({ fechaCierre: -1 });
+    
+    res.status(200).json(cierreActivo);
+  } catch (error) {
+    console.error('Error al obtener cierre activo:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener cierres de caja por fecha
+ * GET /api/cierres-caja/fecha?fechaInicio=...&fechaFin=...
+ */
+export const obtenerCierresCajaPorFecha = async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin } = req.query;
+    
+    if (!fechaInicio || !fechaFin) {
+      return res.status(400).json({
+        mensaje: "Se requieren fechaInicio y fechaFin"
+      });
+    }
+    
+    const cierres = await CierreCaja.find({
+      fechaCierre: {
+        $gte: new Date(fechaInicio),
+        $lte: new Date(fechaFin)
+      }
+    })
+      .populate('realizadoPor', 'nombre apellido')
+      .populate('revisadoPor', 'nombre apellido')
+      .sort({ fechaCierre: -1 });
+    
+    res.status(200).json(cierres);
+  } catch (error) {
+    console.error('Error al obtener cierres por fecha:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener cierres de caja por turno
+ * GET /api/cierres-caja/turno/:turno
+ */
+export const obtenerCierresCajaPorTurno = async (req, res) => {
+  try {
+    const { turno } = req.params;
+    
+    if (!['Mañana', 'Tarde', 'Noche', 'Completo'].includes(turno)) {
+      return res.status(400).json({
+        mensaje: "Turno inválido. Valores permitidos: Mañana, Tarde, Noche, Completo"
+      });
+    }
+    
+    const cierres = await CierreCaja.find({ turno })
+      .populate('realizadoPor', 'nombre apellido')
+      .populate('revisadoPor', 'nombre apellido')
+      .sort({ fechaCierre: -1 });
+    
+    res.status(200).json(cierres);
+  } catch (error) {
+    console.error('Error al obtener cierres por turno:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor"
+    });
+  }
+};
+
+/**
+ * Obtener pedidos cobrados pendientes de cierre
+ * GET /api/cierres-caja/pedidos-pendientes
+ */
+export const obtenerPedidosPendientesCierre = async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin } = req.query;
+    
+    const query = {
+      estado: 'Cobrado'
+    };
+    
+    if (fechaInicio && fechaFin) {
+      query.fechaCobrado = {
+        $gte: new Date(fechaInicio),
+        $lte: new Date(fechaFin)
+      };
+    }
+    
+    const pedidos = await Pedido.find(query)
+      .populate('mesa', 'numero')
+      .populate('mozo', 'nombre apellido')
+      .sort({ fechaCobrado: -1 });
+    
+    res.status(200).json(pedidos);
+  } catch (error) {
+    console.error('Error al obtener pedidos pendientes:', error);
     res.status(500).json({
       mensaje: "Error interno del servidor"
     });

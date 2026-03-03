@@ -211,8 +211,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // Verificar password
-    const passwordValido = bcrypt.compareSync(password, usuario.password);
+    // Verificar password usando el método del schema
+    const passwordValido = await usuario.compararPassword(password);
 
     if (!passwordValido) {
       return res.status(404).json({
@@ -236,6 +236,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       mensaje: "Login exitoso",
+      token: token, // ⚠️ AGREGADO: Enviar token en response para clientes que no usan cookies
       usuario: {
         id: usuario._id,
         nombre: usuario.nombre,

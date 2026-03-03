@@ -16,8 +16,9 @@ const useUserStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}api/login`,
+        `${API_URL}/login`,
         { email, password },
         {
           withCredentials: true,
@@ -28,13 +29,26 @@ const useUserStore = create((set, get) => ({
       );
       
       // Estructura del usuario basada en la respuesta del backend
+      const usuario = response.data.usuario; // El backend devuelve 'usuario', no 'user'
+      const token = response.data.token; // Guardar el token
+      
       const userData = {
-        _id: response.data.user?._id || response.data.user?.id, // MongoDB usa _id
-        id: response.data.user?._id || response.data.user?.id,  // Mantener compatibilidad
-        name: response.data.user?.username,
-        email: response.data.user?.email || email,
-        role: response.data.user?.role || 'user'
+        _id: usuario._id || usuario.id, // MongoDB usa _id
+        id: usuario._id || usuario.id,  // Mantener compatibilidad
+        name: usuario.nombre,
+        apellido: usuario.apellido,
+        nombreCompleto: usuario.nombreCompleto,
+        email: usuario.email || email,
+        role: usuario.rol // El backend devuelve 'rol', no 'role'
       };
+      
+      // Guardar token en localStorage para peticiones futuras
+      if (token) {
+        try {
+          localStorage.setItem('token', token);
+          localStorage.setItem('accessToken', token);
+        } catch (e) {}
+      }
       
       // Actualizar el estado global
       set({ 
@@ -43,6 +57,8 @@ const useUserStore = create((set, get) => ({
         isLoading: false, 
         error: null 
       });
+      
+      console.log('✅ Login exitoso - Usuario:', userData);
       
       return {
         success: true,
@@ -70,21 +86,28 @@ const useUserStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+      const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}api/me`,
+        `${API_URL}/me`,
         {
-          withCredentials: true
+          withCredentials: true,
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         }
       );
       
-      // Para fetchUserData, sabemos que req.user está disponible en el backend
-      // pero necesitamos que el backend devuelva el ID también
+      // Estructura del usuario basada en la respuesta del backend
       const userData = {
-        _id: response.data._id || response.data.id, // MongoDB usa _id
-        id: response.data._id || response.data.id,   // Mantener compatibilidad
-        name: response.data.username,
+        _id: response.data.id, // MongoDB usa _id
+        id: response.data.id,   // Mantener compatibilidad
+        name: response.data.nombre,
+        apellido: response.data.apellido,
+        nombreCompleto: response.data.nombreCompleto,
         email: response.data.email,
-        role: response.data.role || 'user'
+        role: response.data.rol, // El backend devuelve 'rol', no 'role'
+        dni: response.data.dni,
+        telefono: response.data.telefono,
+        direccion: response.data.direccion
       };
       
       set({ 
@@ -93,6 +116,8 @@ const useUserStore = create((set, get) => ({
         isLoading: false, 
         error: null 
       });
+      
+      console.log('✅ Usuario autenticado:', userData);
       
       return { success: true, user: userData };
     } catch (error) {
@@ -126,7 +151,7 @@ const useUserStore = create((set, get) => ({
     
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE || 'http://localhost:4000'}api/logout`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/logout`,
         {},
         {
           withCredentials: true
@@ -145,6 +170,7 @@ const useUserStore = create((set, get) => ({
       
       // También limpiar localStorage por compatibilidad
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
   },
 
@@ -171,7 +197,14 @@ const useUserStore = create((set, get) => ({
     }
     
     // Intentar obtener datos del usuario del backend
-    await get().fetchUserData();
+    // Solo si parece que hay una sesión activa (evitar errores 401 innecesarios)
+    try {
+      await get().fetchUserData();
+    } catch (error) {
+      // Silenciosamente fallar si no hay sesión activa
+      // Esto es normal cuando el usuario no ha iniciado sesión
+      console.log('No hay sesión activa');
+    }
   }
 }));
 

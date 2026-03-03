@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from "../helpers/queriesProductos";
+import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, checkProductCodeExists, checkProductNameExists } from "../helpers/queriesProductos";
 import ProductFormModal from "../crud/products/ProductFormModal";
 import {
   Button,
@@ -9,22 +9,39 @@ import {
   TableCell,
   TableBody,
   Table,
+  Chip,
+  Alert
 } from "@mui/material";
 import Swal from 'sweetalert2';
+import useUserStore from '../store/useUserStore';
 import "./AdminPage.css";
 
 const Products = () => {
+  const { user } = useUserStore();
+  const isSuperAdmin = user?.role === 'SuperAdministrador';
+  const isGerente = user?.role === 'Gerente';
+  const canEdit = isSuperAdmin; // Solo SuperAdmin puede editar productos
+  const canView = isSuperAdmin || isGerente; // Ambos pueden ver
+  
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [codeError, setCodeError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [lowStockCount, setLowStockCount] = useState(0);
 
   const [form, setForm] = useState({
     name: "",
     code: "",
     price: "",
+    cost: "",
     imgUrl: "",
     stock: "",
+    minimumStock: "",
     category: "",
+    description: "",
+    unit: "Unidad",
+    available: true
   });
 
   useEffect(() => {
@@ -34,21 +51,76 @@ const Products = () => {
   const loadProducts = async () => {
     try {
       const productsData = await getAllProducts();
-      setProducts(productsData);
+      // Asegurar que siempre sea un array
+      const productsArray = Array.isArray(productsData) ? productsData : [];
+      setProducts(productsArray);
+      
+      // Calcular productos con stock bajo
+      const lowStock = productsArray.filter(p => p.stock <= p.minimumStock).length;
+      setLowStockCount(lowStock);
     } catch (err) {
       console.error("Error fetching products:", err);
+      setProducts([]); // Establecer array vacío en caso de error
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // Validar código en tiempo real
+    if (name === 'code' && value.trim()) {
+      const exists = await checkProductCodeExists(value, isEdit ? form.id : null);
+      if (exists) {
+        setCodeError(`⚠️ El código "${value}" ya existe`);
+      } else {
+        setCodeError("");
+      }
+    } else if (name === 'code') {
+      setCodeError("");
+    }
+
+    // Validar nombre en tiempo real
+    if (name === 'name' && value.trim()) {
+      const exists = await checkProductNameExists(value, isEdit ? form.id : null);
+      if (exists) {
+        setNameError(`⚠️ El producto "${value}" ya existe`);
+      } else {
+        setNameError("");
+      }
+    } else if (name === 'name') {
+      setNameError("");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Verificar si hay errores antes de enviar
+    if (codeError) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Código duplicado',
+        text: 'El código ingresado ya existe. Por favor, use uno diferente.',
+        confirmButtonColor: '#667eea'
+      });
+      return;
+    }
+
+    if (nameError) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Producto duplicado',
+        text: 'Ya existe un producto con ese nombre. Por favor, use uno diferente.',
+        confirmButtonColor: '#667eea'
+      });
+      return;
+    }
+    
     try {
       if (isEdit) {
         const updatedProduct = await updateProduct(form.id, form);
@@ -94,10 +166,17 @@ const Products = () => {
       name: "",
       code: "",
       price: "",
+      cost: "",
       imgUrl: "",
       stock: "",
+      minimumStock: "",
       category: "",
+      description: "",
+      unit: "Unidad",
+      available: true
     });
+    setCodeError("");
+    setNameError("");
   };
 
   const handleOpenModal = () => {
@@ -106,6 +185,8 @@ const Products = () => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setCodeError("");
+    setNameError("");
   };
 
   const handleEditProduct = async (product) => {
@@ -153,20 +234,45 @@ const Products = () => {
     <div className="admin-page">
       <div className="admin-page-header">
         <h1 className="admin-page-title">
-          📦 Gestión de Productos
+          {isGerente ? '🔍 Supervisión de Productos' : '📦 Gestión de Productos'}
         </h1>
-        <Button
-          variant="contained"
-          className="create-button"
-          onClick={() => {
-            setIsEdit(false);
-            resetForm();
-            handleOpenModal();
-          }}
-        >
-          ➕ Crear Producto
-        </Button>
+        {isGerente && (
+          <Chip 
+            label="Solo Lectura" 
+            color="warning" 
+            size="small" 
+            style={{ marginLeft: '10px' }}
+          />
+        )}
+        {canEdit && (
+          <Button
+            variant="contained"
+            className="create-button"
+            onClick={() => {
+              setIsEdit(false);
+              resetForm();
+              handleOpenModal();
+            }}
+          >
+            ➕ Crear Producto
+          </Button>
+        )}
       </div>
+
+      {/* Banner de Solo Lectura para Gerente */}
+      {isGerente && (
+        <div style={{ padding: '10px', background: '#fff3cd', borderRadius: '8px', marginBottom: '20px', border: '1px solid #ffc107' }}>
+          <p style={{ margin: 0, color: '#856404' }}>📋 Solo visualización - Sin edición permitida</p>
+        </div>
+      )}
+
+      {/* Alertas de Stock Bajo */}
+      {lowStockCount > 0 && (
+        <Alert severity="warning" style={{ marginBottom: '20px' }}>
+          <strong>⚠️ Atención:</strong> Hay {lowStockCount} producto{lowStockCount > 1 ? 's' : ''} con stock bajo o agotado.
+          {isGerente && ' Contacte al SuperAdministrador para realizar reposición.'}
+        </Alert>
+      )}
 
       <ProductFormModal
         form={form}
@@ -175,18 +281,20 @@ const Products = () => {
         isEdit={isEdit}
         open={openModal}
         onClose={handleCloseModal}
+        codeError={codeError}
+        nameError={nameError}
       />
 
       <TableContainer className="admin-table-container">
         <Table className="admin-table">
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Nombre</TableCell>
-              <TableCell>Código</TableCell>
               <TableCell>Categoría</TableCell>
               <TableCell>Precio</TableCell>
+              <TableCell>Costo</TableCell>
               <TableCell>Stock</TableCell>
+              <TableCell>Estado</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -199,34 +307,78 @@ const Products = () => {
               </TableRow>
             ) : (
               products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>{product.id}</TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.code}</TableCell>
+                <TableRow key={product.id} sx={{ 
+                  backgroundColor: product.available ? 'inherit' : '#ffebee',
+                  opacity: product.available ? 1 : 0.7
+                }}>
+                  <TableCell>
+                    <strong>{product.name}</strong>
+                    {product.description && (
+                      <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
+                        {product.description.substring(0, 50)}
+                        {product.description.length > 50 && '...'}
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <span className="role-badge user">
                       {product.category || 'General'}
                     </span>
                   </TableCell>
-                  <TableCell>${product.price}</TableCell>
-                  <TableCell>{product.stock || 0}</TableCell>
                   <TableCell>
-                    <div className="action-buttons">
-                      <Button
-                        variant="contained"
-                        className="edit-button"
-                        onClick={() => handleEditProduct(product)}
-                      >
-                        ✏️ Editar
-                      </Button>
-                      <Button
-                        variant="contained"
-                        className="delete-button"
-                        onClick={() => handleDeleteProduct(product.id)}
-                      >
-                        🗑️ Eliminar
-                      </Button>
-                    </div>
+                    <strong style={{ color: '#2e7d32' }}>${product.price}</strong>
+                  </TableCell>
+                  <TableCell>
+                    ${product.cost || 0}
+                    {product.cost && product.price && (
+                      <div style={{ fontSize: '0.8em', color: '#1976d2' }}>
+                        Margen: {(((product.price - product.cost) / product.cost) * 100).toFixed(0)}%
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <span style={{ 
+                      color: product.stock <= (product.minimumStock || 0) ? '#d32f2f' : '#2e7d32',
+                      fontWeight: 'bold'
+                    }}>
+                      {product.stock || 0}
+                    </span>
+                    {product.stock <= (product.minimumStock || 0) && (
+                      <div style={{ fontSize: '0.8em', color: '#d32f2f' }}>
+                        ⚠️ Stock bajo
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {product.available ? (
+                      <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>✅ Disponible</span>
+                    ) : (
+                      <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>❌ No disponible</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {canEdit ? (
+                      <div className="action-buttons">
+                        <Button
+                          variant="contained"
+                          className="edit-button"
+                          onClick={() => handleEditProduct(product)}
+                          size="small"
+                        >
+                          ✏️ Editar
+                        </Button>
+                        <Button
+                          variant="contained"
+                          className="delete-button"
+                          onClick={() => handleDeleteProduct(product.id)}
+                          size="small"
+                        >
+                          🗑️ Eliminar
+                        </Button>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#999', fontSize: '0.9rem' }}>Solo visualización</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

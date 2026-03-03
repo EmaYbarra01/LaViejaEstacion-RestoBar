@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 // Configuración
 const config = {
   // URL del menú (cambiar según el entorno)
-  menuUrl: process.env.MENU_URL || 'http://localhost:5173/menu',
+  menuUrl: process.env.MENU_URL || 'http://localhost:5173/menu-digital',
   
   // Directorio de salida
   outputDir: path.join(__dirname, '../public/qr'),

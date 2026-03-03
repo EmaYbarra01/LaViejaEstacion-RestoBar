@@ -20,12 +20,13 @@ if (!EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) {
   });
 } else {
   transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // true para 465, false para 587
+    service: 'gmail',
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_PASS
+    },
+    tls: {
+      rejectUnauthorized: false
     }
   });
 }
@@ -46,9 +47,9 @@ export const sendPasswordResetEmail = async (email, token, username) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
   
   const mailOptions = {
-    from: `"CRUD COM-12" <${process.env.EMAIL_FROM}>`,
+    from: `"La Vieja Estación Resto-Bar" <${process.env.EMAIL_FROM}>`,
     to: email,
-    subject: 'Recuperación de Contraseña - CRUD COM-12',
+    subject: 'Recuperación de Contraseña - La Vieja Estación',
     html: `
       <!DOCTYPE html>
       <html lang="es">
@@ -111,7 +112,7 @@ export const sendPasswordResetEmail = async (email, token, username) => {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🔐 Recuperación de Contraseña</h1>
+            <h1>🍽️ Recuperación de Contraseña</h1>
           </div>
           <div class="content">
             <p>Hola <strong>${username}</strong>,</p>
@@ -140,11 +141,11 @@ export const sendPasswordResetEmail = async (email, token, username) => {
             
             <p>Si tienes algún problema, contacta con el administrador del sistema.</p>
             
-            <p>Saludos,<br><strong>Equipo CRUD COM-12</strong></p>
+            <p>Saludos,<br><strong>Equipo La Vieja Estación Resto-Bar</strong></p>
           </div>
           <div class="footer">
             <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
-            <p>&copy; 2025 CRUD COM-12 - UTN TUP</p>
+            <p>&copy; 2025 La Vieja Estación Resto-Bar</p>
           </div>
         </div>
       </body>
@@ -165,9 +166,9 @@ export const sendPasswordResetEmail = async (email, token, username) => {
 // Función para enviar email de confirmación de cambio de contraseña
 export const sendPasswordChangedEmail = async (email, username) => {
   const mailOptions = {
-    from: `"CRUD COM-12" <${process.env.EMAIL_FROM}>`,
+    from: `"La Vieja Estación Resto-Bar" <${process.env.EMAIL_FROM}>`,
     to: email,
-    subject: 'Contraseña Cambiada Exitosamente - CRUD COM-12',
+    subject: 'Contraseña Cambiada Exitosamente - La Vieja Estación',
     html: `
       <!DOCTYPE html>
       <html lang="es">
@@ -226,11 +227,11 @@ export const sendPasswordChangedEmail = async (email, username) => {
             
             <p>Si no realizaste este cambio, contacta inmediatamente con el administrador del sistema.</p>
             
-            <p>Saludos,<br><strong>Equipo CRUD COM-12</strong></p>
+            <p>Saludos,<br><strong>Equipo La Vieja Estación Resto-Bar</strong></p>
           </div>
           <div class="footer">
             <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
-            <p>&copy; 2025 CRUD COM-12 - UTN TUP</p>
+            <p>&copy; 2025 La Vieja Estación Resto-Bar</p>
           </div>
         </div>
       </body>

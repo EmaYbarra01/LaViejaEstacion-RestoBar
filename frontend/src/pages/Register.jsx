@@ -57,7 +57,8 @@ const Register = () => {
         // No enviamos 'role' - el backend lo establece como 'user' automáticamente
       };
       
-      const URL_REGISTER = import.meta.env.VITE_API_REGISTER || 'http://localhost:4000/api/register';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+      const URL_REGISTER = `${API_URL}/register`;
       
       await axios.post(URL_REGISTER, userData, {
         withCredentials: true

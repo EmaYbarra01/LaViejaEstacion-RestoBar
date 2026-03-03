@@ -95,18 +95,20 @@ export const initializeSocket = (httpServer) => {
         const { token, usuarioId, rol, modulo } = socket.handshake.auth;
         
         // Log de intento de conexión
-        console.log(`[Socket.io] Intento de conexión - Módulo: ${modulo}, Rol: ${rol}`);
+        console.log(`[Socket.io] Intento de conexión - Módulo: ${modulo}, Rol: ${rol}, UsuarioId: ${usuarioId || 'N/A'}`);
         
-        // Validación básica (puede ser más estricta con JWT)
+        // Validación básica: solo requiere rol y modulo (usuarioId es opcional)
         if (!rol || !modulo) {
-            console.log('[Socket.io] Conexión rechazada - Faltan datos de autenticación');
-            return next(new Error('Autenticación requerida'));
+            console.log('[Socket.io] Conexión rechazada - Faltan datos de autenticación (rol/modulo)');
+            return next(new Error('Autenticación requerida: rol y modulo son obligatorios'));
         }
         
         // Guardar datos en el socket para usarlos después
-        socket.usuarioId = usuarioId;
+        socket.usuarioId = usuarioId || null;
         socket.rol = rol;
         socket.modulo = modulo;
+        
+        console.log('[Socket.io] ✓ Autenticación aceptada');
         
         // Permitir la conexión
         next();
@@ -176,6 +178,14 @@ export const initializeSocket = (httpServer) => {
         // ====================================================================
         socket.on('ping', () => {
             socket.emit('pong', { timestamp: Date.now() });
+        });
+
+        // ====================================================================
+        // EVENTO: UNIRSE A UNA SALA MANUALMENTE
+        // ====================================================================
+        socket.on('join-room', (room) => {
+            socket.join(room);
+            console.log(`[Socket.io] Cliente ${socket.id} se unió manualmente a sala: ${room}`);
         });
 
         // ====================================================================

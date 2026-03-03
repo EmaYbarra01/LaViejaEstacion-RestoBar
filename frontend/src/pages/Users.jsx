@@ -9,11 +9,19 @@ import {
   TableCell,
   TableBody,
   Table,
+  Chip
 } from "@mui/material";
 import Swal from 'sweetalert2';
+import useUserStore from '../store/useUserStore';
 import "./AdminPage.css";
 
 const Users = () => {
+  const { user } = useUserStore();
+  const isSuperAdmin = user?.role === 'SuperAdministrador';
+  const isGerente = user?.role === 'Gerente';
+  const canEdit = isSuperAdmin; // Solo SuperAdmin puede editar
+  const canView = isSuperAdmin || isGerente; // Ambos pueden ver
+  
   const [openModal, setOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
@@ -33,9 +41,11 @@ const Users = () => {
   const loadUsers = async () => {
     try {
       const usersData = await getAllUsers();
-      setUsers(usersData);
+      // Asegurar que siempre sea un array
+      setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (err) {
       console.error("Error fetching users:", err);
+      setUsers([]); // Establecer array vacío en caso de error
     }
   };
 
@@ -137,25 +147,40 @@ const Users = () => {
     <div className="admin-page">
       <div className="admin-page-header">
         <h1 className="admin-page-title">
-          👥 Gestión de Usuarios
+          {isGerente ? '🔍 Supervisión de Usuarios' : '👥 Gestión de Usuarios'}
         </h1>
-        <Button
-          variant="contained"
-          className="create-button"
-          onClick={() => {
-            setIsEdit(false);
-            setForm({
-              name: "",
-              email: "",
-              role: "",
-              password: "",
-            });
-            handleOpenModal();
-          }}
-        >
-          ➕ Crear Usuario
-        </Button>
+        {isGerente && (
+          <Chip 
+            label="Solo Lectura" 
+            color="warning" 
+            size="small" 
+            style={{ marginLeft: '10px' }}
+          />
+        )}
+        {canEdit && (
+          <Button
+            variant="contained"
+            className="create-button"
+            onClick={() => {
+              setIsEdit(false);
+              setForm({
+                name: "",
+                email: "",
+                role: "",
+                password: "",
+              });
+              handleOpenModal();
+            }}
+          >
+            ➕ Crear Usuario
+          </Button>
+        )}
       </div>
+      {isGerente && (
+        <div style={{ padding: '10px', background: '#fff3cd', borderRadius: '8px', marginBottom: '20px', border: '1px solid #ffc107' }}>
+          <p style={{ margin: 0, color: '#856404' }}>📋 Solo visualización - Sin edición permitida</p>
+        </div>
+      )}
 
       <UserFormModal
         form={form}
@@ -194,22 +219,26 @@ const Users = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <div className="action-buttons">
-                      <Button
-                        variant="contained"
-                        className="edit-button"
-                        onClick={() => handleEditUser(user)}
-                      >
-                        ✏️ Editar
-                      </Button>
-                      <Button
-                        variant="contained"
-                        className="delete-button"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        🗑️ Eliminar
-                      </Button>
-                    </div>
+                    {canEdit ? (
+                      <div className="action-buttons">
+                        <Button
+                          variant="contained"
+                          className="edit-button"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          ✏️ Editar
+                        </Button>
+                        <Button
+                          variant="contained"
+                          className="delete-button"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          🗑️ Eliminar
+                        </Button>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#999', fontSize: '0.9rem' }}>Solo visualización</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

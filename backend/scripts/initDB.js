@@ -10,6 +10,7 @@
 
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 
 // Importar modelos
 import Usuario from '../src/models/usuarioSchema.js';
@@ -22,13 +23,13 @@ dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restobar_db';
 
-// Datos de prueba
+// Datos de prueba - USUARIOS MADRE del sistema
 const usuariosData = [
     {
-        nombre: 'SuperAdmin',
-        apellido: 'Sistema',
-        email: 'admin@restobar.com',
-        password: 'SA007', // Cambiar por hash real
+        nombre: 'Juan',
+        apellido: 'Suarez',
+        email: 'juan@restobar.com',
+        password: 'SA007',
         rol: 'SuperAdministrador',
         dni: '33245128',
         telefono: '3815498754',
@@ -49,7 +50,7 @@ const usuariosData = [
         apellido: 'López',
         email: 'maria@restobar.com',
         password: 'MOZ123',
-        rol: 'Mozo1',
+        rol: 'Mozo',
         dni: '34567890',
         telefono: '3875423612',
         activo: true
@@ -59,7 +60,7 @@ const usuariosData = [
         apellido: 'García',
         email: 'mario@restobar.com',
         password: 'MOZ124',
-        rol: 'Mozo2',
+        rol: 'Mozo',
         dni: '31889890',
         telefono: '3815463612',
         activo: true
@@ -108,7 +109,7 @@ const productosData = [
         stock: 50,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: '/images/productos/coca-cola.jpg'
+        imagenUrl: '/images/productos/coca cola 500.jpg'
     },
     {
         nombre: 'Agua Mineral 500ml',
@@ -119,7 +120,7 @@ const productosData = [
         stock: 60,
         stockMinimo: 15,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/agua mineral 500ml.jpg'
+        imagenUrl: '/images/productos/agua mineral 500ml.jpg'
         
     },
     {
@@ -131,7 +132,7 @@ const productosData = [
         stock: 30,
         stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/cerveza quilmes 1l.jpg'
+        imagenUrl: '/images/productos/cerveza quilmes 1L.jpg'
     },
     {
         nombre: 'Vino Tinto Copa',
@@ -142,7 +143,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/vino tinto copa.jpg'
+        imagenUrl: '/images/productos/vino tinto copa.jpg'
     },
 
     {
@@ -154,7 +155,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/vino blanco copa.jpg'
+        imagenUrl: '/images/productos/vino blanco copa.jpg'
     },
 
     // Comidas
@@ -167,7 +168,7 @@ const productosData = [
         stock: 20,
         stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/hamburguesa completa.jpg'
+        imagenUrl: '/images/productos/hamburguesa completa.jpg'
     },
     {
         nombre: 'Milanesa Napolitana',
@@ -175,10 +176,10 @@ const productosData = [
         categoria: 'Comidas',
         precio: 6000,
         costo: 3000,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 15,
+        stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/milanesa napolitana.jpg'
+        imagenUrl: '/images/productos/milanesa napolitana.jpg'
     },
     {
         nombre: 'Pizza Muzzarella',
@@ -186,10 +187,10 @@ const productosData = [
         categoria: 'Comidas',
         precio: 7000,
         costo: 3500,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 10,
+        stockMinimo: 3,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/pizza muzzarella.jpg'
+        imagenUrl: '/images/productos/pizza muzzarella.jpg'
     },
     {
         nombre: 'Empanadas de Carne (docena)',
@@ -197,10 +198,10 @@ const productosData = [
         categoria: 'Comidas',
         precio: 4500,
         costo: 2000,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 25,
+        stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/empanadas de carne.jpeg'
+        imagenUrl: '/images/productos/empanadas de carne.jpeg'
     },
     {
         nombre: 'Ensalada Caesar',
@@ -208,10 +209,10 @@ const productosData = [
         categoria: 'Comidas',
         precio: 4000,
         costo: 1800,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 12,
+        stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/ensalada cesar.jpg'
+        imagenUrl: '/images/productos/ensalada cesar.jpg'
     },
     // Postres
     {
@@ -220,10 +221,10 @@ const productosData = [
         categoria: 'Postres',
         precio: 2500,
         costo: 1000,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 20,
+        stockMinimo: 5,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/flan con dulce de leche.jpg'
+        imagenUrl: '/images/productos/flan con dulce de leche.jpg'
     },
     {
         nombre: 'Helado (3 bochas)',
@@ -231,10 +232,10 @@ const productosData = [
         categoria: 'Postres',
         precio: 3000,
         costo: 1500,
-        stock: 0,
-        stockMinimo: 0,
+        stock: 30,
+        stockMinimo: 10,
         disponible: true,
-        imagenUrl: 'backend/public/images/productos/helado 3 bochas.jpg'
+        imagenUrl: '/images/productos/helado 3 bochas.jpg'
     }
 ];
 
@@ -253,10 +254,22 @@ async function initializeDatabase() {
         await Compra.deleteMany({});
         console.log('✅ Colecciones limpiadas');
 
-        // Insertar usuarios
-        console.log('\n👥 Insertando usuarios...');
-        const usuarios = await Usuario.insertMany(usuariosData);
-        console.log(`✅ ${usuarios.length} usuarios creados`);
+        // Insertar usuarios MADRE del sistema
+        console.log('\n👥 Insertando usuarios base del sistema...');
+        const usuarios = [];
+        
+        for (const userData of usuariosData) {
+            try {
+                // Crear usuario (el schema hashea la password automáticamente)
+                const usuario = await Usuario.create(userData);
+                usuarios.push(usuario);
+                console.log(`   ✓ ${usuario.nombre} ${usuario.apellido} (${usuario.rol}) - Password: ${userData.password}`);
+            } catch (error) {
+                console.error(`   ✗ Error al crear ${userData.nombre}:`, error.message);
+            }
+        }
+        
+        console.log(`✅ ${usuarios.length} usuarios base creados`);
 
         // Insertar mesas
         console.log('\n🪑 Insertando mesas...');
@@ -265,12 +278,43 @@ async function initializeDatabase() {
 
         // Insertar productos
         console.log('\n🍔 Insertando productos...');
-        const productos = await Producto.insertMany(productosData);
-        console.log(`✅ ${productos.length} productos creados`);
+        const productos = [];
+        
+        for (const productoData of productosData) {
+            try {
+                const producto = await Producto.create(productoData);
+                productos.push(producto);
+                console.log(`   ✓ ${producto.nombre} creado`);
+            } catch (error) {
+                console.error(`   ✗ Error al crear ${productoData.nombre}:`, error.message);
+            }
+        }
+        
+        console.log(`✅ ${productos.length} productos creados de ${productosData.length} intentados`);
+        
+        // Verificar que los productos estén realmente en la BD
+        const countProductos = await Producto.countDocuments();
+        console.log(`📊 Verificación: ${countProductos} productos en la base de datos`);
 
         // Crear un pedido de ejemplo
         console.log('\n📋 Creando pedido de ejemplo...');
-        const mozo = usuarios.find(u => u.rol === 'Mozo1' || u.rol === 'Mozo2');
+        // Buscar mozo por cualquier rol posible y crear si no existe
+        let mozo = usuarios.find(u => u.rol === 'Mozo' || u.rol === 'Mozo1' || u.rol === 'Mozo2');
+        if (!mozo) {
+            console.log('🆕 Mozo no encontrado, creando mozo de ejemplo...');
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash('mozo123', salt);
+            mozo = await Usuario.create({
+                nombre: 'Mozo',
+                apellido: 'Ejemplo',
+                email: 'mozoejemplo@restobar.com',
+                password: hashedPassword,
+                rol: 'Mozo1'
+            });
+            usuarios.push(mozo);
+            console.log(`   ✓ ${mozo.nombre} ${mozo.apellido} (Mozo1) creado`);
+}
+
         const mesa1 = mesas.find(m => m.numero === 1);
         const hamburguesaProducto = productos.find(p => p.nombre === 'Hamburguesa Completa');
         const cocaColaProducto = productos.find(p => p.nombre === 'Coca Cola 500ml');
@@ -279,6 +323,15 @@ async function initializeDatabase() {
         console.log('Mesa encontrada:', mesa1 ? mesa1.numero : 'NO ENCONTRADA');
         console.log('Hamburguesa encontrada:', hamburguesaProducto ? hamburguesaProducto.nombre : 'NO ENCONTRADA');
         console.log('Coca Cola encontrada:', cocaColaProducto ? cocaColaProducto.nombre : 'NO ENCONTRADA');
+        // Validación de datos requeridos antes de crear el pedido
+        if (!mesa1 || !mozo || !hamburguesaProducto || !cocaColaProducto) {
+            console.error('❌ No se puede crear el pedido de ejemplo. Faltan datos:');
+            if (!mesa1) console.error('Mesa no encontrada');
+            if (!mozo) console.error('Mozo no encontrado');
+            if (!hamburguesaProducto) console.error('Producto Hamburguesa Completa no encontrado');
+            if (!cocaColaProducto) console.error('Producto Coca Cola 500ml no encontrado');
+            process.exit(1);
+        }
 
         const pedidoEjemplo = new Pedido({
             numeroPedido: 1,

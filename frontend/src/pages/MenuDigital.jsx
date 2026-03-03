@@ -63,10 +63,27 @@ const MenuDigital = () => {
   }, [categorias, expandedCategory, setCategoriaActiva]);
 
   const toggleCategory = (categoria) => {
-    const newCategory = expandedCategory === categoria ? null : categoria;
-    setExpandedCategory(newCategory);
-    if (newCategory) {
-      setCategoriaActiva(newCategory);
+    if (expandedCategory === categoria) {
+      // Si ya está expandida, colapsarla
+      setExpandedCategory(null);
+    } else {
+      // Expandir nueva categoría
+      setExpandedCategory(categoria);
+      setCategoriaActiva(categoria);
+      // Scroll suave hacia la categoría después de un pequeño delay
+      setTimeout(() => {
+        const element = document.getElementById(`accordion-${categoria.toLowerCase().replace(/\s+/g, '-')}`);
+        if (element) {
+          const headerOffset = 100;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
     }
   };
 
@@ -213,7 +230,7 @@ const MenuDigital = () => {
           vistaActiva === 'categorias' ? (
             // Vista de acordeón por categorías
             Object.entries(menu).map(([categoria, productos]) => (
-              <div key={categoria} className="menu-category">
+              <div key={categoria} className="menu-category" id={`accordion-${categoria.toLowerCase().replace(/\s+/g, '-')}`}>
                 <div
                   className={`category-header ${expandedCategory === categoria ? 'active' : ''}`}
                   onClick={() => toggleCategory(categoria)}

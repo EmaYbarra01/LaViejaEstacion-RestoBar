@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { crearReserva } from '../api/reservas.api';
+import Swal from 'sweetalert2';
 import './Reservas.css';
 
 const Reservas = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nombre: '',
+    cliente: '',
     email: '',
     telefono: '',
     fecha: '',
     hora: '',
-    personas: '2',
+    comensales: 2,
     comentarios: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,39 +32,95 @@ const Reservas = () => {
     setMessage({ type: '', text: '' });
 
     // Validación básica
-    if (!formData.nombre || !formData.email || !formData.telefono || !formData.fecha || !formData.hora) {
+    if (!formData.cliente || !formData.email || !formData.telefono || !formData.fecha || !formData.hora) {
       setMessage({ type: 'error', text: 'Por favor, completa todos los campos obligatorios.' });
       setIsSubmitting(false);
       return;
     }
 
     try {
-      // Simular envío de reserva (aquí puedes conectar con tu backend)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Preparar datos para enviar al backend
+      const reservaData = {
+        cliente: formData.cliente,
+        email: formData.email,
+        telefono: formData.telefono,
+        fecha: formData.fecha,
+        hora: formData.hora,
+        comensales: parseInt(formData.comensales),
+        comentarios: formData.comentarios
+      };
+
+      console.log('[RESERVAS] Enviando reserva:', reservaData);
+
+      // Enviar reserva al backend
+      const response = await crearReserva(reservaData);
       
-      setMessage({ 
-        type: 'success', 
-        text: '¡Reserva realizada con éxito! Te enviaremos un email de confirmación.' 
-      });
-      
-      // Limpiar formulario después de 3 segundos
-      setTimeout(() => {
+      console.log('[RESERVAS] Respuesta del servidor:', response);
+
+      if (response.success) {
+        // Mostrar SweetAlert de éxito
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Reserva Enviada!',
+          html: `
+            <div style="text-align: left;">
+              <p><strong>Tu reserva ha sido enviada exitosamente.</strong></p>
+              <br>
+              <p>📧 Hemos enviado un correo de confirmación a:</p>
+              <p style="color: #667eea; font-weight: bold; text-align: center;">${formData.email}</p>
+              <br>
+              <p>📬 También enviamos una notificación al restaurante:</p>
+              <p style="color: #667eea; font-weight: bold; text-align: center;">laviejaestacionbar@gmail.com</p>
+              <br>
+              ${response.mesaAsignada 
+                ? `<p>🪑 <strong>Mesa asignada:</strong> Mesa ${response.mesaAsignada.numero}</p>` 
+                : '<p>⏳ El administrador asignará tu mesa pronto.</p>'
+              }
+              <br>
+              <p style="font-size: 14px; color: #666;">
+                <strong>Próximos pasos:</strong><br>
+                1️⃣ Revisa tu correo electrónico<br>
+                2️⃣ Confirma tu reserva desde el enlace<br>
+                3️⃣ Espera la confirmación final del restaurante
+              </p>
+            </div>
+          `,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#667eea',
+          allowOutsideClick: false
+        });
+        
+        // Limpiar formulario
         setFormData({
-          nombre: '',
+          cliente: '',
           email: '',
           telefono: '',
           fecha: '',
           hora: '',
-          personas: '2',
+          comensales: 2,
           comentarios: ''
         });
         setMessage({ type: '', text: '' });
-      }, 3000);
+      } else {
+        throw new Error(response.mensaje || 'Error al crear la reserva');
+      }
       
     } catch (error) {
+      console.error('[RESERVAS] Error:', error);
+      
+      let errorMessage = 'Hubo un error al procesar tu reserva. Por favor, intenta nuevamente.';
+      
+      if (error.mensaje) {
+        errorMessage = error.mensaje;
+      } else if (error.errores && Array.isArray(error.errores)) {
+        errorMessage = error.errores.join('. ');
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       setMessage({ 
         type: 'error', 
-        text: 'Hubo un error al procesar tu reserva. Por favor, intenta nuevamente.' 
+        text: errorMessage
       });
     } finally {
       setIsSubmitting(false);
@@ -127,12 +185,12 @@ const Reservas = () => {
             )}
 
             <div className="form-group">
-              <label htmlFor="nombre">Nombre completo *</label>
+              <label htmlFor="cliente">Nombre completo *</label>
               <input
                 type="text"
-                id="nombre"
-                name="nombre"
-                value={formData.nombre}
+                id="cliente"
+                name="cliente"
+                value={formData.cliente}
                 onChange={handleChange}
                 placeholder="Tu nombre"
                 required
@@ -196,19 +254,25 @@ const Reservas = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="personas">Personas *</label>
+                <label htmlFor="comensales">Comensales *</label>
                 <select
-                  id="personas"
-                  name="personas"
-                  value={formData.personas}
+                  id="comensales"
+                  name="comensales"
+                  value={formData.comensales}
                   onChange={handleChange}
                   required
                 >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(num => (
                     <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'personas'}</option>
                   ))}
-                  <option value="10+">Más de 10 personas</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <div className="info-asignacion-automatica">
+                <span className="icon-info">ℹ️</span>
+                <p><strong>Asignación de mesa por el administrador:</strong> Una vez recibida tu reserva, nuestro equipo asignará la mejor mesa disponible según el número de comensales y tus preferencias. Recibirás la confirmación con el número de mesa asignada por email.</p>
               </div>
             </div>
 
@@ -219,7 +283,7 @@ const Reservas = () => {
                 name="comentarios"
                 value={formData.comentarios}
                 onChange={handleChange}
-                placeholder="Alergias, preferencias de mesa, ocasión especial, etc."
+                placeholder="Alergias, preferencias de ubicación, ocasión especial, etc."
                 rows="4"
               />
             </div>
@@ -240,6 +304,74 @@ const Reservas = () => {
               Volver al Inicio
             </button>
           </form>
+
+          {/* Instrucciones post-reserva */}
+          <div className="post-reserva-info">
+            <h3>📋 ¿Qué sigue después de hacer tu reserva?</h3>
+            <div className="instrucciones-pasos">
+              <div className="paso">
+                <span className="paso-numero">1</span>
+                <div className="paso-content">
+                  <h4>Revisa tu correo electrónico</h4>
+                  <p>Recibirás un email con los detalles de tu reserva y un enlace de confirmación.</p>
+                </div>
+              </div>
+              <div className="paso">
+                <span className="paso-numero">2</span>
+                <div className="paso-content">
+                  <h4>Confirma tu reserva</h4>
+                  <p>Haz clic en el enlace del correo para confirmar tu asistencia. Tu reserva quedará en estado "Pendiente" hasta que la confirmes.</p>
+                </div>
+              </div>
+              <div className="paso">
+                <span className="paso-numero">3</span>
+                <div className="paso-content">
+                  <h4>Espera la confirmación final</h4>
+                  <p>El restaurante revisará tu reserva y te enviará un correo de confirmación definitiva.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="contacto-alternativo">
+              <h4>⚠️ ¿No recibiste el correo de confirmación?</h4>
+              <p>Si escribiste mal tu email o no te llegó el correo en los próximos minutos:</p>
+              <ul>
+                <li>Revisa tu carpeta de spam o correo no deseado</li>
+                <li>Verifica que escribiste correctamente tu dirección de email</li>
+                <li>Contáctanos directamente:</li>
+              </ul>
+              <div className="contacto-directo">
+                <div className="contacto-item">
+                  <span className="contacto-icon">📧</span>
+                  <div>
+                    <strong>Email:</strong>
+                    <a href="mailto:laviejaestacionbar@gmail.com">
+                      laviejaestacionbar@gmail.com
+                    </a>
+                  </div>
+                </div>
+                <div className="contacto-item">
+                  <span className="contacto-icon">📞</span>
+                  <div>
+                    <strong>Teléfono:</strong>
+                    <a href="tel:+543816364592">+54 381 636-4592</a>
+                  </div>
+                </div>
+                <div className="contacto-item">
+                  <span className="contacto-icon">📍</span>
+                  <div>
+                    <strong>Dirección:</strong>
+                    <span>Ruta Nacional N°9, km. 1361</span>
+                  </div>
+                </div>
+              </div>
+              <p className="nota-importante">
+                <strong>Importante:</strong> Si necesitas cancelar o modificar tu reserva, 
+                puedes hacerlo desde el enlace que recibirás en el correo o contactándonos 
+                directamente con al menos 2 horas de anticipación.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

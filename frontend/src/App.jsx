@@ -5,77 +5,95 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import MenuPage from "./pages/MenuPage";
 import MenuDigital from "./pages/MenuDigital";
+import ServiciosPage from "./pages/ServiciosPage";
+import QuienesSomos from "./pages/QuienesSomos";
+import EquipoDesarrollo from "./pages/EquipoDesarrollo";
 import AdminPage from "./pages/AdminPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Reservas from "./pages/Reservas";
+import Mozo from "./pages/Mozo";
+import CocinaView from "./pages/CocinaView";
+import Caja from "./pages/Caja";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
 import AdminSales from "./pages/AdminSales";
 import ProtectedRoute from "./components/ProtectedRoute";
 import useAuthInitializer from "./hooks/useAuthInitializer";
-import ProductList from './components/carrito/ProductList'
-import Cart from './components/carrito/Cart'
-import SalesHistory from './components/carrito/SalesHistory'
-import NotificationContainer from './components/carrito/NotificationContainer'
+import AdminReservas from "./pages/AdminReservas";
+import CalendarioReservas from "./pages/CalendarioReservas";
+import MisReservas from "./pages/MisReservas";
+import Empleados from "./pages/Empleados";
+import Dashboard from "./pages/Dashboard";
+import SuperadminDashboard from "./pages/SuperadminDashboard";
+import useUserStore from './store/useUserStore';
 
 function App() {
-  const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isSalesOpen, setIsSalesOpen] = useState(false)
+  const { user } = useUserStore();
 
-  const openCart = () => setIsCartOpen(true)
-  const closeCart = () => setIsCartOpen(false)
-  
-  const openSales = () => setIsSalesOpen(true)
-  const closeSales = () => setIsSalesOpen(false)
   // Inicializar la autenticación al cargar la aplicación
-  const { isLoading } = useAuthInitializer();
+  useAuthInitializer();
 
-  // Mostrar un loading mientras se inicializa la autenticación
-  if (isLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px'
-      }}>
-        Cargando...
-      </div>
-    );
-  }
+  // No bloquear la UI mientras se verifica la autenticación
+  // Dejar que las rutas protegidas manejen su propio loading
 
   return (
     <>
-      <Header onCartClick={openCart} onSalesClick={openSales} />
-      <NotificationContainer />
-      <Cart isOpen={isCartOpen} onClose={closeCart} />
-      <SalesHistory isOpen={isSalesOpen} onClose={closeSales} />
+      {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
+      <Header />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/menu" element={<MenuPage />} />
           {/* HU1: Menú digital público accesible por QR - Sin autenticación */}
           <Route path="/menu-digital" element={<MenuDigital />} />
-          <Route path="/productos" element={<ProductList />} />
+          <Route path="/servicios" element={<ServiciosPage />} />
+          <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
           <Route path="/reservas" element={<Reservas />} />
+          {/* Módulo del Mozo - Gestión de pedidos - Mozos + Supervisión (Gerente, SuperAdmin) */}
+          <Route path="/mozo" element={
+            <ProtectedRoute role={["Mozo", "Gerente", "SuperAdministrador"]}>
+              <Mozo />
+            </ProtectedRoute>
+          } />
+          {/* Módulo de Cocina - Gestión de pedidos - EncargadoCocina + Supervisión (Gerente, SuperAdmin) */}
+          <Route path="/encargado-cocina" element={
+            <ProtectedRoute role={["EncargadoCocina", "Gerente", "SuperAdministrador"]}>
+              <CocinaView />
+            </ProtectedRoute>
+          } />
+          {/* Módulo de Caja - Gestión de cobros - Cajero + Supervisión (Gerente, SuperAdmin) */}
+          <Route path="/caja" element={
+            <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
+              <Caja />
+            </ProtectedRoute>
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
-            <ProtectedRoute role={['admin','superadmin']}>
+            <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
                 <AdminPage />
             </ProtectedRoute>
           }>        
+            <Route path="dashboard" element={<SuperadminDashboard />} />
             <Route path="products" element={<Products />} />
             <Route path="users" element={<Users />} />
             <Route path="sales" element={<AdminSales />} />
+            <Route path="reservas" element={<AdminReservas />} />
+            <Route path="calendario" element={<CalendarioReservas />} />
+            <Route path="empleados" element={
+              <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
+                <Empleados />
+              </ProtectedRoute>
+            } />
           </Route>
+          <Route path="/mis-reservas" element={<MisReservas />} />
 
         </Routes>
       </div>

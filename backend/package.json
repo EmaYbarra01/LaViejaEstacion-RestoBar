@@ -5,12 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon --exec babel-node index.js",
-        "start": "nodemon --exec babel-node index.js",
-        "init-db": "node scripts/initDB.js",
-        "seed-menu": "node scripts/seedMenuData.js",
-        "generate-qr": "node scripts/generarQR.js",
-        "check-db": "node scripts/checkDb.js"
+        "dev": "nodemon index.js",
+        "start": "node index.js"
     },
     "keywords": [],
     "author": "",
@@ -18,7 +14,7 @@
     "type": "module",
     "devDependencies": {
         "@babel/node": "^7.28.0",
-        "nodemon": "^3.1.10"
+        "nodemon": "^3.1.11"
     },
     "dependencies": {
         "@babel/cli": "^7.28.3",
@@ -28,7 +24,7 @@
         "bcryptjs": "^3.0.3",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
-        "dotenv": "^17.2.2",
+        "dotenv": "^17.2.3",
         "express": "^5.1.0",
         "express-validator": "^7.2.1",
         "js-cookie": "^3.0.5",
@@ -37,6 +33,7 @@
         "mongoose": "^8.18.0",
         "morgan": "^1.10.1",
         "nodemailer": "^7.0.10",
-        "qrcode": "^1.5.4"
+        "qrcode": "^1.5.4",
+        "socket.io": "^4.6.1"
     }
 }

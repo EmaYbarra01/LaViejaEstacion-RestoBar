@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const URL_PRODUCTOS = import.meta.env.VITE_API_PRODUCTOS;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const URL_PRODUCTOS = `${API_URL}/productos`;
 
 /**
  * Adaptador: convierte datos del backend (español) al formato frontend (inglés)
@@ -60,7 +61,9 @@ export const getAllProducts = async () => {
       withCredentials: true
     });
     // Adaptar cada producto del backend al formato frontend
-    return response.data.map(adaptProductFromBackend);
+    // El backend puede devolver un array directamente o un objeto con propiedad 'productos'
+    const data = Array.isArray(response.data) ? response.data : (response.data.productos || []);
+    return data.map(adaptProductFromBackend);
   } catch (error) {
     console.error('Error al obtener productos:', error);
     throw error;
@@ -124,5 +127,31 @@ export const deleteProduct = async (id) => {
   } catch (error) {
     console.error('Error al eliminar producto:', error);
     throw error;
+  }
+};
+
+// Verificar si un código de producto ya existe
+export const checkProductCodeExists = async (code, excludeId = null) => {
+  try {
+    const products = await getAllProducts();
+    return products.some(product => 
+      product.code === code && product.id !== excludeId
+    );
+  } catch (error) {
+    console.error('Error al verificar código:', error);
+    return false;
+  }
+};
+
+// Verificar si un nombre de producto ya existe
+export const checkProductNameExists = async (name, excludeId = null) => {
+  try {
+    const products = await getAllProducts();
+    return products.some(product => 
+      product.name.toLowerCase() === name.toLowerCase() && product.id !== excludeId
+    );
+  } catch (error) {
+    console.error('Error al verificar nombre:', error);
+    return false;
   }
 };

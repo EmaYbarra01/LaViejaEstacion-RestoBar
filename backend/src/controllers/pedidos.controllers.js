@@ -92,7 +92,7 @@ export const crearPedido = async (req, res) => {
     
     // Verificar que el mozo existe
     const mozoDoc = await Usuario.findById(mozo);
-    if (!mozoDoc || mozoDoc.rol !== 'Mozo') {
+    if (!mozoDoc || !mozoDoc.rol.startsWith('Mozo')) {
       return res.status(400).json({
         mensaje: "Mozo no válido"
       });
@@ -115,6 +115,13 @@ export const crearPedido = async (req, res) => {
         });
       }
       
+      // Verificar stock suficiente
+      if (producto.stock < item.cantidad) {
+        return res.status(400).json({
+          mensaje: `Stock insuficiente para ${producto.nombre}. Stock disponible: ${producto.stock}`
+        });
+      }
+      
       productosDelPedido.push({
         producto: producto._id,
         nombre: producto.nombre,
@@ -126,15 +133,23 @@ export const crearPedido = async (req, res) => {
     }
     
     // Obtener siguiente número de pedido
-    const numeroPedido = await Pedido.obtenerSiguienteNumeroPedido();
+    const numeroPedido = await Pedido.generarNumeroPedido();
+    
+    // Calcular subtotal y total
+    const subtotal = productosDelPedido.reduce((acc, p) => acc + p.subtotal, 0);
+    const total = subtotal; // Sin descuento inicial
     
     // Crear pedido
     const nuevoPedido = new Pedido({
       numeroPedido,
+      numeroMesa: mesaDoc.numero,
       mesa,
       mozo,
+      nombreMozo: `${mozoDoc.nombre} ${mozoDoc.apellido}`,
       productos: productosDelPedido,
       observacionesGenerales: observacionesGenerales || '',
+      subtotal,
+      total,
       historialEstados: [{
         estado: 'Pendiente',
         fecha: new Date(),
@@ -145,6 +160,14 @@ export const crearPedido = async (req, res) => {
     
     await nuevoPedido.save();
     
+    // Descontar stock de los productos
+    for (let item of productos) {
+      await Producto.findByIdAndUpdate(
+        item.producto,
+        { $inc: { stock: -item.cantidad } }
+      );
+    }
+    
     // Actualizar estado de la mesa a Ocupada
     await Mesa.findByIdAndUpdate(mesa, { estado: 'Ocupada' });
     
@@ -154,6 +177,34 @@ export const crearPedido = async (req, res) => {
       .populate('mozo', 'nombre apellido')
       .populate('productos.producto', 'nombre categoria');
     
+    // HU4: Emitir evento Socket.io para notificar a cocina
+    const io = req.app.get('io');
+    if (io) {
+      // Notificar nuevo pedido a cocina
+      io.to('cocina').emit('nuevo-pedido-cocina', {
+        pedido: pedidoCompleto,
+        mensaje: `Nuevo pedido #${pedidoCompleto.numeroPedido} - Mesa ${pedidoCompleto.numeroMesa}`
+      });
+      console.log(`[Socket.io] Evento 'nuevo-pedido-cocina' emitido para pedido #${pedidoCompleto.numeroPedido}`);
+      
+      // Notificar actualización de mesa a todos los mozos
+      io.to('mozos').emit('mesa-actualizada', {
+        mesaId: mesa,
+        estado: 'Ocupada',
+        numeroMesa: mesaDoc.numero
+      });
+      console.log(`[Socket.io] Evento 'mesa-actualizada' emitido para mesa ${mesaDoc.numero}`);
+      
+      // Notificar actualización de productos (stock descontado)
+      const productosActualizados = await Producto.find({ 
+        _id: { $in: productos.map(p => p.producto) } 
+      });
+      io.to('mozos').emit('productos-actualizados', {
+        productos: productosActualizados
+      });
+      console.log(`[Socket.io] Evento 'productos-actualizados' emitido`);
+    }
+    
     res.status(201).json({
       mensaje: "Pedido creado exitosamente",
       pedido: pedidoCompleto
@@ -161,7 +212,9 @@ export const crearPedido = async (req, res) => {
   } catch (error) {
     console.error('Error al crear pedido:', error);
     res.status(500).json({
-      mensaje: "Error interno del servidor al crear pedido"
+      mensaje: "Error interno del servidor al crear pedido",
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
@@ -269,6 +322,41 @@ export const cambiarEstadoPedido = async (req, res) => {
       .populate('mozo', 'nombre apellido')
       .populate('productos.producto', 'nombre categoria')
       .populate('historialEstados.usuario', 'nombre apellido');
+    
+    // Emitir eventos de Socket.io según el estado
+    const io = req.app.get('io');
+    if (io) {
+      // Notificar a todas las salas sobre la actualización
+      io.to('mozos').emit('pedido-actualizado', {
+        pedido: pedidoActualizado,
+        estado: estado
+      });
+      
+      io.to('cocina').emit('pedido-actualizado', {
+        pedido: pedidoActualizado,
+        estado: estado
+      });
+      
+      // Si el pedido fue marcado como Entregado, notificar a caja
+      if (estado === 'Entregado') {
+        io.to('caja').emit('pedido-listo', {
+          pedido: pedidoActualizado,
+          mensaje: `Pedido #${pedidoActualizado.numeroPedido} entregado y listo para cobrar`
+        });
+        console.log(`[Socket.io] Pedido #${pedidoActualizado.numeroPedido} notificado a caja como listo para cobrar`);
+      }
+      
+      // Si el pedido fue marcado como Listo, notificar a mozos y caja
+      if (estado === 'Listo') {
+        io.to('caja').emit('pedido-listo', {
+          pedido: pedidoActualizado,
+          mensaje: `Pedido #${pedidoActualizado.numeroPedido} listo en cocina`
+        });
+        console.log(`[Socket.io] Pedido #${pedidoActualizado.numeroPedido} marcado como listo`);
+      }
+      
+      console.log(`[Socket.io] Estado de pedido actualizado: ${estado}`);
+    }
     
     res.status(200).json({
       mensaje: "Estado actualizado correctamente",
@@ -471,7 +559,7 @@ export const marcarPedidoListo = async (req, res) => {
     }
     
     // Validar que el pedido esté en estado que permita marcarlo como listo
-    if (pedido.estado !== 'En preparación') {
+    if (pedido.estado !== 'En Preparación') {
       return res.status(400).json({
         mensaje: "Solo se pueden marcar como listos los pedidos en preparación"
       });
@@ -501,22 +589,22 @@ export const marcarPedidoListo = async (req, res) => {
 };
 
 /**
- * HU8: Obtener pedidos terminados listos para cobrar (vista de caja)
+ * HU8: Obtener pedidos pendientes de cobro (vista de caja)
  * GET /api/pedidos/caja/pendientes
- * Muestra pedidos con estado "Listo" o "Servido" que están pendientes de cobro
+ * Muestra TODOS los pedidos activos pendientes de cobro (excepto Cancelado y Cobrado)
  */
 export const obtenerPedidosCaja = async (req, res) => {
   try {
-    // Obtener pedidos que están listos para cobrar
-    // Estado "Listo" = terminado por cocina, esperando cobro
-    // Estado "Servido" = entregado al cliente, esperando cobro
+    // Obtener TODOS los pedidos activos que aún no han sido cobrados
+    // Incluye: Pendiente, En Preparación, Listo, Entregado
+    // Excluye: Cancelado, Cobrado
     const pedidos = await Pedido.find({ 
-      estado: { $in: ['Listo', 'Servido'] } 
+      estado: { $nin: ['Cancelado', 'Cobrado'] } 
     })
       .populate('mesa', 'numero ubicacion')
       .populate('mozo', 'nombre apellido')
       .populate('productos.producto', 'nombre precio categoria')
-      .sort({ fechaListo: 1 }); // Ordenar por el más antiguo primero
+      .sort({ fechaCreacion: -1 }); // Ordenar por el más reciente primero
     
     res.status(200).json(pedidos);
   } catch (error) {
@@ -563,10 +651,10 @@ export const cobrarPedido = async (req, res) => {
       });
     }
     
-    // Validar que el pedido esté listo para cobrar
-    if (!['Listo', 'Servido'].includes(pedido.estado)) {
+    // Validar que el pedido no esté cancelado ni ya cobrado
+    if (pedido.estado === 'Cancelado') {
       return res.status(400).json({
-        mensaje: "Solo se pueden cobrar pedidos en estado Listo o Servido"
+        mensaje: "No se puede cobrar un pedido cancelado"
       });
     }
     

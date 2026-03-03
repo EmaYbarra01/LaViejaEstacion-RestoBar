@@ -22,27 +22,27 @@ const router = Router();
  */
 
 // Rutas de consulta (Solo Administrador y Gerente)
-router.get('/compras', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerCompras);
-router.get('/compras/pendientes-pago', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerComprasPendientesPago);
-router.get('/compras/proveedor/:proveedor', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerComprasPorProveedor);
-router.get('/compras/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), obtenerUnaCompra);
+router.get('/compras', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerCompras);
+router.get('/compras/pendientes-pago', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerComprasPendientesPago);
+router.get('/compras/proveedor/:proveedor', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerComprasPorProveedor);
+router.get('/compras/:id', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerUnaCompra);
 
 // HU13: Registrar compras a proveedores
-router.post('/compras', verificarToken, verificarRol(['Administrador', 'Gerente']), crearCompra);
+router.post('/compras', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), crearCompra);
 
 // Actualizar compra
-router.put('/compras/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), actualizarCompra);
+router.put('/compras/:id', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), actualizarCompra);
 
 // Eliminar compra
-router.delete('/compras/:id', verificarToken, verificarRol(['Administrador', 'Gerente']), eliminarCompra);
+router.delete('/compras/:id', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), eliminarCompra);
 
 // Cambiar estado de compra (Pendiente, Recibida, Parcial, Cancelada)
-router.patch('/compras/:id/estado', verificarToken, verificarRol(['Administrador', 'Gerente']), cambiarEstadoCompra);
+router.patch('/compras/:id/estado', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), cambiarEstadoCompra);
 
 // Registrar recepción de mercadería
-router.patch('/compras/:id/recepcion', verificarToken, verificarRol(['Administrador', 'Gerente']), registrarRecepcion);
+router.patch('/compras/:id/recepcion', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), registrarRecepcion);
 
 // Registrar pago de compra
-router.patch('/compras/:id/pago', verificarToken, verificarRol(['Administrador', 'Gerente']), registrarPagoCompra);
+router.patch('/compras/:id/pago', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), registrarPagoCompra);
 
 export default router;

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 const { Schema } = mongoose;
 
 /**
@@ -31,7 +32,8 @@ const usuarioSchema = new Schema({
   rol: {
     type: String,
     required: true,
-    enum: ['Administrador', 'Gerente', 'Mozo', 'Mozo1', 'Mozo2', 'Cajero', 'Cocina', 'EncargadoCocina', 'SuperAdministrador'],
+    // Roles alineados con initDB.js (fuente de verdad)
+    enum: ['SuperAdministrador', 'Gerente', 'Mozo', 'Cajero', 'EncargadoCocina'],
     default: 'Mozo'
   },
   dni: {
@@ -67,6 +69,27 @@ const usuarioSchema = new Schema({
 usuarioSchema.index({ email: 1 });
 usuarioSchema.index({ dni: 1 });
 usuarioSchema.index({ rol: 1 });
+
+// Middleware para hashear la contraseña antes de guardar
+usuarioSchema.pre('save', async function(next) {
+  // Solo hashear si la contraseña ha sido modificada (o es nueva)
+  if (!this.isModified('password')) {
+    return next();
+  }
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Método para comparar contraseñas
+usuarioSchema.methods.compararPassword = async function(passwordIngresado) {
+  return await bcrypt.compare(passwordIngresado, this.password);
+};
 
 // Virtual para nombre completo
 usuarioSchema.virtual('nombreCompleto').get(function() {

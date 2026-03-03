@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const URL_VENTAS = import.meta.env.VITE_API_VENTAS;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const URL_VENTAS = `${API_URL}/ventas`;
 
 // Obtener el historial de ventas del usuario autenticado
 export const getMyPurchases = async () => {

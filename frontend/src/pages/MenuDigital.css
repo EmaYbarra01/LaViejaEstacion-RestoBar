@@ -117,6 +117,7 @@
   overflow: hidden;
   box-shadow: var(--shadow);
   transition: var(--transition);
+  scroll-margin-top: 120px; /* Espacio para header fijo */
 }
 
 .menu-category:hover {
@@ -185,16 +186,19 @@
 .category-content {
   padding: 1.5rem;
   background: var(--secondary-color);
-  animation: slideDown 0.3s ease;
+  animation: expandAccordion 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  overflow: hidden;
 }
 
-@keyframes slideDown {
+@keyframes expandAccordion {
   from {
     opacity: 0;
+    transform: translateY(-20px);
     max-height: 0;
   }
   to {
     opacity: 1;
+    transform: translateY(0);
     max-height: 5000px;
   }
 }

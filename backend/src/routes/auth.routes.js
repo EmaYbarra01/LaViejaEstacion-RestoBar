@@ -64,6 +64,9 @@ router.post(
 // GET /api/auth/verify - Verificar si el token es válido
 router.get('/verify', verificarToken, getMe);
 
+// GET /api/me - Obtener información del usuario autenticado (alias de /auth/verify)
+router.get('/me', verificarToken, getMe);
+
 // POST /api/auth/forgot-password - Solicitar recuperación de contraseña
 router.post(
     '/forgot-password',
