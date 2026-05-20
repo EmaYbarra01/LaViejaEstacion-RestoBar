@@ -141,19 +141,7 @@ const handleSubmit = async (e) => {
                     ¿Olvidaste tu contraseña?
                 </Link>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <p style={{ color: '#b0b0b0', fontSize: '14px', margin: 0 }}>
-                    ¿No tienes cuenta?{' '}
-                    <Link to="/register" style={{ 
-                        color: '#ffc107', 
-                        textDecoration: 'none', 
-                        fontWeight: '600',
-                        transition: 'color 0.3s ease'
-                    }}>
-                        Regístrate aquí
-                    </Link>
-                </p>
-            </div>
+            
         </div>
     );
 };
