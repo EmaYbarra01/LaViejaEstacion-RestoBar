@@ -14,7 +14,11 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restobar_db';
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    throw new Error('Falta MONGODB_URI. Configura backend/.env con la URI de MongoDB Atlas (restobar_db).');
+}
 const DB_FOLDER = 'C:\\Users\\crist\\Downloads\\restobar_db\\restobar_db';
 
 // Mapeo de archivos a colecciones
