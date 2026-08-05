@@ -5,10 +5,15 @@ import './PedidoDetalle.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
+const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) => {
   const [pedidoActual, setPedidoActual] = useState(pedido);
-  const [editando, setEditando] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setPedidoActual(pedido);
+  }, [pedido]);
+
+  const normalizarPedido = (responseData) => responseData?.pedido || responseData;
 
   const actualizarCantidad = async (productoId, nuevaCantidad) => {
     if (isReadOnly) return; // No permitir edición en modo solo lectura
@@ -37,7 +42,7 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
         }
       );
 
-      setPedidoActual(response.data);
+      setPedidoActual(normalizarPedido(response.data));
     } catch (error) {
       console.error('Error al actualizar cantidad:', error);
       Swal.fire({
@@ -53,10 +58,20 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
 
   const eliminarProducto = async (productoId) => {
     if (isReadOnly) return; // No permitir eliminación en modo solo lectura
+
+    const itemSeleccionado = pedidoActual.productos.find(
+      (item) => (item.producto?._id || item.producto) === productoId
+    );
     
     const result = await Swal.fire({
       title: '¿Eliminar producto?',
-      text: '¿Estás seguro de eliminar este producto del pedido?',
+      html: `
+        <div style="text-align:left;line-height:1.6">
+          <p>¿Estás seguro de eliminar este producto del pedido?</p>
+          <p><strong>Total actual:</strong> $${pedidoActual.total?.toFixed(2) || '0.00'}</p>
+          <p><strong>Monto del item:</strong> $${itemSeleccionado ? (itemSeleccionado.precioUnitario * itemSeleccionado.cantidad).toFixed(2) : '0.00'}</p>
+        </div>
+      `,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
@@ -93,12 +108,92 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
         }
       );
 
-      setPedidoActual(response.data);
+      setPedidoActual(normalizarPedido(response.data));
     } catch (error) {
       console.error('Error al eliminar producto:', error);
       Swal.fire({
         title: 'Error',
         text: 'Error al eliminar el producto',
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const editarObservacionProducto = async (productoId) => {
+    if (isReadOnly) return;
+
+    const itemSeleccionado = pedidoActual.productos.find(
+      (item) => (item.producto?._id || item.producto) === productoId
+    );
+
+    if (!itemSeleccionado) return;
+
+    const { value: observacionNueva } = await Swal.fire({
+      title: 'Editar pedido',
+      text: 'Agregá o cambiá la observación de este plato',
+      input: 'textarea',
+      inputLabel: itemSeleccionado.nombre,
+      inputValue: itemSeleccionado.observaciones || '',
+      inputPlaceholder: 'Ej: sin cebolla, punto medio, salsa aparte...',
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      inputAttributes: {
+        rows: 4
+      }
+    });
+
+    if (observacionNueva === undefined) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+
+      const productosActualizados = pedidoActual.productos.map((item) => {
+        if ((item.producto?._id || item.producto) === productoId) {
+          return {
+            producto: item.producto?._id || item.producto,
+            nombre: item.nombre,
+            cantidad: item.cantidad,
+            precioUnitario: item.precioUnitario,
+            observaciones: observacionNueva.trim()
+          };
+        }
+
+        return {
+          producto: item.producto?._id || item.producto,
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+          observaciones: item.observaciones || ''
+        };
+      });
+
+      const response = await axios.put(
+        `${API_URL}/pedidos/${pedidoActual._id}`,
+        { productos: productosActualizados },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      setPedidoActual(normalizarPedido(response.data));
+      await Swal.fire({
+        title: 'Pedido actualizado',
+        text: 'La observación se guardó correctamente',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+        timer: 1500
+      });
+    } catch (error) {
+      console.error('Error al editar la observación:', error);
+      Swal.fire({
+        title: 'Error',
+        text: error.response?.data?.mensaje || 'No se pudo guardar la observación',
         icon: 'error',
         confirmButtonText: 'Aceptar'
       });
@@ -130,7 +225,7 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
         }
       );
 
-      setPedidoActual(response.data);
+      setPedidoActual(normalizarPedido(response.data));
       Swal.fire({
         title: '¡Éxito!',
         text: `Pedido ${nuevoEstado} correctamente`,
@@ -227,8 +322,112 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
     }
   };
   
-  const imprimirComanda = () => {
-    window.print();
+  const agregarItem = async () => {
+    if (isReadOnly) return;
+
+    const productosDisponibles = productos.filter((producto) => producto.disponible !== false);
+
+    if (productosDisponibles.length === 0) {
+      Swal.fire({
+        title: 'Sin productos',
+        text: 'No hay productos disponibles para agregar',
+        icon: 'info',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+
+    const opciones = productosDisponibles
+      .map((producto) => `<option value="${producto._id}">${producto.nombre} - $${Number(producto.precio || 0).toFixed(2)}</option>`)
+      .join('');
+
+    const { value } = await Swal.fire({
+      title: 'Agregar item',
+      html: `
+        <div style="display:grid;gap:12px;text-align:left">
+          <label style="display:grid;gap:6px">
+            <span>Producto</span>
+            <select id="swal-producto" class="swal2-input" style="margin:0">${opciones}</select>
+          </label>
+          <label style="display:grid;gap:6px">
+            <span>Cantidad</span>
+            <input id="swal-cantidad" type="number" min="1" value="1" class="swal2-input" style="margin:0" />
+          </label>
+          <label style="display:grid;gap:6px">
+            <span>Observaciones</span>
+            <input id="swal-observaciones" type="text" class="swal2-input" style="margin:0" placeholder="Opcional" />
+          </label>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Agregar',
+      cancelButtonText: 'Cancelar',
+      focusConfirm: false,
+      preConfirm: () => {
+        const productoId = document.getElementById('swal-producto')?.value;
+        const cantidad = Number(document.getElementById('swal-cantidad')?.value || 1);
+        const observaciones = document.getElementById('swal-observaciones')?.value || '';
+
+        if (!productoId || Number.isNaN(cantidad) || cantidad < 1) {
+          Swal.showValidationMessage('Selecciona un producto y una cantidad válida');
+          return null;
+        }
+
+        return { productoId, cantidad, observaciones };
+      }
+    });
+
+    if (!value) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const productoSeleccionado = productosDisponibles.find((producto) => producto._id === value.productoId);
+
+      const productosActualizados = [
+        ...(pedidoActual.productos || []).map((item) => ({
+          producto: item.producto?._id || item.producto,
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+          observaciones: item.observaciones || ''
+        })),
+        {
+          producto: productoSeleccionado._id,
+          nombre: productoSeleccionado.nombre,
+          cantidad: value.cantidad,
+          precioUnitario: productoSeleccionado.precio,
+          observaciones: value.observaciones
+        }
+      ];
+
+      const response = await axios.put(
+        `${API_URL}/pedidos/${pedidoActual._id}`,
+        { productos: productosActualizados },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      setPedidoActual(normalizarPedido(response.data));
+      await Swal.fire({
+        title: 'Item agregado',
+        text: 'El pedido se actualizó correctamente',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+        timer: 1600
+      });
+    } catch (error) {
+      console.error('Error al agregar item:', error);
+      Swal.fire({
+        title: 'Error',
+        text: error.response?.data?.mensaje || 'No se pudo agregar el item',
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -239,7 +438,25 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
           <button className="btn-back" onClick={onClose}>
             ←
           </button>
-          <h2>Mesa {pedidoActual.numeroMesa || 'S/N'}</h2>
+          <div className="detalle-header-titulo">
+            <h2>Mesa {pedidoActual.numeroMesa || 'S/N'}</h2>
+            <div className="detalle-header-meta">
+              <span className={`detalle-badge estado-${String(pedidoActual.estado || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                {pedidoActual.estado || 'Pendiente'}
+              </span>
+              <span className="detalle-meta-item">👤 {pedidoActual.nombreMozo || pedidoActual.mozo?.nombre || 'Sin mozo'}</span>
+              <span className="detalle-meta-item">
+                📅 {pedidoActual.fechaCreacion
+                  ? new Date(pedidoActual.fechaCreacion).toLocaleString('es-AR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                  : 'Sin fecha'}
+              </span>
+            </div>
+          </div>
           <button className="btn-close" onClick={onClose}>
             ✕
           </button>
@@ -270,7 +487,7 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
         {/* Lista de productos */}
         <div className="productos-lista">
           {pedidoActual.productos && pedidoActual.productos.map((item, index) => (
-            <div className="producto-item">
+            <div className="producto-item producto-item-detalle" key={item.producto?._id || index}>
               <div className="producto-header">
                 <h3 className="producto-nombre">{item.nombre}</h3>
                 <span className="producto-precio">
@@ -307,8 +524,13 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
                 </div>
 
                 <div className="acciones-producto">
-                  <button className="btn-accion btn-imprimir" title="Imprimir">
-                    🖨️
+                  <button
+                    className="btn-accion btn-editar-observacion"
+                    title="Editar pedido"
+                    onClick={() => editarObservacionProducto(item.producto._id)}
+                    disabled={isReadOnly || loading}
+                  >
+                    ✏️
                   </button>
                   <button 
                     className="btn-accion btn-eliminar" 
@@ -318,40 +540,11 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
                   >
                     🗑️
                   </button>
-                  <button className="btn-accion btn-duplicar" title="Duplicar" disabled={isReadOnly}>
-                    📄
-                  </button>
-                  <button className="btn-accion btn-editar" title="Editar" disabled={isReadOnly}>
-                    ✏️
-                  </button>
                 </div>
-              </div>
-
-              {/* Info del mozo que registró el item */}
-              <div className="producto-info">
-                <span className="info-mozo">
-                  👤 {pedidoActual.nombreMozo}
-                </span>
-                <span className="info-fecha">
-                  {new Date(pedidoActual.fechaCreacion).toLocaleString('es-AR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Botón para agregar más items */}
-        {!isReadOnly && (
-          <button className="btn-agregar-item">
-            <span className="plus-icon">+</span>
-            Agregar Item
-          </button>
-        )}
 
         {/* Footer con acciones */}
         <div className="detalle-footer">
@@ -365,19 +558,9 @@ const PedidoDetalle = ({ pedido, onClose, isReadOnly = false }) => {
             <span>Entrega</span>
           </button>
           
-          <button className="footer-btn" onClick={enviarACocina} disabled={isReadOnly}>
+          <button className="footer-btn" onClick={agregarItem} disabled={isReadOnly || loading}>
             <span className="btn-icon">+</span>
             <span>Agregar Item</span>
-          </button>
-          
-          <button className="footer-btn" onClick={imprimirComanda}>
-            <span className="btn-icon">🖨️</span>
-            <span>Imprimir</span>
-          </button>
-          
-          <button className="footer-btn" disabled={isReadOnly}>
-            <span className="btn-icon">⋮</span>
-            <span>Opciones</span>
           </button>
         </div>
 
