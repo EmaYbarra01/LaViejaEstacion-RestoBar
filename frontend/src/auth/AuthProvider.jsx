@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react'
 import apiClient from '../api/apiClient'
 import ENDPOINTS from '../api/endpoints'
+import { clearStoredAuthToken, getValidStoredAuthToken } from './authToken'
 
 export const AuthContext = createContext(null)
 
@@ -8,7 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(() => {
     try {
-      return localStorage.getItem('accessToken') || localStorage.getItem('token')
+      return getValidStoredAuthToken()
     } catch (e) {
       return null
     }
@@ -25,6 +26,7 @@ export function AuthProvider({ children }) {
     } else {
       delete apiClient.defaults.headers.common['Authorization']
       setUser(null)
+      clearStoredAuthToken()
     }
   }, [token])
 
@@ -36,6 +38,7 @@ export function AuthProvider({ children }) {
     if (accessToken) {
       try {
         // Guardar en ambas claves por compatibilidad
+        clearStoredAuthToken()
         localStorage.setItem('accessToken', accessToken)
         localStorage.setItem('token', accessToken)
       } catch (e) {}
@@ -47,8 +50,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     try {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('token')
+      clearStoredAuthToken()
     } catch (e) {}
     setToken(null)
     setUser(null)
