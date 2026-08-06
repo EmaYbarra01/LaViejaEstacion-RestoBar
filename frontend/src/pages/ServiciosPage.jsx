@@ -30,7 +30,8 @@ const ServiciosPage = () => {
                             Disfruta de nuestro ambiente acogedor con atención personalizada de nuestros mozos.
                         </p>
                         <ul className="service-features">
-                            <li><FaClock /> Lun-Dom: 11:00 - 00:00</li>
+                            <li><FaClock /> Lun-Dom: 09:00 -13:00</li>
+                            <li><FaClock /> Lun-Dom: 20:00 - 00:00</li>
                             <li><FaMapMarkerAlt /> Salón Principal y VIP</li>
                         </ul>
                     </div>
@@ -46,7 +47,7 @@ const ServiciosPage = () => {
                         </p>
                         <ul className="service-features">
                             <li><FaClock /> Tiempo: 30-45 min</li>
-                            <li><FaMapMarkerAlt /> Radio: 5 km</li>
+                            <li><FaMapMarkerAlt /> Radio: 10 km</li>
                         </ul>
                     </div>
 
@@ -60,7 +61,7 @@ const ServiciosPage = () => {
                             Ordena por adelantado y retira tu pedido listo para llevar sin esperas.
                         </p>
                         <ul className="service-features">
-                            <li><FaClock /> Listo en 20-30 min</li>
+                            <li><FaClock /> Listo en 30-45 min</li>
                             <li><FaMapMarkerAlt /> Take Away Express</li>
                         </ul>
                     </div>
@@ -78,9 +79,7 @@ const ServiciosPage = () => {
                             <li><FaClock /> Confirmación inmediata</li>
                             <li><FaMapMarkerAlt /> Todas las zonas</li>
                         </ul>
-                        <button className="service-cta" onClick={handleReservaClick}>
-                            Reservar Ahora
-                        </button>
+                        
                     </div>
                 </div>
 

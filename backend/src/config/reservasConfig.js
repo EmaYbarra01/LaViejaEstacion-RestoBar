@@ -27,7 +27,7 @@ export const CONFIGURACION_RESERVAS = {
   comensalesMinimo: 1,
   
   // Cantidad máxima de comensales por reserva
-  comensalesMaximo: 12,
+  comensalesMaximo: 15,
   
   // Intervalo de tiempo entre reservas (en minutos)
   intervaloReservas: 30
