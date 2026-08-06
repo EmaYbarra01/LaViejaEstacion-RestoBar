@@ -1,11 +1,16 @@
 import mongoose from 'mongoose';
 import Producto from '../src/models/productoSchema.js';
+import 'dotenv/config';
 
-const dbUrl = 'mongodb://localhost:27017/restobar_db';
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  throw new Error('Falta MONGODB_URI. Configura backend/.env con la URI de MongoDB Atlas (restobar_db).');
+}
 
 async function verStock() {
   try {
-    await mongoose.connect(dbUrl);
+    await mongoose.connect(MONGODB_URI);
     console.log('✅ Conectado a MongoDB');
     
     const productos = await Producto.find({}).select('nombre stock disponible categoria');

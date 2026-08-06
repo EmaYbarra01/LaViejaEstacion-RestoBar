@@ -643,7 +643,7 @@ const enviarNotificacionRestobar = async (reserva) => {
 
     const mailOptions = {
       from: process.env.EMAIL_FROM || 'Sistema Reservas <noreply@laviejaestacion.com>',
-      to: process.env.EMAIL_RESTOBAR || process.env.EMAIL_USER, // Email del restobar
+      to: process.env.EMAIL_RESTAURANTE || process.env.EMAIL_USER, // Email del restobar
       subject: `🔔 Nueva Reserva Pendiente - ${fechaFormateada} ${reserva.hora}`,
       html: htmlContent
     };

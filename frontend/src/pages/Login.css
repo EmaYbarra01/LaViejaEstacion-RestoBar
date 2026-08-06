@@ -1,17 +1,64 @@
+#login-container,
+.login-page {
+  position: relative;
+}
+
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 16px 40px;
+  background: linear-gradient(180deg, #0d1020 0%, #111111 100%);
+}
+
+.login-background {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.35);
+  z-index: 0;
+}
+
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(4, 10, 24, 0.55) 55%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+  z-index: 1;
+}
+
 #login-container {
   width: 100%;
   max-width: 420px;
-  margin: 120px auto 40px; /* Espacio para el header fijo */
+  margin: 0;
   padding: 3rem 2.5rem;
   border: none;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 193, 7, 0.15),
+    0 0 35px rgba(255, 193, 7, 0.14);
+  background:
+    linear-gradient(180deg, rgba(24, 24, 24, 0.86) 0%, rgba(18, 18, 18, 0.78) 100%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   overflow: hidden;
+  z-index: 2;
+  border: 1px solid rgba(255, 193, 7, 0.28);
 }
 
 #login-container::before {
@@ -20,17 +67,26 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+  height: 5px;
+  background: linear-gradient(90deg, #ffd54d 0%, #ffc107 38%, #ff9800 72%, #ffd54d 100%);
+}
+
+#login-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(255, 193, 7, 0.12), transparent 35%);
+  pointer-events: none;
 }
 
 #login-h2 {
   margin-bottom: 2rem;
   color: #ffffff;
-  font-size: 2rem;
+  font-size: 2.15rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
 #login-form {
@@ -43,12 +99,13 @@
 #login-form input {
   position: relative;
   padding: 1rem 1.2rem;
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  border-radius: 10px;
+  border: 1px solid rgba(255, 193, 7, 0.32);
+  border-radius: 12px;
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
   transition: all 0.3s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 #login-form input::placeholder {
@@ -58,29 +115,31 @@
 #login-form input:focus {
   outline: none;
   border-color: #ffc107;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 0 0 3px rgba(255, 193, 7, 0.12),
+    0 0 18px rgba(255, 193, 7, 0.12);
 }
 
 #login-form button {
   padding: 1rem;
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: linear-gradient(135deg, #ffd54d 0%, #ffc107 44%, #ff9800 100%);
   color: #000;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.34);
 }
 
 #login-form button:hover {
-  background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
+  background: linear-gradient(135deg, #ffe082 0%, #ffc107 42%, #ffb300 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+  box-shadow: 0 12px 28px rgba(255, 193, 7, 0.48);
 }
 
 #login-form button:disabled {
@@ -122,12 +181,12 @@
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: transparent;
 }
 
 /* Contenedor del body para login */
 body:has(#login-container) {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: #0d1020;
   min-height: 100vh;
 }
 
@@ -195,24 +254,31 @@ body:has(#login-container) {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .login-page {
+    padding: 100px 12px 32px;
+  }
+
   #login-container {
-    margin: 100px 20px 40px;
-    padding: 2rem 1.5rem;
+    padding: 2rem 1.4rem;
   }
 
   #login-h2 {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
+    letter-spacing: 2px;
   }
 }
 
 @media (max-width: 480px) {
+  .login-page {
+    padding: 84px 12px 24px;
+  }
+
   #login-container {
-    margin: 80px 15px 30px;
-    padding: 1.5rem 1.2rem;
+    padding: 1.5rem 1.15rem;
   }
 
   #login-h2 {
-    font-size: 1.4rem;
+    font-size: 1.45rem;
   }
 
   #login-form input {
