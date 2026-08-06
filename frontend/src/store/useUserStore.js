@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import apiClient from '../api/apiClient';
+import { clearStoredAuthToken, getValidStoredAuthToken } from '../auth/authToken';
 
 // Store para manejar el estado del usuario
 const useUserStore = create((set, get) => ({
@@ -45,6 +47,7 @@ const useUserStore = create((set, get) => ({
       // Guardar token en localStorage para peticiones futuras
       if (token) {
         try {
+          clearStoredAuthToken();
           localStorage.setItem('token', token);
           localStorage.setItem('accessToken', token);
         } catch (e) {}
@@ -87,12 +90,24 @@ const useUserStore = create((set, get) => ({
     
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
+      const token = getValidStoredAuthToken();
+
+      if (!token) {
+        clearStoredAuthToken();
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null
+        });
+        return { success: false, message: 'No autenticado' };
+      }
+
+      const response = await apiClient.get(
         `${API_URL}/me`,
         {
           withCredentials: true,
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          headers: { 'Authorization': `Bearer ${token}` }
         }
       );
       
@@ -122,6 +137,9 @@ const useUserStore = create((set, get) => ({
       return { success: true, user: userData };
     } catch (error) {
       const errorMessage = error.response?.data?.mensaje || 'No autenticado';
+      if (error.response?.status === 401) {
+        clearStoredAuthToken();
+      }
       set({ 
         user: null, 
         isAuthenticated: false, 
@@ -193,6 +211,19 @@ const useUserStore = create((set, get) => ({
     
     // Si ya tenemos datos del usuario, no hacer nada
     if (currentUser) {
+      return;
+    }
+
+    const token = getValidStoredAuthToken();
+
+    if (!token) {
+      clearStoredAuthToken();
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null
+      });
       return;
     }
     
