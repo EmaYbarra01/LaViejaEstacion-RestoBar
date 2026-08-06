@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { API_BASE } from '../config/api'
+import { clearStoredAuthToken, getValidStoredAuthToken } from '../auth/authToken'
 
 const apiClient = axios.create({
   baseURL: API_BASE,
@@ -9,7 +10,7 @@ const apiClient = axios.create({
 // Añade token desde localStorage en cada request si existe
 apiClient.interceptors.request.use((config) => {
   try {
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
+    const token = getValidStoredAuthToken()
     if (token) {
       config.headers = config.headers || {}
       config.headers['Authorization'] = `Bearer ${token}`
@@ -35,11 +36,10 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       try {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('token')
+        clearStoredAuthToken()
       } catch (e) {}
       // opcional: redirigir a /login
-      if (typeof window !== 'undefined') window.location.href = '/login'
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') window.location.href = '/login'
     }
     return Promise.reject(error)
   },

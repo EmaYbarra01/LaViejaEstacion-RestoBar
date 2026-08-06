@@ -62,6 +62,7 @@ const SuperadminDashboard = () => {
 
   // Colores para gráficos
   const COLORES_CATEGORIA = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+  const COLORES_METODO = ['#f59e0b', '#14b8a6'];
 
   return (
     <div className="superadmin-dashboard">
@@ -97,6 +98,17 @@ const SuperadminDashboard = () => {
         </div>
 
         <div className="resumen-card">
+          <div className="card-icon pedidos">💳</div>
+          <div className="card-info">
+            <h3>Métodos de Pago</h3>
+            <p className="card-valor">{estadisticas.ventasPorMetodoPago.reduce((sum, metodo) => sum + metodo.cantidad, 0)}</p>
+            <span className="card-detalle">
+              {estadisticas.ventasPorMetodoPago.find(m => m.metodoPago === 'Efectivo')?.cantidad || 0} efectivo / {estadisticas.ventasPorMetodoPago.find(m => m.metodoPago === 'Transferencia')?.cantidad || 0} transferencia
+            </span>
+          </div>
+        </div>
+
+        <div className="resumen-card">
           <div className="card-icon stock">⚠️</div>
           <div className="card-info">
             <h3>Alertas de Stock</h3>
@@ -104,6 +116,43 @@ const SuperadminDashboard = () => {
             <span className="card-detalle">
               {estadisticas.alertasStock.filter(a => a.urgencia === 'CRÍTICO').length} críticos
             </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-grid-small">
+        <div className="dashboard-card metodos-pago">
+          <div className="card-header">
+            <h2>💳 Métodos de Pago del Mes</h2>
+          </div>
+          <div className="card-body">
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie
+                  data={estadisticas.ventasPorMetodoPago}
+                  dataKey="total"
+                  nameKey="metodoPago"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  label={(entry) => entry.metodoPago}
+                >
+                  {estadisticas.ventasPorMetodoPago.map((entry, index) => (
+                    <Cell key={`metodo-cell-${index}`} fill={COLORES_METODO[index % COLORES_METODO.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                  formatter={(value) => `$${Number(value).toFixed(2)}`}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
@@ -259,19 +308,6 @@ const SuperadminDashboard = () => {
         </div>
       </div>
 
-      {/* Métodos de Pago - Placeholder para futuras implementaciones */}
-      <div className="dashboard-grid-small">
-        <div className="dashboard-card metodos-pago">
-          <div className="card-header">
-            <h2>💳 Métodos de Pago</h2>
-          </div>
-          <div className="card-body">
-            <div className="no-datos">
-              <p>📊 Próximamente</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
