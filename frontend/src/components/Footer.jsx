@@ -10,7 +10,7 @@ function Footer() {
         <div className="footer-text">
           <p className="footer-copyright">
             <FaUtensils className="footer-icon-inline" />
-            La Vieja Estación - &copy; 2025 La Vieja Estación. Todos los derechos reservados.
+            La Vieja Estación - &copy; 2026 La Vieja Estación. Todos los derechos reservados.
           </p>
           <Link to="/equipo-desarrollo" className="footer-team-link">
             Conocé al equipo de Desarrollo de la Vieja Estación

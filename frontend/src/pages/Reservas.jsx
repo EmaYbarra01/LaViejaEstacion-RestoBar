@@ -6,6 +6,8 @@ import './Reservas.css';
 
 const Reservas = () => {
   const navigate = useNavigate();
+  const maxComensales = 15;
+  const maxFecha = '9999-12-31';
   const [formData, setFormData] = useState({
     cliente: '',
     email: '',
@@ -18,11 +20,20 @@ const Reservas = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  const limitarFechaA4Digitos = (value) => {
+    if (!value) return value;
+
+    const [anio, mes, dia] = value.split('-');
+    if (!anio) return value;
+
+    return [anio.slice(0, 4), mes, dia].filter(Boolean).join('-');
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'fecha' ? limitarFechaA4Digitos(value) : value
     }));
   };
 
@@ -142,40 +153,7 @@ const Reservas = () => {
           <p>La Vieja Estación - Una experiencia gastronómica inolvidable</p>
         </div>
 
-        <div className="reservas-content">
-          <div className="reservas-info">
-            <h2>Información</h2>
-            <div className="info-item">
-              <span className="info-icon">📍</span>
-              <div>
-                <h3>Dirección</h3>
-                <p>Ruta Nacional N°9, km. 1361</p>
-              </div>
-            </div>
-            <div className="info-item">
-              <span className="info-icon">📞</span>
-              <div>
-                <h3>Teléfono</h3>
-                <p>+54 381 636-4592</p>
-              </div>
-            </div>
-            <div className="info-item">
-              <span className="info-icon">⏰</span>
-              <div>
-                <h3>Horarios</h3>
-                <p>Lunes a Viernes: 12:00 - 23:00</p>
-                <p>Sábados y Domingos: 11:00 - 00:00</p>
-              </div>
-            </div>
-            <div className="info-item">
-              <span className="info-icon">ℹ️</span>
-              <div>
-                <h3>Importante</h3>
-                <p>Las reservas se confirman por email</p>
-                <p>Cancelación gratuita hasta 2 horas antes</p>
-              </div>
-            </div>
-          </div>
+        
 
           <form className="reservas-form" onSubmit={handleSubmit}>
             {message.text && (
@@ -235,6 +213,7 @@ const Reservas = () => {
                   value={formData.fecha}
                   onChange={handleChange}
                   min={getMinDate()}
+                  max={maxFecha}
                   required
                 />
               </div>
@@ -247,8 +226,8 @@ const Reservas = () => {
                   name="hora"
                   value={formData.hora}
                   onChange={handleChange}
-                  min="11:00"
-                  max="23:00"
+                  min="09:00"
+                  max="00:00"
                   required
                 />
               </div>
@@ -262,7 +241,7 @@ const Reservas = () => {
                   onChange={handleChange}
                   required
                 >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(num => (
+                  {Array.from({ length: maxComensales }, (_, index) => index + 1).map(num => (
                     <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'personas'}</option>
                   ))}
                 </select>
@@ -374,7 +353,7 @@ const Reservas = () => {
           </div>
         </div>
       </div>
-    </div>
+    
   );
 };
 

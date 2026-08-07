@@ -5,6 +5,8 @@ import { FaSearch, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaClock, FaCal
 import './AdminReservas.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+const MAX_COMENSALES = 15;
+const MAX_FECHA = '9999-12-31';
 
 const AdminReservas = () => {
   const [reservas, setReservas] = useState([]);
@@ -26,6 +28,15 @@ const AdminReservas = () => {
   const [reservaEditar, setReservaEditar] = useState(null);
   const [mesas, setMesas] = useState([]);
   const [mesasDisponibles, setMesasDisponibles] = useState([]);
+
+  const limitarFechaA4Digitos = (value) => {
+    if (!value) return value;
+
+    const [anio, mes, dia] = value.split('-');
+    if (!anio) return value;
+
+    return [anio.slice(0, 4), mes, dia].filter(Boolean).join('-');
+  };
 
   // Obtener reservas del backend
   const fetchReservas = async () => {
@@ -542,7 +553,8 @@ const AdminReservas = () => {
                 <input
                   type="date"
                   value={reservaEditar.fecha}
-                  onChange={(e) => setReservaEditar({...reservaEditar, fecha: e.target.value})}
+                  onChange={(e) => setReservaEditar({...reservaEditar, fecha: limitarFechaA4Digitos(e.target.value)})}
+                  max={MAX_FECHA}
                   required
                 />
               </div>
@@ -562,7 +574,7 @@ const AdminReservas = () => {
                 <input
                   type="number"
                   min="1"
-                  max="20"
+                  max={MAX_COMENSALES}
                   value={reservaEditar.comensales}
                   onChange={(e) => setReservaEditar({...reservaEditar, comensales: parseInt(e.target.value)})}
                   required

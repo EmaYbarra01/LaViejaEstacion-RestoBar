@@ -415,6 +415,27 @@
   margin-right: 1rem;
 }
 
+.item-observacion {
+  margin: 0.35rem 0 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid #1f4aa8;
+  background: #eff6ff;
+  border-radius: 6px;
+  color: #1e3a8a;
+  font-size: 0.8rem;
+}
+
+.item-observacion span {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.item-observacion p {
+  margin: 0;
+  word-break: break-word;
+}
+
 .item-nombre {
   font-size: 0.9rem;
   font-weight: 500;
@@ -450,6 +471,26 @@
 
 .btn-cantidad-mini:hover {
   background: #e5e7eb;
+}
+
+.btn-editar-mini {
+  background: #dbeafe;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #1f4aa8;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.btn-editar-mini:hover {
+  background: #bfdbfe;
+  transform: scale(1.08);
 }
 
 .cantidad-mini {

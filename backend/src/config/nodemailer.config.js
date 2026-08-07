@@ -33,14 +33,17 @@ if (!EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) {
 
 export { transporter };
 
-// Verificar la configuración del transportador
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Error en la configuración de nodemailer:', error);
-  } else {
-    console.log('✅ Nodemailer configurado correctamente y listo para enviar emails');
-  }
-});
+// Verificación opcional: evitamos bloquear o ensuciar el arranque del servidor
+// cuando Gmail no responde o la red no está disponible.
+if (process.env.EMAIL_SMTP_VERIFY === 'true') {
+  transporter.verify((error) => {
+    if (error) {
+      console.warn('⚠️ Nodemailer no pudo verificarse al iniciar:', error.message || error);
+    } else {
+      console.log('✅ Nodemailer configurado correctamente y listo para enviar emails');
+    }
+  });
+}
 
 // Función para enviar email de recuperación de contraseña
 export const sendPasswordResetEmail = async (email, token, username) => {
