@@ -212,6 +212,32 @@
   backdrop-filter: blur(10px);
 }
 
+.badge-stock-bajo {
+  background: rgba(255, 193, 7, 0.95);
+}
+
+.badge-agotado,
+.badge-no-disponible {
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.badge-agotado {
+  background: rgba(211, 47, 47, 0.95);
+}
+
+.badge-no-disponible {
+  background: rgba(117, 117, 117, 0.95);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .producto-nombre {

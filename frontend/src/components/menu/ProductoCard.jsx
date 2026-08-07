@@ -10,6 +10,10 @@ import './ProductoCard.css';
 const ProductoCard = ({ producto, onSelect }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const stock = Number(producto.stock || 0);
+  const disponible = producto.disponible !== false && stock > 0;
+  const agotado = stock <= 0;
+  const stockBajo = stock > 0 && Number(producto.stockMinimo || 0) >= stock;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-AR', {
@@ -97,7 +101,15 @@ const ProductoCard = ({ producto, onSelect }) => {
 
       {/* Indicador de disponibilidad */}
       <div className="producto-badge">
-        <span className="badge-disponible">Disponible</span>
+        {agotado ? (
+          <span className="badge-agotado">Agotado</span>
+        ) : disponible ? (
+          <span className={`badge-disponible ${stockBajo ? 'badge-stock-bajo' : ''}`}>
+            {stockBajo ? 'Stock bajo' : 'Disponible'}
+          </span>
+        ) : (
+          <span className="badge-no-disponible">No disponible</span>
+        )}
       </div>
     </div>
   );

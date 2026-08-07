@@ -15,6 +15,25 @@ import Swal from 'sweetalert2';
 import useUserStore from '../store/useUserStore';
 import "./AdminPage.css";
 
+const createEmptyUserForm = () => ({
+  nombre: "",
+  apellido: "",
+  dni: "",
+  email: "",
+  rol: "",
+  password: ""
+});
+
+const normalizeUserForm = (user) => ({
+  id: user?.id || user?._id || "",
+  nombre: user?.nombre || user?.name || "",
+  apellido: user?.apellido || "",
+  dni: user?.dni || "",
+  email: user?.email || "",
+  rol: user?.rol || user?.role || "",
+  password: ""
+});
+
 const Users = () => {
   const { user } = useUserStore();
   const isSuperAdmin = user?.role === 'SuperAdministrador';
@@ -25,12 +44,7 @@ const Users = () => {
   const [openModal, setOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    role: "",
-    password: "",
-  });
+  const [form, setForm] = useState(createEmptyUserForm());
 
   const [users, setUsers] = useState([]);
 
@@ -58,11 +72,17 @@ const Users = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const payload = {
+      ...form,
+      password: form.password?.trim() || undefined
+    };
+
     try {
       if (isEdit) {
-        const updatedUser = await updateUser(form.id, form);
+        const updatedUser = await updateUser(form.id, payload);
         setUsers(
-          users.map((user) => (user.id === form.id ? updatedUser : user))
+          users.map((userItem) => (userItem.id === form.id ? updatedUser : userItem))
         );
         setOpenModal(false);
         await Swal.fire({
@@ -73,7 +93,7 @@ const Users = () => {
           timer: 2000
         });
       } else {
-        const newUser = await createUser(form);
+        const newUser = await createUser(payload);
         setUsers([...users, newUser]);
         setOpenModal(false);
         await Swal.fire({
@@ -105,7 +125,7 @@ const Users = () => {
 
   const handleEditUser = (user) => {
     setIsEdit(true);
-    setForm(user);
+    setForm(normalizeUserForm(user));
     handleOpenModal();
   };
 
@@ -188,14 +208,18 @@ const Users = () => {
         handleSubmit={handleSubmit}
         isEdit={isEdit}
         open={openModal}        
-        onClose={handleCloseModal}
+        onClose={() => {
+          setIsEdit(false);
+          setForm(createEmptyUserForm());
+          handleCloseModal();
+        }}
       />
 
       <TableContainer className="admin-table-container">
         <Table className="admin-table">
           <TableHead>
             <TableRow>
-              <TableCell>Nombre</TableCell>
+              <TableCell>Nombre completo</TableCell>
               <TableCell>Correo Electrónico</TableCell>
               <TableCell>Rol</TableCell>
               <TableCell>Acciones</TableCell>
@@ -211,11 +235,11 @@ const Users = () => {
             ) : (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.nombreCompleto || `${user.nombre || ''} ${user.apellido || ''}`.trim()}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <span className={`role-badge ${user.role}`}>
-                      {user.role}
+                    <span className={`role-badge ${String(user.rol || '').toLowerCase()}`}>
+                      {user.rol}
                     </span>
                   </TableCell>
                   <TableCell>
