@@ -36,11 +36,6 @@ export const obtenerEstadisticasDashboard = async (req, res) => {
     // ============================================
     const resumenMes = await calcularResumenMesActual(mesActual, añoActual);
 
-    // ============================================
-    // 6. MÉTODOS DE PAGO DEL MES ACTUAL
-    // ============================================
-    const ventasPorMetodoPago = await calcularVentasPorMetodoPago(mesActual, añoActual);
-
     res.status(200).json({
       success: true,
       data: {
@@ -48,8 +43,7 @@ export const obtenerEstadisticasDashboard = async (req, res) => {
         ventasPorCategoria,
         top10Productos,
         alertasStock,
-        resumenMes,
-        ventasPorMetodoPago
+        resumenMes
       }
     });
 
@@ -286,42 +280,4 @@ const calcularResumenMesActual = async (mes, año) => {
     cantidadPedidos: resumen[0].cantidadPedidos,
     promedioVenta: resumen[0].promedioVenta
   };
-};
-
-/**
- * Calcular ventas por método de pago del mes actual
- */
-const calcularVentasPorMetodoPago = async (mes, año) => {
-  const inicioMes = new Date(año, mes, 1);
-  const finMes = new Date(año, mes + 1, 1);
-
-  const ventasPorMetodo = await Pedido.aggregate([
-    {
-      $match: {
-        estado: 'Cobrado',
-        createdAt: {
-          $gte: inicioMes,
-          $lt: finMes
-        }
-      }
-    },
-    {
-      $group: {
-        _id: '$metodoPago',
-        total: { $sum: '$total' },
-        cantidad: { $sum: 1 }
-      }
-    }
-  ]);
-
-  const metodos = ['Efectivo', 'Transferencia'];
-
-  return metodos.map((metodo) => {
-    const metodoData = ventasPorMetodo.find(v => v._id === metodo);
-    return {
-      metodoPago: metodo,
-      total: metodoData ? metodoData.total : 0,
-      cantidad: metodoData ? metodoData.cantidad : 0
-    };
-  });
 };

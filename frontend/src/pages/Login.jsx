@@ -79,72 +79,69 @@ const handleSubmit = async (e) => {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div className="login-page">
-            <div className="login-background"></div>
-            <div className="login-overlay"></div>
-            <div id='login-container'>
-                <h2 id='login-h2'>Login</h2>
-                {(localError || error) && (
-                    <div style={{ 
-                        color: '#ff6b6b', 
-                        marginBottom: '15px', 
-                        padding: '12px', 
-                        border: '1px solid rgba(255, 107, 107, 0.3)', 
-                        borderRadius: '8px',
-                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                        width: '100%',
-                        textAlign: 'center',
-                        fontSize: '0.95rem'
-                    }}>
-                        {localError || error}
-                    </div>
-                )}
-                <form onSubmit={handleSubmit} id='login-form'>
+        <div id='login-container'>
+            <h2 id='login-h2'>Login</h2>
+            {(localError || error) && (
+                <div style={{ 
+                    color: '#ff6b6b', 
+                    marginBottom: '15px', 
+                    padding: '12px', 
+                    border: '1px solid rgba(255, 107, 107, 0.3)', 
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    width: '100%',
+                    textAlign: 'center',
+                    fontSize: '0.95rem'
+                }}>
+                    {localError || error}
+                </div>
+            )}
+            <form onSubmit={handleSubmit} id='login-form'>
+                <input
+                    type="email"
+                    placeholder='Email'
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    disabled={isLoading}
+                    required
+                />
+                <div id='password-container'>
                     <input
-                        type="email"
-                        placeholder='Email'
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        id='password-input'
+                        type={showPassword ? "text" : "password"}
+                        placeholder='Contraseña'
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
                         disabled={isLoading}
                         required
                     />
-                    <div id='password-container'>
-                        <input
-                            id='password-input'
-                            type={showPassword ? "text" : "password"}
-                            placeholder='Contraseña'
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            disabled={isLoading}
-                            required
-                        />
-                        <span id='toggle-password'
-                            onClick={() => setShowPassword(!showPassword)}
-                            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                            style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
-                        >
-                            {showPassword ? '🙈' : '👁️'}
-                        </span>
-                    </div>
-                    <button type="submit" disabled={isLoading}>
-                        {isLoading ? 'Ingresando...' : 'Ingresar'}
-                    </button>
-                </form>
-                <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                    <Link 
-                        to="/forgot-password" 
-                        style={{ 
-                            color: '#ffc107', 
-                            textDecoration: 'none', 
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            transition: 'color 0.3s ease'
-                        }}
+                    <span id='toggle-password'
+                        onClick={() => setShowPassword(!showPassword)}
+                        title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
                     >
-                        ¿Olvidaste tu contraseña?
-                    </Link>
+                        {showPassword ? '🙈' : '👁️'}
+                    </span>
                 </div>
+                <button type="submit" disabled={isLoading}>
+                    {isLoading ? 'Ingresando...' : 'Ingresar'}
+                </button>
+            </form>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                <Link 
+                    to="/forgot-password" 
+                    style={{ 
+                        color: '#ffc107', 
+                        textDecoration: 'none', 
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        transition: 'color 0.3s ease'
+                    }}
+                >
+                    ¿Olvidaste tu contraseña?
+                </Link>
             </div>
+            
         </div>
     );
 };

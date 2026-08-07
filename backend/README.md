@@ -53,7 +53,7 @@ Luego edita el archivo `.env` con tus valores reales:
 
 ```env
 # Base de datos MongoDB
-MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/CRUD-COM12?retryWrites=true&w=majority
+MONGODB_URI=mongodb://localhost:27017/CRUD-COM12
 
 # Configuración de Email (Nodemailer con Gmail)
 EMAIL_USER=tu.email@gmail.com
@@ -224,7 +224,6 @@ npm run dev        # Iniciar servidor en desarrollo (con nodemon)
 - Los tokens JWT tienen una expiración de 24 horas
 - Los tokens de recuperación de contraseña expiran en 1 hora
 - El stock de productos se actualiza automáticamente al crear una venta
-- El servidor exige `MONGODB_URI`; si falta, no usa localhost por defecto
 
 ## 🤝 Contribuir
 

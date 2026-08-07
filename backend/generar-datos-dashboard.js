@@ -2,11 +2,7 @@
 import mongoose from 'mongoose';
 import 'dotenv/config';
 
-const DB_URI = process.env.MONGODB_URI;
-
-if (!DB_URI) {
-  throw new Error('Falta MONGODB_URI. Configura backend/.env con la URI de MongoDB Atlas (restobar_db).');
-}
+const DB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restobar_db';
 
 const Pedido = mongoose.model('Pedido', new mongoose.Schema({}, { strict: false }));
 const Producto = mongoose.model('Producto', new mongoose.Schema({}, { strict: false }));

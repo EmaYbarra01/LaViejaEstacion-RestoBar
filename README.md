@@ -184,7 +184,7 @@ Crear archivo `.env` en la carpeta `backend`:
 
 ```env
 # Base de datos MongoDB
-MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/laviejaestacion?retryWrites=true&w=majority
+MONGODB_URI=mongodb://localhost:27017/laviejaestacion
 
 # Puerto del servidor
 PORT=4000
@@ -219,8 +219,6 @@ VITE_API_URL=http://localhost:4000/api
 cd backend
 npm run init-db
 ```
-
-Si usas MongoDB Atlas, confirmá que `MONGODB_URI` tenga la URI correcta antes de iniciar el backend. El proyecto ya no cae automáticamente a una base local cuando falta esa variable.
 
 ### 6. Poblar con Datos de Ejemplo (Opcional)
 

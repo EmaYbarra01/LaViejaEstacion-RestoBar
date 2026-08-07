@@ -81,7 +81,6 @@ const Mozo = () => {
     const handleNuevoPedido = () => {
       console.log('🔄 Nuevo pedido creado, recargando lista...');
       cargarPedidosAbiertos();
-      cargarMesas();
       setNotification({
         message: 'Nuevo pedido creado',
         type: 'success'
@@ -187,7 +186,6 @@ const Mozo = () => {
   const handleCerrarCrearPedido = () => {
     setMostrarCrearPedido(false);
     cargarPedidosAbiertos();
-    cargarMesas();
   };
 
   const obtenerColorEstado = (estado) => {
@@ -257,32 +255,6 @@ const Mozo = () => {
       sum + pedido.productos.reduce((pSum, item) => pSum + item.cantidad, 0), 0);
   };
 
-  const normalizarCategoria = (categoria = '') => {
-    const texto = categoria.toString().trim().toLowerCase();
-
-    if (texto.includes('beb')) return 'Bebidas';
-    if (texto.includes('post') || texto.includes('helad') || texto.includes('dulc')) return 'Postres';
-    if (texto.includes('entrada') || texto.includes('picada') || texto.includes('snack')) return 'Entradas';
-    if (texto.includes('comida') || texto.includes('plato') || texto.includes('hamburg') || texto.includes('pizza') || texto.includes('empanad') || texto.includes('sandwich') || texto.includes('sándwich')) return 'Comidas';
-
-    return categoria || 'Otros';
-  };
-
-  const menuAgrupado = productos
-    .filter((producto) => producto.disponible !== false)
-    .reduce((grupos, producto) => {
-      const categoria = normalizarCategoria(producto.categoria);
-
-      if (!grupos[categoria]) {
-        grupos[categoria] = [];
-      }
-
-      grupos[categoria].push(producto);
-      return grupos;
-    }, {});
-
-  const ordenMenu = ['Comidas', 'Bebidas', 'Postres', 'Entradas', 'Otros'];
-
   return (
     <div className="mozo-container">
       {/* Header */}
@@ -325,14 +297,14 @@ const Mozo = () => {
           <span>Pedidos</span>
         </button>
         <button 
-          className={`tab-button menu-tab ${vistaActiva === 'menu' ? 'active' : ''}`}
+          className={`tab-button ${vistaActiva === 'menu' ? 'active' : ''}`}
           onClick={() => setVistaActiva('menu')}
         >
           <span>📖</span>
           <span>Menú</span>
         </button>
         <button 
-          className={`tab-button cuenta-tab ${vistaActiva === 'cuenta' ? 'active' : ''}`}
+          className={`tab-button ${vistaActiva === 'cuenta' ? 'active' : ''}`}
           onClick={() => setVistaActiva('cuenta')}
         >
           <span>💰</span>
@@ -345,21 +317,22 @@ const Mozo = () => {
         <>
           {/* Barra de búsqueda y filtros */}
           <div className="mozo-toolbar">
-            <div className="search-container">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Buscar por mesa, pedido o mozo..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-              />
-              {!isGerente && (
-                <button className="btn-realizar-pedido" onClick={handleCrearPedido}>
-                  Realizar un pedido
-                </button>
-              )}
-            </div>
-          </div>
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Buscar por mesa, pedido o mozo..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+          <button className="btn-search">
+            🔍
+          </button>
+          <button className="btn-qr">
+            📷
+          </button>
+        </div>
+      </div>
 
       {/* Filtros de estado */}
       <div className="filtros-container">
@@ -427,6 +400,9 @@ const Mozo = () => {
                     </>
                   )}
                 </div>
+                <button className="btn-opciones" onClick={(e) => e.stopPropagation()}>
+                  ⋮
+                </button>
               </div>
 
               {/* Contenido principal */}
@@ -453,6 +429,9 @@ const Mozo = () => {
               <div className={`card-footer ${obtenerColorEstado(pedido.estado)}`}>
                 <span className="estado-icono">{obtenerIconoEstado(pedido.estado)}</span>
                 <span className="estado-texto">{pedido.estado}</span>
+                <button className="btn-opciones-footer" onClick={(e) => e.stopPropagation()}>
+                  ⋮
+                </button>
               </div>
             </div>
           ))
@@ -471,53 +450,36 @@ const Mozo = () => {
       {/* Vista de Menú */}
       {vistaActiva === 'menu' && (
         <div className="menu-view">
-          <div className="menu-hero">
-            <div>
-              <span className="menu-kicker">Selección para mozo</span>
-              <h2>Menú del Restaurante</h2>
-              <p>Explorá el catálogo por secciones para cargar pedidos más rápido.</p>
-            </div>
-            <div className="menu-hero-badge">
-              {productos.filter((producto) => producto.disponible !== false).length} productos activos
-            </div>
+          <div className="menu-header">
+            <h2>Menú del Restaurante</h2>
+            <p>Productos disponibles</p>
           </div>
           
-          <div className="menu-sections">
-            {productos.filter((producto) => producto.disponible !== false).length === 0 ? (
+          <div className="productos-lista-view">
+            {productos.length === 0 ? (
               <div className="no-productos">
                 <p>No hay productos disponibles</p>
               </div>
             ) : (
-              ordenMenu
-                .filter((categoria) => (menuAgrupado[categoria] || []).length > 0)
-                .map((categoria) => (
-                  <section key={categoria} className="menu-section">
-                    <div className="menu-section-header">
-                      <h3>{categoria}</h3>
-                      <span>{menuAgrupado[categoria].length} items</span>
+              productos
+                .filter(p => p.disponible !== false)
+                .map((producto) => (
+                  <div key={producto._id} className="producto-item-view">
+                    {producto.foto && (
+                      <img src={producto.foto} alt={producto.nombre} className="producto-imagen-small" />
+                    )}
+                    <div className="producto-info-view">
+                      <h4>{producto.nombre}</h4>
+                      <p className="producto-descripcion-small">{producto.descripcion}</p>
+                      <div className="producto-meta">
+                        <span className="producto-categoria">{producto.categoria}</span>
+                        <span className="producto-stock">Stock: {producto.stock}</span>
+                      </div>
                     </div>
-
-                    <div className="productos-lista-view">
-                      {menuAgrupado[categoria].map((producto) => (
-                        <div key={producto._id} className="producto-item-view">
-                          {producto.foto && (
-                            <img src={producto.foto} alt={producto.nombre} className="producto-imagen-small" />
-                          )}
-                          <div className="producto-info-view">
-                            <h4>{producto.nombre}</h4>
-                            <p className="producto-descripcion-small">{producto.descripcion}</p>
-                            <div className="producto-meta">
-                              <span className="producto-categoria">{normalizarCategoria(producto.categoria)}</span>
-                              <span className="producto-stock">Stock: {producto.stock}</span>
-                            </div>
-                          </div>
-                          <div className="producto-precio-view">
-                            ${producto.precio.toFixed(2)}
-                          </div>
-                        </div>
-                      ))}
+                    <div className="producto-precio-view">
+                      ${producto.precio.toFixed(2)}
                     </div>
-                  </section>
+                  </div>
                 ))
             )}
           </div>
@@ -537,7 +499,7 @@ const Mozo = () => {
               <div className="resumen-icon">📋</div>
               <div className="resumen-info">
                 <span className="resumen-label">Total Pedidos</span>
-                <span className="resumen-valor cuenta-card-numero">{pedidos.length}</span>
+                <span className="resumen-valor">{pedidos.length}</span>
               </div>
             </div>
 
@@ -545,7 +507,7 @@ const Mozo = () => {
               <div className="resumen-icon">🍽️</div>
               <div className="resumen-info">
                 <span className="resumen-label">Productos</span>
-                <span className="resumen-valor cuenta-card-productos">{calcularCantidadProductos()}</span>
+                <span className="resumen-valor">{calcularCantidadProductos()}</span>
               </div>
             </div>
 
@@ -553,7 +515,7 @@ const Mozo = () => {
               <div className="resumen-icon">💰</div>
               <div className="resumen-info">
                 <span className="resumen-label">Total General</span>
-                <span className="resumen-valor cuenta-card-total">${calcularTotalPedidos().toFixed(2)}</span>
+                <span className="resumen-valor">${calcularTotalPedidos().toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -598,7 +560,6 @@ const Mozo = () => {
       {pedidoSeleccionado && (
         <PedidoDetalle
           pedido={pedidoSeleccionado}
-          productos={productos}
           onClose={handleCerrarDetalle}
           isReadOnly={isGerente}
         />

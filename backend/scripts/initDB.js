@@ -21,11 +21,7 @@ import Compra from '../src/models/compraSchema.js';
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-    throw new Error('Falta MONGODB_URI en el entorno. Configura backend/.env con la URI de MongoDB Atlas.');
-}
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restobar_db';
 
 // Datos de prueba - USUARIOS MADRE del sistema
 const usuariosData = [

@@ -62,7 +62,7 @@ const reservaSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'El número de comensales es obligatorio'],
     min: [1, 'Debe haber al menos 1 comensal'],
-    max: [15, 'El máximo es 15 comensales']
+    max: [20, 'El máximo es 20 comensales']
   },
   
   // Referencia a la mesa

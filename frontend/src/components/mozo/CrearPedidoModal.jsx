@@ -127,31 +127,6 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
     );
   };
 
-  const handleEditarObservacion = async (productoId) => {
-    const item = productosSeleccionados.find((producto) => producto._id === productoId);
-
-    if (!item) return;
-
-    const { value: observacionNueva } = await Swal.fire({
-      title: 'Editar pedido',
-      text: `Agregar observación para ${item.nombre}`,
-      input: 'textarea',
-      inputValue: item.observaciones || '',
-      inputPlaceholder: 'Ej: sin cebolla, bien cocido, salsa aparte...',
-      showCancelButton: true,
-      confirmButtonText: 'Guardar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#1f4aa8',
-      inputAttributes: {
-        rows: 4
-      }
-    });
-
-    if (observacionNueva === undefined) return;
-
-    handleAgregarObservacion(productoId, observacionNueva.trim());
-  };
-
   // Función para construir la URL completa de la imagen
   const getImageUrl = (imagenUrl) => {
     if (!imagenUrl) return null;
@@ -418,13 +393,6 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
                             ${(item.precio * item.cantidad).toFixed(2)}
                           </span>
                         </div>
-
-                        {item.observaciones && (
-                          <div className="item-observacion">
-                            <span>Observación:</span>
-                            <p>{item.observaciones}</p>
-                          </div>
-                        )}
                         
                         <div className="item-controles">
                           <button
@@ -439,13 +407,6 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
                             onClick={() => handleCambiarCantidad(item._id, item.cantidad + 1)}
                           >
                             +
-                          </button>
-                          <button
-                            className="btn-editar-mini"
-                            onClick={() => handleEditarObservacion(item._id)}
-                            title="Editar pedido"
-                          >
-                            ✏️
                           </button>
                           <button
                             className="btn-eliminar-mini"

@@ -12,7 +12,6 @@ export default function Header() {
   const { user, isAuthenticated, logout } = useUserStore();
 
   useEffect(() => {
-    // Actualizar reloj cada segundo para mostrar AM/PM
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
@@ -30,7 +29,7 @@ export default function Header() {
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
 
   const handleLogout = async () => {

@@ -41,7 +41,7 @@ const imagenesDisponibles = {
 async function actualizarImagenes() {
     try {
         console.log('🔌 Conectando a MongoDB...');
-        const mongoUri = process.env.MONGODB_URI;
+        const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
         if (!mongoUri) {
             throw new Error('MONGODB_URI no está definido en las variables de entorno');
         }
