@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import Swal from 'sweetalert2';
 import useUserStore from '../store/useUserStore';
+import { formatCurrency } from '../utils/currencyFormatter';
 import "./AdminPage.css";
 
 const Products = () => {
@@ -339,10 +340,10 @@ const Products = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <strong style={{ color: '#2e7d32' }}>${product.price}</strong>
+                    <strong style={{ color: '#2e7d32' }}>${formatCurrency(product.price)}</strong>
                   </TableCell>
                   <TableCell>
-                    ${product.cost || 0}
+                    ${formatCurrency(product.cost || 0)}
                     {product.cost && product.price && (
                       <div style={{ fontSize: '0.8em', color: '#1976d2' }}>
                         Margen: {(((product.price - product.cost) / product.cost) * 100).toFixed(0)}%

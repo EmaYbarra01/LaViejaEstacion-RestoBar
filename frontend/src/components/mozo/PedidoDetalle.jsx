@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { formatCurrency } from '../../utils/currencyFormatter';
 import './PedidoDetalle.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -68,8 +69,8 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       html: `
         <div style="text-align:left;line-height:1.6">
           <p>¿Estás seguro de eliminar este producto del pedido?</p>
-          <p><strong>Total actual:</strong> $${pedidoActual.total?.toFixed(2) || '0.00'}</p>
-          <p><strong>Monto del item:</strong> $${itemSeleccionado ? (itemSeleccionado.precioUnitario * itemSeleccionado.cantidad).toFixed(2) : '0.00'}</p>
+          <p><strong>Total actual:</strong> ${formatCurrency(pedidoActual.total) || '0,00'}</p>
+          <p><strong>Monto del item:</strong> ${formatCurrency(itemSeleccionado ? itemSeleccionado.precioUnitario * itemSeleccionado.cantidad : 0)}</p>
         </div>
       `,
       icon: 'warning',
@@ -273,7 +274,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
     
     const result = await Swal.fire({
       title: '¿Procesar pago?',
-      text: `Total a cobrar: $${pedidoActual.total?.toFixed(2) || '0.00'}`,
+      text: `Total a cobrar: ${formatCurrency(pedidoActual.total) || '0,00'}`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, procesar',
@@ -338,7 +339,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
     }
 
     const opciones = productosDisponibles
-      .map((producto) => `<option value="${producto._id}">${producto.nombre} - $${Number(producto.precio || 0).toFixed(2)}</option>`)
+      .map((producto) => `<option value="${producto._id}">${producto.nombre} - ${formatCurrency(Number(producto.precio || 0))}</option>`)
       .join('');
 
     const { value } = await Swal.fire({
@@ -466,7 +467,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
         <div className="resumen-financiero">
           <div className="resumen-item total">
             <span className="label">Total</span>
-            <span className="valor">${pedidoActual.total?.toFixed(2) || '0.00'}</span>
+             <span className="valor">${formatCurrency(pedidoActual.total) || '0,00'}</span>
             <button className="btn-info">?</button>
           </div>
           
@@ -474,11 +475,11 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
             <>
               <div className="resumen-item">
                 <span className="label">Cargo por servicio</span>
-                <span className="valor">${pedidoActual.descuento.monto.toFixed(2)}</span>
+                <span className="valor">${formatCurrency(pedidoActual.descuento.monto)}</span>
               </div>
               <div className="resumen-item">
                 <span className="label">{pedidoActual.descuento.motivo || 'Descuento'}</span>
-                <span className="valor">${pedidoActual.descuento.monto.toFixed(2)}</span>
+                <span className="valor">${formatCurrency(pedidoActual.descuento.monto)}</span>
               </div>
             </>
           )}
@@ -491,7 +492,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
               <div className="producto-header">
                 <h3 className="producto-nombre">{item.nombre}</h3>
                 <span className="producto-precio">
-                  ${(item.precioUnitario * item.cantidad).toFixed(2)}
+                  ${formatCurrency(item.precioUnitario * item.cantidad)}
                 </span>
               </div>
 

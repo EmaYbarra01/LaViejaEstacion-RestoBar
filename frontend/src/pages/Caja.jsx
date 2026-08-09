@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import useSocket from '../hooks/useSocket';
 import SocketNotification from '../components/SocketNotification';
 import CierreCajaModal from '../components/caja/CierreCajaModal';
+import { formatCurrency } from '../utils/currencyFormatter';
 import './Caja.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -94,7 +95,7 @@ const Caja = () => {
     setMetodoPago('Efectivo');
     // Calcular total con descuento si es efectivo
     const totalConDescuento = pedido.subtotal * 0.9;
-    setMontoPagado(totalConDescuento.toFixed(2));
+    setMontoPagado(formatCurrency(totalConDescuento));
     setError(null);
   };
 
@@ -126,7 +127,7 @@ const Caja = () => {
       const total = metodo === 'Efectivo' 
         ? pedidoSeleccionado.subtotal * 0.9 
         : pedidoSeleccionado.subtotal;
-      setMontoPagado(total.toFixed(2));
+      setMontoPagado(formatCurrency(total));
     }
   };
 
@@ -145,7 +146,7 @@ const Caja = () => {
     }
 
     if (montoPagadoNum < total) {
-      setError(`Monto insuficiente. Total a pagar: $${total.toFixed(2)}`);
+      setError(`Monto insuficiente. Total a pagar: $${formatCurrency(total)}`);
       return;
     }
 
@@ -261,8 +262,8 @@ const Caja = () => {
                           <small className="ticket-obs">({prod.observaciones})</small>
                         )}
                       </td>
-                      <td>${prod.precioUnitario.toFixed(2)}</td>
-                      <td>${prod.subtotal.toFixed(2)}</td>
+                       <td>${formatCurrency(prod.precioUnitario)}</td>
+                       <td>${formatCurrency(prod.subtotal)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -274,19 +275,19 @@ const Caja = () => {
             <div className="ticket-totales">
               <div className="ticket-linea">
                 <span>Subtotal:</span>
-                <span>${ticketData.subtotal.toFixed(2)}</span>
+                 <span>${formatCurrency(ticketData.subtotal)}</span>
               </div>
               
               {ticketData.descuento.monto > 0 && (
                 <div className="ticket-linea descuento">
                   <span>Descuento ({ticketData.descuento.porcentaje}%):</span>
-                  <span>-${ticketData.descuento.monto.toFixed(2)}</span>
+                   <span>-${formatCurrency(ticketData.descuento.monto)}</span>
                 </div>
               )}
               
               <div className="ticket-linea total">
                 <span><strong>TOTAL:</strong></span>
-                <span><strong>${ticketData.total.toFixed(2)}</strong></span>
+                 <span><strong>${formatCurrency(ticketData.total)}</strong></span>
               </div>
 
               <div className="ticket-divider"></div>
@@ -298,13 +299,13 @@ const Caja = () => {
               
               <div className="ticket-linea">
                 <span>Pagado:</span>
-                <span>${ticketData.montoPagado.toFixed(2)}</span>
+                 <span>${formatCurrency(ticketData.montoPagado)}</span>
               </div>
               
               {ticketData.cambio > 0 && (
                 <div className="ticket-linea cambio">
                   <span><strong>Cambio:</strong></span>
-                  <span><strong>${ticketData.cambio.toFixed(2)}</strong></span>
+                   <span><strong>${formatCurrency(ticketData.cambio)}</strong></span>
                 </div>
               )}
             </div>
@@ -349,7 +350,7 @@ const Caja = () => {
             <div className="stat-item">
               <span className="stat-label">Total</span>
               <span className="stat-value">
-                ${pedidosPendientes.reduce((sum, p) => sum + p.subtotal, 0).toFixed(2)}
+                ${formatCurrency(pedidosPendientes.reduce((sum, p) => sum + p.subtotal, 0))}
               </span>
             </div>
           </div>
@@ -424,7 +425,7 @@ const Caja = () => {
                         minute: '2-digit'
                       })}
                     </span>
-                    <span className="pedido-total">${pedido.subtotal.toFixed(2)}</span>
+                     <span className="pedido-total">${formatCurrency(pedido.subtotal)}</span>
                   </div>
                 </div>
               ))}
@@ -495,8 +496,8 @@ const Caja = () => {
                               <small className="observacion">({prod.observaciones})</small>
                             )}
                           </td>
-                          <td>${prod.precioUnitario.toFixed(2)}</td>
-                          <td>${prod.subtotal.toFixed(2)}</td>
+                           <td>${formatCurrency(prod.precioUnitario)}</td>
+                           <td>${formatCurrency(prod.subtotal)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -506,19 +507,19 @@ const Caja = () => {
                 <div className="detalle-totales">
                   <div className="total-linea">
                     <span>Subtotal:</span>
-                    <span>${pedidoSeleccionado.subtotal.toFixed(2)}</span>
+                     <span>${formatCurrency(pedidoSeleccionado.subtotal)}</span>
                   </div>
                   
                   {metodoPago === 'Efectivo' && (
                     <div className="total-linea descuento">
                       <span>Descuento 10% (Efectivo):</span>
-                      <span>-${calcularDescuento().toFixed(2)}</span>
+                       <span>-${formatCurrency(calcularDescuento())}</span>
                     </div>
                   )}
                   
                   <div className="total-linea total">
                     <strong>TOTAL A PAGAR:</strong>
-                    <strong>${calcularTotal().toFixed(2)}</strong>
+                     <strong>${formatCurrency(calcularTotal())}</strong>
                   </div>
                 </div>
 
@@ -556,7 +557,7 @@ const Caja = () => {
                   {parseFloat(montoPagado) > calcularTotal() && (
                     <div className="cambio-info">
                       <span>Cambio:</span>
-                      <strong>${calcularCambio().toFixed(2)}</strong>
+                       <strong>${formatCurrency(calcularCambio())}</strong>
                     </div>
                   )}
                 </div>

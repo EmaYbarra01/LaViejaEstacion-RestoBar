@@ -7,6 +7,7 @@ import CrearPedidoModal from '../components/mozo/CrearPedidoModal';
 import SocketNotification from '../components/SocketNotification';
 import useUserStore from '../store/useUserStore';
 import useSocket from '../hooks/useSocket';
+import { formatCurrency } from '../utils/currencyFormatter';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -436,7 +437,7 @@ const Mozo = () => {
                 </h3>
                 
                 <div className="card-precio">
-                  ${pedido.total?.toFixed(2) || '0.00'}
+                  ${formatCurrency(pedido.total)}
                 </div>
                 
                 <div className="card-fecha">
@@ -512,7 +513,7 @@ const Mozo = () => {
                             </div>
                           </div>
                           <div className="producto-precio-view">
-                            ${producto.precio.toFixed(2)}
+                             ${formatCurrency(producto.precio)}
                           </div>
                         </div>
                       ))}
@@ -553,7 +554,7 @@ const Mozo = () => {
               <div className="resumen-icon">💰</div>
               <div className="resumen-info">
                 <span className="resumen-label">Total General</span>
-                <span className="resumen-valor cuenta-card-total">${calcularTotalPedidos().toFixed(2)}</span>
+                <span className="resumen-valor cuenta-card-total">${formatCurrency(calcularTotalPedidos())}</span>
               </div>
             </div>
           </div>
@@ -579,13 +580,13 @@ const Mozo = () => {
                     {pedido.productos.map((item, idx) => (
                       <div key={idx} className="cuenta-producto-linea">
                         <span>{item.cantidad}x {item.nombre}</span>
-                        <span>${(item.cantidad * item.precioUnitario).toFixed(2)}</span>
+                        <span>${formatCurrency(item.cantidad * item.precioUnitario)}</span>
                       </div>
                     ))}
                   </div>
                   <div className="cuenta-pedido-total">
                     <span>Total:</span>
-                    <span className="cuenta-total-valor">${pedido.total?.toFixed(2) || '0.00'}</span>
+                    <span className="cuenta-total-valor">${formatCurrency(pedido.total) || '0,00'}</span>
                   </div>
                 </div>
               ))
