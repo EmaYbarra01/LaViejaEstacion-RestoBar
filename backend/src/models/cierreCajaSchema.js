@@ -111,7 +111,7 @@ const cierreCajaSchema = new Schema({
             required: true
         },
         numeroPedido: {
-            type: Number,
+            type: String,
             required: true
         },
         mesa: {
@@ -354,15 +354,11 @@ cierreCajaSchema.pre('save', function(next) {
     // Calcular diferencia
     this.diferencia = this.efectivoContado - this.efectivoEnCaja;
 
-    // Calcular total del desglose de billetes
-    const totalDesglose = 
-        this.desgloseBilletes.mil.total +
-        this.desgloseBilletes.doscientos.total +
-        this.desgloseBilletes.cien.total +
-        this.desgloseBilletes.cincuenta.total +
-        this.desgloseBilletes.veinte.total +
-        this.desgloseBilletes.diez.total +
-        this.desgloseBilletes.monedas.total;
+    // Calcular total del desglose de billetes de forma segura (soporta desglose parcial)
+    const totalDesglose = Object.values(this.desgloseBilletes || {}).reduce(
+        (sum, item) => sum + (item?.total || 0),
+        0
+    );
 
     // Si hay desglose, usar ese valor como efectivo contado
     if (totalDesglose > 0 && this.efectivoContado === 0) {

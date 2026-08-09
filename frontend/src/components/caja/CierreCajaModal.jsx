@@ -6,12 +6,29 @@ import './CierreCajaModal.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
+const fireCierreSwal = (options) => {
+  return Swal.fire({
+    target: document.body,
+    customClass: {
+      container: 'swal2-container-cierre-caja',
+      ...options.customClass
+    },
+    ...options
+  });
+};
+
+const formatDateTimeLocal = (date) => {
+  const offset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().slice(0, 16);
+};
+
 const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
   const [turno, setTurno] = useState('Completo');
   const [horaInicio, setHoraInicio] = useState('');
   const [horaFin, setHoraFin] = useState('');
-  const [montoInicial, setMontoInicial] = useState(0);
-  const [efectivoContado, setEfectivoContado] = useState(0);
+  const [montoInicial, setMontoInicial] = useState('');
+  const [efectivoContado, setEfectivoContado] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [pedidosPendientes, setPedidosPendientes] = useState([]);
   const [pedidosSeleccionados, setPedidosSeleccionados] = useState([]);
@@ -23,10 +40,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
     mil: { cantidad: 0, total: 0 },
     doscientos: { cantidad: 0, total: 0 },
     cien: { cantidad: 0, total: 0 },
-    cincuenta: { cantidad: 0, total: 0 },
-    veinte: { cantidad: 0, total: 0 },
-    diez: { cantidad: 0, total: 0 },
-    monedas: { cantidad: 0, total: 0 }
+    cincuenta: { cantidad: 0, total: 0 }
   });
 
   useEffect(() => {
@@ -36,8 +50,10 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       const inicio = new Date();
       inicio.setHours(0, 0, 0, 0); // Inicio del día
       
-      setHoraInicio(inicio.toISOString().slice(0, 16));
-      setHoraFin(ahora.toISOString().slice(0, 16));
+      setHoraInicio(formatDateTimeLocal(inicio));
+      setHoraFin(formatDateTimeLocal(ahora));
+      setMontoInicial('');
+      setEfectivoContado('');
       
       cargarPedidosPendientes();
     }
@@ -56,7 +72,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       setPedidosSeleccionados(response.data.map(p => p._id));
     } catch (error) {
       console.error('Error al cargar pedidos pendientes:', error);
-      Swal.fire({
+      fireCierreSwal({
         icon: 'error',
         title: 'Error',
         text: 'No se pudieron cargar los pedidos pendientes'
@@ -67,16 +83,16 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
   };
 
   const handleDesgloseChange = (denominacion, cantidad) => {
-    const cantidadNum = parseInt(cantidad) || 0;
+    const soloDigitos = cantidad.replace(/\D/g, '');
+    const valorIngresado = soloDigitos === '' ? '' : soloDigitos.replace(/^0+(?=\d)/, '');
+    const cantidadNum = valorIngresado === '' ? 0 : parseInt(valorIngresado, 10) || 0;
     let valor = 0;
     
     switch(denominacion) {
       case 'mil': valor = 1000; break;
-      case 'doscientos': valor = 200; break;
-      case 'cien': valor = 100; break;
-      case 'cincuenta': valor = 50; break;
-      case 'veinte': valor = 20; break;
-      case 'diez': valor = 10; break;
+      case 'doscientos': valor = 2000; break;
+      case 'cien': valor = 10000; break;
+      case 'cincuenta': valor = 20000; break;
       default: valor = 0;
     }
     
@@ -98,7 +114,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
   useEffect(() => {
     const totalDesglose = calcularTotalDesglose();
     if (totalDesglose > 0) {
-      setEfectivoContado(totalDesglose);
+      setEfectivoContado(totalDesglose.toString());
     }
   }, [desglose]);
 
@@ -138,8 +154,10 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       .filter(p => p.metodoPago === 'Transferencia')
       .reduce((sum, p) => sum + p.total, 0);
     
-    const efectivoEsperado = parseFloat(montoInicial) + ventasEfectivo;
-    const diferencia = parseFloat(efectivoContado) - efectivoEsperado;
+    const montoInicialNum = parseFloat(montoInicial) || 0;
+    const efectivoContadoNum = parseFloat(efectivoContado) || 0;
+    const efectivoEsperado = montoInicialNum + ventasEfectivo;
+    const diferencia = efectivoContadoNum - efectivoEsperado;
     
     return {
       cantidadPedidos: pedidosIncluidos.length,
@@ -156,7 +174,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
     e.preventDefault();
     
     if (!horaInicio || !horaFin) {
-      Swal.fire({
+      fireCierreSwal({
         icon: 'warning',
         title: 'Campos requeridos',
         text: 'Debe especificar hora de inicio y fin del turno'
@@ -165,7 +183,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
     }
     
     if (pedidosSeleccionados.length === 0) {
-      const confirmacion = await Swal.fire({
+      const confirmacion = await fireCierreSwal({
         icon: 'question',
         title: '¿Continuar sin pedidos?',
         text: 'No ha seleccionado ningún pedido para incluir en el cierre',
@@ -199,7 +217,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      Swal.fire({
+      fireCierreSwal({
         icon: 'success',
         title: '¡Cierre creado!',
         text: `Cierre #${response.data.cierre.numeroCierre} registrado exitosamente`,
@@ -216,10 +234,12 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       onClose();
     } catch (error) {
       console.error('Error al crear cierre:', error);
-      Swal.fire({
+      const mensaje = error.response?.data?.mensaje || 'No se pudo crear el cierre de caja';
+      const detalle = error.response?.data?.detalle;
+      fireCierreSwal({
         icon: 'error',
         title: 'Error',
-        text: error.response?.data?.mensaje || 'No se pudo crear el cierre de caja'
+        text: detalle ? `${mensaje}: ${detalle}` : mensaje
       });
     } finally {
       setLoading(false);
@@ -265,7 +285,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       </div>
     `;
     
-    Swal.fire({
+    fireCierreSwal({
       title: 'Comprobante de Cierre',
       html: html,
       width: 600,
@@ -353,18 +373,17 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
 
   const resetForm = () => {
     setTurno('Completo');
-    setMontoInicial(0);
-    setEfectivoContado(0);
+    setHoraInicio('');
+    setHoraFin('');
+    setMontoInicial('');
+    setEfectivoContado('');
     setObservaciones('');
     setPedidosSeleccionados([]);
     setDesglose({
       mil: { cantidad: 0, total: 0 },
       doscientos: { cantidad: 0, total: 0 },
       cien: { cantidad: 0, total: 0 },
-      cincuenta: { cantidad: 0, total: 0 },
-      veinte: { cantidad: 0, total: 0 },
-      diez: { cantidad: 0, total: 0 },
-      monedas: { cantidad: 0, total: 0 }
+      cincuenta: { cantidad: 0, total: 0 }
     });
   };
 
@@ -401,6 +420,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                   <label>Hora Inicio:</label>
                   <input
                     type="datetime-local"
+                    className="cierre-caja-input-time"
                     value={horaInicio}
                     onChange={(e) => setHoraInicio(e.target.value)}
                     required
@@ -411,6 +431,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                   <label>Hora Fin:</label>
                   <input
                     type="datetime-local"
+                    className="cierre-caja-input-time"
                     value={horaFin}
                     onChange={(e) => setHoraFin(e.target.value)}
                     required
@@ -420,8 +441,8 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                 <div className="form-group">
                   <label>Monto Inicial en Caja:</label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
                     value={montoInicial}
                     onChange={(e) => setMontoInicial(e.target.value)}
                     placeholder="0.00"
@@ -434,19 +455,17 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                 <div className="desglose-grid">
                   {[
                     { key: 'mil', label: '$1000' },
-                    { key: 'doscientos', label: '$200' },
-                    { key: 'cien', label: '$100' },
-                    { key: 'cincuenta', label: '$50' },
-                    { key: 'veinte', label: '$20' },
-                    { key: 'diez', label: '$10' },
-                    { key: 'monedas', label: 'Monedas' }
+                    { key: 'doscientos', label: '$2000' },
+                    { key: 'cien', label: '$10000' },
+                    { key: 'cincuenta', label: '$20000' }
                   ].map(({ key, label }) => (
                     <div key={key} className="desglose-item">
                       <label>{label}:</label>
                       <input
-                        type="number"
-                        min="0"
-                        value={desglose[key].cantidad}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={desglose[key].cantidad === 0 ? '' : desglose[key].cantidad}
                         onChange={(e) => handleDesgloseChange(key, e.target.value)}
                         placeholder="0"
                       />
@@ -457,7 +476,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                 
                 <div className="total-desglose">
                   <strong>Total Contado:</strong>
-                  <span>${formatCurrency(calcularTotalDesglose())}</span>
+                  <span>${calcularTotalDesglose().toFixed(2)} pesos</span>
                 </div>
               </div>
 

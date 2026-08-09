@@ -419,6 +419,21 @@
   color: #1e40af;
 }
 
+.badge-pendiente {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.badge-entregado {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-cobrado {
+  background: #d1fae5;
+  color: #047857;
+}
+
 /* Productos tabla */
 .detalle-productos {
   margin-bottom: 1.5rem;
@@ -610,6 +625,88 @@
   cursor: not-allowed;
 }
 
+/* Historial de mesas en caja */
+.historial-caja {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2rem 1.5rem;
+}
+
+.historial-caja-header {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px 12px 0 0;
+  padding: 1rem 1.25rem;
+}
+
+.historial-caja-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #111827;
+}
+
+.historial-caja-header p {
+  margin: 0.35rem 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.historial-lista {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+
+.historial-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.historial-item:first-child {
+  border-top: none;
+}
+
+.historial-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.historial-item-main strong {
+  color: #111827;
+}
+
+.historial-item-main span {
+  font-size: 0.92rem;
+  color: #4b5563;
+}
+
+.historial-item-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.historial-item-side small {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.historial-empty {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 1.25rem;
+  color: #6b7280;
+}
+
 /* Ticket */
 .ticket-container {
   min-height: 100vh;
@@ -779,5 +876,21 @@
   .ticket-wrapper {
     box-shadow: none;
     max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .historial-caja {
+    padding: 0 1rem 1rem;
+  }
+
+  .historial-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .historial-item-side {
+    align-items: flex-start;
   }
 }
