@@ -113,27 +113,63 @@ export const crearCierreCaja = async (req, res) => {
         .populate('mozo', 'nombre apellido');
     }
     
+    if (!pedidosCobrados || pedidosCobrados.length === 0) {
+      return res.status(400).json({
+        mensaje: 'No se encontraron pedidos cobrados válidos para incluir en el cierre'
+      });
+    }
+
     // Procesar pedidos para el cierre
-    const pedidosParaCierre = pedidosCobrados.map(p => ({
-      pedidoId: p._id,
-      numeroPedido: p.numeroPedido,
-      mesa: p.mesa?.numero || p.numeroMesa || 'N/A',
-      mozo: p.mozo ? `${p.mozo.nombre} ${p.mozo.apellido}` : p.nombreMozo || 'N/A',
-      metodoPago: p.metodoPago,
-      monto: p.total,
-      descuento: p.descuento?.monto || 0,
-      horaPago: p.pago?.fecha || p.fechaCobrado || new Date()
-    }));
-    
-    // Calcular totales por método de pago
-    const ventasEfectivo = pedidosParaCierre.filter(p => p.metodoPago === 'Efectivo');
-    const ventasTransferencia = pedidosParaCierre.filter(p => p.metodoPago === 'Transferencia');
-    
-    const totalVentasEfectivo = ventasEfectivo.reduce((sum, p) => sum + p.monto, 0);
-    const totalVentasTransferencia = ventasTransferencia.reduce((sum, p) => sum + p.monto, 0);
-    const totalDescuentos = pedidosParaCierre.reduce((sum, p) => sum + p.descuento, 0);
-    const totalVentas = totalVentasEfectivo + totalVentasTransferencia;
-    
+    const pedidosParaCierre = [];
+    const pedidosInvalidos = [];
+
+    pedidosCobrados.forEach((p) => {
+      const mesaNumero = p.mesa?.numero ?? p.numeroMesa;
+      const mozoNombre = p.mozo
+        ? `${p.mozo.nombre || ''} ${p.mozo.apellido || ''}`.trim()
+        : (p.nombreMozo || '').trim();
+
+      if (mesaNumero == null || mesaNumero === '' || !mozoNombre) {
+        pedidosInvalidos.push({
+          pedidoId: p._id,
+          numeroPedido: p.numeroPedido,
+          mesa: mesaNumero,
+          mozo: mozoNombre
+        });
+        return;
+      }
+
+      pedidosParaCierre.push({
+        pedidoId: p._id,
+        numeroPedido: p.numeroPedido,
+        mesa: Number(mesaNumero),
+        mozo: mozoNombre,
+        metodoPago: p.metodoPago,
+        monto: p.total,
+        descuento: p.descuento?.monto || 0,
+        horaPago: p.pago?.fecha || p.fechaCobrado || new Date()
+      });
+    });
+
+    if (pedidosInvalidos.length > 0) {
+      return res.status(400).json({
+        mensaje: 'Hay pedidos cobrados con datos incompletos y no se puede crear el cierre',
+        pedidosInvalidos
+      });
+    }
+
+    const ventasEfectivo = pedidosParaCierre.filter(
+      (p) => String(p.metodoPago || '').toLowerCase() === 'efectivo'
+    );
+    const ventasTransferencia = pedidosParaCierre.filter(
+      (p) => String(p.metodoPago || '').toLowerCase() === 'transferencia'
+    );
+
+    const totalVentasEfectivo = ventasEfectivo.reduce((sum, p) => sum + (p.monto || 0), 0);
+    const totalVentasTransferencia = ventasTransferencia.reduce((sum, p) => sum + (p.monto || 0), 0);
+    const totalVentas = pedidosParaCierre.reduce((sum, p) => sum + (p.monto || 0), 0);
+    const totalDescuentos = pedidosParaCierre.reduce((sum, p) => sum + (p.descuento || 0), 0);
+
     // Calcular efectivo en caja (inicial + ventas en efectivo - gastos)
     const totalGastos = (gastos || []).reduce((sum, g) => sum + (g.monto || 0), 0);
     const efectivoEnCaja = (montoInicial || 0) + totalVentasEfectivo - totalGastos;
@@ -181,8 +217,23 @@ export const crearCierreCaja = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al crear cierre de caja:', error);
+
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        mensaje: 'Error de validacion al crear el cierre de caja',
+        detalle: error.message
+      });
+    }
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        mensaje: 'Ya existe un cierre con ese numero'
+      });
+    }
+
     res.status(500).json({
-      mensaje: "Error interno del servidor al crear cierre de caja"
+      mensaje: "Error interno del servidor al crear cierre de caja",
+      detalle: process.env.NODE_ENV === 'production' ? undefined : error.message
     });
   }
 };

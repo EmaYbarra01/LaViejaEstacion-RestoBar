@@ -27,9 +27,11 @@ const Caja = () => {
   const [notification, setNotification] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [mostrarCierreCaja, setMostrarCierreCaja] = useState(false);
+  const [historialPedidos, setHistorialPedidos] = useState([]);
 
   useEffect(() => {
     cargarPedidosPendientes();
+    cargarHistorialPedidos();
   }, []);
 
   // Escuchar eventos Socket.io para actualizaciones en tiempo real
@@ -37,6 +39,7 @@ const Caja = () => {
     const handlePedidoListo = (data) => {
       console.log('🔔 Nuevo pedido listo para cobrar:', data);
       cargarPedidosPendientes();
+      cargarHistorialPedidos();
       setNotification({
         message: `Pedido #${data.pedido?.numeroPedido || ''} listo para cobrar`,
         type: 'success'
@@ -47,11 +50,13 @@ const Caja = () => {
     const handlePedidoActualizado = () => {
       console.log('🔄 Pedido actualizado, recargando lista...');
       cargarPedidosPendientes();
+      cargarHistorialPedidos();
     };
 
     const handleNuevoPedido = (data) => {
       console.log('🔔 Nuevo pedido creado:', data);
       cargarPedidosPendientes();
+      cargarHistorialPedidos();
       setNotification({
         message: `Nuevo pedido creado: Mesa ${data.pedido?.numeroMesa || 'N/A'}`,
         type: 'info'
@@ -87,6 +92,35 @@ const Caja = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const cargarHistorialPedidos = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await axios.get(`${API_URL}/pedidos`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const historial = (response.data || [])
+        .filter((pedido) => ['Pendiente', 'Entregado', 'Cobrado'].includes(pedido.estado))
+        .sort((a, b) => {
+          const fechaA = new Date(a.fechaCobrado || a.fechaActualizacion || a.fechaCreacion);
+          const fechaB = new Date(b.fechaCobrado || b.fechaActualizacion || b.fechaCreacion);
+          return fechaB - fechaA;
+        })
+        .slice(0, 15);
+
+      setHistorialPedidos(historial);
+    } catch (err) {
+      console.error('Error al cargar historial de pedidos:', err);
+      setHistorialPedidos([]);
+    }
+  };
+
+  const obtenerEstadoVisible = (estado) => {
+    if (estado === 'Cobrado') return 'Pagada';
+    return estado;
   };
 
   const seleccionarPedido = (pedido) => {
@@ -172,6 +206,7 @@ const Caja = () => {
 
       // Actualizar lista de pedidos
       await cargarPedidosPendientes();
+      await cargarHistorialPedidos();
       
       // Limpiar selección
       setPedidoSeleccionado(null);
@@ -382,9 +417,7 @@ const Caja = () => {
         <div className="pedidos-panel">
           <div className="panel-header">
             <h2>Pedidos Pendientes de Cobro</h2>
-            <button className="btn-refresh" onClick={cargarPedidosPendientes}>
-              🔄
-            </button>
+            
           </div>
 
           {loading && pedidosPendientes.length === 0 ? (
@@ -595,8 +628,44 @@ const Caja = () => {
         onCierreCreado={(cierre) => {
           console.log('Cierre creado:', cierre);
           cargarPedidosPendientes();
+          cargarHistorialPedidos();
         }}
       />
+
+      <div className="historial-caja">
+        <div className="historial-caja-header">
+          <h2>Historial de Mesas</h2>
+          <p>Estado actual por pedido: Pendiente, Entregado o Pagada</p>
+        </div>
+
+        {historialPedidos.length === 0 ? (
+          <div className="historial-empty">No hay movimientos para mostrar todavía.</div>
+        ) : (
+          <div className="historial-lista">
+            {historialPedidos.map((pedido) => (
+              <div key={pedido._id} className="historial-item">
+                <div className="historial-item-main">
+                  <strong>{pedido.numeroPedido}</strong>
+                  <span>Mesa {pedido.numeroMesa || 'N/A'}</span>
+                </div>
+                <div className="historial-item-side">
+                  <span className={`badge badge-${pedido.estado.toLowerCase().replace(' ', '-')}`}>
+                    {obtenerEstadoVisible(pedido.estado)}
+                  </span>
+                  <small>
+                    {new Date(pedido.fechaCobrado || pedido.fechaActualizacion || pedido.fechaCreacion).toLocaleString('es-AR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </small>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
