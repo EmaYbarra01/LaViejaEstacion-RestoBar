@@ -537,7 +537,7 @@ const Empleados = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      ${empleado.salarioMensual?.toLocaleString('es-AR')}
+                      ${formatCurrency(empleado.salarioMensual)}
                     </TableCell>
                     <TableCell align="center">
                       <Chip 

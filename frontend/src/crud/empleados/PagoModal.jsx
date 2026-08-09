@@ -11,6 +11,7 @@ import {
     Select,
     Grid
 } from "@mui/material";
+import { formatCurrency } from '../../utils/currencyFormatter';
 
 const PagoModal = (props) => {
     const { form, handleChange, handleSubmit, open, onClose, empleado } = props;
@@ -52,7 +53,7 @@ const PagoModal = (props) => {
                             <br />
                             <strong>Cargo:</strong> {empleado.cargo}
                             <br />
-                            <strong>Salario Mensual:</strong> ${empleado.salarioMensual?.toLocaleString('es-AR')}
+                            <strong>Salario Mensual:</strong> ${formatCurrency(empleado.salarioMensual)}
                         </div>
                     )}
                     

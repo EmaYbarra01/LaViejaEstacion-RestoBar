@@ -88,6 +88,13 @@ function AdminSales() {
     });
   };
 
+  const formatCurrency = (value) => {
+    const number = Number(value) || 0;
+    const parts = number.toFixed(2).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `${parts[0]},${parts[1]}`;
+  };
+
   const filterSalesBySearch = (salesList) => {
     if (!searchTerm.trim()) return salesList;
     
@@ -139,7 +146,7 @@ function AdminSales() {
         <div className="stat-card">
           <div className="stat-icon">💰</div>
           <div className="stat-info">
-            <h3>${totalRevenue.toFixed(2)}</h3>
+             <h3>${formatCurrency(totalRevenue)}</h3>
             <p>Ingresos Totales</p>
           </div>
         </div>
@@ -264,12 +271,12 @@ function AdminSales() {
                     </span>
                   </td>
                   <td>
-                    <strong className="sale-total">${sale.total?.toFixed(2)}</strong>
-                    {sale.descuento?.monto > 0 && (
-                      <small style={{display: 'block', color: '#10b981'}}>
-                        (Desc: ${sale.descuento.monto.toFixed(2)})
-                      </small>
-                    )}
+                     <strong className="sale-total">${formatCurrency(sale.total)}</strong>
+                     {sale.descuento?.monto > 0 && (
+                       <small style={{display: 'block', color: '#10b981'}}>
+                         (Desc: ${formatCurrency(sale.descuento.monto)})
+                       </small>
+                     )}
                   </td>
                   <td>
                     <span className="sale-date">
@@ -299,7 +306,7 @@ function AdminSales() {
       .map((item, idx) => `
         <div style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
           <strong>${item.name || 'Producto'}</strong><br/>
-          Precio: $${item.price} × ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}
+          Precio: $${item.price} × ${item.quantity} = $${formatCurrency(item.price * item.quantity)}
         </div>
       `)
       .join('');
@@ -319,14 +326,14 @@ function AdminSales() {
           ${itemsList}
           <hr/>
           <div style="text-align: right; margin-top: 15px;">
-            <p><strong>Subtotal:</strong> $${sale.subtotal?.toFixed(2)}</p>
+            <p><strong>Subtotal:</strong> $${formatCurrency(sale.subtotal)}</p>
             ${sale.descuento?.monto > 0 ? `
               <p style="color: #10b981;">
                 <strong>Descuento (${sale.descuento.porcentaje}%):</strong> 
-                -$${sale.descuento.monto.toFixed(2)}
+                -$${formatCurrency(sale.descuento.monto)}
               </p>
             ` : ''}
-            <h3><strong>TOTAL:</strong> $${sale.total?.toFixed(2)}</h3>
+            <h3><strong>TOTAL:</strong> $${formatCurrency(sale.total)}</h3>
           </div>
         </div>
       `,

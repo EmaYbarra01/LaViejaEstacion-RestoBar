@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { formatCurrency } from '../../utils/currencyFormatter';
 import './CierreCajaModal.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -240,19 +241,19 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
         
         <h4>RESUMEN DE VENTAS</h4>
         <p><strong>Total de pedidos:</strong> ${cierre.pedidos.length}</p>
-        <p><strong>Ventas en Efectivo:</strong> $${cierre.ventasPorMetodo.efectivo.total.toFixed(2)}</p>
-        <p><strong>Ventas en Transferencia:</strong> $${cierre.ventasPorMetodo.transferencia.total.toFixed(2)}</p>
-        <p><strong>Total de Ventas:</strong> $${cierre.totalVentas.toFixed(2)}</p>
-        <p><strong>Total de Descuentos:</strong> $${cierre.totalDescuentos.toFixed(2)}</p>
+        <p><strong>Ventas en Efectivo:</strong> ${formatCurrency(cierre.ventasPorMetodo.efectivo.total)}</p>
+        <p><strong>Ventas en Transferencia:</strong> ${formatCurrency(cierre.ventasPorMetodo.transferencia.total)}</p>
+        <p><strong>Total de Ventas:</strong> ${formatCurrency(cierre.totalVentas)}</p>
+        <p><strong>Total de Descuentos:</strong> ${formatCurrency(cierre.totalDescuentos)}</p>
         
         <hr style="border-top: 1px dashed #666; margin: 15px 0;">
         
         <h4>EFECTIVO EN CAJA</h4>
-        <p><strong>Monto Inicial:</strong> $${cierre.montoInicial.toFixed(2)}</p>
-        <p><strong>Efectivo Esperado:</strong> $${cierre.efectivoEnCaja.toFixed(2)}</p>
-        <p><strong>Efectivo Contado:</strong> $${cierre.efectivoContado.toFixed(2)}</p>
+        <p><strong>Monto Inicial:</strong> ${formatCurrency(cierre.montoInicial)}</p>
+        <p><strong>Efectivo Esperado:</strong> ${formatCurrency(cierre.efectivoEnCaja)}</p>
+        <p><strong>Efectivo Contado:</strong> ${formatCurrency(cierre.efectivoContado)}</p>
         <p style="color: ${cierre.diferencia === 0 ? 'green' : cierre.diferencia > 0 ? 'blue' : 'red'}; font-weight: bold;">
-          <strong>Diferencia:</strong> $${cierre.diferencia.toFixed(2)} 
+          <strong>Diferencia:</strong> ${formatCurrency(Math.abs(cierre.diferencia))}
           ${cierre.diferencia > 0 ? '(SOBRANTE)' : cierre.diferencia < 0 ? '(FALTANTE)' : '(EXACTO)'}
         </p>
         
@@ -317,19 +318,19 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
         
         <h3>RESUMEN DE VENTAS</h3>
         <p>Pedidos Cobrados: ${cierre.pedidos.length}</p>
-        <p>Efectivo: $${cierre.ventasPorMetodo.efectivo.total.toFixed(2)}</p>
-        <p>Transferencia: $${cierre.ventasPorMetodo.transferencia.total.toFixed(2)}</p>
-        <p class="total">TOTAL VENTAS: $${cierre.totalVentas.toFixed(2)}</p>
-        <p>Descuentos: $${cierre.totalDescuentos.toFixed(2)}</p>
+        <p>Efectivo: ${formatCurrency(cierre.ventasPorMetodo.efectivo.total)}</p>
+        <p>Transferencia: ${formatCurrency(cierre.ventasPorMetodo.transferencia.total)}</p>
+        <p class="total">TOTAL VENTAS: ${formatCurrency(cierre.totalVentas)}</p>
+        <p>Descuentos: ${formatCurrency(cierre.totalDescuentos)}</p>
         
         <div class="divider"></div>
         
         <h3>EFECTIVO EN CAJA</h3>
-        <p>Monto Inicial: $${cierre.montoInicial.toFixed(2)}</p>
-        <p>Efectivo Esperado: $${cierre.efectivoEnCaja.toFixed(2)}</p>
-        <p>Efectivo Contado: $${cierre.efectivoContado.toFixed(2)}</p>
+        <p>Monto Inicial: ${formatCurrency(cierre.montoInicial)}</p>
+        <p>Efectivo Esperado: ${formatCurrency(cierre.efectivoEnCaja)}</p>
+        <p>Efectivo Contado: ${formatCurrency(cierre.efectivoContado)}</p>
         <p class="diferencia" style="color: ${cierre.diferencia === 0 ? 'green' : cierre.diferencia > 0 ? 'blue' : 'red'}">
-          DIFERENCIA: $${cierre.diferencia.toFixed(2)}
+          DIFERENCIA: ${formatCurrency(Math.abs(cierre.diferencia))}
           ${cierre.diferencia > 0 ? '(SOBRANTE)' : cierre.diferencia < 0 ? '(FALTANTE)' : '(EXACTO)'}
         </p>
         
@@ -449,14 +450,14 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                         onChange={(e) => handleDesgloseChange(key, e.target.value)}
                         placeholder="0"
                       />
-                      <span className="desglose-total">${desglose[key].total}</span>
+                      <span className="desglose-total">${formatCurrency(desglose[key].total)}</span>
                     </div>
                   ))}
                 </div>
                 
                 <div className="total-desglose">
                   <strong>Total Contado:</strong>
-                  <span>${calcularTotalDesglose().toFixed(2)}</span>
+                  <span>${formatCurrency(calcularTotalDesglose())}</span>
                 </div>
               </div>
 
@@ -518,7 +519,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                             <span className={`metodo-badge ${pedido.metodoPago?.toLowerCase()}`}>
                               {pedido.metodoPago}
                             </span>
-                            <span className="pedido-total">${pedido.total?.toFixed(2)}</span>
+                            <span className="pedido-total">${formatCurrency(pedido.total)}</span>
                           </div>
                         </div>
                       </div>
@@ -536,33 +537,33 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
                   </div>
                   <div className="resumen-item">
                     <span>Ventas en Efectivo:</span>
-                    <strong>${resumen.ventasEfectivo.toFixed(2)}</strong>
+                    <strong>${formatCurrency(resumen.ventasEfectivo)}</strong>
                   </div>
                   <div className="resumen-item">
                     <span>Ventas en Transferencia:</span>
-                    <strong>${resumen.ventasTransferencia.toFixed(2)}</strong>
+                    <strong>${formatCurrency(resumen.ventasTransferencia)}</strong>
                   </div>
                   <div className="resumen-item total">
                     <span>Total Ventas:</span>
-                    <strong>${resumen.totalVentas.toFixed(2)}</strong>
+                    <strong>${formatCurrency(resumen.totalVentas)}</strong>
                   </div>
                   <div className="resumen-item">
                     <span>Descuentos Aplicados:</span>
-                    <strong className="descuento">${resumen.totalDescuentos.toFixed(2)}</strong>
+                    <strong className="descuento">${formatCurrency(resumen.totalDescuentos)}</strong>
                   </div>
                   <div className="resumen-divider"></div>
                   <div className="resumen-item">
                     <span>Efectivo Esperado:</span>
-                    <strong>${resumen.efectivoEsperado.toFixed(2)}</strong>
+                    <strong>${formatCurrency(resumen.efectivoEsperado)}</strong>
                   </div>
                   <div className="resumen-item">
                     <span>Efectivo Contado:</span>
-                    <strong>${parseFloat(efectivoContado).toFixed(2)}</strong>
+                    <strong>${formatCurrency(parseFloat(efectivoContado))}</strong>
                   </div>
                   <div className={`resumen-item diferencia ${resumen.diferencia === 0 ? 'exacto' : resumen.diferencia > 0 ? 'sobrante' : 'faltante'}`}>
                     <span>Diferencia:</span>
                     <strong>
-                      ${resumen.diferencia.toFixed(2)}
+                      ${formatCurrency(Math.abs(resumen.diferencia))}
                       {resumen.diferencia > 0 ? ' (Sobrante)' : resumen.diferencia < 0 ? ' (Faltante)' : ' (Exacto)'}
                     </strong>
                   </div>
