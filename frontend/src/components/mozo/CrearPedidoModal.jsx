@@ -3,6 +3,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import useUserStore from '../../store/useUserStore';
 import useSocket from '../../hooks/useSocket';
+import { formatCurrency } from '../../utils/currencyFormatter';
 import './CrearPedidoModal.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -362,7 +363,7 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
                         <h4>{producto.nombre}</h4>
                         <p className="producto-descripcion">{producto.descripcion}</p>
                         <div className="producto-footer">
-                          <span className="producto-precio">${producto.precio.toFixed(2)}</span>
+                          <span className="producto-precio">${formatCurrency(producto.precio)}</span>
                           <span className="producto-stock">Stock: {producto.stock}</span>
                           {producto.stock < 10 && producto.stock > 0 && (
                             <span className="producto-stock-bajo">⚠️ Stock bajo</span>
@@ -415,7 +416,7 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
                         <div className="item-info">
                           <span className="item-nombre">{item.nombre}</span>
                           <span className="item-precio">
-                            ${(item.precio * item.cantidad).toFixed(2)}
+                            ${formatCurrency(item.precio * item.cantidad)}
                           </span>
                         </div>
 
@@ -460,7 +461,7 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
 
                   <div className="carrito-total">
                     <span>Total:</span>
-                    <span className="total-valor">${calcularTotal().toFixed(2)}</span>
+                    <span className="total-valor">${formatCurrency(calcularTotal())}</span>
                   </div>
 
                   <button className="btn-continuar" onClick={handleCrearPedido}>

@@ -5,6 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer
 } from 'recharts';
+import { formatCurrency } from '../utils/currencyFormatter';
 import './SuperadminDashboard.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -79,7 +80,7 @@ const SuperadminDashboard = () => {
           <div className="card-icon ventas">💰</div>
           <div className="card-info">
             <h3>Ventas del Mes</h3>
-            <p className="card-valor">${estadisticas.resumenMes.totalVentas.toFixed(2)}</p>
+             <p className="card-valor">${formatCurrency(estadisticas.resumenMes.totalVentas)}</p>
             <span className="card-detalle">
               {estadisticas.resumenMes.cantidadPedidos} pedidos cobrados
             </span>
@@ -92,7 +93,7 @@ const SuperadminDashboard = () => {
             <h3>Pedidos del Mes</h3>
             <p className="card-valor">{estadisticas.resumenMes.cantidadPedidos}</p>
             <span className="card-detalle">
-              Promedio: ${estadisticas.resumenMes.promedioVenta.toFixed(2)}
+               Promedio: ${formatCurrency(estadisticas.resumenMes.promedioVenta)}
             </span>
           </div>
         </div>
@@ -148,7 +149,7 @@ const SuperadminDashboard = () => {
                     borderRadius: '8px',
                     color: '#fff'
                   }}
-                  formatter={(value) => `$${Number(value).toFixed(2)}`}
+                  formatter={(value) => `$${formatCurrency(value)}`}
                 />
                 <Legend />
               </PieChart>
@@ -184,7 +185,7 @@ const SuperadminDashboard = () => {
                     borderRadius: '8px',
                     color: '#fff'
                   }}
-                  formatter={(value) => [`$${value.toFixed(2)}`, 'Total']}
+                  formatter={(value) => [`$${formatCurrency(value)}`, 'Total']}
                 />
                 <Legend />
                 <Bar dataKey="total" fill="#2563eb" name="Ventas ($)" />
@@ -221,7 +222,7 @@ const SuperadminDashboard = () => {
                     borderRadius: '8px',
                     color: '#fff'
                   }}
-                  formatter={(value) => `$${value.toFixed(2)}`}
+                  formatter={(value) => `$${formatCurrency(value)}`}
                 />
                 <Legend />
               </PieChart>
@@ -253,7 +254,7 @@ const SuperadminDashboard = () => {
                       </div>
                       <div className="stat">
                         <span className="stat-label">Ventas</span>
-                        <span className="stat-valor">${producto.totalVentas.toFixed(2)}</span>
+                         <span className="stat-valor">${formatCurrency(producto.totalVentas)}</span>
                       </div>
                     </div>
                   </div>

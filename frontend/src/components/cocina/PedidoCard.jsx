@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { formatCurrency } from '../../utils/currencyFormatter';
 import './PedidoCard.css';
 
 /**
@@ -169,7 +170,7 @@ const PedidoCard = ({ pedido, onCambiarEstado }) => {
                   <div className="producto-info">
                     <span className="producto-cantidad">{cantidad}x</span>
                     <span className="producto-nombre">{nombre}</span>
-                    <span className="producto-precio">${precioUnitario.toFixed(2)}</span>
+                     <span className="producto-precio">${formatCurrency(precioUnitario)}</span>
                   </div>
                   {observaciones && (
                     <p className="producto-observaciones">

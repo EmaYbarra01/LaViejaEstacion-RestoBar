@@ -194,13 +194,16 @@ const calcularTop10Productos = async (mes, año) => {
       }
     },
     {
-      $unwind: '$productoInfo'
+      $unwind: {
+        path: '$productoInfo',
+        preserveNullAndEmptyArrays: true
+      }
     },
     {
       $group: {
         _id: '$productos.producto',
-        nombre: { $first: '$productoInfo.nombre' },
-        categoria: { $first: '$productoInfo.categoria' },
+        nombre: { $first: '$productos.nombre' },
+        categoria: { $first: { $ifNull: ['$productoInfo.categoria', 'Sin categoría'] } },
         cantidadVendida: { $sum: '$productos.cantidad' },
         totalVentas: {
           $sum: {
@@ -231,7 +234,7 @@ const calcularTop10Productos = async (mes, año) => {
 const obtenerProductosStockBajo = async () => {
   const productos = await Producto.find({
     $expr: { $lte: ['$stock', '$stockMinimo'] },
-    activo: true
+    disponible: true
   })
     .select('nombre categoria stock stockMinimo')
     .sort({ stock: 1 })

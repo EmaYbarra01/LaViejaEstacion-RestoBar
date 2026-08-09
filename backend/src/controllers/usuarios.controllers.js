@@ -51,12 +51,8 @@ export const crearUsuario = async (req, res) => {
     }
 
     // Crear usuario
+    // El schema ya hashea la contraseña en pre-save, por lo que no debe cifrarse aquí otra vez.
     const usuarioNuevo = new Usuario(req.body);
-    
-    // Hashear password
-    const salt = bcrypt.genSaltSync(10);
-    usuarioNuevo.password = bcrypt.hashSync(usuarioNuevo.password, salt);
-    
     await usuarioNuevo.save();
     
     res.status(201).json({

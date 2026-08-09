@@ -15,7 +15,7 @@ import {
 import "./ProductFormModal.css";
 
 const ProductFormModal = (props) => {
-    const { form, handleChange, handleSubmit, isEdit, open, onClose, codeError, nameError } = props;
+    const { form, handleChange, handleSubmit, isEdit, open, onClose, nameError } = props;
     
     // Categorías disponibles (deben coincidir con el backend)
     const categorias = [
@@ -58,20 +58,6 @@ const ProductFormModal = (props) => {
                                 required
                                 error={!!nameError}
                                 helperText={nameError || "Nombre del producto tal como aparecerá en el menú"}
-                            />
-                        </Grid>
-
-                        {/* Código */}
-                        <Grid item xs={12} sm={4}>
-                            <TextField
-                                fullWidth
-                                name="code"
-                                label="Código"
-                                value={form.code || ''}
-                                onChange={handleChange}
-                                placeholder="Ej: PROD-001"
-                                error={!!codeError}
-                                helperText={codeError || "Código interno (opcional)"}
                             />
                         </Grid>
 

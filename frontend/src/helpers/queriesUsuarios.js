@@ -3,6 +3,27 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 const URL_USUARIOS = `${API_URL}/usuarios`;
 
+const normalizeUser = (user) => {
+  if (!user) return null;
+
+  const id = user.id || user._id;
+  const nombre = user.nombre || user.name || '';
+  const apellido = user.apellido || '';
+
+  return {
+    ...user,
+    id,
+    _id: id,
+    nombre,
+    apellido,
+    nombreCompleto: user.nombreCompleto || `${nombre} ${apellido}`.trim(),
+    email: user.email || '',
+    rol: user.rol || user.role || '',
+    dni: user.dni || '',
+    password: ''
+  };
+};
+
 // Obtener todos los usuarios
 export const getAllUsers = async () => {
   try {
@@ -11,7 +32,7 @@ export const getAllUsers = async () => {
     });
     // El backend puede devolver un array directamente o un objeto con propiedad 'usuarios'
     const data = Array.isArray(response.data) ? response.data : (response.data.usuarios || []);
-    return data;
+    return data.map(normalizeUser);
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
     throw error;
@@ -27,7 +48,7 @@ export const createUser = async (userData) => {
         'Content-Type': 'application/json'
       }
     });
-    return response.data;
+    return normalizeUser(response.data.usuario || response.data);
   } catch (error) {
     console.error('Error al crear usuario:', error);
     throw error;
@@ -43,7 +64,7 @@ export const updateUser = async (id, userData) => {
         'Content-Type': 'application/json'
       }
     });
-    return response.data;
+    return normalizeUser(response.data.usuario || response.data);
   } catch (error) {
     console.error('Error al actualizar usuario:', error);
     throw error;

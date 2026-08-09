@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, checkProductCodeExists, checkProductNameExists } from "../helpers/queriesProductos";
+import { getAllProducts, createProduct, updateProduct, deleteProduct, checkProductNameExists } from "../helpers/queriesProductos";
 import ProductFormModal from "../crud/products/ProductFormModal";
 import {
   Button,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import Swal from 'sweetalert2';
 import useUserStore from '../store/useUserStore';
+import { formatCurrency } from '../utils/currencyFormatter';
 import "./AdminPage.css";
 
 const Products = () => {
@@ -26,13 +27,11 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [codeError, setCodeError] = useState("");
   const [nameError, setNameError] = useState("");
   const [lowStockCount, setLowStockCount] = useState(0);
 
   const [form, setForm] = useState({
     name: "",
-    code: "",
     price: "",
     cost: "",
     imgUrl: "",
@@ -56,7 +55,11 @@ const Products = () => {
       setProducts(productsArray);
       
       // Calcular productos con stock bajo
-      const lowStock = productsArray.filter(p => p.stock <= p.minimumStock).length;
+      const lowStock = productsArray.filter((product) => {
+        const stock = Number(product.stock || 0);
+        const minimumStock = Number(product.minimumStock || 0);
+        return stock <= minimumStock;
+      }).length;
       setLowStockCount(lowStock);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -66,23 +69,14 @@ const Products = () => {
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
+    const nextValue = name === 'stock' || name === 'minimumStock' || name === 'price' || name === 'cost'
+      ? value
+      : value;
     
     setForm({
       ...form,
-      [name]: value,
+      [name]: nextValue,
     });
-
-    // Validar código en tiempo real
-    if (name === 'code' && value.trim()) {
-      const exists = await checkProductCodeExists(value, isEdit ? form.id : null);
-      if (exists) {
-        setCodeError(`⚠️ El código "${value}" ya existe`);
-      } else {
-        setCodeError("");
-      }
-    } else if (name === 'code') {
-      setCodeError("");
-    }
 
     // Validar nombre en tiempo real
     if (name === 'name' && value.trim()) {
@@ -120,10 +114,20 @@ const Products = () => {
       });
       return;
     }
+
+    const stockValue = Number(form.stock || 0);
+    const normalizedForm = {
+      ...form,
+      stock: stockValue,
+      minimumStock: Number(form.minimumStock || 0),
+      price: Number(form.price || 0),
+      cost: Number(form.cost || 0),
+      available: stockValue > 0 ? form.available !== false : false
+    };
     
     try {
       if (isEdit) {
-        const updatedProduct = await updateProduct(form.id, form);
+        const updatedProduct = await updateProduct(form.id, normalizedForm);
         setProducts(
           products.map((product) =>
             product.id === form.id ? updatedProduct : product
@@ -138,7 +142,7 @@ const Products = () => {
           timer: 2000
         });
       } else {
-        const newProduct = await createProduct(form);
+        const newProduct = await createProduct(normalizedForm);
         setProducts([...products, newProduct]);
         setOpenModal(false);
         await Swal.fire({
@@ -164,7 +168,6 @@ const Products = () => {
   const resetForm = () => {
     setForm({
       name: "",
-      code: "",
       price: "",
       cost: "",
       imgUrl: "",
@@ -175,7 +178,6 @@ const Products = () => {
       unit: "Unidad",
       available: true
     });
-    setCodeError("");
     setNameError("");
   };
 
@@ -185,13 +187,18 @@ const Products = () => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setCodeError("");
     setNameError("");
   };
 
   const handleEditProduct = async (product) => {
     setIsEdit(true);
-    setForm(product);
+    setForm({
+      ...product,
+      id: product.id,
+      stock: product.stock ?? 0,
+      minimumStock: product.minimumStock ?? 0,
+      available: product.available !== false
+    });
     handleOpenModal();
   };
 
@@ -281,7 +288,6 @@ const Products = () => {
         isEdit={isEdit}
         open={openModal}
         onClose={handleCloseModal}
-        codeError={codeError}
         nameError={nameError}
       />
 
@@ -307,9 +313,17 @@ const Products = () => {
               </TableRow>
             ) : (
               products.map((product) => (
+                (() => {
+                  const stock = Number(product.stock || 0);
+                  const minimumStock = Number(product.minimumStock || 0);
+                  const isOutOfStock = stock <= 0;
+                  const isLowStock = stock > 0 && stock <= minimumStock;
+                  const isAvailable = !isOutOfStock && product.available !== false;
+
+                  return (
                 <TableRow key={product.id} sx={{ 
-                  backgroundColor: product.available ? 'inherit' : '#ffebee',
-                  opacity: product.available ? 1 : 0.7
+                  backgroundColor: isAvailable ? 'inherit' : '#ffebee',
+                  opacity: isAvailable ? 1 : 0.7
                 }}>
                   <TableCell>
                     <strong>{product.name}</strong>
@@ -326,10 +340,10 @@ const Products = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <strong style={{ color: '#2e7d32' }}>${product.price}</strong>
+                    <strong style={{ color: '#2e7d32' }}>${formatCurrency(product.price)}</strong>
                   </TableCell>
                   <TableCell>
-                    ${product.cost || 0}
+                    ${formatCurrency(product.cost || 0)}
                     {product.cost && product.price && (
                       <div style={{ fontSize: '0.8em', color: '#1976d2' }}>
                         Margen: {(((product.price - product.cost) / product.cost) * 100).toFixed(0)}%
@@ -338,19 +352,23 @@ const Products = () => {
                   </TableCell>
                   <TableCell>
                     <span style={{ 
-                      color: product.stock <= (product.minimumStock || 0) ? '#d32f2f' : '#2e7d32',
+                      color: isOutOfStock || isLowStock ? '#d32f2f' : '#2e7d32',
                       fontWeight: 'bold'
                     }}>
-                      {product.stock || 0}
+                      {stock}
                     </span>
-                    {product.stock <= (product.minimumStock || 0) && (
+                    {isOutOfStock ? (
+                      <div style={{ fontSize: '0.8em', color: '#d32f2f' }}>
+                        🔴 Agotado
+                      </div>
+                    ) : isLowStock && (
                       <div style={{ fontSize: '0.8em', color: '#d32f2f' }}>
                         ⚠️ Stock bajo
                       </div>
                     )}
                   </TableCell>
                   <TableCell>
-                    {product.available ? (
+                    {isAvailable ? (
                       <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>✅ Disponible</span>
                     ) : (
                       <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>❌ No disponible</span>
@@ -381,6 +399,8 @@ const Products = () => {
                     )}
                   </TableCell>
                 </TableRow>
+                  );
+                })()
               ))
             )}
           </TableBody>

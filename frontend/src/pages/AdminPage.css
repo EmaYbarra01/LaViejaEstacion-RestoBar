@@ -172,6 +172,31 @@
   color: white;
 }
 
+.role-badge.superadministrador {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+}
+
+.role-badge.gerente {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  color: white;
+}
+
+.role-badge.mozo {
+  background: linear-gradient(135deg, #26a69a, #00897b);
+  color: white;
+}
+
+.role-badge.cajero {
+  background: linear-gradient(135deg, #ffb74d, #fb8c00);
+  color: white;
+}
+
+.role-badge.encargadococina {
+  background: linear-gradient(135deg, #8e24aa, #6a1b9a);
+  color: white;
+}
+
 .role-badge.user {
   background: linear-gradient(135deg, #4CAF50, #45a049);
   color: white;

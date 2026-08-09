@@ -3,6 +3,7 @@ import { Card, CardContent, Grid, Typography, Box, CircularProgress } from '@mui
 import { TrendingUp, TrendingDown, Warning, CheckCircle, Restaurant, AttachMoney, ShoppingCart, People } from '@mui/icons-material';
 import axios from 'axios';
 import useUserStore from '../store/useUserStore';
+import { formatCurrency } from '../utils/currencyFormatter';
 import './Dashboard.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -86,7 +87,7 @@ const Dashboard = () => {
             </Typography>
             <Typography variant="h4" style={{ color, fontWeight: 'bold' }}>
               {typeof value === 'number' && title.includes('Ventas') 
-                ? `$${value.toLocaleString()}` 
+                ? `$${formatCurrency(value)}` 
                 : value}
             </Typography>
             {subtitle && (
