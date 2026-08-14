@@ -5,9 +5,10 @@
 .mozo-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  overflow: hidden;
+  overflow: visible;
+  padding-top: 80px;
 }
 
 /* Header */
@@ -79,9 +80,24 @@
 }
 
 .header-left h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
   margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.mozo-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.mozo-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  font-weight: 400;
 }
 
 .btn-back {

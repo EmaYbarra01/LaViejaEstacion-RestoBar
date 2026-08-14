@@ -40,6 +40,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BlockIcon from '@mui/icons-material/Block';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Swal from 'sweetalert2';
+import { formatCurrency } from '../utils/currencyFormatter';
 import "./AdminPage.css";
 
 const Empleados = () => {
@@ -58,6 +59,21 @@ const Empleados = () => {
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuEmpleado, setMenuEmpleado] = useState(null);
+
+  const SALARIOS_POR_CARGO = {
+    'SuperAdministrador': 1800000,
+    'Gerente': 1550000,
+    'Encargado de Cocina': 1400000,
+    'Mozo': 1050000,
+    'Cajero': 1200000
+  };
+
+  const getSalarioEmpleado = (empleado) => {
+    if (empleado.salarioMensual > 0) {
+      return empleado.salarioMensual;
+    }
+    return SALARIOS_POR_CARGO[empleado.cargo] || 0;
+  };
 
   const [form, setForm] = useState({
     nombre: "",
@@ -94,12 +110,14 @@ const Empleados = () => {
   });
 
   useEffect(() => {
+    console.log('Empleados montado, cargando...');
     loadEmpleados();
   }, []);
 
   const loadEmpleados = async () => {
     try {
       const empleadosData = await getAllEmpleados();
+      console.log('Empleados cargados:', empleadosData);
       setEmpleados(empleadosData);
     } catch (err) {
       console.error("Error al cargar empleados:", err);
@@ -151,19 +169,40 @@ const Empleados = () => {
     
     try {
       if (isEdit) {
-        const response = await updateEmpleado(selectedEmpleado._id, {
-          cargo: form.cargo,
-          salarioMensual: parseFloat(form.salarioMensual),
-          activo: form.activo
-        });
-        
-        await Swal.fire({
-          icon: 'success',
-          title: '¡Actualizado!',
-          text: 'Empleado actualizado correctamente',
-          confirmButtonColor: '#667eea',
-          timer: 2000
-        });
+        if (selectedEmpleado?.esUsuarioMadre) {
+          const response = await createEmpleado({
+            nombre: selectedEmpleado.usuario.nombre,
+            apellido: selectedEmpleado.usuario.apellido,
+            email: selectedEmpleado.usuario.email,
+            dni: selectedEmpleado.usuario.dni || '',
+            telefono: selectedEmpleado.usuario.telefono || '',
+            password: '',
+            cargo: form.cargo,
+            salarioMensual: parseFloat(form.salarioMensual)
+          });
+          
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Actualizado!',
+            text: 'Empleado creado correctamente',
+            confirmButtonColor: '#667eea',
+            timer: 2000
+          });
+        } else {
+          const response = await updateEmpleado(selectedEmpleado._id, {
+            cargo: form.cargo,
+            salarioMensual: parseFloat(form.salarioMensual),
+            activo: form.activo
+          });
+          
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Actualizado!',
+            text: 'Empleado actualizado correctamente',
+            confirmButtonColor: '#667eea',
+            timer: 2000
+          });
+        }
       } else {
         const response = await createEmpleado({
           nombre: form.nombre,
@@ -193,7 +232,7 @@ const Empleados = () => {
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: err.response?.data?.message || 'Error al guardar el empleado',
+        text: err.response?.data?.message || err.response?.data?.error || 'Error al guardar el empleado',
         confirmButtonColor: '#667eea'
       });
     }
@@ -239,6 +278,28 @@ const Empleados = () => {
         observaciones: pagoForm.observaciones
       });
       
+      const mesPago = parseInt(pagoForm.mes);
+      const anioPago = parseInt(pagoForm.anio);
+      const esMesActual = mesPago === new Date().getMonth() + 1 && anioPago === new Date().getFullYear();
+      
+      setEmpleados(prevEmpleados => prevEmpleados.map(emp => {
+        if (emp._id === selectedEmpleado._id) {
+          return {
+            ...emp,
+            pagadoMesActual: esMesActual ? true : emp.pagadoMesActual,
+            pagos: [...(emp.pagos || []), {
+              mes: mesPago,
+              anio: anioPago,
+              monto: parseFloat(pagoForm.monto),
+              metodoPago: pagoForm.metodoPago,
+              observaciones: pagoForm.observaciones,
+              fechaPago: new Date()
+            }]
+          };
+        }
+        return emp;
+      }));
+      
       await Swal.fire({
         icon: 'success',
         title: '💰 Pago Registrado',
@@ -249,14 +310,13 @@ const Empleados = () => {
       
       setOpenPagoModal(false);
       resetPagoForm();
-      loadEmpleados();
     } catch (err) {
       console.error("Error al registrar pago:", err);
       await Swal.fire({
         icon: 'error',
         title: 'Error',
         text: err.response?.data?.message || 'Error al registrar el pago',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#ff9800'
       });
     }
   };
@@ -311,9 +371,11 @@ const Empleados = () => {
   const handleEdit = (empleado) => {
     setIsEdit(true);
     setSelectedEmpleado(empleado);
+    const salarioPorDefecto = SALARIOS_POR_CARGO[empleado.cargo] || 0;
+    const salarioReal = empleado.salarioMensual || empleado.salario || 0;
     setForm({
       cargo: empleado.cargo,
-      salarioMensual: empleado.salarioMensual,
+      salarioMensual: salarioReal > 0 ? salarioReal : salarioPorDefecto,
       activo: empleado.activo
     });
     setOpenModal(true);
@@ -410,7 +472,7 @@ const Empleados = () => {
     setPagoForm({
       mes: new Date().getMonth() + 1,
       anio: new Date().getFullYear(),
-      monto: empleado.salarioMensual,
+      monto: getSalarioEmpleado(empleado),
       metodoPago: "Efectivo",
       observaciones: ""
     });
@@ -463,6 +525,7 @@ const Empleados = () => {
 
   return (
     <div className="admin-container">
+      {console.log('RENDER Empleados, count:', empleados.length)}
       <div className="admin-header">
         <h1 className="admin-title">
           👥 {isGerente ? 'Supervisión de Empleados' : 'Gestión de Empleados'}
@@ -536,9 +599,9 @@ const Empleados = () => {
                         variant="outlined"
                       />
                     </TableCell>
-                    <TableCell>
-                      ${formatCurrency(empleado.salarioMensual)}
-                    </TableCell>
+                     <TableCell>
+                       ${formatCurrency(getSalarioEmpleado(empleado))}
+                     </TableCell>
                     <TableCell align="center">
                       <Chip 
                         label={empleado.diasTrabajados || 0} 
@@ -567,74 +630,65 @@ const Empleados = () => {
                         <Chip label="Inactivo" size="small" color="error" />
                       )}
                     </TableCell>
-                    <TableCell align="center">
-                      {canEdit ? (
-                        <>
-                          {/* Solo permitir acciones de empleado si tiene registro completo */}
-                          {!empleado.esUsuarioMadre && (
-                            <>
-                              <Tooltip title="Registrar Asistencia">
-                                <IconButton 
-                                  onClick={() => handleOpenAsistencia(empleado)}
-                                  color="success"
-                                  size="small"
-                                >
-                                  <EventIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Registrar Inasistencia">
-                                <IconButton 
-                                  onClick={() => handleOpenInasistencia(empleado)}
-                                  color="error"
-                                  size="small"
-                                >
-                                  <EventBusyIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Registrar Pago">
-                                <IconButton 
-                                  onClick={() => handleOpenPago(empleado)}
-                                  color="warning"
-                                  size="small"
-                                >
-                                  <PaymentIcon />
-                                </IconButton>
-                              </Tooltip>
-                            </>
-                          )}
-                          <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - No editable" : "Editar"}>
-                            <span>
-                              <IconButton 
-                                onClick={() => !empleado.esUsuarioMadre && handleEdit(empleado)}
-                                color="primary"
-                                size="small"
-                                disabled={empleado.esUsuarioMadre}
-                              >
-                                <EditIcon />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - No eliminable" : "Más opciones"}>
-                            <span>
-                              <IconButton 
-                                onClick={(e) => {
-                                  if (!empleado.esUsuarioMadre) {
-                                    setAnchorEl(e.currentTarget);
-                                    setMenuEmpleado(empleado);
-                                  }
-                                }}
-                                size="small"
-                                disabled={empleado.esUsuarioMadre}
-                              >
-                                <MoreVertIcon />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </>
-                      ) : (
-                        <Chip label="Solo visualización" size="small" color="default" variant="outlined" />
-                      )}
-                    </TableCell>
+                     <TableCell align="center">
+                       {canEdit ? (
+                         <>
+                           <Tooltip title="Registrar Asistencia">
+                             <IconButton 
+                               onClick={() => handleOpenAsistencia(empleado)}
+                               color="success"
+                               size="small"
+                             >
+                               <EventIcon />
+                             </IconButton>
+                           </Tooltip>
+                           <Tooltip title="Registrar Inasistencia">
+                             <IconButton 
+                               onClick={() => handleOpenInasistencia(empleado)}
+                               color="error"
+                               size="small"
+                             >
+                               <EventBusyIcon />
+                             </IconButton>
+                           </Tooltip>
+                           <Tooltip title="Registrar Pago">
+                             <IconButton 
+                               onClick={() => handleOpenPago(empleado)}
+                               color="warning"
+                               size="small"
+                             >
+                               <PaymentIcon />
+                             </IconButton>
+                           </Tooltip>
+                           <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - Editar/Crear registro" : "Editar"}>
+                             <span>
+                               <IconButton 
+                                 onClick={() => handleEdit(empleado)}
+                                 color="primary"
+                                 size="small"
+                               >
+                                 <EditIcon />
+                               </IconButton>
+                             </span>
+                           </Tooltip>
+                           <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - Eliminar" : "Más opciones"}>
+                             <span>
+                               <IconButton 
+                                 onClick={(e) => {
+                                   setAnchorEl(e.currentTarget);
+                                   setMenuEmpleado(empleado);
+                                 }}
+                                 size="small"
+                               >
+                                 <MoreVertIcon />
+                               </IconButton>
+                             </span>
+                           </Tooltip>
+                         </>
+                       ) : (
+                         <Chip label="Solo visualización" size="small" color="default" variant="outlined" />
+                       )}
+                     </TableCell>
                   </TableRow>
                 ))
               )}

@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 const Mozo = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
-  const { on, off } = useSocket('mozos'); // Conectar a la sala 'mozos'
+  const { on, off } = useSocket('mozos', user?.role || 'Mozo', 'mozo');
   const isGerente = user?.role === 'Gerente' || user?.role === 'SuperAdministrador';
   const [pedidos, setPedidos] = useState([]);
   const [mesas, setMesas] = useState([]);
@@ -289,15 +289,10 @@ const Mozo = () => {
       {/* Header */}
       <div className="mozo-header">
         <div className="header-left">
-          <button className="btn-back" onClick={() => navigate(-1)}>
-            ←
-          </button>
-          <h1>Panel del Mozo</h1>
-        </div>
-        <div className="header-right">
-          <button className="btn-grid-view">
-            <span className="grid-icon">⊞</span>
-          </button>
+          <div>
+            <h1 className="mozo-title">🍽️ Módulo Mozo</h1>
+            <p className="mozo-subtitle">Gestión de pedidos, mesas y cuentas</p>
+          </div>
         </div>
       </div>
 

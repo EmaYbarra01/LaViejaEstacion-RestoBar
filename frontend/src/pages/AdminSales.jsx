@@ -80,8 +80,8 @@ function AdminSales() {
           const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
           return saleDate >= weekAgo;
         case 'month':
-          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          return saleDate >= monthAgo;
+          const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
+          return saleDate >= inicioMes;
         default:
           return true;
       }
@@ -95,15 +95,32 @@ function AdminSales() {
     return `${parts[0]},${parts[1]}`;
   };
 
+  const removeAccents = (value) =>
+    String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
   const filterSalesBySearch = (salesList) => {
     if (!searchTerm.trim()) return salesList;
     
-    const search = searchTerm.toLowerCase();
+    const search = searchTerm.trim();
+    const digits = search.replace(/\D/g, '');
+    
+    // Si el término es numérico, buscar SOLO por mesa
+    if (digits && digits === search) {
+      return salesList.filter(sale => {
+        const mesaStr = sale.mesa !== undefined && sale.mesa !== null ? String(sale.mesa).trim() : '';
+        return mesaStr === digits || mesaStr === search;
+      });
+    }
+    
+    // Búsqueda case-insensitive y sin acentos en mozo, numeroPedido y cajero
+    const searchNormalized = removeAccents(search);
     return salesList.filter(sale => 
-      sale.mozo?.toLowerCase().includes(search) ||
-      sale.numeroPedido?.toLowerCase().includes(search) ||
-      sale.mesa?.toString().includes(search) ||
-      sale.cajero?.toLowerCase().includes(search)
+      removeAccents(sale.mozo).includes(searchNormalized) ||
+      sale.numeroPedido?.toLowerCase().includes(searchNormalized) ||
+      removeAccents(sale.cajero).includes(searchNormalized)
     );
   };
 
@@ -206,8 +223,14 @@ function AdminSales() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
+            maxLength={50}
           />
         </div>
+      </div>
+
+      <div className="admin-results-count">
+        Mostrando <strong>{filteredSales.length}</strong> de <strong>{sales.length}</strong> ventas
+        {searchTerm ? ` | Buscando: "${searchTerm}"` : ''}
       </div>
 
       {/* Tabla de ventas */}

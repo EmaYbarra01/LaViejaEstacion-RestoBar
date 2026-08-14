@@ -16,6 +16,22 @@ import { formatCurrency } from '../../utils/currencyFormatter';
 const PagoModal = (props) => {
     const { form, handleChange, handleSubmit, open, onClose, empleado } = props;
     
+    const SALARIOS_POR_CARGO = {
+      'SuperAdministrador': 1800000,
+      'Gerente': 1550000,
+      'Encargado de Cocina': 1400000,
+      'Mozo': 1050000,
+      'Cajero': 1200000
+    };
+    
+    const getSalarioEmpleado = (emp) => {
+      if (!emp) return 0;
+      if (emp.salarioMensual > 0) {
+        return emp.salarioMensual;
+      }
+      return SALARIOS_POR_CARGO[emp.cargo] || 0;
+    };
+    
     const meses = [
         { value: 1, label: 'Enero' },
         { value: 2, label: 'Febrero' },
@@ -53,7 +69,7 @@ const PagoModal = (props) => {
                             <br />
                             <strong>Cargo:</strong> {empleado.cargo}
                             <br />
-                            <strong>Salario Mensual:</strong> ${formatCurrency(empleado.salarioMensual)}
+                            <strong>Salario Mensual:</strong> ${formatCurrency(getSalarioEmpleado(empleado))}
                         </div>
                     )}
                     

@@ -17,7 +17,7 @@ const Cocina = () => {
 
     // Inicializar socket.io para notificaciones en tiempo real (HU5/HU6)
     const usuarioId = localStorage.getItem('userId') || null;
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3000';
+    const backendUrl = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
     const socket = io(backendUrl, {
       auth: {
         usuarioId,
@@ -76,7 +76,7 @@ const Cocina = () => {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await fetch('http://localhost:3000/api/pedidos/cocina/pendientes', {
+      const response = await fetch(`${backendUrl}/api/pedidos/cocina/pendientes`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -99,7 +99,7 @@ const Cocina = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`http://localhost:3000/api/pedidos/${pedidoId}/estado`, {
+      const response = await fetch(`${backendUrl}/api/pedidos/${pedidoId}/estado`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -142,7 +142,7 @@ const Cocina = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/pedidos/${pedidoId}/estado`, {
+      const response = await fetch(`${backendUrl}/api/pedidos/${pedidoId}/estado`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -214,7 +214,10 @@ const Cocina = () => {
   return (
     <div className="cocina-container">
       <div className="cocina-header">
-        <h1>🍳 Cocina - Gestión de Pedidos</h1>
+        <div>
+          <h1 className="cocina-title">👨‍🍳 Módulo Encargado de Cocina</h1>
+          <p className="cocina-subtitle">Control de pedidos en preparación</p>
+        </div>
         <button onClick={cargarPedidosCocina} className="btn-actualizar">
           🔄 Actualizar
         </button>

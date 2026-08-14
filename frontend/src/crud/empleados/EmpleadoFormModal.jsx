@@ -12,9 +12,29 @@ import {
     Grid,
     Box
 } from "@mui/material";
+import { formatCurrency } from '../../utils/currencyFormatter';
+
+const SALARIOS_POR_CARGO = {
+  'SuperAdministrador': 1800000,
+  'Gerente': 1550000,
+  'Encargado de Cocina': 1400000,
+  'Mozo': 1050000,
+  'Cajero': 1200000
+};
 
 const EmpleadoFormModal = (props) => {
     const { form, handleChange, handleSubmit, isEdit, open, onClose } = props;
+    
+    const handleCargoChange = (e) => {
+        const { name, value } = e.target;
+        const salarioSugerido = SALARIOS_POR_CARGO[value];
+        
+        setForm({
+            ...form,
+            [name]: value,
+            salarioMensual: salarioSugerido !== undefined ? String(salarioSugerido) : form.salarioMensual
+        });
+    };
     
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -109,13 +129,14 @@ const EmpleadoFormModal = (props) => {
                                 <Select
                                     name="cargo"
                                     value={form.cargo || ''}
-                                    onChange={handleChange}
+                                    onChange={handleCargoChange}
                                     label="Cargo *"
                                 >
                                     <MenuItem value="Mozo">Mozo</MenuItem>
                                     <MenuItem value="Encargado de Cocina">Encargado de Cocina</MenuItem>
                                     <MenuItem value="Cajero">Cajero</MenuItem>
                                     <MenuItem value="Gerente">Gerente</MenuItem>
+                                    <MenuItem value="SuperAdministrador">SuperAdministrador</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -132,7 +153,7 @@ const EmpleadoFormModal = (props) => {
                                 placeholder="0"
                                 required
                                 inputProps={{ min: 0, step: 0.01 }}
-                                helperText="Salario mensual del empleado"
+                                helperText={form.cargo && SALARIOS_POR_CARGO[form.cargo] ? `Salario sugerido: ${formatCurrency(SALARIOS_POR_CARGO[form.cargo])}` : "Salario mensual del empleado"}
                             />
                         </Grid>
 

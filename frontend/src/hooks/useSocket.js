@@ -3,16 +3,20 @@ import { io } from 'socket.io-client';
 
 const SOCKET_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 
-const useSocket = (room = null) => {
+const useSocket = (room = null, rol = null, modulo = null) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Crear conexión con el servidor
+    const auth = {};
+    if (rol) auth.rol = rol;
+    if (modulo) auth.modulo = modulo;
+
     socketRef.current = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 5
+      reconnectionAttempts: 5,
+      auth
     });
 
     // Evento de conexión exitosa

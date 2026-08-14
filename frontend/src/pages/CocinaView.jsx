@@ -105,7 +105,10 @@ const CocinaView = () => {
       {/* Header */}
       <header className="cocina-header">
         <div className="header-content">
-          <h1>🍳 Cocina - Gestión de Pedidos</h1>
+          <div>
+            <h1 className="cocina-title">👨‍🍳 Módulo Encargado de Cocina</h1>
+            <p className="cocina-subtitle">Control de pedidos en preparación</p>
+          </div>
           <button 
             onClick={refrescarTodo} 
             className="btn-refrescar"
