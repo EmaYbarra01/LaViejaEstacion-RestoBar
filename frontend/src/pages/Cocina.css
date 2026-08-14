@@ -2,6 +2,8 @@
   padding: 20px;
   max-width: 1600px;
   margin: 0 auto;
+  padding-top: 100px;
+  min-height: 100vh;
 }
 
 .cocina-header {
@@ -14,6 +16,22 @@
 .cocina-header h1 {
   color: #2c3e50;
   font-size: 2em;
+  margin: 0;
+}
+
+.cocina-title {
+  color: #2c3e50;
+  font-size: 2em;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.cocina-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .btn-actualizar {

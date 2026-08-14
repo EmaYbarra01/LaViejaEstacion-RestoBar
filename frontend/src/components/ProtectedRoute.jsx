@@ -30,14 +30,27 @@ const ProtectedRoute = ({ children, role }) => {
 
     // Mostrar loading mientras verificamos autenticación
     if (isLoading) {
+        console.log('ProtectedRoute cargando...');
         return (
             <div style={{ 
                 display: 'flex', 
                 justifyContent: 'center', 
                 alignItems: 'center', 
-                height: '100vh' 
+                height: '100vh',
+                background: '#f5f7fa'
             }}>
-                <div>Verificando autenticación...</div>
+                <div style={{textAlign: 'center'}}>
+                    <div className="spinner" style={{
+                        width: '50px', 
+                        height: '50px', 
+                        border: '5px solid #f3f3f3',
+                        borderTop: '5px solid #667eea',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        margin: '0 auto 1rem'
+                    }}></div>
+                    <div style={{color: '#667eea', fontSize: '1.1rem'}}>Verificando autenticación...</div>
+                </div>
             </div>
         );
     }
@@ -56,15 +69,18 @@ const ProtectedRoute = ({ children, role }) => {
     // Si se requiere un rol específico, verificar que el usuario lo tenga
     if (role) {
         const userRole = (user?.role || '').toString().toLowerCase();
+        console.log('[ProtectedRoute] role requerido:', role, 'userRole:', userRole);
         // Si role es un array, verificar que el usuario tenga uno de esos roles (normalizando)
         if (Array.isArray(role)) {
             const allowed = role.map(r => r.toString().toLowerCase());
             if (!allowed.includes(userRole)) {
+                console.log('[ProtectedRoute] Acceso denegado, redirigiendo a login');
                 return <Navigate to="/login" replace />;
             }
         } else {
             // Si role es un string, verificar que coincida (normalizando)
             if (userRole !== String(role).toLowerCase()) {
+                console.log('[ProtectedRoute] Acceso denegado, redirigiendo a login');
                 return <Navigate to="/login" replace />;
             }
         }

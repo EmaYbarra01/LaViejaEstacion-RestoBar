@@ -7,8 +7,8 @@ import Usuario from '../models/usuarioSchema.js';
  */
 export const obtenerEmpleados = async (req, res) => {
   try {
-    // Obtener todos los usuarios del sistema
-    const todosLosUsuarios = await Usuario.find({ activo: true })
+    // Obtener todos los usuarios del sistema, incluyendo inactivos
+    const todosLosUsuarios = await Usuario.find({})
       .select('-password')
       .sort({ fechaIngreso: 1 });
 
@@ -16,6 +16,9 @@ export const obtenerEmpleados = async (req, res) => {
     const empleados = await Empleado.find()
       .populate('usuario', '-password')
       .sort({ fechaContratacion: -1 });
+
+    console.log('DEBUG obtenerEmpleados - Usuarios activos:', todosLosUsuarios.map(u => ({ id: u._id, nombre: u.nombre, email: u.email, rol: u.rol })));
+    console.log('DEBUG obtenerEmpleados - Empleados encontrados:', empleados.map(e => ({ id: e._id, usuarioId: e.usuario?._id, cargo: e.cargo })));
 
     // Crear un Map de empleados por ID de usuario para búsqueda rápida
     const empleadosMap = new Map();
@@ -75,6 +78,7 @@ export const obtenerEmpleados = async (req, res) => {
       }
     });
 
+    console.log('DEBUG obtenerEmpleados - Lista combinada:', listaCombinada.map(item => ({ nombre: item.usuario?.nombre, email: item.usuario?.email, esUsuarioMadre: item.esUsuarioMadre })));
     res.json(listaCombinada);
   } catch (error) {
     console.error('Error al obtener empleados:', error);
@@ -117,8 +121,28 @@ export const crearEmpleado = async (req, res) => {
     // Verificar que el email no exista
     const usuarioExistente = await Usuario.findOne({ email });
     if (usuarioExistente) {
-      return res.status(400).json({ 
-        message: 'Ya existe un usuario con ese email' 
+      // Si el usuario ya existe, solo le creamos el registro de Empleado
+      const empleadoExistente = await Empleado.findOne({ usuario: usuarioExistente._id });
+      if (empleadoExistente) {
+        return res.status(400).json({ 
+          message: 'El usuario ya tiene un registro de empleado' 
+        });
+      }
+
+      // Si no tiene registro de empleado, se lo creamos
+      const nuevoEmpleado = new Empleado({
+        usuario: usuarioExistente._id,
+        cargo,
+        salarioMensual: salarioMensual || 0,
+        fechaContratacion: new Date()
+      });
+
+      await nuevoEmpleado.save();
+      await nuevoEmpleado.populate('usuario', '-password');
+
+      return res.status(201).json({
+        message: 'Empleado vinculado al usuario existente exitosamente',
+        empleado: nuevoEmpleado
       });
     }
 
@@ -126,8 +150,27 @@ export const crearEmpleado = async (req, res) => {
     if (dni && dni.trim() !== '') {
       const dniExistente = await Usuario.findOne({ dni });
       if (dniExistente) {
-        return res.status(400).json({ 
-          message: 'Ya existe un usuario con ese DNI' 
+        const empleadoExistente = await Empleado.findOne({ usuario: dniExistente._id });
+        if (empleadoExistente) {
+          return res.status(400).json({ 
+            message: 'Ya existe un usuario con ese DNI y tiene registro de empleado' 
+          });
+        }
+
+        // Si el DNI existe pero no tiene empleado, también lo vinculamos
+        const nuevoEmpleado = new Empleado({
+          usuario: dniExistente._id,
+          cargo,
+          salarioMensual: salarioMensual || 0,
+          fechaContratacion: new Date()
+        });
+
+        await nuevoEmpleado.save();
+        await nuevoEmpleado.populate('usuario', '-password');
+
+        return res.status(201).json({
+          message: 'Empleado vinculado al usuario existente por DNI exitosamente',
+          empleado: nuevoEmpleado
         });
       }
     }
@@ -149,10 +192,10 @@ export const crearEmpleado = async (req, res) => {
       nombre,
       apellido,
       email,
-      password: password || 'empleado123', // Usar la contraseña proporcionada o una por defecto
-      dni: dni || 'SIN-DNI-' + Date.now(), // Generar DNI temporal si no se proporciona
+      password: password || 'empleado123',
+      dni: dni || 'SIN-DNI-' + Date.now(),
       telefono: telefono || '',
-      rol: rolSistema, // Asignar rol según el cargo
+      rol: rolSistema,
       activo: true,
       fechaIngreso: new Date()
     });
@@ -193,12 +236,30 @@ export const actualizarEmpleado = async (req, res) => {
     const { id } = req.params;
     const { cargo, salarioMensual, activo } = req.body;
 
-    const empleado = await Empleado.findById(id);
+    let empleado = await Empleado.findById(id);
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      const nuevoEmpleado = new Empleado({
+        usuario: usuario._id,
+        cargo: cargo || usuario.rol,
+        salarioMensual: salarioMensual || 0,
+        activo: activo !== undefined ? activo : true,
+        fechaContratacion: new Date()
+      });
+
+      await nuevoEmpleado.save();
+      await nuevoEmpleado.populate('usuario', '-password');
+
+      return res.json({
+        message: 'Registro de empleado creado exitosamente',
+        empleado: nuevoEmpleado
+      });
     }
 
-    // Actualizar campos permitidos
     if (cargo !== undefined) empleado.cargo = cargo;
     if (salarioMensual !== undefined) empleado.salarioMensual = salarioMensual;
     if (activo !== undefined) empleado.activo = activo;
@@ -254,25 +315,36 @@ export const eliminarEmpleado = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const empleado = await Empleado.findById(id).populate('usuario');
+    let empleado = await Empleado.findById(id).populate('usuario');
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      // Si no existe el registro de empleado, intentamos eliminar el usuario directamente por su ID
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      const nombreCompleto = `${usuario.nombre} ${usuario.apellido}`;
+      await Usuario.findByIdAndDelete(id);
+
+      return res.json({
+        message: 'Usuario eliminado permanentemente',
+        eliminado: {
+          nombre: nombreCompleto,
+          cargo: usuario.rol
+        }
+      });
     }
 
-    // Guardar información antes de eliminar
-    const nombreCompleto = `${empleado.usuario.nombre} ${empleado.usuario.apellido}`;
     const usuarioId = empleado.usuario._id;
 
-    // Eliminar primero el registro de empleado
     await Empleado.findByIdAndDelete(id);
 
-    // Eliminar el usuario asociado
     await Usuario.findByIdAndDelete(usuarioId);
 
     res.json({
       message: 'Empleado y usuario eliminados permanentemente',
       eliminado: {
-        nombre: nombreCompleto,
+        nombre: `${empleado.usuario.nombre} ${empleado.usuario.apellido}`,
         cargo: empleado.cargo
       }
     });
@@ -293,9 +365,22 @@ export const registrarAsistencia = async (req, res) => {
     const { id } = req.params;
     const { fecha, presente = true, horaEntrada = '', horaSalida = '', observaciones = '' } = req.body;
 
-    const empleado = await Empleado.findById(id);
+    let empleado = await Empleado.findById(id);
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      empleado = new Empleado({
+        usuario: usuario._id,
+        cargo: usuario.rol,
+        salarioMensual: 0,
+        fechaContratacion: new Date()
+      });
+
+      await empleado.save();
+      await empleado.populate('usuario', '-password');
     }
 
     empleado.asistencias.push({
@@ -329,12 +414,24 @@ export const registrarPago = async (req, res) => {
     const { id } = req.params;
     const { mes, anio, monto, metodoPago = 'Efectivo', observaciones = '' } = req.body;
 
-    const empleado = await Empleado.findById(id);
+    let empleado = await Empleado.findById(id);
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      empleado = new Empleado({
+        usuario: usuario._id,
+        cargo: usuario.rol,
+        salarioMensual: monto,
+        fechaContratacion: new Date()
+      });
+
+      await empleado.save();
+      await empleado.populate('usuario', '-password');
     }
 
-    // Verificar si ya existe un pago para ese mes/año
     const pagoExistente = empleado.pagos.find(p => p.mes === mes && p.anio === anio);
     if (pagoExistente) {
       return res.status(400).json({ 
@@ -374,14 +471,25 @@ export const obtenerAsistencias = async (req, res) => {
     const { id } = req.params;
     const { mes, anio } = req.query;
 
-    const empleado = await Empleado.findById(id).populate('usuario', '-password');
+    let empleado = await Empleado.findById(id).populate('usuario', '-password');
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      const usuario = await Usuario.findById(id).select('-password');
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      return res.json({
+        empleado: {
+          _id: usuario._id,
+          usuario,
+          cargo: usuario.rol
+        },
+        asistencias: []
+      });
     }
 
     let asistencias = empleado.asistencias;
 
-    // Filtrar por mes/año si se proporcionan
     if (mes && anio) {
       asistencias = asistencias.filter(a => {
         const fecha = new Date(a.fecha);
@@ -414,9 +522,22 @@ export const obtenerPagos = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const empleado = await Empleado.findById(id).populate('usuario', '-password');
+    let empleado = await Empleado.findById(id).populate('usuario', '-password');
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      const usuario = await Usuario.findById(id).select('-password');
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      return res.json({
+        empleado: {
+          _id: usuario._id,
+          usuario,
+          cargo: usuario.rol,
+          salarioMensual: 0
+        },
+        pagos: []
+      });
     }
 
     res.json({
@@ -448,9 +569,22 @@ export const registrarInasistencia = async (req, res) => {
     const { id } = req.params;
     const { fecha, motivo = 'Sin registrar asistencia', observaciones = '' } = req.body;
 
-    const empleado = await Empleado.findById(id);
+    let empleado = await Empleado.findById(id);
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      empleado = new Empleado({
+        usuario: usuario._id,
+        cargo: usuario.rol,
+        salarioMensual: 0,
+        fechaContratacion: new Date()
+      });
+
+      await empleado.save();
+      await empleado.populate('usuario', '-password');
     }
 
     empleado.inasistencias.push({
@@ -482,14 +616,25 @@ export const obtenerInasistencias = async (req, res) => {
     const { id } = req.params;
     const { mes, anio } = req.query;
 
-    const empleado = await Empleado.findById(id).populate('usuario', '-password');
+    let empleado = await Empleado.findById(id).populate('usuario', '-password');
     if (!empleado) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
+      const usuario = await Usuario.findById(id).select('-password');
+      if (!usuario) {
+        return res.status(404).json({ message: 'Empleado o usuario no encontrado' });
+      }
+
+      return res.json({
+        empleado: {
+          _id: usuario._id,
+          usuario,
+          cargo: usuario.rol
+        },
+        inasistencias: []
+      });
     }
 
     let inasistencias = empleado.inasistencias || [];
 
-    // Filtrar por mes/año si se proporcionan
     if (mes && anio) {
       inasistencias = inasistencias.filter(i => {
         const fecha = new Date(i.fecha);

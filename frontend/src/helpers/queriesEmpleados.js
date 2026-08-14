@@ -11,6 +11,7 @@ export const getAllEmpleados = async () => {
     const response = await axios.get(URL_EMPLEADOS, {
       withCredentials: true
     });
+    console.log('getAllEmpleados response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al obtener empleados:', error);

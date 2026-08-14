@@ -585,3 +585,9 @@
     padding: 0.5rem;
   }
 }
+
+.admin-results-count {
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+  color: #444;
+}
