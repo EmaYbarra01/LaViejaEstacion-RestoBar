@@ -27,6 +27,7 @@ import cierreCajaRoutes from './src/routes/cierreCaja.routes.js';
 import salesRoutes from './src/routes/sales.routes.js';
 import empleadosRoutes from './src/routes/empleados.routes.js';
 import dashboardRoutes from './src/routes/dashboard.routes.js';
+import mensajesRoutes from './src/routes/mensajes.routes.js';
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api', cierreCajaRoutes);
 app.use('/api', salesRoutes);
 app.use('/api/empleados', empleadosRoutes);
 app.use('/api', dashboardRoutes);
+app.use('/api', mensajesRoutes);
 
 // Ruta de bienvenida
 app.get('/', (req, res) => {

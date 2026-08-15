@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from 'axios';
 import { getAllProducts, createProduct, updateProduct, deleteProduct, checkProductNameExists } from "../helpers/queriesProductos";
 import ProductFormModal from "../crud/products/ProductFormModal";
 import {
@@ -10,7 +11,11 @@ import {
   TableBody,
   Table,
   Chip,
-  Alert
+  Alert,
+  TextField,
+  Box,
+  Typography,
+  Paper
 } from "@mui/material";
 import Swal from 'sweetalert2';
 import useUserStore from '../store/useUserStore';
@@ -29,6 +34,9 @@ const Products = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [nameError, setNameError] = useState("");
   const [lowStockCount, setLowStockCount] = useState(0);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [messageLoading, setMessageLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -45,7 +53,63 @@ const Products = () => {
 
   useEffect(() => {
     loadProducts();
-  }, []);
+    if (isSuperAdmin || isGerente) {
+      loadMessages();
+    }
+  }, [user?.role]);
+
+  const loadMessages = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/mensajes`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token') || localStorage.getItem('accessToken') || ''}`
+        }
+      });
+      setMessages(response.data?.mensajes || []);
+    } catch (error) {
+      console.error('Error al cargar mensajes:', error);
+      setMessages([]);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim()) return;
+
+    try {
+      setMessageLoading(true);
+      const targetRole = user?.role === 'Gerente' ? 'SuperAdministrador' : 'Gerente';
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/mensajes`,
+        { texto: newMessage.trim(), destinatarioRol: targetRole },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token') || localStorage.getItem('accessToken') || ''}`
+          }
+        }
+      );
+
+      const sentMessage = response.data?.data;
+      if (sentMessage) {
+        setMessages((prev) => [...prev, sentMessage]);
+      } else {
+        await loadMessages();
+      }
+      setNewMessage('');
+    } catch (error) {
+      console.error('Error al enviar mensaje:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'No se pudo enviar el mensaje',
+        text: error.response?.data?.mensaje || 'Reintente más tarde',
+        confirmButtonColor: '#667eea'
+      });
+    } finally {
+      setMessageLoading(false);
+    }
+  };
 
   const loadProducts = async () => {
     try {
@@ -279,6 +343,69 @@ const Products = () => {
           <strong>⚠️ Atención:</strong> Hay {lowStockCount} producto{lowStockCount > 1 ? 's' : ''} con stock bajo o agotado.
           {isGerente && ' Contacte al SuperAdministrador para realizar reposición.'}
         </Alert>
+      )}
+
+      {(isGerente || isSuperAdmin) && (
+        <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2, background: '#f8faff' }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#1f2d3d' }}>
+            💬 Mensajería interna
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 1.2, p: 1, background: '#fff', borderRadius: 1, border: '1px solid #e0e7ff' }}>
+              {messages.length === 0 ? (
+                <Typography variant="body2" sx={{ color: '#64748b', p: 1 }}>
+                  No hay mensajes entre Gerente y SuperAdministrador.
+                </Typography>
+              ) : (
+                messages.map((msg) => {
+                  const senderName = msg.remitente?.nombre ? `${msg.remitente.nombre} ${msg.remitente.apellido || ''}`.trim() : 'Sistema';
+                  const isMine = msg.remitenteRol === user?.role;
+                  return (
+                    <Box key={msg._id || msg.id || `${msg.remitenteRol}-${msg.createdAt}`} sx={{
+                      alignSelf: isMine ? 'flex-end' : 'flex-start',
+                      maxWidth: '75%',
+                      background: isMine ? '#dbeafe' : '#f1f5f9',
+                      color: '#0f172a',
+                      borderRadius: 2,
+                      p: 1.2,
+                      border: '1px solid rgba(148,163,184,0.35)'
+                    }}>
+                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, mb: 0.4 }}>
+                        {senderName} · {msg.remitenteRol}
+                      </Typography>
+                      <Typography variant="body2">{msg.texto}</Typography>
+                    </Box>
+                  );
+                })
+              )}
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <TextField
+                fullWidth
+                size="small"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder={user?.role === 'Gerente' ? 'Escribí un mensaje para el SuperAdministrador...' : 'Escribí un mensaje para el Gerente...'}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+              <Button
+                variant="contained"
+                onClick={sendMessage}
+                disabled={messageLoading || !newMessage.trim()}
+                sx={{ minWidth: 120 }}
+              >
+                {messageLoading ? 'Enviando...' : 'Enviar'}
+              </Button>
+            </Box>
+          </Box>
+        </Paper>
       )}
 
       <ProductFormModal
