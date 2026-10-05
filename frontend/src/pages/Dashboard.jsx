@@ -140,7 +140,7 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <Box mb={3}>
         <Typography variant="h4" gutterBottom style={{ fontWeight: 'bold' }}>
-          📊 Dashboard - {user?.role === 'Gerente' ? 'Supervisión' : 'Panel de Control'}
+          Dashboard - {user?.role === 'Gerente' ? 'Supervisión' : 'Panel de Control'}
         </Typography>
         <Typography variant="body2" color="textSecondary">
           Resumen en tiempo real del estado del restaurante
@@ -241,7 +241,7 @@ const Dashboard = () => {
       {(metrics.productosStockBajo > 0 || metrics.pedidosPendientes > 5) && (
         <Box mt={4}>
           <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>
-            ⚠️ Alertas
+            Alertas
           </Typography>
           <Grid container spacing={2}>
             {metrics.productosStockBajo > 0 && (

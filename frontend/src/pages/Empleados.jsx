@@ -528,7 +528,7 @@ const Empleados = () => {
       {console.log('RENDER Empleados, count:', empleados.length)}
       <div className="admin-header">
         <h1 className="admin-title">
-          👥 {isGerente ? 'Supervisión de Empleados' : 'Gestión de Empleados'}
+          {isGerente ? 'Supervisión de Empleados' : 'Gestión de Empleados'}
           {isGerente && <Chip label="Solo Lectura" size="small" color="info" sx={{ ml: 2 }} />}
         </h1>
         {canEdit && (

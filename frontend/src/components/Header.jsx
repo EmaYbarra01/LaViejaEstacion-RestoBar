@@ -74,25 +74,25 @@ export default function Header() {
           {/* Pestañas específicas por rol */}
           {user?.role === 'Mozo' && (
             <NavLink to="/mozo" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#4caf50' }}>
-              🍽️ MI MÓDULO
+              MI MÓDULO
             </NavLink>
           )}
           
           {user?.role === 'EncargadoCocina' && (
             <NavLink to="/encargado-cocina" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#f44336' }}>
-              👨‍🍳 MI MÓDULO
+              MI MÓDULO
             </NavLink>
           )}
           
           {user?.role === 'Cajero' && (
             <NavLink to="/caja" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#ffc107' }}>
-              💰 MI MÓDULO
+              MI MÓDULO
             </NavLink>
           )}
           
           {(user?.role === 'SuperAdministrador' || user?.role === 'Gerente') && (
             <NavLink to="/admin/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#667eea' }}>
-              🛠️ PANEL ADMIN
+              PANEL ADMIN
             </NavLink>
           )}
           

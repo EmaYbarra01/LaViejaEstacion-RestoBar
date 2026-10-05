@@ -286,7 +286,7 @@ const Reservas = () => {
 
           {/* Instrucciones post-reserva */}
           <div className="post-reserva-info">
-            <h3>📋 ¿Qué sigue después de hacer tu reserva?</h3>
+            <h3>¿Qué sigue después de hacer tu reserva?</h3>
             <div className="instrucciones-pasos">
               <div className="paso">
                 <span className="paso-numero">1</span>
@@ -312,7 +312,7 @@ const Reservas = () => {
             </div>
 
             <div className="contacto-alternativo">
-              <h4>⚠️ ¿No recibiste el correo de confirmación?</h4>
+              <h4>¿No recibiste el correo de confirmación?</h4>
               <p>Si escribiste mal tu email o no te llegó el correo en los próximos minutos:</p>
               <ul>
                 <li>Revisa tu carpeta de spam o correo no deseado</li>

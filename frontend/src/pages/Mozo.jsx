@@ -206,21 +206,6 @@ const Mozo = () => {
     }
   };
 
-  const obtenerIconoEstado = (estado) => {
-    switch (estado) {
-      case 'Pendiente':
-        return '⏰';
-      case 'En Preparación':
-        return '👨‍🍳';
-      case 'Listo':
-        return '✅';
-      case 'Entregado':
-        return '🍽️';
-      default:
-        return '📋';
-    }
-  };
-
   const pedidosFiltrados = pedidos.filter(pedido => {
     // Normalizar filtro: "En Cocina" debe buscar "En Preparación"
     let estadoBuscado = filtroEstado;
@@ -290,7 +275,7 @@ const Mozo = () => {
       <div className="mozo-header">
         <div className="header-left">
           <div>
-            <h1 className="mozo-title">🍽️ Módulo Mozo</h1>
+            <h1 className="mozo-title">Módulo Mozo</h1>
             <p className="mozo-subtitle">Gestión de pedidos, mesas y cuentas</p>
           </div>
         </div>
@@ -307,7 +292,7 @@ const Mozo = () => {
           borderBottom: '3px solid #ffc107',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
         }}>
-          🔍 MODO SUPERVISIÓN - Solo Lectura (No se pueden crear/editar pedidos)
+          MODO SUPERVISIÓN - Solo Lectura (No se pueden crear/editar pedidos)
         </div>
       )}
 
@@ -317,21 +302,18 @@ const Mozo = () => {
           className={`tab-button ${vistaActiva === 'pedidos' ? 'active' : ''}`}
           onClick={() => setVistaActiva('pedidos')}
         >
-          <span>📋</span>
           <span>Pedidos</span>
         </button>
         <button 
           className={`tab-button menu-tab ${vistaActiva === 'menu' ? 'active' : ''}`}
           onClick={() => setVistaActiva('menu')}
         >
-          <span>📖</span>
           <span>Menú</span>
         </button>
         <button 
           className={`tab-button cuenta-tab ${vistaActiva === 'cuenta' ? 'active' : ''}`}
           onClick={() => setVistaActiva('cuenta')}
         >
-          <span>💰</span>
           <span>Cuenta</span>
         </button>
       </div>
@@ -369,19 +351,19 @@ const Mozo = () => {
           className={`filtro-chip ${filtroEstado === 'Pendiente' ? 'active' : ''}`}
           onClick={() => setFiltroEstado('Pendiente')}
         >
-          ⏰ Pendientes ({pedidos.filter(p => p.estado === 'Pendiente').length})
+          Pendientes ({pedidos.filter(p => p.estado === 'Pendiente').length})
         </button>
         <button
           className={`filtro-chip ${filtroEstado === 'En Cocina' ? 'active' : ''}`}
           onClick={() => setFiltroEstado('En Cocina')}
         >
-          👨‍🍳 En Cocina ({pedidos.filter(p => p.estado === 'En Preparación').length})
+          En Cocina ({pedidos.filter(p => p.estado === 'En Preparación').length})
         </button>
         <button
           className={`filtro-chip ${filtroEstado === 'Listo' ? 'active' : ''}`}
           onClick={() => setFiltroEstado('Listo')}
         >
-          ✅ Listos ({pedidos.filter(p => p.estado === 'Listo').length})
+          Listos ({pedidos.filter(p => p.estado === 'Listo').length})
         </button>
       </div>
 
@@ -407,20 +389,11 @@ const Mozo = () => {
               <div className="card-header">
                 <div className="card-tipo">
                   {pedido.tipoServicio === 'Delivery' ? (
-                    <>
-                      <span className="icono-tipo">🛵</span>
-                      <span>Delivery</span>
-                    </>
+                    <span>Delivery</span>
                   ) : pedido.tipoServicio === 'Retirada' ? (
-                    <>
-                      <span className="icono-tipo">🚶</span>
-                      <span>Retirada</span>
-                    </>
+                    <span>Retirada</span>
                   ) : (
-                    <>
-                      <span className="icono-tipo">🍽️</span>
-                      <span>Local</span>
-                    </>
+                    <span>Local</span>
                   )}
                 </div>
               </div>
@@ -447,7 +420,6 @@ const Mozo = () => {
 
               {/* Footer con estado */}
               <div className={`card-footer ${obtenerColorEstado(pedido.estado)}`}>
-                <span className="estado-icono">{obtenerIconoEstado(pedido.estado)}</span>
                 <span className="estado-texto">{pedido.estado}</span>
               </div>
             </div>
@@ -530,7 +502,6 @@ const Mozo = () => {
 
           <div className="cuenta-resumen">
             <div className="resumen-card">
-              <div className="resumen-icon">📋</div>
               <div className="resumen-info">
                 <span className="resumen-label">Total Pedidos</span>
                 <span className="resumen-valor cuenta-card-numero">{pedidos.length}</span>
@@ -538,7 +509,6 @@ const Mozo = () => {
             </div>
 
             <div className="resumen-card">
-              <div className="resumen-icon">🍽️</div>
               <div className="resumen-info">
                 <span className="resumen-label">Productos</span>
                 <span className="resumen-valor cuenta-card-productos">{calcularCantidadProductos()}</span>
@@ -546,7 +516,6 @@ const Mozo = () => {
             </div>
 
             <div className="resumen-card total">
-              <div className="resumen-icon">💰</div>
               <div className="resumen-info">
                 <span className="resumen-label">Total General</span>
                 <span className="resumen-valor cuenta-card-total">${formatCurrency(calcularTotalPedidos())}</span>
@@ -568,7 +537,7 @@ const Mozo = () => {
                       {pedido.numeroMesa ? `Mesa ${pedido.numeroMesa}` : 'Sin mesa'}
                     </span>
                     <span className={`cuenta-estado ${obtenerColorEstado(pedido.estado)}`}>
-                      {obtenerIconoEstado(pedido.estado)} {pedido.estado}
+                      {pedido.estado}
                     </span>
                   </div>
                   <div className="cuenta-pedido-productos">

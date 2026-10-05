@@ -106,7 +106,7 @@ const CocinaView = () => {
       <header className="cocina-header">
         <div className="header-content">
           <div>
-            <h1 className="cocina-title">👨‍🍳 Módulo Encargado de Cocina</h1>
+            <h1 className="cocina-title">Módulo Encargado de Cocina</h1>
             <p className="cocina-subtitle">Control de pedidos en preparación</p>
           </div>
           <button 
@@ -130,7 +130,7 @@ const CocinaView = () => {
           borderBottom: '3px solid #ffc107',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
         }}>
-          🔍 MODO SUPERVISIÓN - Solo Lectura (No se pueden cambiar estados de pedidos)
+          MODO SUPERVISIÓN - Solo Lectura (No se pueden cambiar estados de pedidos)
         </div>
       )}
 
@@ -162,25 +162,25 @@ const CocinaView = () => {
           className={`tab-btn ${vistaActiva === 'todos' ? 'active' : ''}`}
           onClick={() => cambiarVista('todos')}
         >
-          📋 Todos
+          Todos
         </button>
         <button
           className={`tab-btn ${vistaActiva === 'pendientes' ? 'active' : ''}`}
           onClick={() => cambiarVista('pendientes')}
         >
-          ⏸️ Pendientes
+          Pendientes
         </button>
         <button
           className={`tab-btn ${vistaActiva === 'preparacion' ? 'active' : ''}`}
           onClick={() => cambiarVista('preparacion')}
         >
-          🔥 En Preparación
+          En Preparación
         </button>
         <button
           className={`tab-btn ${vistaActiva === 'listos' ? 'active' : ''}`}
           onClick={() => cambiarVista('listos')}
         >
-          ✅ Listos
+          Listos
         </button>
       </div>
 
