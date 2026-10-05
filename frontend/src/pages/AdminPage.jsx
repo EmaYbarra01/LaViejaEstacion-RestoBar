@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
-import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 import useUserStore from "../store/useUserStore";
 import "./AdminPage.css";
 
@@ -38,7 +38,7 @@ const AdminPage = () => {
             <FaArrowLeft /> Volver
           </button>
           <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 'bold' }}>
-            🛠️ Panel de Administración
+            Panel de Administración
           </h1>
         </div>
       </div>
@@ -66,7 +66,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaChartLine /> Dashboard
+          Dashboard
         </NavLink>
         <NavLink 
           to="/admin/products" 
@@ -83,7 +83,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaBox /> Productos
+          Productos
         </NavLink>
         <NavLink 
           to="/admin/users" 
@@ -100,7 +100,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaUsers /> Usuarios
+          Usuarios
         </NavLink>
         <NavLink 
           to="/admin/sales" 
@@ -117,7 +117,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaChartLine /> Ventas
+          Ventas
         </NavLink>
         <NavLink 
           to="/admin/reservas" 
@@ -134,7 +134,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaClipboardList /> Reservas
+          Reservas
         </NavLink>
         <NavLink 
           to="/admin/calendario" 
@@ -151,7 +151,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaCalendarAlt /> Calendario
+          Calendario
         </NavLink>
         {canViewEmpleados && (
           <NavLink 
@@ -169,7 +169,7 @@ const AdminPage = () => {
               transition: 'all 0.3s'
             })}
           >
-            <FaUserTie /> Empleados
+            Empleados
           </NavLink>
         )}
         {/* Módulos Operativos - Solo para Gerente y SuperAdmin */}
@@ -207,7 +207,7 @@ const AdminPage = () => {
                 e.target.style.borderBottomColor = 'transparent';
               }}
             >
-              🍽️ Módulo Mozo
+              Módulo Mozo
             </Link>
             <Link 
               to="/encargado-cocina" 
@@ -233,7 +233,7 @@ const AdminPage = () => {
                 e.target.style.borderBottomColor = 'transparent';
               }}
             >
-              👨‍🍳 Encargado Cocina
+              Encargado Cocina
             </Link>
           </>
         )}

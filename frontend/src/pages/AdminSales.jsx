@@ -152,7 +152,7 @@ function AdminSales() {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1>📊 Administración de Ventas</h1>
+        <h1>Administración de Ventas</h1>
         <p className="admin-subtitle">
           Gestiona y supervisa todas las ventas realizadas
         </p>
@@ -161,21 +161,18 @@ function AdminSales() {
       {/* Estadísticas */}
       <div className="sales-stats">
         <div className="stat-card">
-          <div className="stat-icon">💰</div>
           <div className="stat-info">
              <h3>${formatCurrency(totalRevenue)}</h3>
             <p>Ingresos Totales</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">🛒</div>
           <div className="stat-info">
             <h3>{filteredSales.length}</h3>
             <p>Ventas Realizadas</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">📦</div>
           <div className="stat-info">
             <h3>
               {filteredSales.reduce((sum, sale) => 

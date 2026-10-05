@@ -305,7 +305,7 @@ const Products = () => {
     <div className="admin-page">
       <div className="admin-page-header">
         <h1 className="admin-page-title">
-          {isGerente ? '🔍 Supervisión de Productos' : '📦 Gestión de Productos'}
+          {isGerente ? 'Supervisión de Productos' : 'Gestión de Productos'}
         </h1>
         {isGerente && (
           <Chip 
@@ -348,7 +348,7 @@ const Products = () => {
       {(isGerente || isSuperAdmin) && (
         <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2, background: '#f8faff' }}>
           <Typography variant="h6" sx={{ mb: 2, color: '#1f2d3d' }}>
-            💬 Mensajería interna
+            Mensajería interna
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

@@ -80,7 +80,7 @@ const HistorialCierres = () => {
         </div>
         
         <div style="background: #f9fafb; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.25rem;">
-          <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">📋 Información General</h3>
+          <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">Información General</h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
             <div><strong>Turno:</strong> ${cierre.turno}</div>
             <div><strong>Estado:</strong> <span style="padding: 0.25rem 0.75rem; background: ${cierre.estado === 'Cerrado' ? '#d1fae5' : '#dbeafe'}; color: ${cierre.estado === 'Cerrado' ? '#059669' : '#1e40af'}; border-radius: 12px; font-size: 0.875rem;">${cierre.estado}</span></div>
@@ -91,7 +91,7 @@ const HistorialCierres = () => {
         </div>
 
         <div style="background: #fff7ed; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.25rem; border: 2px solid #ffc107;">
-          <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">💰 Resumen de Ventas</h3>
+          <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">Resumen de Ventas</h3>
           <div style="display: grid; gap: 0.5rem;">
             <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 6px;">
               <span>Pedidos Cobrados:</span>
@@ -117,7 +117,7 @@ const HistorialCierres = () => {
         </div>
 
         <div style="background: ${cierre.diferencia === 0 ? '#d1fae5' : cierre.diferencia > 0 ? '#dbeafe' : '#fee2e2'}; padding: 1.25rem; border-radius: 8px; border: 2px solid ${cierre.diferencia === 0 ? '#10b981' : cierre.diferencia > 0 ? '#3b82f6' : '#ef4444'};">
-          <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">💵 Efectivo en Caja</h3>
+          <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">Efectivo en Caja</h3>
           <div style="display: grid; gap: 0.5rem;">
             <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 6px;">
               <span>Monto Inicial:</span>
@@ -143,7 +143,7 @@ const HistorialCierres = () => {
 
         ${cierre.observaciones ? `
           <div style="background: #f9fafb; padding: 1.25rem; border-radius: 8px; margin-top: 1.25rem; border-left: 4px solid #ffc107;">
-            <h3 style="margin: 0 0 0.75rem; color: #1f2937; font-size: 1.125rem;">📝 Observaciones</h3>
+            <h3 style="margin: 0 0 0.75rem; color: #1f2937; font-size: 1.125rem;">Observaciones</h3>
             <p style="margin: 0; color: #6b7280;">${cierre.observaciones}</p>
           </div>
         ` : ''}
@@ -260,7 +260,7 @@ const HistorialCierres = () => {
   return (
     <div className="historial-cierres-container">
       <div className="historial-header">
-        <h1>📊 Historial de Cierres de Caja</h1>
+        <h1>Historial de Cierres de Caja</h1>
       </div>
 
       {/* Filtros */}

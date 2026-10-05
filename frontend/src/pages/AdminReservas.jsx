@@ -341,7 +341,7 @@ const AdminReservas = () => {
     <div className="admin-reservas-page">
       <div className="admin-reservas-container">
         <header className="admin-reservas-header">
-          <h1>📋 Gestión de Reservas</h1>
+          <h1>Gestión de Reservas</h1>
           <p>Panel de administración - {total} reservas totales</p>
         </header>
 

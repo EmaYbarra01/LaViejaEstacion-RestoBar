@@ -395,7 +395,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
     <div className="cierre-caja-overlay">
       <div className="cierre-caja-modal">
         <div className="cierre-caja-header">
-          <h2>💰 Realizar Cierre de Caja</h2>
+          <h2>Realizar Cierre de Caja</h2>
           <button className="btn-close-modal" onClick={onClose}>×</button>
         </div>
 

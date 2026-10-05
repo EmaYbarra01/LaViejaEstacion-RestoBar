@@ -135,7 +135,7 @@ const MisReservas = () => {
           </button>
 
           <header className="mis-reservas-header">
-            <h1>📋 Mis Reservas</h1>
+            <h1>Mis Reservas</h1>
             <p>Consulta tus reservas ingresando tu email</p>
           </header>
 
@@ -183,7 +183,7 @@ const MisReservas = () => {
         </button>
 
         <header className="mis-reservas-header">
-          <h1>📋 Mis Reservas</h1>
+          <h1>Mis Reservas</h1>
           <p>Email: <strong>{email}</strong></p>
           <button className="btn-cambiar-email" onClick={cambiarEmail}>
             Cambiar Email
@@ -225,7 +225,7 @@ const MisReservas = () => {
             {/* Reservas Futuras */}
             {reservasFuturas.length > 0 && (
               <section className="seccion-reservas">
-                <h2>🔜 Próximas Reservas</h2>
+                <h2>Próximas Reservas</h2>
                 <div className="reservas-grid">
                   {reservasFuturas.map(reserva => {
                     const estadoConfig = getEstadoConfig(reserva.estado);
@@ -305,7 +305,7 @@ const MisReservas = () => {
             {/* Reservas Pasadas */}
             {reservasPasadas.length > 0 && (
               <section className="seccion-reservas">
-                <h2>📜 Historial</h2>
+                <h2>Historial</h2>
                 <div className="reservas-grid">
                   {reservasPasadas.map(reserva => {
                     const estadoConfig = getEstadoConfig(reserva.estado);
