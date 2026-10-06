@@ -1,5 +1,20 @@
 /* App.css */
 
+:root {
+  --app-ink: #2C3E35;
+  --app-ink-soft: #5A7C65;
+  --app-surface: #FFFFFF;
+  --app-surface-muted: #F4F6F4;
+  --app-border: #8FA396;
+  --app-text: #2C3E35;
+  --app-text-muted: #8FA396;
+  --app-accent: #5A7C65;
+  --app-accent-dark: #3B7A57;
+  --app-accent-soft: #F4F6F4;
+  --app-shadow: 0 8px 24px #8FA396;
+  --app-radius: 10px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -11,6 +26,33 @@ html {
   padding: 0;
   overflow-x: hidden;
   max-width: 100vw;
+}
+
+body {
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #8FA396;
+  outline-offset: 2px;
 }
 
 #root,
@@ -91,7 +133,715 @@ header {
 
 .main-content {
   flex: 1;
-  padding-top: 20px;
+  padding-top: 0;
+}
+
+/* Fixed header clearance for views that do not define their own top spacing. */
+.main-content > .admin-page,
+.main-content > .admin-container,
+.main-content > .dashboard-container,
+.main-content > .historial-cierres-container,
+.main-content > .equipo-page,
+.main-content > .servicios-page,
+.main-content > .reservas-page {
+  padding-top: 80px;
+}
+
+/* Shared visual language for public and operational page shells. */
+.menu-page,
+.quienes-somos-page,
+.servicios-page,
+.reservas-page,
+.mis-reservas-page,
+.admin-reservas-page,
+.calendario-reservas-page,
+.caja-container,
+.cocina-view,
+.mozo-container,
+.dashboard-container,
+.admin-page {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.menu-page,
+.quienes-somos-page,
+.mis-reservas-page,
+.admin-reservas-page,
+.calendario-reservas-page {
+  padding-top: 104px;
+}
+
+.menu-header h1,
+.quienes-somos-header h1,
+.mis-reservas-header h1,
+.admin-reservas-header h1,
+.calendario-header h1,
+.admin-page-title,
+.section-title,
+.section-icon,
+.menu-header p,
+.quienes-somos-header p {
+  color: var(--app-ink) !important;
+  text-shadow: none !important;
+}
+
+.menu-divider,
+.header-divider {
+  background: var(--app-accent) !important;
+}
+
+.menu-card,
+.accordion-item,
+.historia-content,
+.valor-card,
+.mision-card,
+.vision-card,
+.admin-table-container,
+.admin-page-header,
+.tabla-container,
+.calendario-grid-container,
+.detalles-dia,
+.filtros-container,
+.email-form-container,
+.reserva-card {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.menu-card,
+.accordion-item,
+.valor-card,
+.mision-card,
+.vision-card,
+.reserva-card {
+  border-radius: var(--app-radius) !important;
+}
+
+.menu-card:hover,
+.accordion-item:hover,
+.valor-card:hover,
+.mision-card:hover,
+.vision-card:hover,
+.reserva-card:hover {
+  border-color: var(--app-accent) !important;
+  box-shadow: 0 12px 30px #8FA396 !important;
+}
+
+.menu-card h3,
+.accordion-title span,
+.historia-text h2,
+.valores-section h2,
+.mision-card h2,
+.vision-card h2,
+.menu-card p,
+.historia-text p,
+.valor-card p,
+.mision-card p,
+.vision-card p,
+.reserva-card {
+  color: var(--app-text) !important;
+}
+
+.producto-precio,
+.accordion-icon,
+.chevron,
+.valor-icon,
+.mis-reservas-header strong,
+.seccion-reservas h2,
+.stat-numero {
+  color: var(--app-accent-dark) !important;
+}
+
+.create-button,
+.btn-consultar,
+.btn-nav,
+.btn-aplicar,
+.categoria-tab.active,
+.tab-btn.active,
+.filtro-chip.active {
+  background: var(--app-accent) !important;
+  border-color: var(--app-accent-dark) !important;
+  color: var(--app-surface) !important;
+  box-shadow: 0 5px 14px #8FA396 !important;
+}
+
+.admin-table thead,
+.admin-page > div:first-child,
+.caja-header,
+.cocina-header,
+.mozo-header {
+  background: var(--app-ink) !important;
+  background-image: none !important;
+}
+
+.admin-table thead th,
+.admin-page > div:first-child,
+.caja-header,
+.cocina-header,
+.mozo-header {
+  color: #fff !important;
+}
+
+.admin-page #admin-nav .nav-link {
+  color: var(--app-text-muted) !important;
+  border-bottom-color: transparent !important;
+}
+
+.admin-page #admin-nav .nav-link[aria-current="page"],
+.admin-page #admin-nav .nav-link.active {
+  color: var(--app-accent-dark) !important;
+  border-bottom-color: var(--app-accent) !important;
+}
+
+.admin-table tbody tr:hover,
+.dia-celda:not(.vacio):hover,
+.pedido-item:hover,
+.mesa-card:hover {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-accent) !important;
+}
+
+/* Palette enforcement for shared controls and legacy page styles. */
+body,
+input,
+select,
+textarea,
+button,
+table,
+th,
+td {
+  color: var(--app-text);
+}
+
+input,
+select,
+textarea,
+.search-input,
+.input-busqueda,
+.select-filtro,
+.input-fecha {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.search-input:focus,
+.input-busqueda:focus,
+.select-filtro:focus,
+.input-fecha:focus {
+  border-color: var(--app-accent) !important;
+  box-shadow: 0 0 0 3px #8FA396 !important;
+}
+
+button,
+.btn-actualizar,
+.btn-search,
+.btn-nav,
+.btn-cierre-caja,
+.btn-consultar,
+.btn-aplicar,
+.btn-accion,
+.btn-realizar-pedido,
+.purchase-btn,
+.create-button,
+.edit-button,
+.delete-button,
+.btn-limpiar-filtros {
+  background: var(--app-accent) !important;
+  border-color: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+  box-shadow: none !important;
+}
+
+button:hover,
+.btn-actualizar:hover,
+.btn-search:hover,
+.btn-nav:hover,
+.btn-cierre-caja:hover,
+.btn-consultar:hover,
+.btn-aplicar:hover,
+.btn-accion:hover,
+.btn-realizar-pedido:hover,
+.purchase-btn:hover,
+.create-button:hover,
+.edit-button:hover,
+.delete-button:hover,
+.btn-limpiar-filtros:hover {
+  background: var(--app-accent-dark) !important;
+  border-color: var(--app-accent-dark) !important;
+  color: var(--app-surface) !important;
+}
+
+/* Utility controls inside cards keep their transparent treatment. */
+.btn-opciones,
+.btn-opciones-footer,
+.btn-close,
+.nav-item,
+.mobile-menu-toggle,
+.btn-refresh {
+  background: transparent !important;
+  color: var(--app-text-muted) !important;
+  box-shadow: none !important;
+}
+
+.btn-opciones:hover,
+.btn-opciones-footer:hover,
+.btn-close:hover,
+.nav-item:hover,
+.nav-item.active,
+.mobile-menu-toggle:hover,
+.btn-refresh:hover {
+  background: var(--app-accent-soft) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+.modern-header,
+.modern-footer,
+.caja-header,
+.cocina-header,
+.mozo-header,
+.modal-header,
+.cierre-caja-header,
+.admin-page > div:first-child,
+.admin-table thead {
+  background: var(--app-ink) !important;
+  background-image: none !important;
+  border-color: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+}
+
+.modern-header *,
+.modern-footer *,
+.caja-header *,
+.cocina-header *,
+.mozo-header *,
+.modal-header *,
+.cierre-caja-header *,
+.admin-page > div:first-child * {
+  border-color: var(--app-border);
+}
+
+.modern-header .nav-link,
+.modern-header .date-text,
+.modern-header .logo-icon,
+.modern-header .mobile-menu-toggle,
+.modern-header .nav-link:hover,
+.modern-header .nav-link.active,
+.footer-icon-inline,
+.footer-team-link,
+.producto-precio,
+.section-icon,
+.accordion-icon,
+.chevron,
+.valor-icon,
+.stat-numero,
+.mes-año,
+.dia-semana-header,
+.admin-page-title {
+  color: var(--app-accent) !important;
+}
+
+.modern-header .nav-link,
+.modern-header .nav-link:hover,
+.modern-header .nav-link.active {
+  background: transparent !important;
+  color: var(--app-surface) !important;
+}
+
+.modern-header .nav-link:hover,
+.modern-header .nav-link.active {
+  color: var(--app-accent) !important;
+}
+
+.modal-overlay,
+.cierre-caja-overlay {
+  background: #2C3E35 !important;
+}
+
+.modal-content,
+.cierre-caja-modal {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep the landing copy above its decorative image and overlay layers. */
+.home-container {
+  position: relative;
+  isolation: isolate;
+  background: var(--app-ink) !important;
+}
+
+.home-background {
+  z-index: -2 !important;
+}
+
+.home-overlay {
+  z-index: -1 !important;
+}
+
+.home-content {
+  position: relative;
+  z-index: 1 !important;
+  color: var(--app-surface) !important;
+}
+
+.home-subtitle,
+.home-title,
+.home-tagline {
+  position: relative;
+  z-index: 2;
+  color: var(--app-surface) !important;
+}
+
+.home-subtitle,
+.home-divider {
+  color: var(--app-accent) !important;
+}
+
+.home-divider {
+  background: var(--app-accent) !important;
+}
+
+.home-cta-button {
+  position: relative;
+  z-index: 2;
+  background: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+}
+
+.modal-content,
+.cierre-caja-modal,
+.admin-table-container,
+.admin-page-header,
+.tabla-container,
+.calendario-grid-container,
+.detalles-dia,
+.filtros-container,
+.email-form-container,
+.reserva-card,
+.pedido-card-cocina,
+.pedido-item,
+.mesa-card,
+.stat-card,
+.metric-card,
+.empty-state,
+.form-section,
+.filtros-section,
+.resumen-general,
+.cierres-lista-section,
+.menu-card,
+.accordion-item,
+.historia-content,
+.valor-card,
+.mision-card,
+.vision-card {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.admin-table tbody tr:nth-child(even),
+.panel-header,
+.caja-toolbar,
+.estadisticas-bar,
+.filtros-tabs,
+.mozo-toolbar,
+.filtros-container,
+.productos-lista-cocina,
+.modal-toolbar,
+.categorias-tabs,
+.modal-body,
+.caja-container,
+.cocina-view,
+.dashboard-container,
+.admin-page,
+.historial-cierres-container,
+.login-container {
+  background: var(--app-surface-muted) !important;
+}
+
+.admin-table tbody td,
+.admin-table tbody tr,
+.admin-table tbody tr:nth-child(even),
+.tabla-reservas tbody tr,
+.producto-item-cocina,
+.pedido-card-header {
+  border-color: var(--app-border) !important;
+}
+
+.tab-button,
+.tab-btn,
+.filtro-chip,
+.categoria-tab,
+.nav-link,
+.btn-volver,
+.btn-cambiar-email {
+  color: var(--app-text-muted) !important;
+  border-color: var(--app-border) !important;
+}
+
+.tab-button.active,
+.tab-btn.active,
+.filtro-chip.active,
+.categoria-tab.active,
+.nav-link.active,
+.admin-page #admin-nav .nav-link[aria-current="page"] {
+  background: var(--app-accent) !important;
+  border-color: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+}
+
+.MuiDialogTitle-root,
+.MuiButton-contained,
+.MuiButton-containedPrimary,
+.MuiChip-colorPrimary {
+  background: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+}
+
+.MuiDialog-paper,
+.MuiPaper-root,
+.MuiCard-root {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.MuiOutlinedInput-root,
+.MuiInputBase-root,
+.MuiTextField-root input,
+.MuiTextField-root textarea {
+  background: var(--app-surface) !important;
+  color: var(--app-text) !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+  border-color: var(--app-border) !important;
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--app-accent) !important;
+}
+
+/* Operational cards share one surface and use the accent only for status. */
+.pedido-card,
+.pedido-card-cocina,
+.pedido-item,
+.pedidos-panel,
+.cobro-panel,
+.mesa-card,
+.menu-section,
+.menu-card {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.pedido-card .card-header,
+.pedido-card .card-footer,
+.pedido-card-cocina .pedido-header,
+.pedido-card-cocina .pedido-mozo,
+.pedido-card-cocina .pedido-productos,
+.pedido-card-cocina .producto-item,
+.pedido-card-cocina .pedido-observaciones,
+.pedido-item.selected,
+.detalle-info {
+  background: var(--app-surface-muted) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.pedido-card .card-title,
+.pedido-card .card-tipo,
+.pedido-card .card-fecha,
+.pedido-card .estado-texto,
+.pedido-card-cocina .pedido-numero,
+.pedido-card-cocina .pedido-tiempo,
+.pedido-card-cocina .pedido-productos h4,
+.pedido-card-cocina .producto-nombre,
+.pedido-card-cocina .producto-observaciones,
+.pedido-card-cocina .pedido-observaciones p,
+.pedido-item-info p,
+.pedido-item-info strong,
+.pedido-numero,
+.panel-header h2,
+.panel-placeholder h3 {
+  color: var(--app-text) !important;
+}
+
+.pedido-card .card-precio,
+.pedido-card-cocina .producto-precio,
+.pedido-total {
+  color: var(--app-accent-dark) !important;
+}
+
+.pedido-card.estado-pendiente,
+.pedido-card.estado-preparacion,
+.pedido-card.estado-listo,
+.pedido-card.estado-entregado,
+.pedido-card-cocina.estado-pendiente,
+.pedido-card-cocina.estado-preparacion,
+.pedido-card-cocina.estado-listo,
+.pedido-card-cocina.urgente,
+.pedido-card-cocina.advertencia {
+  border-left-color: var(--app-accent) !important;
+  background: var(--app-surface) !important;
+}
+
+.pedido-card-cocina .pedido-mesa,
+.pedido-card-cocina .producto-cantidad,
+.pedido-card-cocina .btn-comenzar,
+.pedido-card-cocina .btn-listo,
+.btn-fab,
+.btn-crear-pedido {
+  background: var(--app-accent) !important;
+  border-color: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+}
+
+.estado-listo,
+.estado-servido,
+.badge-listo,
+.badge-servido,
+.badge-pendiente,
+.badge-entregado,
+.estado-pendiente .estado-badge,
+.estado-preparacion .estado-badge,
+.estado-listo .estado-badge {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+/* Special screens and semantic states stay inside the same palette. */
+.login-page,
+.forgot-password-page,
+.reset-password-page,
+.register-page,
+.login-container,
+.login-box {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.login-background,
+.login-overlay {
+  display: none !important;
+}
+
+#login-container,
+.login-paper,
+.login-box,
+.forgot-password-container,
+.reset-password-container {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  box-shadow: var(--app-shadow) !important;
+  color: var(--app-text) !important;
+}
+
+#login-h2,
+.login-box h1,
+.login-box h2,
+.login-box h3,
+.forgot-password-container h1,
+.forgot-password-container h2,
+.reset-password-container h1,
+.reset-password-container h2 {
+  color: var(--app-ink) !important;
+  text-shadow: none !important;
+}
+
+#login-form input,
+#login-form button,
+.login-box input,
+.login-box button {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+#login-form button,
+.login-box button,
+.forgot-password-container button,
+.reset-password-container button {
+  background: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+}
+
+.modern-footer,
+.modern-footer .footer-copyright,
+.modern-footer .footer-text,
+.modern-footer .footer-team-link {
+  color: var(--app-surface) !important;
+}
+
+.loading-container,
+.loading-state,
+.empty-message,
+.empty-state,
+.no-reservas-dia,
+.cocina-subtitle,
+.pedido-mozo,
+.stat-label,
+.card-label,
+.footer-text {
+  color: var(--app-text-muted) !important;
+}
+
+.spinner,
+.loading-spinner {
+  border-color: var(--app-border) !important;
+  border-top-color: var(--app-accent) !important;
+}
+
+.alert,
+.alert-error,
+.alert-success,
+.alert-info,
+.info-privacidad,
+.producto-observacion,
+.observaciones-generales,
+.estado-badge,
+.estado-badge-cocina,
+.badge,
+.role-badge,
+.mesa-estado {
+  background: var(--app-surface-muted) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+.alert button,
+.btn-close-modal,
+.btn-back,
+.btn-grid-view,
+.social-icon,
+.datetime-display {
+  background: var(--app-accent) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-surface) !important;
+}
+
+.swal2-popup,
+.swal2-modal,
+.swal2-container .swal2-popup {
+  background: var(--app-surface) !important;
+  color: var(--app-text) !important;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  background: var(--app-accent) !important;
+  color: var(--app-surface) !important;
 }
 
 /* Footer styles moved to Footer.css */
