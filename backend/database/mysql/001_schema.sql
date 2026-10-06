@@ -1,7 +1,8 @@
--- La Vieja Estación: esquema relacional de desarrollo, MySQL >= 8.0.16.
+-- La Vieja Estación - RestoBar: esquema relacional, MySQL >= 8.0.16.
 -- No elimina ni importa datos de MongoDB. Ejecutar una sola vez en una base nueva.
-CREATE DATABASE IF NOT EXISTS restobar_mysql_demo CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE restobar_mysql_demo;
+CREATE DATABASE IF NOT EXISTS la_vieja_estacion CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE la_vieja_estacion;
+-- Operaciones almacenadas en UTC; las vistas de presentación muestran UTC-03:00.
 SET time_zone = '+00:00';
 
 CREATE TABLE roles (

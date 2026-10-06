@@ -1,35 +1,61 @@
-# MySQL: estructura y demo de La Vieja Estación
+# La Vieja Estación - RestoBar: base de datos MySQL
 
-Estado: etapas de diseño y datos de prueba completadas. La API existente todavía
-usa MongoDB. Los servicios SQL de pedidos están implementados y probados, pero
-no están conectados a las rutas de Express: aún falta adaptar los demás módulos
-y verificar el contrato de respuestas con React antes de cambiar la conexión.
+Esquema relacional de 28 tablas con datos iniciales ficticios para validar el
+proyecto académico. Los servicios SQL de pedidos están implementados y probados.
+La API actual todavía usa MongoDB: falta conectar estos servicios a Express y
+adaptar los demás módulos antes de cambiar la conexión de la aplicación.
 
-## Cargar desde Workbench (Windows 10)
+## Instalación en Workbench
 
-1. Descargar `INSTALAR_DEMO.sql`.
-2. Abrir Workbench y entrar en la conexión local que ya funciona.
-3. Ir a **File → Open SQL Script** y abrir el archivo descargado.
-4. Ejecutar **todo el archivo** con el botón del rayo que ejecuta el script completo.
-   En el editor no seleccionar un fragmento ni usar el rayo de la sentencia actual.
-5. Revisar **Action Output**. Todas las sentencias deben finalizar correctamente.
-6. Actualizar el panel **SCHEMAS**. Aparecerá `restobar_mysql_demo`.
-7. La consulta `SELECT * FROM restobar_mysql_demo.v_incidencias_integridad;`
-   debe devolver cero filas.
+1. Descargar `INSTALAR_BASE_DATOS.sql`.
+2. Abrir la conexión local de Workbench.
+3. Ir a **File → Open SQL Script** y abrir el archivo.
+4. Ejecutar el script completo una sola vez, sin seleccionar un fragmento.
+5. Revisar **Action Output** y actualizar el panel **SCHEMAS**.
+6. Seleccionar `la_vieja_estacion`.
 
-Ejecutar una sola vez en una base nueva. El archivo no borra bases ni tablas;
-si una tabla ya existe, detener la ejecución y revisar el error, sin continuar
-con la carga de datos. El DDL de MySQL no es una transacción: un fallo durante
-la creación puede dejar algunas tablas creadas. Para una carga parcialmente
-fallida no volver a ejecutar sin revisar primero qué se creó.
+El script crea una base nueva. No borra ni cambia la base de la versión anterior.
+Si `la_vieja_estacion` ya contiene tablas, detenerse ante el error y revisar lo
+existente: no volver a cargar ni continuar insertando los datos. El DDL de MySQL
+no es transaccional; un fallo puede dejar algunas tablas creadas.
 
-El último bloque del archivo muestra los estados, los cobros y el cierre.
-La demo contiene 9 usuarios ficticios, 16 productos, 8 mesas, 8 pedidos,
-3 pagos y 1 cierre. Los datos originales de MongoDB no se importan.
+Para mostrar el proyecto, abrir `PRESENTAR_BASE_DATOS.sql`. Sus consultas muestran
+roles, carta, stock, mesas, pedidos, cobros, caja, compras y reservas. No modifican
+datos ni muestran hashes de contraseñas. Escribir `la_vieja_estacion` en el filtro
+del panel SCHEMAS permite mostrar solo esta base.
 
-## Datos de demostración
+La consulta `SELECT * FROM la_vieja_estacion.v_incidencias_integridad;` debe
+devolver cero filas.
 
-| Estado | Pedidos |
+## Hora argentina y almacenamiento
+
+Argentina usa UTC−03:00. Se mantienen las fechas de operaciones en UTC y las
+conexiones de escritura usan `SET time_zone = '+00:00'`. Esto permite que los
+cuatro integrantes y el futuro servidor compartido interpreten las fechas igual.
+
+En MySQL, cambiar la zona de la sesión no convierte los valores de DATETIME
+ya guardados. Las vistas `v_pedidos_presentacion` y `v_cierres_presentacion`
+usan `CONVERT_TZ(fecha, '+00:00', '-03:00')` para mostrar la hora argentina.
+Por ejemplo, 14:01 UTC se muestra como 11:01 en Argentina.
+
+`PRESENTAR_BASE_DATOS.sql` establece `SET time_zone = '-03:00'` solo para la
+sesión de consulta. Sus vistas también convierten las fechas guardadas en UTC.
+No se debe usar esa sesión para insertar fechas de operaciones sin convertirlas
+a UTC. El backend restablece UTC al comenzar sus transacciones.
+
+La fecha y hora de las reservas corresponden a la agenda local del restaurante;
+no se convierten como si fueran marcas UTC. Los campos de asistencia también
+representan el día y el horario local de trabajo.
+
+## Datos iniciales
+
+Se cargan 9 usuarios ficticios, 16 productos, 8 mesas, 8 pedidos, 3 pagos y 1 cierre.
+Nombres, DNI, correos y operaciones son ficticios. Los nombres, precios e imágenes
+del catálogo provienen de la exportación de productos. El stock se inicializa
+nuevamente con sus movimientos de apertura. Las fechas son fijas, del 5 al 7 de
+octubre de 2026, para reproducir las pruebas.
+
+| Estado del pedido | Cantidad |
 |---|---:|
 | Pendiente | 1 |
 | En Preparación | 1 |
@@ -38,16 +64,11 @@ La demo contiene 9 usuarios ficticios, 16 productos, 8 mesas, 8 pedidos,
 | Cobrado | 3 |
 | Cancelado con motivo, fecha y usuario | 1 |
 
-Los precios, nombres e imágenes del catálogo se tomaron de la exportación de
-productos. El stock, los usuarios y todas las operaciones son nuevos y ficticios.
-No se copiaron contraseñas ni información personal de los usuarios originales.
-Las fechas de la demo son fijas (5, 6 y 7 de octubre de 2026) para reproducir pruebas.
-Las marcas de tiempo de operaciones se guardan en UTC; la reserva usa fecha y
-hora de la agenda local del restaurante, en America/Argentina/Buenos_Aires.
+La numeración usa `PED-YYYYMMDD-NNNN`, como el servicio de pedidos. Las secuencias
+quedan inicializadas para evitar números repetidos al crear nuevos pedidos.
+El pedido cancelado no tiene pago y su stock se restituye una sola vez.
 
-El cierre del 5 de octubre incluye solo 2 pagos de ese turno:
-
-| Concepto | Importe |
+| Concepto del cierre del 5 de octubre | Importe |
 |---|---:|
 | Ventas en efectivo | $7.200 |
 | Ventas por transferencia | $34.000 |
@@ -59,45 +80,33 @@ El cierre del 5 de octubre incluye solo 2 pagos de ese turno:
 | Efectivo esperado y contado | $27.200 |
 | Diferencia | $0 |
 
-Un tercer pago del día siguiente queda pendiente de cierre. El vuelto no se
-suma a las ventas ni al efectivo esperado. El pedido cancelado no tiene pago
-y sus movimientos de stock se compensan.
+El cierre incluye únicamente dos pagos de su turno. Un tercer pago del día
+siguiente queda pendiente de cierre. El vuelto no aumenta las ventas.
+Hay una compra pendiente de una caja de 24 unidades, con producto y conversión
+explícitos; no modifica stock hasta recibirla. También hay una reserva, empleados,
+asistencia, inasistencia, pago salarial y mensajes.
 
-Hay una compra pendiente: **1 caja = 24 unidades**, con producto y factor de
-conversión explícitos. Todavía no suma stock porque no fue recibida. Hay además
-una reserva futura, empleados, asistencia, inasistencia, pago salarial y mensajes.
-Tokens de recuperación, ventas independientes y recepciones quedan vacíos.
+| Usuario ficticio | Rol | Correo |
+|---|---|---|
+| Lucas Ferreyra | SuperAdministrador | lucas.ferreyra@laviejaestacion.example |
+| Valeria Medina | Gerente | valeria.medina@laviejaestacion.example |
+| Mario García | Mozo | mario.garcia@laviejaestacion.example |
+| Lucía Pérez | Cajero | lucia.perez@laviejaestacion.example |
+| Diego Ruiz | EncargadoCocina | diego.ruiz@laviejaestacion.example |
+| Sofía López | Mozo | sofia.lopez@laviejaestacion.example |
+| Tomás Soria | Mozo | tomas.soria@laviejaestacion.example |
+| Julieta Ríos | Mozo | julieta.rios@laviejaestacion.example |
+| Carla Vega | EncargadoCocina | carla.vega@laviejaestacion.example |
 
-Los correos de prueba son `usuario1@restobar.example` a `usuario9@restobar.example`.
-La contraseña de demo es `DemoResto2026!`, almacenada con bcrypt. Son credenciales
-públicas de prueba: se reemplazarán al crear cuentas del entorno compartido.
+La contraseña de estas cuentas de validación es `RestoBar2026!`, guardada con
+bcrypt. Son credenciales públicas de prueba; se reemplazarán al crear cuentas
+del entorno compartido. Los correos .example no son buzones reales. Estas cuentas
+no permiten iniciar sesión todavía en la aplicación que consulta MongoDB.
 
-| Usuario | Rol |
-|---|---|
-| usuario1 | SuperAdministrador |
-| usuario2 | Gerente |
-| usuario3, usuario6, usuario7, usuario8 | Mozo |
-| usuario4 | Cajero |
-| usuario5, usuario9 | EncargadoCocina |
+## Instalación alternativa desde Node
 
-Estos usuarios aún no permiten iniciar sesión en la aplicación actual, que sigue
-consultando MongoDB.
-
-## Archivos y ejecución desde Node
-
-`INSTALAR_DEMO.sql` reúne, en orden, los archivos `001_schema.sql`,
-`002_integridad.sql`, `003_demo.sql` y `004_verificacion.sql` para Workbench.
-Se usa una alternativa de instalación: Workbench **o** Node, no ambas sobre la misma base.
-
-Para Node, desde la carpeta `backend`:
-
-```bash
-npm install
-npm run db:mysql:setup
-npm run db:mysql:check
-```
-
-Agregar al archivo local `backend/.env` sin quitar las variables existentes:
+Elegir Workbench o Node; no ejecutar ambos instaladores sobre la misma base.
+Desde `backend`, agregar al archivo local `.env`, conservando sus otras variables:
 
 ```dotenv
 MYSQL_HOST=127.0.0.1
@@ -106,11 +115,19 @@ MYSQL_USER=root
 MYSQL_PASSWORD=tu_clave_local
 ```
 
-No subir `.env` a GitHub. El instalador de Node se detiene si encuentra tablas en
-`restobar_mysql_demo`; no las sobrescribe. Usar `npm run db:mysql:check` después
-para inspeccionar la integridad.
+No subir `.env` a GitHub. Ejecutar:
 
-## Diseño: 28 tablas
+```bash
+npm install
+npm run db:mysql:setup
+npm run db:mysql:check
+```
+
+El instalador se detiene si encuentra tablas en `la_vieja_estacion`.
+`INSTALAR_BASE_DATOS.sql` reúne `001_schema.sql`, `002_integridad.sql`,
+`003_datos_iniciales.sql` y `004_verificacion.sql` en ese orden.
+
+## Tablas y controles
 
 | Área | Tablas |
 |---|---|
@@ -125,64 +142,37 @@ para inspeccionar la integridad.
 | Ventas independientes | ventas, detalle_venta |
 | Numeración concurrente | secuencias |
 
-El dinero usa DECIMAL; los detalles conservan sus precios históricos. Las claves
-foráneas impiden referencias inexistentes. Un pedido tiene hasta un pago completo.
-Las ventas de `ventas` corresponden a las rutas independientes de Sale y no se
-sumarán otra vez en los reportes del POS.
+Dinero en DECIMAL, claves foráneas y precios históricos en el detalle.
+Hasta un pago completo por pedido. Los cierres se construyen como Abierto y
+se confirman como Cerrado después de conciliar pagos, movimientos y billetes.
+Los pagos confirmados y detalles de operaciones finalizadas son inmutables.
+Los permisos, transiciones y escrituras relacionadas se validan en el backend.
 
-Los cierres se crean como Abierto, se asocian sus pagos/movimientos/billetes y se
-confirman como Cerrado en una transacción. La confirmación concilia sus importes.
-Los pagos confirmados y los detalles de operaciones finalizadas son inmutables.
-Los triggers cubren estas reglas puntuales; el backend sigue siendo responsable
-de permisos, transiciones, cantidades, stock y escrituras atómicas.
+Las ventas independientes conservan el módulo Sale; no se suman nuevamente
+a reportes del POS. Tokens, recepciones y ventas independientes comienzan vacíos.
 
-## Validación realizada
+## Pruebas y tareas pendientes
 
-Se ejecutó la creación completa en MySQL **8.0.46**, sin incidencias. Pasaron
-**23 pruebas**: 15 de integridad SQL, 6 de servicios de pedidos y 2 del lector SQL.
-Incluyen referencias inválidas, stock negativo, pago insuficiente, estados,
-duplicación de pagos, turno de cierre, cambios tardíos, precio histórico,
-renglones repetidos y reposición de stock una sola vez.
-
-Pruebas unitarias del lector (no necesitan servidor):
-
-```bash
-npm run test:mysql
-```
-
-Para ejecutar también las pruebas de integración sobre la demo recién cargada,
-en PowerShell desde `backend`:
+La instalación y los servicios se prueban en MySQL 8.0.46. Ejecutar el lector SQL
+sin servidor con `npm run test:mysql`. Para incluir integración sobre la base
+inicial intacta, en PowerShell desde `backend`:
 
 ```powershell
 $env:MYSQL_TESTS = "1"
 npm run test:mysql
 ```
 
-Los casos de integración revierten sus escrituras al terminar; pueden avanzar
-contadores AUTO_INCREMENT. Requieren una demo intacta para comparar los importes
-esperados. No se ha probado aún la integración de React ni los cuatro equipos.
+Los casos revierten sus escrituras; pueden avanzar contadores AUTO_INCREMENT.
+Se verifican cobros, roles, estados, stock, cancelaciones, cierres, precios
+históricos, presentación sin etiquetas genéricas y conversión de hora argentina.
+La integración completa con React y los cuatro equipos sigue pendiente.
 
-## Continuación autorizada
+La continuación autorizada incluye adaptar controladores y formatos JSON,
+conservar eventos Socket.IO después del commit, adaptar los demás módulos y
+configurar el servidor compartido. Cuatro instalaciones locales no sincronizan
+los registros: el equipo necesitará una misma base/servidor y un backend común.
+Workbench necesita volver a ejecutar SELECT para mostrar cambios.
 
-1. Conectar los servicios SQL de pedidos a los controladores manteniendo el
-   contrato de JSON y los eventos de Socket.IO; adaptar login, usuarios, productos
-   y mesas para usar IDs SQL. Emitir eventos solo después del commit.
-2. Adaptar reservas (confirmación y agenda), compras (recepción con conversión),
-   cierres, empleados, mensajes, recuperación y reportes. Revisar las rutas de
-   compras/reportes, actualmente desactivadas en `index.js`.
-3. Probar permisos y flujos de extremo a extremo con React. Los servicios de
-   `src/services/mysql/pedidos.js` no reemplazan aún los controladores Mongoose.
-4. Elegir y configurar el servidor MySQL compartido. Los cuatro integrantes
-   necesitan acceso a la misma base/servidor; instalar cuatro bases locales no
-   sincroniza datos. Versionar estructura y migraciones; crear usuarios del
-   equipo y configuración local de conexión. No usar root para la aplicación.
-5. Probar dos sesiones simultáneas y Socket.IO contra el backend compartido.
-   Workbench necesita volver a ejecutar SELECT para mostrar cambios.
-
-La autorización ya está dada para continuar esas tareas. La provisión del
-servidor compartido depende de elegir el alojamiento y disponer de su acceso;
-no se creó ni contrató un servicio externo en esta etapa.
-
-Referencias técnicas: [claves foráneas](https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html),
-[CHECK](https://dev.mysql.com/doc/refman/8.0/en/create-table-check-constraints.html),
-[transacciones](https://dev.mysql.com/doc/refman/8.0/en/commit.html).
+Referencias: [zona horaria en MySQL](https://dev.mysql.com/doc/mysql-g11n-excerpt/8.0/en/time-zone-support.html),
+[claves foráneas](https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html),
+[CHECK](https://dev.mysql.com/doc/refman/8.0/en/create-table-check-constraints.html).

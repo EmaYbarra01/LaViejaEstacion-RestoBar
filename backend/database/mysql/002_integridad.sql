@@ -1,4 +1,4 @@
-USE restobar_mysql_demo;
+USE la_vieja_estacion;
 SET time_zone = '+00:00';
 DELIMITER $$
 CREATE TRIGGER pedido_insert_guard BEFORE INSERT ON pedidos FOR EACH ROW
@@ -194,3 +194,20 @@ BEGIN
  END IF;
 END$$
 DELIMITER ;
+
+-- Consultas para mostrar el proyecto: fechas de operaciones en hora argentina.
+-- DATETIME no se convierte automáticamente al cambiar la zona de la sesión.
+CREATE VIEW v_pedidos_presentacion AS
+ SELECT p.numero_pedido, p.numero_mesa_historico numero_mesa,
+ p.nombre_mozo_historico mozo, p.estado,
+ CONVERT_TZ(p.fecha_creacion,'+00:00','-03:00') fecha_hora_argentina,
+ p.subtotal,p.descuento_monto descuento,p.total,p.metodo_pago,
+ CONVERT_TZ(p.fecha_cobrado,'+00:00','-03:00') fecha_cobro_argentina
+ FROM pedidos p;
+
+CREATE VIEW v_cierres_presentacion AS
+ SELECT c.numero_cierre,CONCAT(u.nombre,' ',u.apellido) cajero,c.turno,
+ CONVERT_TZ(c.hora_inicio,'+00:00','-03:00') inicio_turno_argentina,
+ CONVERT_TZ(c.hora_fin,'+00:00','-03:00') fin_turno_argentina,
+ c.total_ventas,c.total_descuentos,c.monto_inicial,c.efectivo_esperado,c.efectivo_contado,c.diferencia,c.estado
+ FROM cierres_caja c JOIN usuarios u ON u.id=c.realizado_por_id;

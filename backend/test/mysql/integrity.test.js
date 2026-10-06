@@ -12,7 +12,7 @@ const check=(name,fn)=>test(name,{skip:!enabled},async()=>{
 });
 const rejects=(sql,args=[])=>assert.rejects(db.query(sql,args),e=>['ER_SIGNAL_EXCEPTION','ER_CHECK_CONSTRAINT_VIOLATED','ER_NO_REFERENCED_ROW_2','ER_DUP_ENTRY'].includes(e.code));
 
-check('demo consistente: escenarios, pagos y un cierre conciliado',async()=>{
+check('datos iniciales consistentes: escenarios, pagos y un cierre conciliado',async()=>{
  const [issues]=await db.query('SELECT * FROM v_incidencias_integridad');
  assert.deepEqual(issues,[]);
  const [[c]]=await db.query('SELECT * FROM cierres_caja WHERE id=1');
@@ -72,4 +72,31 @@ check('cancelación repone stock y no aporta ventas',async()=>{
  assert.equal(r.neto,0);
  const [[p]]=await db.query('SELECT COUNT(*) cantidad FROM pagos_pedido WHERE pedido_id=7');
  assert.equal(p.cantidad,0);
+});
+
+check('presentación muestra hora argentina sin alterar las fechas UTC almacenadas',async()=>{
+ const [[r]]=await db.query(`SELECT DATE_FORMAT(p.fecha_creacion,'%Y-%m-%d %H:%i:%s') utc,
+ DATE_FORMAT(v.fecha_hora_argentina,'%Y-%m-%d %H:%i:%s') argentina
+ FROM pedidos p JOIN v_pedidos_presentacion v ON v.numero_pedido=p.numero_pedido WHERE p.id=1`);
+ assert.equal(r.utc,'2026-10-05 14:01:00');
+ assert.equal(r.argentina,'2026-10-05 11:01:00');
+ await db.query("SET time_zone='-03:00'");
+ try {
+  const [[local]]=await db.query("SELECT DATE_FORMAT(fecha_hora_argentina,'%Y-%m-%d %H:%i:%s') argentina FROM v_pedidos_presentacion WHERE numero_pedido='PED-20261005-0001'");
+  assert.equal(local.argentina,r.argentina);
+ } finally {await db.query("SET time_zone='+00:00'");}
+});
+check('identificadores y nombres de la carga inicial usan la identidad del proyecto',async()=>{
+ const [orders]=await db.query('SELECT numero_pedido FROM pedidos');
+ for(const order of orders)assert.match(order.numero_pedido,/^PED-\d{8}-\d{4}$/);
+ const [[count]]=await db.query(`SELECT COUNT(*) cantidad FROM usuarios WHERE nombre='Admin' OR apellido IN ('Demo','Uno','Dos','Tres','Cuatro')`);
+ assert.equal(count.cantidad,0);
+ const [[supplier]]=await db.query('SELECT nombre FROM proveedores WHERE id=1');
+ assert.equal(supplier.nombre,'Distribuidora del Norte');
+});
+check('secuencias iniciales evitan reutilizar números de pedido ya cargados',async()=>{
+ const [[sequence]]=await db.query("SELECT valor FROM secuencias WHERE nombre='pedido-20261006'");
+ assert.equal(sequence.valor,6);
+ const [[last]]=await db.query("SELECT MAX(numero_pedido) numero FROM pedidos WHERE numero_pedido LIKE 'PED-20261006-%'");
+ assert.equal(last.numero,'PED-20261006-0006');
 });
