@@ -6,7 +6,10 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "nodemon index.js",
-        "start": "node index.js"
+        "start": "node index.js",
+        "db:mysql:setup": "node scripts/mysql/setup.js",
+        "db:mysql:check": "node scripts/mysql/check.js",
+        "test:mysql": "node --test test/mysql/*.test.js"
     },
     "keywords": [],
     "author": "",
@@ -32,6 +35,7 @@
         "mongodb": "^6.19.0",
         "mongoose": "^8.18.0",
         "morgan": "^1.10.1",
+        "mysql2": "^3.24.5",
         "nodemailer": "^7.0.10",
         "qrcode": "^1.5.4",
         "socket.io": "^4.6.1"
