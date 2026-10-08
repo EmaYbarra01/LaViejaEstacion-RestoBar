@@ -1,5 +1,25 @@
 /* App.css */
 
+:root {
+  color-scheme: light;
+  --theme-page: #fffaf0;
+  --theme-surface: #ffffff;
+  --theme-surface-muted: #f5f1e8;
+  --theme-text: #1a1a2e;
+  --theme-text-muted: #667085;
+  --theme-border: rgba(26, 26, 46, 0.12);
+}
+
+:root[data-theme='night'] {
+  color-scheme: dark;
+  --theme-page: #10141d;
+  --theme-surface: #18202c;
+  --theme-surface-muted: #222d3b;
+  --theme-text: #f5f7fa;
+  --theme-text-muted: #b6c0ce;
+  --theme-border: rgba(255, 255, 255, 0.14);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -11,6 +31,35 @@ html {
   padding: 0;
   overflow-x: hidden;
   max-width: 100vw;
+}
+
+body {
+  background: var(--theme-page);
+  color: var(--theme-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+#root {
+  background: var(--theme-page);
+}
+
+:root[data-theme='night'] .main-content,
+:root[data-theme='night'] footer {
+  background-color: var(--theme-page);
+  color: var(--theme-text);
+}
+
+:root[data-theme='night'] input,
+:root[data-theme='night'] select,
+:root[data-theme='night'] textarea {
+  background-color: var(--theme-surface);
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+}
+
+:root[data-theme='night'] input::placeholder,
+:root[data-theme='night'] textarea::placeholder {
+  color: var(--theme-text-muted);
 }
 
 #root,
