@@ -1,17 +1,17 @@
-import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import { NavLink, Outlet, useLocation, useNavigate, Link } from "react-router-dom";
+import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
 import useUserStore from "../store/useUserStore";
 import "./AdminPage.css";
-
 const AdminPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useUserStore();
   const isSuperAdmin = user?.role === 'SuperAdministrador';
   const isGerente = user?.role === 'Gerente';
   const canViewEmpleados = isSuperAdmin || isGerente;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa' }}>
+    <div className={`admin-panel${location.pathname === '/admin/dashboard' ? ' dashboard-layout' : ''}`} style={{ minHeight: '100vh', background: '#f5f7fa' }}>
       {/* Header del Panel de Admin */}
       <div style={{ 
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -21,7 +21,13 @@ const AdminPage = () => {
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate('/');
+              }
+            }}
             style={{
               background: 'rgba(255,255,255,0.2)',
               border: 'none',
@@ -49,7 +55,8 @@ const AdminPage = () => {
         borderBottom: '2px solid #e0e0e0',
         padding: '0 2rem',
         maxWidth: '1400px',
-        margin: '0 auto'
+        margin: '0 auto',
+        flexWrap: 'wrap'
       }}>
         <NavLink 
           to="/admin/dashboard" 
@@ -240,7 +247,7 @@ const AdminPage = () => {
       </nav>
 
       {/* Contenido */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+      <div className="admin-content" style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <Outlet />
       </div>
     </div>

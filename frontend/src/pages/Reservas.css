@@ -260,7 +260,7 @@
   align-items: flex-start;
   gap: 12px;
   background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid #f72626;
   padding: 15px 20px;
   border-radius: 8px;
   margin: 10px 0;
@@ -280,7 +280,7 @@
 }
 
 .info-asignacion-automatica strong {
-  color: #2196f3;
+  color: #f32121;
   display: block;
   margin-bottom: 4px;
 }

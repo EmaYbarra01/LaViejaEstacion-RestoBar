@@ -9,7 +9,15 @@ import Usuario from "../models/usuarioSchema.js";
  */
 export const obtenerPedidos = async (req, res) => {
   try {
-    const { estado, mesa, mozo, fechaInicio, fechaFin } = req.query;
+    const {
+      estado,
+      mesa,
+      mozo,
+      fechaInicio,
+      fechaFin,
+      fechaCobradoInicio,
+      fechaCobradoFin
+    } = req.query;
     
     let filtro = {};
     
@@ -21,6 +29,12 @@ export const obtenerPedidos = async (req, res) => {
       filtro.fechaCreacion = {};
       if (fechaInicio) filtro.fechaCreacion.$gte = new Date(fechaInicio);
       if (fechaFin) filtro.fechaCreacion.$lte = new Date(fechaFin);
+    }
+
+    if (fechaCobradoInicio || fechaCobradoFin) {
+      filtro.fechaCobrado = {};
+      if (fechaCobradoInicio) filtro.fechaCobrado.$gte = new Date(fechaCobradoInicio);
+      if (fechaCobradoFin) filtro.fechaCobrado.$lt = new Date(fechaCobradoFin);
     }
     
     const pedidos = await Pedido.find(filtro)
@@ -777,4 +791,3 @@ export const obtenerPedidosPorMozo = async (req, res) => {
     });
   }
 };
-

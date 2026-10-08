@@ -7,7 +7,7 @@ import '../pages/AdminPage.css';
 function AdminSales() {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, today, week, month
+  const [filter, setFilter] = useState('today'); // all, today, week, month
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useUserStore();
 
@@ -15,17 +15,40 @@ function AdminSales() {
 
   useEffect(() => {
     fetchAllSales();
-  }, []);
+  }, [filter]);
 
   const fetchAllSales = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+      const now = new Date();
+      const startOfToday = new Date(now);
+      startOfToday.setHours(0, 0, 0, 0);
+      const dateParams = {};
+
+      if (filter === 'today') {
+        const startOfTomorrow = new Date(startOfToday);
+        startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+        dateParams.fechaCobradoInicio = startOfToday.toISOString();
+        dateParams.fechaCobradoFin = startOfTomorrow.toISOString();
+      } else if (filter === 'week') {
+        const startOfWeek = new Date(startOfToday);
+        startOfWeek.setDate(startOfWeek.getDate() - 6);
+        dateParams.fechaCobradoInicio = startOfWeek.toISOString();
+        dateParams.fechaCobradoFin = new Date(now.getTime() + 1).toISOString();
+      } else if (filter === 'month') {
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        dateParams.fechaCobradoInicio = startOfMonth.toISOString();
+        dateParams.fechaCobradoFin = new Date(now.getTime() + 1).toISOString();
+      }
       
       // Obtener pedidos cobrados (ventas realizadas)
       const response = await axios.get(`${API_URL}/pedidos`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { estado: 'Cobrado' }
+        params: {
+          estado: 'Cobrado',
+          ...dateParams
+        }
       });
       
       if (response.data && Array.isArray(response.data)) {
@@ -67,27 +90,6 @@ function AdminSales() {
     }
   };
 
-  const filterSalesByDate = (salesList) => {
-    const now = new Date();
-    
-    return salesList.filter(sale => {
-      const saleDate = new Date(sale.date);
-      
-      switch (filter) {
-        case 'today':
-          return saleDate.toDateString() === now.toDateString();
-        case 'week':
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          return saleDate >= weekAgo;
-        case 'month':
-          const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
-          return saleDate >= inicioMes;
-        default:
-          return true;
-      }
-    });
-  };
-
   const formatCurrency = (value) => {
     const number = Number(value) || 0;
     const parts = number.toFixed(2).split('.');
@@ -126,7 +128,6 @@ function AdminSales() {
 
   const getFilteredSales = () => {
     let filtered = [...sales];
-    filtered = filterSalesByDate(filtered);
     filtered = filterSalesBySearch(filtered);
     return filtered;
   };
@@ -187,29 +188,29 @@ function AdminSales() {
       {/* Filtros y búsqueda */}
       <div className="admin-controls">
         <div className="filter-buttons">
-          <button 
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            📅 Todas
-          </button>
-          <button 
+          <button
             className={`filter-btn ${filter === 'today' ? 'active' : ''}`}
             onClick={() => setFilter('today')}
           >
             📆 Hoy
           </button>
-          <button 
+          <button
             className={`filter-btn ${filter === 'week' ? 'active' : ''}`}
             onClick={() => setFilter('week')}
           >
             📊 Semana
           </button>
-          <button 
+          <button
             className={`filter-btn ${filter === 'month' ? 'active' : ''}`}
             onClick={() => setFilter('month')}
           >
             📈 Mes
+          </button>
+          <button
+            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            📅 Todas
           </button>
         </div>
         
