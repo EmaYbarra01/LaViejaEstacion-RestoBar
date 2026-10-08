@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
@@ -29,13 +29,20 @@ import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
 import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
-import useUserStore from './store/useUserStore';
 
 function App() {
-  const { user } = useUserStore();
+  const [isNightMode, setIsNightMode] = useState(() => (
+    localStorage.getItem('la-vieja-estacion-theme') === 'night'
+  ));
 
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
+
+  useEffect(() => {
+    const theme = isNightMode ? 'night' : 'day';
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('la-vieja-estacion-theme', theme);
+  }, [isNightMode]);
 
   // No bloquear la UI mientras se verifica la autenticación
   // Dejar que las rutas protegidas manejen su propio loading
@@ -43,7 +50,10 @@ function App() {
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
-      <Header />
+      <Header
+        isNightMode={isNightMode}
+        onToggleNightMode={() => setIsNightMode((current) => !current)}
+      />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<HomePage />} />

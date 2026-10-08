@@ -13,6 +13,22 @@
   --app-accent-soft: #F4F6F4;
   --app-shadow: 0 8px 24px #8FA396;
   --app-radius: 10px;
+  color-scheme: light;
+}
+
+:root[data-theme='night'] {
+  --app-ink: #101722;
+  --app-ink-soft: #1B2936;
+  --app-surface: #182330;
+  --app-surface-muted: #101722;
+  --app-border: #405466;
+  --app-text: #EDF2F7;
+  --app-text-muted: #B4C1CD;
+  --app-accent: #E3B85F;
+  --app-accent-dark: #C89535;
+  --app-accent-soft: #22313F;
+  --app-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  color-scheme: dark;
 }
 
 * {
@@ -32,6 +48,16 @@ body {
   background: var(--app-surface-muted);
   color: var(--app-text);
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+#root {
+  background: var(--app-surface-muted);
+}
+
+:root[data-theme='night'] input::placeholder,
+:root[data-theme='night'] textarea::placeholder {
+  color: var(--app-text-muted);
 }
 
 button,
