@@ -260,7 +260,7 @@
   align-items: flex-start;
   gap: 12px;
   background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid #f72626;
   padding: 15px 20px;
   border-radius: 8px;
   margin: 10px 0;
@@ -280,7 +280,7 @@
 }
 
 .info-asignacion-automatica strong {
-  color: #2196f3;
+  color: #f32121;
   display: block;
   margin-bottom: 4px;
 }
@@ -358,6 +358,115 @@
     font-size: 2rem;
   }
 
+}
+
+/* Unified sage theme */
+.reservas-page {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.reservas-header h1,
+.reservas-info h2,
+.form-group label,
+.reservas-header p,
+.info-item h3,
+.info-item p,
+.reservas-form,
+.reservas-info,
+.post-reserva-info,
+.paso-content,
+.contacto-alternativo {
+  color: var(--app-text) !important;
+}
+
+.reservas-header h1,
+.reservas-info h2,
+.form-group label {
+  color: var(--app-accent-dark) !important;
+  text-shadow: none !important;
+}
+
+.reservas-divider,
+.reservas-form::before {
+  background: var(--app-accent) !important;
+}
+
+.reservas-info,
+.reservas-form,
+.post-reserva-info,
+.info-asignacion-automatica,
+.contacto-alternativo {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.info-item {
+  border-bottom-color: var(--app-border) !important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--app-text-muted) !important;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--app-accent) !important;
+  background: var(--app-surface) !important;
+  box-shadow: 0 0 0 3px var(--app-border) !important;
+}
+
+.form-group select,
+.form-group select option {
+  color: var(--app-text) !important;
+  background: var(--app-surface) !important;
+}
+
+.submit-btn,
+.submit-btn:hover:not(:disabled) {
+  background: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+  box-shadow: none !important;
+}
+
+.back-btn {
+  background: transparent !important;
+  color: var(--app-accent-dark) !important;
+  border-color: var(--app-accent) !important;
+}
+
+.back-btn:hover {
+  background: var(--app-accent-soft) !important;
+}
+
+.info-asignacion-automatica {
+  border-left: 4px solid var(--app-accent) !important;
+}
+
+.info-asignacion-automatica p,
+.info-asignacion-automatica strong {
+  color: var(--app-text) !important;
+}
+
+.form-message.success,
+.form-message.error {
+  background: var(--app-surface-muted) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+@media (max-width: 480px) {
   .reservas-header p {
     font-size: 1rem;
   }
@@ -530,6 +639,46 @@
 
 .nota-importante strong {
   color: #ee0b0b;
+}
+
+/* Keep the post-reservation guidance in the same visual system. */
+.post-reserva-info,
+.paso,
+.contacto-alternativo,
+.contacto-directo,
+.nota-importante {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.post-reserva-info h3,
+.paso-content h4,
+.contacto-alternativo h4,
+.contacto-item strong,
+.nota-importante strong {
+  color: var(--app-accent-dark) !important;
+}
+
+.paso-content p,
+.contacto-alternativo p,
+.contacto-alternativo ul,
+.contacto-item span {
+  color: var(--app-text) !important;
+}
+
+.paso-numero {
+  background: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+}
+
+.contacto-item a {
+  color: var(--app-accent-dark) !important;
+}
+
+.nota-importante {
+  border-left-color: var(--app-accent) !important;
 }
 
 /* Responsive para información post-reserva */
