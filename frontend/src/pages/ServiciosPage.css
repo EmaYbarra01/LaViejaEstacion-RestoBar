@@ -319,3 +319,85 @@
     font-size: 0.9rem;
   }
 }
+
+/* Unified sage theme */
+.servicios-page {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.servicios-title,
+.servicios-subtitle,
+.service-card-title,
+.service-description,
+.service-features li {
+  color: var(--app-text) !important;
+  text-shadow: none !important;
+}
+
+.servicios-title {
+  color: var(--app-ink) !important;
+}
+
+.servicios-divider {
+  background: var(--app-accent) !important;
+}
+
+.service-card {
+  background: var(--app-surface) !important;
+  border: 1px solid var(--app-border) !important;
+  box-shadow: var(--app-shadow) !important;
+  backdrop-filter: none !important;
+}
+
+.service-card:hover {
+  background: var(--app-surface) !important;
+  border-color: var(--app-accent) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.service-card::before {
+  display: none;
+}
+
+.service-icon-wrapper {
+  background: var(--app-accent) !important;
+  box-shadow: none !important;
+}
+
+.service-icon {
+  color: var(--app-surface) !important;
+}
+
+.service-features li {
+  background: var(--app-surface-muted) !important;
+  border: 1px solid var(--app-border);
+}
+
+.service-features li:hover {
+  background: var(--app-accent-soft) !important;
+}
+
+.service-features li svg {
+  color: var(--app-accent-dark) !important;
+}
+
+.service-cta,
+.service-cta:hover {
+  background: var(--app-accent) !important;
+  color: var(--app-surface) !important;
+  box-shadow: none !important;
+}
+
+.back-button {
+  background: transparent !important;
+  border-color: var(--app-accent) !important;
+  color: var(--app-accent-dark) !important;
+  backdrop-filter: none !important;
+}
+
+.back-button:hover {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-accent-dark) !important;
+  box-shadow: none !important;
+}
