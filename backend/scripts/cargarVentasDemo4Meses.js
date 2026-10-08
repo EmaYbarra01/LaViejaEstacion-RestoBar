@@ -7,7 +7,8 @@ import Usuario from '../src/models/usuarioSchema.js';
 import Mesa from '../src/models/mesaSchema.js';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const TAG_SEED = 'SEED_DASHBOARD_4M_2026_08';
+const TAG_SEED = `SEED_VENTAS_DIVERSAS_${new Date().getFullYear()}`;
+const TAG_SEED_ANTERIOR = 'SEED_DASHBOARD_4M_2026_08';
 
 if (!MONGODB_URI) {
   throw new Error('Falta MONGODB_URI en backend/.env');
@@ -19,17 +20,29 @@ function toStartOfDay(date) {
   return d;
 }
 
-function monthsAgoDate(monthsAgo, day) {
-  const now = new Date();
-  return toStartOfDay(new Date(now.getFullYear(), now.getMonth() - monthsAgo, day));
-}
-
 function buildNumeroPedido(idx) {
   const now = new Date();
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, '0');
   const d = String(now.getDate()).padStart(2, '0');
   return `SEED-${y}${m}${d}-${String(idx + 1).padStart(4, '0')}`;
+}
+
+function buildFechasVenta() {
+  const now = new Date();
+  const inicio = new Date(now.getFullYear(), 7, 1, 12, 0, 0, 0);
+  const fechas = [];
+
+  for (let fecha = inicio; fecha <= now; fecha.setDate(fecha.getDate() + 4)) {
+    fechas.push(new Date(fecha));
+  }
+
+  const hoy = toStartOfDay(now);
+  if (!fechas.some((fecha) => fecha.toDateString() === hoy.toDateString())) {
+    fechas.push(hoy);
+  }
+
+  return fechas;
 }
 
 function pickFromCategory(category, productosByCategoria, fallbackProductos) {
@@ -42,16 +55,16 @@ async function main() {
   await mongoose.connect(MONGODB_URI);
   console.log('Conectado a MongoDB');
 
-  const [mozo, cajero, mesa, productos] = await Promise.all([
-    Usuario.findOne({ rol: 'Mozo', activo: true }),
-    Usuario.findOne({ rol: 'Cajero', activo: true }),
-    Mesa.findOne({}),
+  const [mozos, cajeros, mesas, productos] = await Promise.all([
+    Usuario.find({ rol: 'Mozo', activo: true }).sort({ _id: 1 }),
+    Usuario.find({ rol: 'Cajero', activo: true }).sort({ _id: 1 }),
+    Mesa.find({}).sort({ numero: 1 }),
     Producto.find({ disponible: true, activo: { $ne: false } }).lean()
   ]);
 
-  if (!mozo) throw new Error('No se encontro un usuario con rol Mozo');
-  if (!cajero) throw new Error('No se encontro un usuario con rol Cajero');
-  if (!mesa) throw new Error('No se encontro al menos una mesa');
+  if (!mozos.length) throw new Error('No se encontraron usuarios con rol Mozo');
+  if (!cajeros.length) throw new Error('No se encontraron usuarios con rol Cajero');
+  if (!mesas.length) throw new Error('No se encontraron mesas');
   if (!productos.length) throw new Error('No se encontraron productos disponibles');
 
   const productosByCategoria = new Map();
@@ -61,30 +74,29 @@ async function main() {
     productosByCategoria.get(cat).push(p);
   }
 
-  const plantillaVentas = [
-    { monthsAgo: 3, day: 8, metodoPago: 'Efectivo', categorias: ['Comidas', 'Bebidas'] },
-    { monthsAgo: 3, day: 21, metodoPago: 'Transferencia', categorias: ['Entradas', 'Bebidas'] },
-    { monthsAgo: 2, day: 6, metodoPago: 'Efectivo', categorias: ['Comidas', 'Guarniciones', 'Bebidas Alcohólicas'] },
-    { monthsAgo: 2, day: 19, metodoPago: 'Transferencia', categorias: ['Postres', 'Bebidas'] },
-    { monthsAgo: 1, day: 11, metodoPago: 'Efectivo', categorias: ['Comidas', 'Postres'] },
-    { monthsAgo: 1, day: 25, metodoPago: 'Transferencia', categorias: ['Entradas', 'Comidas', 'Bebidas Alcohólicas'] },
-    { monthsAgo: 0, day: 3, metodoPago: 'Efectivo', categorias: ['Comidas', 'Bebidas', 'Postres'] }
-  ];
-
-  // Evita duplicar si ejecutas el script mas de una vez.
-  const cleanup = await Pedido.deleteMany({ observacionesGenerales: TAG_SEED });
+  const categorias = [...productosByCategoria.keys()];
+  const fechas = buildFechasVenta();
+  const cleanup = await Pedido.deleteMany({
+    observacionesGenerales: { $in: [TAG_SEED, TAG_SEED_ANTERIOR] }
+  });
   console.log(`Pedidos seed previos eliminados: ${cleanup.deletedCount}`);
 
   let totalGeneral = 0;
   const docs = [];
 
-  for (let i = 0; i < plantillaVentas.length; i++) {
-    const venta = plantillaVentas[i];
-    const fecha = monthsAgoDate(venta.monthsAgo, venta.day);
-
-    const productosPedido = venta.categorias.map((categoria) => {
+  for (let i = 0; i < fechas.length; i++) {
+    const fecha = fechas[i];
+    const metodoPago = i % 3 === 0 ? 'Efectivo' : 'Transferencia';
+    const cantidadProductos = 2 + (i % 3);
+    const categoriasVenta = Array.from({ length: cantidadProductos }, (_, offset) => (
+      categorias[(i + offset * 2) % categorias.length]
+    ));
+    const mozo = mozos[i % mozos.length];
+    const cajero = cajeros[i % cajeros.length];
+    const mesa = mesas[i % mesas.length];
+    const productosPedido = categoriasVenta.map((categoria, offset) => {
       const prod = pickFromCategory(categoria, productosByCategoria, productos);
-      const cantidad = 1 + Math.floor(Math.random() * 2); // 1 o 2 unidades
+      const cantidad = 1 + ((i + offset) % 3);
       const precioUnitario = Number(prod.precio) || 0;
 
       return {
@@ -93,12 +105,12 @@ async function main() {
         cantidad,
         precioUnitario,
         subtotal: cantidad * precioUnitario,
-        observaciones: ''
+        observaciones: i % 4 === 0 ? 'Pedido demo para analisis de ventas' : ''
       };
     });
 
     const subtotal = productosPedido.reduce((acc, p) => acc + p.subtotal, 0);
-    const tieneDescuento = venta.metodoPago === 'Efectivo';
+    const tieneDescuento = metodoPago === 'Efectivo';
     const descuentoMonto = tieneDescuento ? subtotal * 0.1 : 0;
 
     const pedido = new Pedido({
@@ -118,7 +130,7 @@ async function main() {
         motivo: tieneDescuento ? 'Descuento por pago en efectivo' : ''
       },
       total: subtotal - descuentoMonto,
-      metodoPago: venta.metodoPago,
+      metodoPago,
       pago: {
         fecha,
         cajero: cajero._id,
@@ -127,7 +139,7 @@ async function main() {
       },
       historialEstados: [
         { estado: 'Pendiente', fecha, usuario: mozo._id, observacion: 'Pedido creado' },
-        { estado: 'Cobrado', fecha, usuario: cajero._id, observacion: `Cobrado por ${venta.metodoPago}` }
+        { estado: 'Cobrado', fecha, usuario: cajero._id, observacion: `Cobrado por ${metodoPago}` }
       ],
       observacionesGenerales: TAG_SEED,
       fechaCreacion: fecha,
