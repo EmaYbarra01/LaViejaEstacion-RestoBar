@@ -7,8 +7,8 @@
 **Sistema completo de gestión para restaurantes y bares**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22+-green.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-19.3-blue.svg)](https://react.dev/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-8.0-green.svg)](https://www.mongodb.com/)
 
 </div>
@@ -106,7 +106,7 @@ Sistema web integral que permite:
 ## 🛠️ Tecnologías
 
 ### Backend
-- **Node.js** v18+ - Entorno de ejecución
+- **Node.js** v22+ - Entorno de ejecución
 - **Express.js** v5 - Framework web
 - **MongoDB** v8 - Base de datos NoSQL
 - **Mongoose** v8 - ODM para MongoDB
@@ -139,8 +139,8 @@ Sistema web integral que permite:
 ## 📋 Requisitos
 
 ### Software Necesario
-- **Node.js** v18 o superior
-- **npm** v9 o superior
+- **Node.js** v22 o superior
+- **npm** v10 o superior
 - **MongoDB** v8 o superior (local o Atlas)
 - **Docker** (opcional, para contenedores)
 - **Git** (para clonar el repositorio)
