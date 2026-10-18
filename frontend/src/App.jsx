@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
@@ -17,6 +17,7 @@ import Reservas from "./pages/Reservas";
 import Mozo from "./pages/Mozo";
 import CocinaView from "./pages/CocinaView";
 import Caja from "./pages/Caja";
+import HistorialCierres from "./pages/HistorialCierres";
 import "./App.css";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -29,20 +30,13 @@ import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
 import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
+import useUserStore from './store/useUserStore';
 
 function App() {
-  const [isNightMode, setIsNightMode] = useState(() => (
-    localStorage.getItem('la-vieja-estacion-theme') === 'night'
-  ));
+  const { user } = useUserStore();
 
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
-
-  useEffect(() => {
-    const theme = isNightMode ? 'night' : 'day';
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem('la-vieja-estacion-theme', theme);
-  }, [isNightMode]);
 
   // No bloquear la UI mientras se verifica la autenticación
   // Dejar que las rutas protegidas manejen su propio loading
@@ -50,10 +44,7 @@ function App() {
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
-      <Header
-        isNightMode={isNightMode}
-        onToggleNightMode={() => setIsNightMode((current) => !current)}
-      />
+      <Header />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -80,6 +71,11 @@ function App() {
           <Route path="/caja" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
               <Caja />
+            </ProtectedRoute>
+          } />
+          <Route path="/caja/historial-cierres" element={
+            <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
+              <HistorialCierres />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />

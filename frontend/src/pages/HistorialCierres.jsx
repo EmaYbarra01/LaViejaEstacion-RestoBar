@@ -6,6 +6,35 @@ import './HistorialCierres.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
+const escaparHTML = (valor) => String(valor ?? '').replace(/[&<>"']/g, (caracter) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[caracter]));
+
+const fechaArgentina = (valor) => valor ? new Intl.DateTimeFormat('es-AR', {
+  timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', year: 'numeric',
+  hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+}).format(new Date(valor)) : 'Sin registrar';
+
+const pedidosDelCierreHTML = (cierre) => `
+  <section style="margin-top: 1.25rem; overflow-wrap: anywhere;">
+    <h3>Pedidos incluidos</h3>
+    ${(cierre.pedidos || []).map((pedido) => `
+      <div style="padding: 0.75rem 0; border-bottom: 1px solid #ddd;">
+        <strong>${escaparHTML(pedido.numeroPedido)}</strong>
+        <div>Mesa ${escaparHTML(pedido.mesa)} · ${escaparHTML(pedido.metodoPago)} · $${formatCurrency(pedido.monto)}</div>
+        <div>Cobrado: ${fechaArgentina(pedido.horaPago)} (Argentina)</div>
+      </div>
+    `).join('') || '<p>Sin pedidos incluidos.</p>'}
+  </section>`;
+
+const revisionDelCierreHTML = (cierre) => cierre.revisadoPor ? `
+  <section style="margin-top: 1.25rem; overflow-wrap: anywhere;">
+    <h3>Revisión del cierre</h3>
+    <p><strong>Revisado por:</strong> ${escaparHTML(cierre.revisadoPor.nombre)} ${escaparHTML(cierre.revisadoPor.apellido)}</p>
+    <p><strong>Fecha:</strong> ${fechaArgentina(cierre.fechaRevision)} (Argentina)</p>
+    <p>${escaparHTML(cierre.observacionesRevision)}</p>
+  </section>` : '';
+
 const HistorialCierres = () => {
   const [cierres, setCierres] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -73,20 +102,20 @@ const HistorialCierres = () => {
 
   const mostrarDetalleCierre = (cierre) => {
     const html = `
-      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; max-height: 70vh; overflow-y: auto;">
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 1.5rem; margin: -1.25rem -1.25rem 1.5rem; border-radius: 8px 8px 0 0;">
+      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; overflow-wrap: anywhere;">
+        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 1.5rem; margin: 0 0 1.5rem; border-radius: 8px 8px 0 0;">
           <h2 style="margin: 0; font-size: 1.75rem;">Cierre #${cierre.numeroCierre}</h2>
-          <p style="margin: 0.5rem 0 0; opacity: 0.9;">${new Date(cierre.fechaCierre).toLocaleString('es-AR')}</p>
+          <p style="margin: 0.5rem 0 0; opacity: 0.9;">${fechaArgentina(cierre.fechaCierre)}</p>
         </div>
         
         <div style="background: #f9fafb; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.25rem;">
           <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">Información General</h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-            <div><strong>Turno:</strong> ${cierre.turno}</div>
-            <div><strong>Estado:</strong> <span style="padding: 0.25rem 0.75rem; background: ${cierre.estado === 'Cerrado' ? '#d1fae5' : '#dbeafe'}; color: ${cierre.estado === 'Cerrado' ? '#059669' : '#1e40af'}; border-radius: 12px; font-size: 0.875rem;">${cierre.estado}</span></div>
-            <div><strong>Realizado por:</strong> ${cierre.realizadoPor.nombre} ${cierre.realizadoPor.apellido}</div>
-            <div><strong>Hora inicio:</strong> ${new Date(cierre.horaInicio).toLocaleTimeString('es-AR')}</div>
-            <div><strong>Hora fin:</strong> ${new Date(cierre.horaFin).toLocaleTimeString('es-AR')}</div>
+            <div><strong>Turno:</strong> ${escaparHTML(cierre.turno)}</div>
+            <div><strong>Estado:</strong> <span style="padding: 0.25rem 0.75rem; background: ${cierre.estado === 'Cerrado' ? '#d1fae5' : '#dbeafe'}; color: ${cierre.estado === 'Cerrado' ? '#059669' : '#1e40af'}; border-radius: 12px; font-size: 0.875rem;">${escaparHTML(cierre.estado)}</span></div>
+            <div><strong>Realizado por:</strong> ${escaparHTML(cierre.realizadoPor.nombre)} ${escaparHTML(cierre.realizadoPor.apellido)}</div>
+            <div><strong>Inicio del período:</strong> ${fechaArgentina(cierre.horaInicio)}</div>
+            <div><strong>Fin del período:</strong> ${fechaArgentina(cierre.horaFin)}</div>
           </div>
         </div>
 
@@ -141,10 +170,13 @@ const HistorialCierres = () => {
           </div>
         </div>
 
+        ${pedidosDelCierreHTML(cierre)}
+        ${revisionDelCierreHTML(cierre)}
+
         ${cierre.observaciones ? `
           <div style="background: #f9fafb; padding: 1.25rem; border-radius: 8px; margin-top: 1.25rem; border-left: 4px solid #ffc107;">
             <h3 style="margin: 0 0 0.75rem; color: #1f2937; font-size: 1.125rem;">Observaciones</h3>
-            <p style="margin: 0; color: #6b7280;">${cierre.observaciones}</p>
+            <p style="margin: 0; color: #6b7280;">${escaparHTML(cierre.observaciones)}</p>
           </div>
         ` : ''}
       </div>
@@ -158,7 +190,8 @@ const HistorialCierres = () => {
       confirmButtonText: '🖨️ Imprimir',
       cancelButtonText: 'Cerrar',
       customClass: {
-        popup: 'detalle-cierre-popup'
+        popup: 'detalle-cierre-popup',
+        htmlContainer: 'detalle-cierre-contenido'
       }
     }).then((result) => {
       if (result.isConfirmed) {
@@ -198,10 +231,10 @@ const HistorialCierres = () => {
         <div class="divider"></div>
         
         <p><strong>Cierre N°:</strong> ${cierre.numeroCierre}</p>
-        <p><strong>Fecha:</strong> ${new Date(cierre.fechaCierre).toLocaleString('es-AR')}</p>
-        <p><strong>Turno:</strong> ${cierre.turno}</p>
-        <p><strong>Cajero:</strong> ${cierre.realizadoPor.nombre} ${cierre.realizadoPor.apellido}</p>
-        <p><strong>Estado:</strong> ${cierre.estado}</p>
+        <p><strong>Fecha:</strong> ${fechaArgentina(cierre.fechaCierre)}</p>
+        <p><strong>Turno:</strong> ${escaparHTML(cierre.turno)}</p>
+        <p><strong>Cajero:</strong> ${escaparHTML(cierre.realizadoPor.nombre)} ${escaparHTML(cierre.realizadoPor.apellido)}</p>
+        <p><strong>Estado:</strong> ${escaparHTML(cierre.estado)}</p>
         
         <div class="divider"></div>
         
@@ -221,10 +254,13 @@ const HistorialCierres = () => {
         <p class="total">DIFERENCIA: ${formatCurrency(Math.abs(cierre.diferencia))}
         ${cierre.diferencia > 0 ? '(SOBRANTE)' : cierre.diferencia < 0 ? '(FALTANTE)' : '(EXACTO)'}</p>
         
+        ${pedidosDelCierreHTML(cierre)}
+        ${revisionDelCierreHTML(cierre)}
+
         ${cierre.observaciones ? `
           <div class="divider"></div>
           <h3>OBSERVACIONES</h3>
-          <p>${cierre.observaciones}</p>
+          <p>${escaparHTML(cierre.observaciones)}</p>
         ` : ''}
         
         <div class="divider"></div>
