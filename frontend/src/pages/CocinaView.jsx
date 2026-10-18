@@ -107,7 +107,7 @@ const CocinaView = () => {
         <div className="header-content">
           <div>
             <h1 className="cocina-title">Módulo Encargado de Cocina</h1>
-            <p className="cocina-subtitle">Control de pedidos en preparación</p>
+            <p className="cocina-subtitle">Control de pedidos 'En Preparación'</p>
           </div>
           <button 
             onClick={refrescarTodo} 

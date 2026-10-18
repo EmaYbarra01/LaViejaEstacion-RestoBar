@@ -216,7 +216,7 @@ const Cocina = () => {
       <div className="cocina-header">
         <div>
           <h1 className="cocina-title">Módulo Encargado de Cocina</h1>
-          <p className="cocina-subtitle">Control de pedidos en preparación</p>
+          <p className="cocina-subtitle">Control de pedidos 'En Preparación'</p>
         </div>
         <button onClick={cargarPedidosCocina} className="btn-actualizar">
           🔄 Actualizar
@@ -282,7 +282,7 @@ const Cocina = () => {
             <div className="pedido-acciones">
               {pedido.estado === 'Pendiente' && (
                 <button
-                  onClick={() => cambiarEstado(pedido._id, 'En preparación')}
+                  onClick={() => cambiarEstado(pedido._id, 'En Preparación')}
                   className="btn-accion btn-preparar"
                   disabled={loading}
                 >
@@ -290,7 +290,7 @@ const Cocina = () => {
                 </button>
               )}
 
-              {pedido.estado === 'En preparación' && (
+              {pedido.estado === 'En Preparación' && (
                 <button
                   onClick={() => marcarComoListo(pedido._id)}
                   className="btn-accion btn-listo"
