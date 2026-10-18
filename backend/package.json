@@ -13,27 +13,27 @@
     "license": "ISC",
     "type": "module",
     "devDependencies": {
-        "@babel/node": "^7.28.0",
-        "nodemon": "^3.1.11"
+        "@babel/node": "^7.29.7",
+        "nodemon": "^3.1.14"
     },
     "dependencies": {
-        "@babel/cli": "^7.28.3",
-        "@babel/core": "^7.28.3",
-        "@babel/preset-env": "^7.28.3",
+        "@babel/cli": "^7.29.7",
+        "@babel/core": "^7.29.7",
+        "@babel/preset-env": "^7.29.7",
         "bcrypt": "^6.0.0",
         "bcryptjs": "^3.0.3",
         "cookie-parser": "^1.4.7",
-        "cors": "^2.8.5",
-        "dotenv": "^17.2.3",
-        "express": "^5.1.0",
-        "express-validator": "^7.2.1",
+        "cors": "^2.8.6",
+        "dotenv": "^17.4.2",
+        "express": "^5.3.0",
+        "express-validator": "^7.3.2",
         "js-cookie": "^3.0.5",
-        "jsonwebtoken": "^9.0.2",
-        "mongodb": "^6.19.0",
-        "mongoose": "^8.18.0",
-        "morgan": "^1.10.1",
-        "nodemailer": "^7.0.10",
+        "jsonwebtoken": "^9.0.3",
+        "mongodb": "^6.21.0",
+        "mongoose": "^8.24.5",
+        "morgan": "^1.12.1",
+        "nodemailer": "^10.1.7",
         "qrcode": "^1.5.4",
-        "socket.io": "^4.6.1"
+        "socket.io": "^4.8.4"
     }
 }
