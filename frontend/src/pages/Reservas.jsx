@@ -251,7 +251,8 @@ const Reservas = () => {
             <div className="form-group">
               <div className="info-asignacion-automatica">
                 <span className="icon-info">ℹ️</span>
-                <p><strong>Asignación de mesa por el administrador:</strong> Una vez recibida tu reserva, nuestro equipo asignará la mejor mesa disponible según el número de comensales y tus preferencias. Recibirás la confirmación con el número de mesa asignada por email.</p>
+                <p><strong>Informacion sobre la reserva:</strong> ¡Gracias por resevar con nosotros! La mesa se asignará teniendo en cuenta la cantidad de personas la disponibilidad del momento.
+                una vez confirmada tu reserva, recibiras un email con el numero de tu mesa asignada.</p>
               </div>
             </div>
 
@@ -286,7 +287,7 @@ const Reservas = () => {
 
           {/* Instrucciones post-reserva */}
           <div className="post-reserva-info">
-            <h3>📋 ¿Qué sigue después de hacer tu reserva?</h3>
+            <h3>¿Qué sigue después de hacer tu reserva?</h3>
             <div className="instrucciones-pasos">
               <div className="paso">
                 <span className="paso-numero">1</span>
@@ -312,7 +313,7 @@ const Reservas = () => {
             </div>
 
             <div className="contacto-alternativo">
-              <h4>⚠️ ¿No recibiste el correo de confirmación?</h4>
+              <h4>¿No recibiste el correo de confirmación?</h4>
               <p>Si escribiste mal tu email o no te llegó el correo en los próximos minutos:</p>
               <ul>
                 <li>Revisa tu carpeta de spam o correo no deseado</li>

@@ -17,6 +17,7 @@ import Mozo from "./pages/Mozo";
 import SupervisionPedidos from "./pages/SupervisionPedidos";
 import CocinaView from "./pages/CocinaView";
 import Caja from "./pages/Caja";
+import HistorialCierres from "./pages/HistorialCierres";
 import "./App.css";
 import Products from "./pages/Products";
 import AdminSales from "./pages/AdminSales";
@@ -71,6 +72,11 @@ function App() {
           <Route path="/caja" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
               <Caja />
+            </ProtectedRoute>
+          } />
+          <Route path="/caja/historial-cierres" element={
+            <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
+              <HistorialCierres />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />

@@ -55,22 +55,35 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       setMontoInicial('');
       setEfectivoContado('');
       
-      cargarPedidosPendientes();
     }
   }, [isOpen]);
 
-  const cargarPedidosPendientes = async () => {
+  useEffect(() => {
+    if (!isOpen || !horaInicio || !horaFin) return;
+    const controller = new AbortController();
+    cargarPedidosPendientes(controller.signal);
+    return () => controller.abort();
+  }, [isOpen, horaInicio, horaFin]);
+
+  const cargarPedidosPendientes = async (signal) => {
     setLoadingPedidos(true);
+    setPedidosPendientes([]);
+    setPedidosSeleccionados([]);
     try {
+      const inicio = new Date(horaInicio), fin = new Date(horaFin);
+      if (!Number.isFinite(inicio.getTime()) || !Number.isFinite(fin.getTime()) || fin <= inicio) return;
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API_URL}/cierres-caja/pedidos-pendientes`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        signal,
+        params: { fechaInicio: inicio.toISOString(), fechaFin: fin.toISOString() }
       });
       
       setPedidosPendientes(response.data || []);
       // Seleccionar todos los pedidos por defecto
       setPedidosSeleccionados(response.data.map(p => p._id));
     } catch (error) {
+      if (signal.aborted || axios.isCancel(error)) return;
       console.error('Error al cargar pedidos pendientes:', error);
       fireCierreSwal({
         icon: 'error',
@@ -78,7 +91,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
         text: 'No se pudieron cargar los pedidos pendientes'
       });
     } finally {
-      setLoadingPedidos(false);
+      if (!signal.aborted) setLoadingPedidos(false);
     }
   };
 
@@ -113,9 +126,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
 
   useEffect(() => {
     const totalDesglose = calcularTotalDesglose();
-    if (totalDesglose > 0) {
-      setEfectivoContado(totalDesglose.toString());
-    }
+    setEfectivoContado(totalDesglose.toString());
   }, [desglose]);
 
   const togglePedido = (pedidoId) => {
@@ -181,6 +192,11 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       });
       return;
     }
+
+    if (new Date(horaFin) <= new Date(horaInicio)) {
+      fireCierreSwal({ icon: 'warning', title: 'Período inválido', text: 'La hora de fin debe ser posterior al inicio.' });
+      return;
+    }
     
     if (pedidosSeleccionados.length === 0) {
       const confirmacion = await fireCierreSwal({
@@ -202,8 +218,8 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
       
       const dataCierre = {
         turno,
-        horaInicio,
-        horaFin,
+        horaInicio: new Date(horaInicio).toISOString(),
+        horaFin: new Date(horaFin).toISOString(),
         montoInicial: parseFloat(montoInicial) || 0,
         efectivoContado: parseFloat(efectivoContado) || 0,
         desgloseBilletes: desglose,
@@ -395,7 +411,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
     <div className="cierre-caja-overlay">
       <div className="cierre-caja-modal">
         <div className="cierre-caja-header">
-          <h2>💰 Realizar Cierre de Caja</h2>
+          <h2>Realizar Cierre de Caja</h2>
           <button className="btn-close-modal" onClick={onClose}>×</button>
         </div>
 
@@ -595,7 +611,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
             <button type="button" className="btn-cancelar" onClick={onClose}>
               Cancelar
             </button>
-            <button type="submit" className="btn-realizar-cierre" disabled={loading}>
+            <button type="submit" className="btn-realizar-cierre" disabled={loading || loadingPedidos}>
               {loading ? 'Procesando...' : '✓ Realizar Cierre'}
             </button>
           </div>

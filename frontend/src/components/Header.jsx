@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FaUtensils, FaFacebookF, FaTwitter, FaTripadvisor, FaBars, FaTimes, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaUtensils, FaFacebookF, FaTwitter, FaTripadvisor, FaBars, FaTimes, FaUser, FaSignOutAlt, FaMoon, FaSun } from 'react-icons/fa';
 import './Header.css';
 import useUserStore from '../store/useUserStore';
 
-export default function Header() {
+export default function Header({ isNightMode, onToggleNightMode }) {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -74,25 +74,25 @@ export default function Header() {
           {/* Pestañas específicas por rol */}
           {user?.role === 'Mozo' && (
             <NavLink to="/mozo" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#4caf50' }}>
-              🍽️ MI MÓDULO
+              MI MÓDULO
             </NavLink>
           )}
           
           {user?.role === 'EncargadoCocina' && (
             <NavLink to="/encargado-cocina" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#f44336' }}>
-              👨‍🍳 MI MÓDULO
+              MI MÓDULO
             </NavLink>
           )}
           
           {user?.role === 'Cajero' && (
             <NavLink to="/caja" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#ffc107' }}>
-              💰 MI MÓDULO
+              MI MÓDULO
             </NavLink>
           )}
           
           {(user?.role === 'SuperAdministrador' || user?.role === 'Gerente') && (
             <NavLink to="/admin/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#667eea' }}>
-              🛠️ PANEL ADMIN
+              PANEL ADMIN
             </NavLink>
           )}
           
@@ -130,6 +130,15 @@ export default function Header() {
               <FaTripadvisor />
             </a>
           </div>
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={onToggleNightMode}
+            aria-label={isNightMode ? 'Activar modo diurno' : 'Activar modo nocturno'}
+            title={isNightMode ? 'Modo diurno' : 'Modo nocturno'}
+          >
+            {isNightMode ? <FaSun /> : <FaMoon />}
+          </button>
           <div className="datetime-display">
             <div className="date-text">{formatDate(currentDateTime)}</div>
             <div className="time-text">{formatTime(currentDateTime)}</div>

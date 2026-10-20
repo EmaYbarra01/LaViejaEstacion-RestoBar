@@ -68,7 +68,7 @@ const SuperadminDashboard = () => {
   return (
     <div className="superadmin-dashboard">
       <header className="dashboard-header">
-        <h1>📊 Dashboard - Panel de Control</h1>
+        <h1>Dashboard - Panel de Control</h1>
         <button onClick={cargarEstadisticas} className="btn-actualizar">
           🔄 Actualizar
         </button>
@@ -77,7 +77,6 @@ const SuperadminDashboard = () => {
       {/* Tarjetas de resumen */}
       <div className="dashboard-resumen">
         <div className="resumen-card">
-          <div className="card-icon ventas">💰</div>
           <div className="card-info">
             <h3>Ventas del Mes</h3>
              <p className="card-valor">${formatCurrency(estadisticas.resumenMes.totalVentas)}</p>
@@ -88,7 +87,6 @@ const SuperadminDashboard = () => {
         </div>
 
         <div className="resumen-card">
-          <div className="card-icon pedidos">📦</div>
           <div className="card-info">
             <h3>Pedidos del Mes</h3>
             <p className="card-valor">{estadisticas.resumenMes.cantidadPedidos}</p>
@@ -99,7 +97,6 @@ const SuperadminDashboard = () => {
         </div>
 
         <div className="resumen-card">
-          <div className="card-icon pedidos">💳</div>
           <div className="card-info">
             <h3>Métodos de Pago</h3>
             <p className="card-valor">{estadisticas.ventasPorMetodoPago.reduce((sum, metodo) => sum + metodo.cantidad, 0)}</p>
@@ -110,7 +107,6 @@ const SuperadminDashboard = () => {
         </div>
 
         <div className="resumen-card">
-          <div className="card-icon stock">⚠️</div>
           <div className="card-info">
             <h3>Alertas de Stock</h3>
             <p className="card-valor">{estadisticas.alertasStock.length}</p>
@@ -124,7 +120,7 @@ const SuperadminDashboard = () => {
       <div className="dashboard-grid-small">
         <div className="dashboard-card metodos-pago">
           <div className="card-header">
-            <h2>💳 Métodos de Pago del Mes</h2>
+            <h2>Métodos de Pago del Mes</h2>
           </div>
           <div className="card-body">
             <ResponsiveContainer width="100%" height={260}>
@@ -163,7 +159,7 @@ const SuperadminDashboard = () => {
         {/* Ventas Mensuales */}
         <div className="dashboard-card ventas-mensuales">
           <div className="card-header">
-            <h2>📈 Ventas Mensuales</h2>
+            <h2>Ventas Mensuales</h2>
           </div>
           <div className="card-body">
             <ResponsiveContainer width="100%" height={300}>
@@ -197,7 +193,7 @@ const SuperadminDashboard = () => {
         {/* Ventas por Categoría */}
         <div className="dashboard-card ventas-categoria">
           <div className="card-header">
-            <h2>🍽️ Ventas por Categoría</h2>
+            <h2>Ventas por Categoría</h2>
           </div>
           <div className="card-body">
             <ResponsiveContainer width="100%" height={300}>
@@ -233,7 +229,7 @@ const SuperadminDashboard = () => {
         {/* Top 10 Productos */}
         <div className="dashboard-card top-productos">
           <div className="card-header">
-            <h2>🏆 Top 10 Productos Más Vendidos</h2>
+            <h2>Top 10 Productos Más Vendidos</h2>
           </div>
           <div className="card-body">
             {estadisticas.top10Productos.length > 0 ? (
@@ -271,7 +267,7 @@ const SuperadminDashboard = () => {
         {/* Alertas de Stock Bajo */}
         <div className="dashboard-card alertas-stock">
           <div className="card-header">
-            <h2>⚠️ Alertas de Stock Bajo</h2>
+            <h2>Alertas de Stock Bajo</h2>
           </div>
           <div className="card-body">
             {estadisticas.alertasStock.length > 0 ? (

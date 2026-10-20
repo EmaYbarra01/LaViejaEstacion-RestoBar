@@ -167,7 +167,7 @@ const Users = () => {
     <div className="admin-page">
       <div className="admin-page-header">
         <h1 className="admin-page-title">
-          {isGerente ? '🔍 Supervisión de Usuarios' : '👥 Gestión de Usuarios'}
+          {isGerente ? 'Supervisión de Usuarios' : 'Gestión de Usuarios'}
         </h1>
         {isGerente && (
           <Chip 

@@ -92,7 +92,7 @@ const Register = () => {
       <Paper className="login-paper" elevation={3}>
         <Box className="login-box">
           <Typography variant="h4" component="h1" className="login-title">
-            📝 Crear Cuenta
+            Crear Cuenta
           </Typography>
           <Typography variant="body2" className="login-subtitle">
             Regístrate para acceder a la plataforma

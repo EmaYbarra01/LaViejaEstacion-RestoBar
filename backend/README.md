@@ -16,7 +16,7 @@ Backend API REST construido con Node.js, Express y MongoDB para gestión de prod
 
 ## 📋 Requisitos previos
 
-- Node.js (v14 o superior)
+- Node.js (v22 o superior)
 - MongoDB (local o Atlas)
 - Cuenta de Gmail (para recuperación de contraseñas)
 

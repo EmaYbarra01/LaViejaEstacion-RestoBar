@@ -1,592 +1,137 @@
-import CierreCaja from "../models/cierreCajaSchema.js";
-import Pedido from "../models/pedidoSchema.js";
+import { pool, getMySQLConnection } from '../database/mysql/pool.js';
+import { actor, positiveId, requireCondition as ensure } from '../database/mysql/transaction.js';
+import { cierreCajaService, fechaCaja, TURNOS, ROLES_CAJA, BILLETES } from '../services/mysql/cierresCaja.js';
+import { consultarPedidos } from './pedidos.controllers.js';
 
-/**
- * Obtener todos los cierres de caja
- * GET /api/cierres-caja
- */
-export const obtenerCierresCaja = async (req, res) => {
+const service = cierreCajaService(pool);
+async function lectura(req, work) {
+  const c = await getMySQLConnection();
   try {
-    const { fechaInicio, fechaFin, turno, estado, usuario } = req.query;
-    
-    let filtro = {};
-    
-    if (fechaInicio || fechaFin) {
-      filtro.fechaCierre = {};
-      if (fechaInicio) filtro.fechaCierre.$gte = new Date(fechaInicio);
-      if (fechaFin) filtro.fechaCierre.$lte = new Date(fechaFin);
-    }
-    
-    if (turno) filtro.turno = turno;
-    if (estado) filtro.estado = estado;
-    if (usuario) filtro.realizadoPor = usuario;
-    
-    const cierres = await CierreCaja.find(filtro)
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('revisadoPor', 'nombre apellido')
-      .sort({ fechaCierre: -1 });
-    
-    res.status(200).json(cierres);
-  } catch (error) {
-    console.error('Error al obtener cierres de caja:', error);
-    res.status(500).json({ 
-      mensaje: 'Error interno del servidor al obtener cierres de caja' 
-    });
+    await c.beginTransaction();
+    await actor(c, req.user?.id, ROLES_CAJA);
+    const resultado = await work(c);
+    await c.commit();
+    return resultado;
+  } catch (e) { await c.rollback(); throw e; }
+  finally { c.release(); }
+}
+function filtros(query = {}, columna = 'c.fecha_cierre') {
+  const where = [], args = [];
+  if (query.fechaInicio) { where.push(columna + '>=?'); args.push(fechaCaja(query.fechaInicio)); }
+  if (query.fechaFin) { where.push(columna + '<?'); args.push(fechaCaja(query.fechaFin, true)); }
+  if (query.fechaInicio && query.fechaFin) ensure(fechaCaja(query.fechaFin, true) > fechaCaja(query.fechaInicio), 'Rango de fechas inválido');
+  return { where, args };
+}
+async function consultarCierres(c, query = {}) {
+  const { where, args } = filtros(query);
+  if (query.id != null) { where.push('c.id=?'); args.push(positiveId(query.id)); }
+  if (query.turno != null) { ensure(TURNOS.includes(query.turno), 'Turno inválido'); where.push('c.turno=?'); args.push(query.turno); }
+  if (query.estado != null) {
+    ensure(['Abierto', 'Cerrado', 'Revisado', 'Auditado'].includes(query.estado), 'Estado inválido');
+    where.push('c.estado=?'); args.push(query.estado);
   }
-};
-
-/**
- * Obtener un cierre de caja por ID
- * GET /api/cierres-caja/:id
- */
-export const obtenerUnCierreCaja = async (req, res) => {
-  try {
-    const cierre = await CierreCaja.findById(req.params.id)
-      .populate('realizadoPor', 'nombre apellido email rol')
-      .populate('revisadoPor', 'nombre apellido email rol')
-      .populate('pedidos.pedidoId', 'numeroPedido productos');
-    
-    if (!cierre) {
-      return res.status(404).json({
-        mensaje: "Cierre de caja no encontrado"
-      });
-    }
-    
-    res.status(200).json(cierre);
-  } catch (error) {
-    console.error('Error al obtener cierre de caja:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al obtener el cierre de caja"
-    });
-  }
-};
-
-/**
- * Crear un nuevo cierre de caja
- * POST /api/cierres-caja
- */
-export const crearCierreCaja = async (req, res) => {
-  try {
-    const {
-      turno,
-      horaInicio,
-      horaFin,
-      montoInicial,
-      efectivoContado,
-      desgloseBilletes,
-      gastos,
-      ingresosAdicionales,
-      observaciones,
-      pedidosIds
-    } = req.body;
-    
-    const realizadoPorId = req.user?.id || req.userId;
-    
-    // Validar datos
-    if (!turno || !horaInicio || !horaFin) {
-      return res.status(400).json({
-        mensaje: "Turno, hora inicio y hora fin son requeridos"
-      });
-    }
-    
-    // Obtener siguiente número de cierre
-    const numeroCierre = await CierreCaja.obtenerSiguienteNumeroCierre();
-    
-    // Obtener pedidos cobrados en el rango de fechas
-    let pedidosCobrados;
-    if (pedidosIds && pedidosIds.length > 0) {
-      pedidosCobrados = await Pedido.find({
-        _id: { $in: pedidosIds },
-        estado: 'Cobrado'
-      })
-        .populate('mesa', 'numero')
-        .populate('mozo', 'nombre apellido');
-    } else {
-      pedidosCobrados = await Pedido.find({
-        estado: 'Cobrado',
-        'pago.fecha': {
-          $gte: new Date(horaInicio),
-          $lte: new Date(horaFin)
-        }
-      })
-        .populate('mesa', 'numero')
-        .populate('mozo', 'nombre apellido');
-    }
-    
-    if (!pedidosCobrados || pedidosCobrados.length === 0) {
-      return res.status(400).json({
-        mensaje: 'No se encontraron pedidos cobrados válidos para incluir en el cierre'
-      });
-    }
-
-    // Procesar pedidos para el cierre
-    const pedidosParaCierre = [];
-    const pedidosInvalidos = [];
-
-    pedidosCobrados.forEach((p) => {
-      const mesaNumero = p.mesa?.numero ?? p.numeroMesa;
-      const mozoNombre = p.mozo
-        ? `${p.mozo.nombre || ''} ${p.mozo.apellido || ''}`.trim()
-        : (p.nombreMozo || '').trim();
-
-      if (mesaNumero == null || mesaNumero === '' || !mozoNombre) {
-        pedidosInvalidos.push({
-          pedidoId: p._id,
-          numeroPedido: p.numeroPedido,
-          mesa: mesaNumero,
-          mozo: mozoNombre
-        });
-        return;
-      }
-
-      pedidosParaCierre.push({
-        pedidoId: p._id,
-        numeroPedido: p.numeroPedido,
-        mesa: Number(mesaNumero),
-        mozo: mozoNombre,
-        metodoPago: p.metodoPago,
-        monto: p.total,
-        descuento: p.descuento?.monto || 0,
-        horaPago: p.pago?.fecha || p.fechaCobrado || new Date()
-      });
-    });
-
-    if (pedidosInvalidos.length > 0) {
-      return res.status(400).json({
-        mensaje: 'Hay pedidos cobrados con datos incompletos y no se puede crear el cierre',
-        pedidosInvalidos
-      });
-    }
-
-    const ventasEfectivo = pedidosParaCierre.filter(
-      (p) => String(p.metodoPago || '').toLowerCase() === 'efectivo'
-    );
-    const ventasTransferencia = pedidosParaCierre.filter(
-      (p) => String(p.metodoPago || '').toLowerCase() === 'transferencia'
-    );
-
-    const totalVentasEfectivo = ventasEfectivo.reduce((sum, p) => sum + (p.monto || 0), 0);
-    const totalVentasTransferencia = ventasTransferencia.reduce((sum, p) => sum + (p.monto || 0), 0);
-    const totalVentas = pedidosParaCierre.reduce((sum, p) => sum + (p.monto || 0), 0);
-    const totalDescuentos = pedidosParaCierre.reduce((sum, p) => sum + (p.descuento || 0), 0);
-
-    // Calcular efectivo en caja (inicial + ventas en efectivo - gastos)
-    const totalGastos = (gastos || []).reduce((sum, g) => sum + (g.monto || 0), 0);
-    const efectivoEnCaja = (montoInicial || 0) + totalVentasEfectivo - totalGastos;
-    
-    // Crear cierre de caja
-    const nuevoCierre = new CierreCaja({
-      numeroCierre,
-      fechaCierre: new Date(),
-      turno,
-      realizadoPor: realizadoPorId,
-      horaInicio: new Date(horaInicio),
-      horaFin: new Date(horaFin),
-      montoInicial: montoInicial || 0,
-      ventasPorMetodo: {
-        efectivo: {
-          cantidad: ventasEfectivo.length,
-          total: totalVentasEfectivo
-        },
-        transferencia: {
-          cantidad: ventasTransferencia.length,
-          total: totalVentasTransferencia
-        }
-      },
-      totalVentas,
-      totalDescuentos,
-      efectivoEnCaja,
-      efectivoContado: efectivoContado || 0,
-      desgloseBilletes: desgloseBilletes || {},
-      gastos: gastos || [],
-      ingresosAdicionales: ingresosAdicionales || [],
-      observaciones: observaciones || '',
-      pedidos: pedidosParaCierre
-    });
-    
-    await nuevoCierre.save();
-    
-    // Poblar el documento
-    const cierreCompleto = await CierreCaja.findById(nuevoCierre._id)
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('pedidos.pedidoId', 'numeroPedido');
-    
-    res.status(201).json({
-      mensaje: "Cierre de caja creado exitosamente",
-      cierre: cierreCompleto
-    });
-  } catch (error) {
-    console.error('Error al crear cierre de caja:', error);
-
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        mensaje: 'Error de validacion al crear el cierre de caja',
-        detalle: error.message
-      });
-    }
-
-    if (error.code === 11000) {
-      return res.status(409).json({
-        mensaje: 'Ya existe un cierre con ese numero'
-      });
-    }
-
-    res.status(500).json({
-      mensaje: "Error interno del servidor al crear cierre de caja",
-      detalle: process.env.NODE_ENV === 'production' ? undefined : error.message
-    });
-  }
-};
-
-/**
- * Actualizar un cierre de caja
- * PUT /api/cierres-caja/:id
- */
-export const actualizarCierreCaja = async (req, res) => {
-  try {
-    const cierre = await CierreCaja.findById(req.params.id);
-    
-    if (!cierre) {
-      return res.status(404).json({
-        mensaje: "Cierre de caja no encontrado"
-      });
-    }
-    
-    // Solo permitir actualizar si está en estado Abierto o Cerrado
-    if (cierre.estado === 'Auditado') {
-      return res.status(400).json({
-        mensaje: "No se puede modificar un cierre auditado"
-      });
-    }
-    
-    const cierreActualizado = await CierreCaja.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    )
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('revisadoPor', 'nombre apellido');
-    
-    res.status(200).json({
-      mensaje: "Cierre de caja actualizado correctamente",
-      cierre: cierreActualizado
-    });
-  } catch (error) {
-    console.error('Error al actualizar cierre de caja:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al actualizar cierre de caja"
-    });
-  }
-};
-
-/**
- * Revisar un cierre de caja
- * PUT /api/cierres-caja/:id/revisar
- */
-export const revisarCierreCaja = async (req, res) => {
-  try {
-    const { observaciones } = req.body;
-    const supervisorId = req.user?.id || req.userId;
-    
-    const cierre = await CierreCaja.findById(req.params.id);
-    
-    if (!cierre) {
-      return res.status(404).json({
-        mensaje: "Cierre de caja no encontrado"
-      });
-    }
-    
-    if (cierre.estado !== 'Cerrado') {
-      return res.status(400).json({
-        mensaje: "Solo se pueden revisar cierres en estado Cerrado"
-      });
-    }
-    
-    // Usar el método del modelo
-    await cierre.revisar(supervisorId, observaciones || '');
-    
-    const cierreActualizado = await CierreCaja.findById(cierre._id)
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('revisadoPor', 'nombre apellido');
-    
-    res.status(200).json({
-      mensaje: "Cierre revisado exitosamente",
-      cierre: cierreActualizado
-    });
-  } catch (error) {
-    console.error('Error al revisar cierre de caja:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al revisar cierre"
-    });
-  }
-};
-
-/**
- * Agregar pedido a un cierre de caja
- * PUT /api/cierres-caja/:id/agregar-pedido
- */
-export const agregarPedidoACierre = async (req, res) => {
-  try {
-    const { pedidoId } = req.body;
-    
-    if (!pedidoId) {
-      return res.status(400).json({
-        mensaje: "El ID del pedido es requerido"
-      });
-    }
-    
-    const cierre = await CierreCaja.findById(req.params.id);
-    
-    if (!cierre) {
-      return res.status(404).json({
-        mensaje: "Cierre de caja no encontrado"
-      });
-    }
-    
-    if (cierre.estado === 'Auditado') {
-      return res.status(400).json({
-        mensaje: "No se pueden agregar pedidos a un cierre auditado"
-      });
-    }
-    
-    const pedido = await Pedido.findById(pedidoId)
-      .populate('mesa', 'numero')
-      .populate('mozo', 'nombre apellido');
-    
-    if (!pedido) {
-      return res.status(404).json({
-        mensaje: "Pedido no encontrado"
-      });
-    }
-    
-    if (pedido.estado !== 'Cobrado') {
-      return res.status(400).json({
-        mensaje: "Solo se pueden agregar pedidos cobrados"
-      });
-    }
-    
-    // Usar el método del modelo
-    await cierre.agregarPedido(pedido);
-    
-    const cierreActualizado = await CierreCaja.findById(cierre._id)
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('pedidos.pedidoId', 'numeroPedido');
-    
-    res.status(200).json({
-      mensaje: "Pedido agregado exitosamente",
-      cierre: cierreActualizado
-    });
-  } catch (error) {
-    console.error('Error al agregar pedido:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al agregar pedido"
-    });
-  }
-};
-
-/**
- * Obtener cierres por rango de fechas
- * GET /api/cierres-caja/fechas
- */
-export const obtenerCierresPorFechas = async (req, res) => {
-  try {
-    const { fechaInicio, fechaFin } = req.query;
-    
-    if (!fechaInicio || !fechaFin) {
-      return res.status(400).json({
-        mensaje: "Fecha inicio y fecha fin son requeridas"
-      });
-    }
-    
-    const cierres = await CierreCaja.obtenerPorFechas(fechaInicio, fechaFin);
-    
-    res.status(200).json(cierres);
-  } catch (error) {
-    console.error('Error al obtener cierres por fechas:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor"
-    });
-  }
-};
-
-/**
- * Reporte de cierres de caja
- * GET /api/cierres-caja/reporte
- */
-export const reporteCierres = async (req, res) => {
-  try {
-    const filtros = {
-      fechaInicio: req.query.fechaInicio,
-      fechaFin: req.query.fechaFin,
-      turno: req.query.turno,
-      usuario: req.query.usuario,
-      estado: req.query.estado
+  if (query.usuario != null) { where.push('c.realizado_por_id=?'); args.push(positiveId(query.usuario)); }
+  const [rows] = await c.execute(`SELECT c.*,u.nombre cajero_nombre,u.apellido cajero_apellido,u.email cajero_email,
+    r.nombre supervisor_nombre,r.apellido supervisor_apellido FROM cierres_caja c
+    JOIN usuarios u ON u.id=c.realizado_por_id LEFT JOIN usuarios r ON r.id=c.revisado_por_id
+    ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY c.numero_cierre DESC${query.primero ? ' LIMIT 1' : ''}`, args);
+  if (!rows.length) return [];
+  const ids = rows.map(r => r.id), marcas = ids.map(() => '?').join(',');
+  const [pagos] = await c.execute(`SELECT cp.cierre_id,pg.*,p.numero_pedido,p.numero_mesa_historico,p.nombre_mozo_historico,p.descuento_monto
+    FROM cierre_pagos cp JOIN pagos_pedido pg ON pg.id=cp.pago_id JOIN pedidos p ON p.id=pg.pedido_id
+    WHERE cp.cierre_id IN (${marcas}) ORDER BY pg.fecha_pago,pg.id`, ids);
+  const [metodos] = await c.execute(`SELECT cp.cierre_id,pg.metodo_pago,COUNT(*) cantidad,SUM(pg.monto_aplicado) total
+    FROM cierre_pagos cp JOIN pagos_pedido pg ON pg.id=cp.pago_id WHERE cp.cierre_id IN (${marcas}) GROUP BY cp.cierre_id,pg.metodo_pago`, ids);
+  const [movs] = await c.execute(`SELECT * FROM movimientos_caja WHERE cierre_id IN (${marcas}) ORDER BY fecha,id`, ids);
+  const [billetes] = await c.execute(`SELECT * FROM desglose_caja WHERE cierre_id IN (${marcas}) ORDER BY denominacion`, ids);
+  return rows.map(caja => {
+    const delCierre = items => items.filter(r => r.cierre_id === caja.id);
+    const metodo = nombre => {
+      const m = delCierre(metodos).find(r => r.metodo_pago === nombre);
+      return { cantidad: Number(m?.cantidad ?? 0), total: Number(m?.total ?? 0) };
     };
-    
-    const cierres = await CierreCaja.reporteCierres(filtros);
-    
-    // Calcular totales
-    const totalVentas = cierres.reduce((sum, c) => sum + c.totalVentas, 0);
-    const totalDescuentos = cierres.reduce((sum, c) => sum + c.totalDescuentos, 0);
-    const totalGastos = cierres.reduce((sum, c) => sum + c.totalGastos, 0);
-    const totalIngresos = cierres.reduce((sum, c) => sum + c.totalIngresosAdicionales, 0);
-    const totalDiferencias = cierres.reduce((sum, c) => sum + c.diferencia, 0);
-    
-    res.status(200).json({
-      cierres,
-      resumen: {
-        cantidadCierres: cierres.length,
-        totalVentas,
-        totalDescuentos,
-        totalGastos,
-        totalIngresos,
-        totalDiferencias,
-        balanceGeneral: totalVentas + totalIngresos - totalGastos
-      }
-    });
-  } catch (error) {
-    console.error('Error al generar reporte de cierres:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al generar reporte"
-    });
-  }
-};
-
-/**
- * Obtener último cierre de caja
- * GET /api/cierres-caja/ultimo
- */
-export const obtenerUltimoCierre = async (req, res) => {
-  try {
-    const ultimoCierre = await CierreCaja.findOne()
-      .sort({ numeroCierre: -1 })
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('revisadoPor', 'nombre apellido');
-    
-    if (!ultimoCierre) {
-      return res.status(404).json({
-        mensaje: "No hay cierres registrados"
-      });
+    const movimientos = tipo => delCierre(movs).filter(m => m.tipo === tipo).map(m => ({ _id: String(m.id), concepto: m.concepto, monto: Number(m.monto), comprobante: m.comprobante, fecha: m.fecha }));
+    const desgloseBilletes = {};
+    for (const b of delCierre(billetes)) {
+      const key = Object.keys(BILLETES).find(k => BILLETES[k] === Number(b.denominacion)) ?? String(b.denominacion);
+      desgloseBilletes[key] = { denominacion: Number(b.denominacion), cantidad: Number(b.cantidad), total: Number(b.total) };
     }
-    
-    res.status(200).json(ultimoCierre);
-  } catch (error) {
-    console.error('Error al obtener último cierre:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor"
-    });
-  }
-};
-
-/**
- * Obtener cierre de caja activo (abierto)
- * GET /api/cierres-caja/activo
- */
-export const obtenerCierreActivo = async (req, res) => {
-  try {
-    const cierreActivo = await CierreCaja.findOne({ estado: 'Abierto' })
-      .populate('realizadoPor', 'nombre apellido')
-      .sort({ fechaCierre: -1 });
-    
-    res.status(200).json(cierreActivo);
-  } catch (error) {
-    console.error('Error al obtener cierre activo:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor"
-    });
-  }
-};
-
-/**
- * Obtener cierres de caja por fecha
- * GET /api/cierres-caja/fecha?fechaInicio=...&fechaFin=...
- */
-export const obtenerCierresCajaPorFecha = async (req, res) => {
-  try {
-    const { fechaInicio, fechaFin } = req.query;
-    
-    if (!fechaInicio || !fechaFin) {
-      return res.status(400).json({
-        mensaje: "Se requieren fechaInicio y fechaFin"
-      });
-    }
-    
-    const cierres = await CierreCaja.find({
-      fechaCierre: {
-        $gte: new Date(fechaInicio),
-        $lte: new Date(fechaFin)
-      }
-    })
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('revisadoPor', 'nombre apellido')
-      .sort({ fechaCierre: -1 });
-    
-    res.status(200).json(cierres);
-  } catch (error) {
-    console.error('Error al obtener cierres por fecha:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor"
-    });
-  }
-};
-
-/**
- * Obtener cierres de caja por turno
- * GET /api/cierres-caja/turno/:turno
- */
-export const obtenerCierresCajaPorTurno = async (req, res) => {
-  try {
-    const { turno } = req.params;
-    
-    if (!['Mañana', 'Tarde', 'Noche', 'Completo'].includes(turno)) {
-      return res.status(400).json({
-        mensaje: "Turno inválido. Valores permitidos: Mañana, Tarde, Noche, Completo"
-      });
-    }
-    
-    const cierres = await CierreCaja.find({ turno })
-      .populate('realizadoPor', 'nombre apellido')
-      .populate('revisadoPor', 'nombre apellido')
-      .sort({ fechaCierre: -1 });
-    
-    res.status(200).json(cierres);
-  } catch (error) {
-    console.error('Error al obtener cierres por turno:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor"
-    });
-  }
-};
-
-/**
- * Obtener pedidos cobrados pendientes de cierre
- * GET /api/cierres-caja/pedidos-pendientes
- */
-export const obtenerPedidosPendientesCierre = async (req, res) => {
-  try {
-    const { fechaInicio, fechaFin } = req.query;
-    
-    const query = {
-      estado: 'Cobrado'
+    return {
+      _id: String(caja.id), id: String(caja.id), numeroCierre: caja.numero_cierre, fechaCierre: caja.fecha_cierre, turno: caja.turno,
+      realizadoPor: { _id: String(caja.realizado_por_id), id: String(caja.realizado_por_id), nombre: caja.cajero_nombre, apellido: caja.cajero_apellido, email: caja.cajero_email },
+      horaInicio: caja.hora_inicio, horaFin: caja.hora_fin, montoInicial: Number(caja.monto_inicial),
+      ventasPorMetodo: { efectivo: metodo('Efectivo'), transferencia: metodo('Transferencia') },
+      totalVentas: Number(caja.total_ventas), totalDescuentos: Number(caja.total_descuentos),
+      pedidos: delCierre(pagos).map(p => ({ pedidoId: { _id: String(p.pedido_id), id: String(p.pedido_id), numeroPedido: p.numero_pedido }, pagoId: String(p.id),
+        numeroPedido: p.numero_pedido, mesa: p.numero_mesa_historico, mozo: p.nombre_mozo_historico,
+        metodoPago: p.metodo_pago, monto: Number(p.monto_aplicado), descuento: Number(p.descuento_monto), horaPago: p.fecha_pago })),
+      efectivoEnCaja: Number(caja.efectivo_esperado), efectivoContado: Number(caja.efectivo_contado), diferencia: Number(caja.diferencia), desgloseBilletes,
+      gastos: movimientos('Gasto'), ingresosAdicionales: movimientos('Ingreso'), totalGastos: Number(caja.total_gastos), totalIngresosAdicionales: Number(caja.total_ingresos_adicionales),
+      estado: caja.estado, observaciones: caja.observaciones,
+      revisadoPor: caja.revisado_por_id ? { _id: String(caja.revisado_por_id), id: String(caja.revisado_por_id), nombre: caja.supervisor_nombre, apellido: caja.supervisor_apellido } : null,
+      fechaRevision: caja.fecha_revision, observacionesRevision: caja.observaciones_revision,
+      montoEntregado: Number(caja.monto_entregado), montoParaSiguienteTurno: Number(caja.monto_siguiente_turno), createdAt: caja.created_at, updatedAt: caja.updated_at,
     };
-    
-    if (fechaInicio && fechaFin) {
-      query.fechaCobrado = {
-        $gte: new Date(fechaInicio),
-        $lte: new Date(fechaFin)
-      };
-    }
-    
-    const pedidos = await Pedido.find(query)
-      .populate('mesa', 'numero')
-      .populate('mozo', 'nombre apellido')
-      .sort({ fechaCobrado: -1 });
-    
-    res.status(200).json(pedidos);
-  } catch (error) {
-    console.error('Error al obtener pedidos pendientes:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor"
-    });
+  });
+}
+const endpoint = work => async (req, res) => {
+  try {
+    const r = await work(req);
+    return res.status(r.status ?? 200).json(r.body);
+  } catch (e) {
+    const conflicto = ['ER_DUP_ENTRY', 'ER_LOCK_DEADLOCK', 'ER_LOCK_WAIT_TIMEOUT'].includes(e.code);
+    const datos = ['ER_SIGNAL_EXCEPTION', 'ER_CHECK_CONSTRAINT_VIOLATED', 'ER_WARN_DATA_OUT_OF_RANGE', 'ER_DATA_TOO_LONG'].includes(e.code);
+    const status = e.status ?? (conflicto ? 409 : datos ? 400 : 500);
+    if (status === 500) console.error('Error en cierres de caja MySQL:', e.code ?? e.name);
+    return res.status(status).json({ mensaje: e.status ? e.message : conflicto ? 'El cierre cambió o algún cobro ya fue incluido. Actualice el listado e intente nuevamente.' : datos ? 'Revise los importes, billetes y fechas del cierre.' : 'Error interno al procesar el cierre de caja' });
   }
 };
+const lista = obtenerFiltros => endpoint(async req => ({ body: await lectura(req, c => consultarCierres(c, obtenerFiltros(req))) }));
+export const obtenerCierresCaja = lista(req => req.query);
+export const obtenerCierresCajaPorTurno = lista(req => ({ ...req.query, turno: req.params.turno }));
+export const obtenerCierresCajaPorFecha = lista(req => {
+  ensure(req.query.fechaInicio && req.query.fechaFin, 'Se requieren fechaInicio y fechaFin'); return req.query;
+});
+export const obtenerCierresPorFechas = obtenerCierresCajaPorFecha;
+export const obtenerUnCierreCaja = endpoint(async req => {
+  const [cierre] = await lectura(req, c => consultarCierres(c, { id: positiveId(req.params.id) }));
+  ensure(cierre, 'Cierre de caja no encontrado', 404);
+  return { body: cierre };
+});
+export const obtenerUltimoCierre = endpoint(async req => {
+  const [cierre] = await lectura(req, c => consultarCierres(c, { primero: true }));
+  ensure(cierre, 'No hay cierres registrados', 404);
+  return { body: cierre };
+});
+export const obtenerCierreActivo = endpoint(async req => {
+  const [cierre] = await lectura(req, c => consultarCierres(c, { estado: 'Abierto', primero: true }));
+  return { body: cierre ?? null };
+});
+export const obtenerPedidosPendientesCierre = endpoint(async req => ({ body: await lectura(req, async c => {
+  // El período corresponde al momento del cobro, aunque el pedido sea de otro día.
+  const { where, args } = filtros(req.query, 'pg.fecha_pago');
+  const [rows] = await c.execute(`SELECT pg.pedido_id FROM pagos_pedido pg JOIN pedidos p ON p.id=pg.pedido_id
+    LEFT JOIN cierre_pagos cp ON cp.pago_id=pg.id WHERE cp.pago_id IS NULL AND p.estado='Cobrado'
+    ${where.length ? 'AND ' + where.join(' AND ') : ''} ORDER BY pg.fecha_pago DESC,pg.id DESC`, args);
+  const pedidos = [];
+  for (const r of rows) { const [p] = await consultarPedidos(c, { id: r.pedido_id }); if (p) pedidos.push(p); }
+  return pedidos;
+}) }));
+async function resultadoEscritura(req, accion, datos, mensaje, status = 200) {
+  const { id } = await service[accion]({ usuario: req.user?.id, ...datos });
+  const [cierre] = await lectura(req, c => consultarCierres(c, { id }));
+  // COMMIT ya terminó; el cliente puede volver a consultar el cierre persistido.
+  return { status, body: { mensaje, cierre } };
+}
+export const crearCierreCaja = endpoint(req => resultadoEscritura(req, 'crear', { datos: req.body }, 'Cierre de caja creado exitosamente', 201));
+export const actualizarCierreCaja = endpoint(req => resultadoEscritura(req, 'actualizar', { id: req.params.id, datos: req.body }, 'Cierre de caja actualizado correctamente'));
+export const agregarPedidoACierre = endpoint(req => resultadoEscritura(req, 'agregarPedido', { id: req.params.id, pedidoId: req.body?.pedidoId }, 'Pedido agregado exitosamente'));
+export const revisarCierreCaja = endpoint(req => resultadoEscritura(req, 'revisar', { id: req.params.id, observaciones: req.body?.observaciones }, 'Cierre revisado exitosamente'));
+export const reporteCierres = endpoint(async req => ({ body: await lectura(req, async c => {
+  const cierres = await consultarCierres(c, req.query);
+  // Suma en centavos para evitar diferencias de coma flotante en el informe JSON.
+  const suma = campo => cierres.reduce((total, cierre) => total + Math.round(cierre[campo] * 100), 0) / 100;
+  const totalVentas = suma('totalVentas'), totalIngresos = suma('totalIngresosAdicionales'), totalGastos = suma('totalGastos');
+  return { cierres, resumen: { cantidadCierres: cierres.length, totalVentas, totalDescuentos: suma('totalDescuentos'), totalGastos,
+    totalIngresos, totalDiferencias: suma('diferencia'), balanceGeneral: (Math.round(totalVentas * 100) + Math.round(totalIngresos * 100) - Math.round(totalGastos * 100)) / 100 } };
+}) }));

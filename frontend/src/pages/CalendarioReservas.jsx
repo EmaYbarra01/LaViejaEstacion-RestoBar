@@ -165,7 +165,7 @@ const CalendarioReservas = () => {
     <div className="calendario-reservas-page">
       <div className="calendario-container">
         <header className="calendario-header">
-          <h1><FaCalendarAlt /> Calendario de Reservas</h1>
+          <h1>Calendario de Reservas</h1>
           <p>Vista mensual de todas las reservas del restaurante</p>
         </header>
 

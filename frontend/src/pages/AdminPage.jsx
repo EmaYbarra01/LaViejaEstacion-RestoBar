@@ -1,17 +1,19 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { FaBox, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
+import { NavLink, Outlet, useLocation, useNavigate, Link } from "react-router-dom";
+import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
 import useUserStore from "../store/useUserStore";
 import "./AdminPage.css";
-
 const AdminPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useUserStore();
   const isSuperAdmin = user?.role === 'SuperAdministrador';
   const isGerente = user?.role === 'Gerente';
   const canViewEmpleados = isSuperAdmin || isGerente;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa' }}>
+    <div className={`admin-panel${location.pathname === '/admin/dashboard' ? ' dashboard-layout' : ''}`} style={{ minHeight: '100vh', background: '#f5f7fa' }}>
       {/* Header del Panel de Admin */}
       <div style={{ 
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -21,7 +23,13 @@ const AdminPage = () => {
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate('/');
+              }
+            }}
             style={{
               background: 'rgba(255,255,255,0.2)',
               border: 'none',
@@ -38,7 +46,7 @@ const AdminPage = () => {
             <FaArrowLeft /> Volver
           </button>
           <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 'bold' }}>
-            🛠️ Panel de Administración
+            Panel de Administración
           </h1>
         </div>
       </div>
@@ -49,7 +57,8 @@ const AdminPage = () => {
         borderBottom: '2px solid #e0e0e0',
         padding: '0 2rem',
         maxWidth: '1400px',
-        margin: '0 auto'
+        margin: '0 auto',
+        flexWrap: 'wrap'
       }}>
         <NavLink 
           to="/admin/dashboard" 
@@ -66,7 +75,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaChartLine /> Dashboard
+          Dashboard
         </NavLink>
         <NavLink 
           to="/admin/products" 
@@ -83,7 +92,24 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaBox /> Productos
+          Productos
+        </NavLink>
+        <NavLink 
+          to="/admin/users" 
+          className="nav-link"
+          style={({ isActive }) => ({
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '1rem 1.5rem',
+            textDecoration: 'none',
+            color: isActive ? '#667eea' : '#666',
+            borderBottom: isActive ? '3px solid #667eea' : '3px solid transparent',
+            fontWeight: isActive ? 'bold' : 'normal',
+            transition: 'all 0.3s'
+          })}
+        >
+          Usuarios
         </NavLink>
         <NavLink 
           to="/admin/sales" 
@@ -100,7 +126,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaChartLine /> Ventas
+          Ventas
         </NavLink>
         <NavLink 
           to="/admin/reservas" 
@@ -117,7 +143,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaClipboardList /> Reservas
+          Reservas
         </NavLink>
         <NavLink 
           to="/admin/calendario" 
@@ -134,7 +160,7 @@ const AdminPage = () => {
             transition: 'all 0.3s'
           })}
         >
-          <FaCalendarAlt /> Calendario
+          Calendario
         </NavLink>
         {canViewEmpleados && (
           <NavLink 
@@ -152,7 +178,7 @@ const AdminPage = () => {
               transition: 'all 0.3s'
             })}
           >
-            <FaUserTie /> Empleados
+            Empleados
           </NavLink>
         )}
         {/* Módulos Operativos - Solo para Gerente y SuperAdmin */}
@@ -191,6 +217,7 @@ const AdminPage = () => {
               }}
             >
               🍽️ Supervisión de Pedidos
+              Módulo Mozo
             </Link>
             <Link 
               to="/encargado-cocina" 
@@ -216,14 +243,14 @@ const AdminPage = () => {
                 e.target.style.borderBottomColor = 'transparent';
               }}
             >
-              👨‍🍳 Encargado Cocina
+              Encargado Cocina
             </Link>
           </>
         )}
       </nav>
 
       {/* Contenido */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+      <div className="admin-content" style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <Outlet />
       </div>
     </div>

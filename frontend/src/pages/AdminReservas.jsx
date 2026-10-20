@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { FaSearch, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaClock, FaCalendarAlt, FaUsers, FaTable } from 'react-icons/fa';
@@ -39,7 +39,7 @@ const AdminReservas = () => {
   };
 
   // Obtener reservas del backend
-  const fetchReservas = async () => {
+  const fetchReservas = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -64,15 +64,16 @@ const AdminReservas = () => {
       setError('Error al cargar las reservas');
       setLoading(false);
     }
-  };
+  }, [page, filtroEstado, filtroFecha]);
 
   useEffect(() => {
     fetchReservas();
     fetchMesas();
   }, [page, filtroEstado, filtroFecha, busqueda]);
+  }, [fetchReservas]);
 
   // Obtener todas las mesas
-  const fetchMesas = async () => {
+  const fetchMesas = useCallback(async () => {
     try {
       // Obtener token de autenticación
       const token = localStorage.getItem('token');
@@ -92,7 +93,11 @@ const AdminReservas = () => {
       console.error('Error al obtener mesas:', err);
       console.error('Detalles:', err.response?.data);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchMesas();
+  }, [fetchMesas]);
 
   // Verificar mesas disponibles para una fecha y hora específica
   const verificarMesasDisponibles = async (fecha, hora) => {
@@ -343,7 +348,7 @@ const AdminReservas = () => {
     <div className="admin-reservas-page">
       <div className="admin-reservas-container">
         <header className="admin-reservas-header">
-          <h1>📋 Gestión de Reservas</h1>
+          <h1>Gestión de Reservas</h1>
           <p>Panel de administración - {total} reservas totales</p>
         </header>
 
