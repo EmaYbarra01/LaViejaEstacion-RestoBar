@@ -227,7 +227,7 @@ const crearReserva = async (req, res) => {
  */
 const obtenerReservas = async (req, res) => {
   try {
-    const { estado, fecha, page = 1, limit = 50 } = req.query;
+    const { estado, fecha, cliente, page = 1, limit = 50 } = req.query;
 
     console.log('[RESERVAS] Obteniendo reservas con filtros:', { estado, fecha, page, limit });
 
@@ -236,6 +236,10 @@ const obtenerReservas = async (req, res) => {
     
     if (estado) {
       filtros.estado = estado;
+    }
+
+    if (cliente) {
+      filtros.cliente = { $regex: cliente.trim(), $options: 'i' };
     }
     
     if (fecha) {

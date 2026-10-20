@@ -18,7 +18,7 @@ import './CocinaView.css';
  */
 const CocinaView = () => {
   const { user } = useUserStore();
-  const isGerente = user?.role === 'Gerente' || user?.role === 'SuperAdministrador';
+  const isGerente = user?.role === 'Gerente';
   const [vistaActiva, setVistaActiva] = useState('todos'); // todos, pendientes, preparacion, listos
   const [estadisticas, setEstadisticas] = useState(null);
   
@@ -27,7 +27,6 @@ const CocinaView = () => {
     pedidos,
     loading,
     error,
-    filtroEstado,
     setFiltroEstado,
     cargarPedidos,
     cambiarEstado
@@ -217,6 +216,7 @@ const CocinaView = () => {
               key={pedido._id}
               pedido={pedido}
               onCambiarEstado={cambiarEstado}
+              readOnly={isGerente}
             />
           ))}
         </div>

@@ -86,9 +86,15 @@ export const crearProducto = async (req, res) => {
  */
 export const actualizarProducto = async (req, res) => {
   try {
+    const datosActualizacion = { ...req.body };
+    if (datosActualizacion.stock !== undefined && Number(datosActualizacion.stock) <= 0) {
+      datosActualizacion.stock = 0;
+      datosActualizacion.disponible = false;
+    }
+
     const productoActualizado = await Producto.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      datosActualizacion,
       { new: true, runValidators: true }
     );
     
@@ -178,6 +184,11 @@ export const actualizarStock = async (req, res) => {
       return res.status(400).json({
         mensaje: "Operación no válida. Use 'sumar' o 'restar'"
       });
+    }
+
+    if (producto.stock <= 0) {
+      producto.stock = 0;
+      producto.disponible = false;
     }
     
     await producto.save();

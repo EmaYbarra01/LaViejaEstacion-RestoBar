@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
-import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
+import { FaBox, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
 import useUserStore from "../store/useUserStore";
 import "./AdminPage.css";
 
@@ -86,23 +86,6 @@ const AdminPage = () => {
           <FaBox /> Productos
         </NavLink>
         <NavLink 
-          to="/admin/users" 
-          className="nav-link"
-          style={({ isActive }) => ({
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '1rem 1.5rem',
-            textDecoration: 'none',
-            color: isActive ? '#667eea' : '#666',
-            borderBottom: isActive ? '3px solid #667eea' : '3px solid transparent',
-            fontWeight: isActive ? 'bold' : 'normal',
-            transition: 'all 0.3s'
-          })}
-        >
-          <FaUsers /> Usuarios
-        </NavLink>
-        <NavLink 
           to="/admin/sales" 
           className="nav-link"
           style={({ isActive }) => ({
@@ -184,7 +167,7 @@ const AdminPage = () => {
               verticalAlign: 'middle'
             }} />
             <Link 
-              to="/mozo" 
+              to="/supervision-pedidos" 
               className="nav-link"
               style={{
                 display: 'inline-flex',
@@ -207,7 +190,7 @@ const AdminPage = () => {
                 e.target.style.borderBottomColor = 'transparent';
               }}
             >
-              🍽️ Módulo Mozo
+              🍽️ Supervisión de Pedidos
             </Link>
             <Link 
               to="/encargado-cocina" 
