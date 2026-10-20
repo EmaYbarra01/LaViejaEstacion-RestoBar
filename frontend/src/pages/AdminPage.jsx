@@ -1,3 +1,5 @@
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
+import { FaBox, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
 import { NavLink, Outlet, useLocation, useNavigate, Link } from "react-router-dom";
 import { FaBox, FaUsers, FaChartLine, FaArrowLeft, FaCalendarAlt, FaClipboardList, FaUserTie } from "react-icons/fa";
 import useUserStore from "../store/useUserStore";
@@ -191,7 +193,7 @@ const AdminPage = () => {
               verticalAlign: 'middle'
             }} />
             <Link 
-              to="/mozo" 
+              to="/supervision-pedidos" 
               className="nav-link"
               style={{
                 display: 'inline-flex',
@@ -214,6 +216,7 @@ const AdminPage = () => {
                 e.target.style.borderBottomColor = 'transparent';
               }}
             >
+              🍽️ Supervisión de Pedidos
               Módulo Mozo
             </Link>
             <Link 

@@ -7,7 +7,7 @@ import './PedidoCard.css';
  * Componente para mostrar un pedido individual en la vista de cocina
  * Muestra información del pedido y botones de acción según el estado
  */
-const PedidoCard = ({ pedido, onCambiarEstado }) => {
+const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
   const [procesando, setProcesando] = useState(false);
 
   /**
@@ -83,6 +83,8 @@ const PedidoCard = ({ pedido, onCambiarEstado }) => {
    * Renderizar botones de acción según el estado actual
    */
   const renderizarAcciones = () => {
+    if (readOnly) return null;
+
     if (procesando) {
       return (
         <button className="btn-accion btn-procesando" disabled>
@@ -217,7 +219,8 @@ PedidoCard.propTypes = {
     })).isRequired,
     observacionesGenerales: PropTypes.string
   }).isRequired,
-  onCambiarEstado: PropTypes.func.isRequired
+  onCambiarEstado: PropTypes.func,
+  readOnly: PropTypes.bool
 };
 
 export default PedidoCard;
