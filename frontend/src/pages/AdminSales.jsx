@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import useUserStore from '../store/useUserStore';
 import Swal from 'sweetalert2';
 import '../pages/AdminPage.css';
 
@@ -7,7 +8,6 @@ function AdminSales() {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, today, week, month
-  const [filter, setFilter] = useState('today'); // all, today, week, month
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useUserStore();
 
