@@ -104,3 +104,24 @@ scenario('un token vencido no confirma ni cancela; paginación e IDs inválidos 
   await assert.rejects(service.obtener('abc'),/Identificador/);
   await assert.rejects(service.actualizar(reserva.id,{estado:'Inventado'}),/Estado/);
 });
+
+
+test('el filtro de cliente se parametriza y se aplica al total y a la página', async () => {
+  const consultas = [];
+  const db = {
+    beginTransaction: async () => {}, commit: async () => {}, rollback: async () => {}, release: () => {},
+    execute: async (sql, params) => { consultas.push({ sql, params }); return [[{ total: 0 }]]; },
+    query: async (sql, params) => { if (sql.startsWith('SET ')) return []; consultas.push({ sql, params }); return [[]]; }
+  };
+  const service = reservaService({ getConnection: async () => db });
+  const termino = "Ana' OR 1=1 --";
+  const resultado = await service.listar({ cliente: `  ${termino}  `, page: 2, limit: 20 });
+  assert.equal(resultado.total, 0);
+  assert.equal(consultas.length, 2);
+  for (const consulta of consultas) {
+    assert.ok(consulta.sql.includes('LOCATE(LOWER(?), LOWER(r.cliente)) > 0'));
+    assert.equal(consulta.sql.includes(termino), false);
+    assert.equal(consulta.params[0], termino);
+  }
+  assert.deepEqual(consultas[1].params.slice(1), [20, 20]);
+});

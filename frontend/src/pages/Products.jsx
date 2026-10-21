@@ -27,7 +27,6 @@ const Products = () => {
   const isSuperAdmin = user?.role === 'SuperAdministrador';
   const isGerente = user?.role === 'Gerente';
   const canEdit = isSuperAdmin; // Solo SuperAdmin puede editar productos
-  const canView = isSuperAdmin || isGerente; // Ambos pueden ver
   
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -37,6 +36,7 @@ const Products = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [messageLoading, setMessageLoading] = useState(false);
+  const [filterTerm, setFilterTerm] = useState('');
 
   const [form, setForm] = useState({
     name: "",
@@ -56,7 +56,7 @@ const Products = () => {
     if (isSuperAdmin || isGerente) {
       loadMessages();
     }
-  }, [user?.role]);
+  }, [user?.role, isGerente, isSuperAdmin]);
 
   const loadMessages = async () => {
     try {
@@ -158,17 +158,6 @@ const Products = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Verificar si hay errores antes de enviar
-    if (codeError) {
-      await Swal.fire({
-        icon: 'warning',
-        title: 'Código duplicado',
-        text: 'El código ingresado ya existe. Por favor, use uno diferente.',
-        confirmButtonColor: '#667eea'
-      });
-      return;
-    }
-
     if (nameError) {
       await Swal.fire({
         icon: 'warning',
@@ -301,6 +290,16 @@ const Products = () => {
     }
   };
 
+  const filteredProducts = [...products]
+    .filter((product) => {
+      const term = filterTerm.trim().toLocaleLowerCase();
+      if (!term) return true;
+      return [product.name, product.category].some((value) =>
+        String(value || '').toLocaleLowerCase().includes(term)
+      );
+    })
+    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'es', { sensitivity: 'base' }));
+
   return (
     <div className="admin-page">
       <div className="admin-page-header">
@@ -418,6 +417,16 @@ const Products = () => {
         nameError={nameError}
       />
 
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <TextField
+          size="small"
+          label="Filtrar por nombre o categoría"
+          value={filterTerm}
+          onChange={(event) => setFilterTerm(event.target.value)}
+          inputProps={{ maxLength: 80 }}
+        />
+      </Box>
+
       <TableContainer className="admin-table-container">
         <Table className="admin-table">
           <TableHead>
@@ -432,14 +441,14 @@ const Products = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="empty-table">
                   No hay productos registrados
                 </TableCell>
               </TableRow>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 (() => {
                   const stock = Number(product.stock || 0);
                   const minimumStock = Number(product.minimumStock || 0);
@@ -486,7 +495,7 @@ const Products = () => {
                     </span>
                     {isOutOfStock ? (
                       <div style={{ fontSize: '0.8em', color: '#d32f2f' }}>
-                        🔴 Agotado
+                        Sin stock
                       </div>
                     ) : isLowStock && (
                       <div style={{ fontSize: '0.8em', color: '#d32f2f' }}>

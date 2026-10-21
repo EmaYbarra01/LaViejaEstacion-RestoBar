@@ -73,6 +73,7 @@ const AdminReservas = () => {
       
       if (filtroEstado) params.append('estado', filtroEstado);
       if (filtroFecha) params.append('fecha', filtroFecha);
+      if (busqueda.trim()) params.append('cliente', busqueda.trim());
 
       const response = await axios.get(`${API_URL}/reservas?${params}`);
       
@@ -87,7 +88,7 @@ const AdminReservas = () => {
       setError('Error al cargar las reservas');
       setLoading(false);
     }
-  }, [page, filtroEstado, filtroFecha]);
+  }, [page, filtroEstado, filtroFecha, busqueda]);
 
   useEffect(() => {
     fetchReservas();
@@ -153,11 +154,12 @@ const AdminReservas = () => {
   }, [showEditModal, fechaEdicion, horaEdicion]);
 
   // Filtrar por búsqueda en cliente
-  const reservasFiltradas = reservas.filter(reserva => 
-    reserva.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
-    reserva.email.toLowerCase().includes(busqueda.toLowerCase()) ||
-    reserva.telefono.includes(busqueda)
-  );
+  const reservasFiltradas = reservas.filter((reserva) => {
+    const termino = busqueda.trim().toLocaleLowerCase();
+    return !termino || [reserva.cliente, reserva.email, reserva.telefono].some((value) =>
+      String(value || '').toLocaleLowerCase().includes(termino)
+    );
+  });
 
   // Manejar eliminación
   const handleEliminar = async (id) => {
@@ -390,7 +392,7 @@ const AdminReservas = () => {
               type="text"
               placeholder="Nombre, email o teléfono..."
               value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              onChange={(e) => { setBusqueda(e.target.value); setPage(1); }}
               className="input-busqueda"
             />
           </div>
@@ -410,8 +412,8 @@ const AdminReservas = () => {
               <option value="">Todos los estados</option>
               <option value="Pendiente">Pendiente</option>
               <option value="Confirmada">Confirmada</option>
-              <option value="Cancelada">Cancelada</option>
-              <option value="Completada">Completada</option>
+              <option value="Cancelada">Cancelado</option>
+              <option value="Completada">Completado</option>
             </select>
           </div>
 

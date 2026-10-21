@@ -103,7 +103,7 @@ export function reservaService(pool) {
       });
       return { reserva, token };
     },
-    async listar({ estado, fecha, email, soloActivas = false, page = 1, limit = 50 } = {}) {
+    async listar({ estado, fecha, email, cliente, soloActivas = false, page = 1, limit = 50 } = {}) {
       page = Number(page); limit = Number(limit);
       check(Number.isSafeInteger(page) && page > 0 && Number.isSafeInteger(limit) && limit > 0 && limit <= 500, 'Paginación inválida');
       check(Number.isSafeInteger((page-1)*limit), 'Paginación inválida');
@@ -111,6 +111,7 @@ export function reservaService(pool) {
       if (estado) { check(estados.includes(estado), 'Estado inválido'); filtros.push('r.estado=?'); valores.push(estado); }
       if (fecha) { filtros.push('r.fecha=?'); valores.push(validarFecha(fecha)); }
       if (email) { filtros.push('r.email=?'); valores.push(String(email).trim().toLowerCase()); }
+      if (cliente && String(cliente).trim()) { filtros.push('LOCATE(LOWER(?), LOWER(r.cliente)) > 0'); valores.push(String(cliente).trim()); }
       if (soloActivas) filtros.push("r.estado IN ('Pendiente','Confirmada')");
       const where = filtros.length ? ` WHERE ${filtros.join(' AND ')}` : '';
       return transaction(pool, async db => {
