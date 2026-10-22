@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import {
     reporteVentasPorFecha,
+    reporteVentas,
+    reporteVentasPorCategoria,
+    reporteInventario,
+    dashboard,
     reporteVentasPorProducto,
     reporteVentasPorMozo,
     reporteVentasPorMetodoPago,
@@ -44,5 +48,11 @@ router.get('/reportes/cierres-caja', verificarToken, verificarRol(['SuperAdminis
 
 // Resumen diario completo
 router.get('/reportes/resumen-diario', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteResumenDiario);
+
+router.get('/reportes/ventas', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteVentas);
+router.get('/reportes/ventas/categoria', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteVentasPorCategoria);
+router.get('/reportes/ventas/diarias', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteVentasDiario);
+router.get('/reportes/inventario', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteInventario);
+router.get('/reportes/dashboard', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), dashboard);
 
 export default router;
