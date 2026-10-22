@@ -10,7 +10,8 @@
         "db:mysql:setup": "node scripts/mysql/setup.js",
         "db:mysql:check": "node scripts/mysql/check.js",
         "test:mysql": "node --test test/mysql/*.test.js",
-        "db:mysql:migrate:compras": "node scripts/mysql/migrateCompras.js"
+        "db:mysql:migrate:compras": "node scripts/mysql/migrateCompras.js",
+        "db:mysql:migrate:publicos": "node scripts/mysql/migratePublicos.js"
     },
     "keywords": [],
     "author": "",

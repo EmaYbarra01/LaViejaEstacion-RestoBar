@@ -89,7 +89,7 @@ async function pedidosActivos(c, mesas) {
   const marcas = mesas.map(() => '?').join(',');
   const [rows] = await c.execute(
     `SELECT p.*,u.nombre mozo_nombre,u.apellido mozo_apellido
-     FROM pedidos p JOIN usuarios u ON u.id=p.mozo_id
+     FROM pedidos p LEFT JOIN usuarios u ON u.id=p.mozo_id
      WHERE p.mesa_id IN (${marcas}) AND p.${ABIERTOS}
      ORDER BY p.fecha_creacion DESC,p.id DESC`, mesas
   );
@@ -107,7 +107,7 @@ async function pedidosActivos(c, mesas) {
   return rows.map(p => ({
     _id: String(p.id), id: String(p.id), numeroPedido: p.numero_pedido,
     mesa: String(p.mesa_id), numeroMesa: p.numero_mesa_historico,
-    mozo: { _id: String(p.mozo_id), id: String(p.mozo_id), nombre: p.mozo_nombre, apellido: p.mozo_apellido },
+    mozo: p.mozo_id===null?null:{ _id: String(p.mozo_id), id: String(p.mozo_id), nombre: p.mozo_nombre, apellido: p.mozo_apellido },
     nombreMozo: p.nombre_mozo_historico, estado: p.estado,
     estadoCocina: p.estado_cocina, estadoCaja: p.estado_caja,
     productos: detalles.filter(d => d.pedido_id === p.id).map(d => ({
@@ -120,7 +120,7 @@ async function pedidosActivos(c, mesas) {
     descuento: { porcentaje: Number(p.descuento_porcentaje), monto: Number(p.descuento_monto), motivo: p.descuento_motivo },
     metodoPago: p.metodo_pago, pago: { cambio: 0 },
     historialEstados: eventos.filter(e => e.pedido_id === p.id).map(e => ({
-      _id: String(e.id), estado: e.estado, fecha: e.fecha, usuario: String(e.usuario_id), observacion: e.observacion,
+      _id: String(e.id), estado: e.estado, fecha: e.fecha, usuario: e.usuario_id===null?null:String(e.usuario_id), observacion: e.observacion,
     })),
     observacionesGenerales: p.observaciones_generales, tiempoEstimado: p.tiempo_estimado,
     fechaCreacion: p.fecha_creacion, fechaListo: p.fecha_listo, fechaServido: p.fecha_servido,

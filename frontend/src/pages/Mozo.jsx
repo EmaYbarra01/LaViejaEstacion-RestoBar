@@ -401,7 +401,7 @@ const Mozo = () => {
               {/* Contenido principal */}
               <div className="card-content">
                 <h3 className="card-title">
-                  {pedido.numeroMesa ? `Mesa ${pedido.numeroMesa}` : pedido.nombreMozo || 'Pedido sin asignar'}
+                  {pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : pedido.numeroMesa ? `Mesa ${pedido.numeroMesa}` : pedido.nombreMozo || 'Pedido sin asignar'}
                 </h3>
                 
                 <div className="card-precio">

@@ -1,15 +1,11 @@
-// La creación pública conserva temporalmente su implementación MongoDB.
-// El circuito de mozos, cocina y caja usa el servicio MySQL que sigue debajo.
-import Pedido from '../models/pedidoSchema.js';
-import Mesa from '../models/mesaSchema.js';
-import Producto from '../models/productoSchema.js';
 import { enviarNotificacionPedido } from '../helpers/emailHelper.js';
-
+import { pedidosPublicosService } from '../services/mysql/pedidosPublicos.js';
 import { pool, getMySQLConnection } from '../database/mysql/pool.js';
 import { pedidoService } from '../services/mysql/pedidos.js';
 import { requireCondition as ensure, positiveId } from '../database/mysql/transaction.js';
 
 const service = pedidoService(pool);
+const publicos = pedidosPublicosService(pool);
 const ESTADOS = ['Pendiente','En Preparación','Listo','Entregado','Cobrado','Cancelado'];
 export function normalizarEstado(valor) {
   ensure(typeof valor === 'string','Estado inválido');
@@ -58,8 +54,10 @@ export async function consultarPedidos(c, filtros = {}, orden = 'desc') {
     `SELECT p.*,m.numero mesa_numero,m.ubicacion mesa_ubicacion,m.capacidad mesa_capacidad,
      u.nombre mozo_nombre,u.apellido mozo_apellido,
      pg.fecha_pago,pg.monto_recibido,pg.cambio,pg.cajero_id,
-     ca.nombre cajero_nombre,ca.apellido cajero_apellido
-     FROM pedidos p JOIN mesas m ON m.id=p.mesa_id JOIN usuarios u ON u.id=p.mozo_id
+     ca.nombre cajero_nombre,ca.apellido cajero_apellido,
+     pub.tipo_pedido,pub.cliente_nombre,pub.cliente_telefono,pub.cliente_email,pub.cliente_direccion,pub.cliente_referencia,pub.metodo_pago_solicitado
+     FROM pedidos p LEFT JOIN mesas m ON m.id=p.mesa_id LEFT JOIN usuarios u ON u.id=p.mozo_id
+     LEFT JOIN pedidos_publicos pub ON pub.pedido_id=p.id
      LEFT JOIN pagos_pedido pg ON pg.pedido_id=p.id LEFT JOIN usuarios ca ON ca.id=pg.cajero_id
      WHERE ${where.join(' AND ')} ORDER BY p.fecha_creacion ${orden==='asc'?'ASC':'DESC'},p.id ${orden==='asc'?'ASC':'DESC'}${limite}`,valores
   );
@@ -71,7 +69,7 @@ export async function consultarPedidos(c, filtros = {}, orden = 'desc') {
      JOIN categorias cat ON cat.id=pr.categoria_id WHERE d.pedido_id IN (${marcas}) ORDER BY d.pedido_id,d.orden`,ids
   );
   const [eventos]=await c.execute(
-    `SELECT h.*,u.nombre,u.apellido FROM historial_estados_pedido h JOIN usuarios u ON u.id=h.usuario_id
+    `SELECT h.*,u.nombre,u.apellido FROM historial_estados_pedido h LEFT JOIN usuarios u ON u.id=h.usuario_id
      WHERE h.pedido_id IN (${marcas}) ORDER BY h.fecha,h.id`,ids
   );
   return rows.map(p=>{
@@ -81,14 +79,17 @@ export async function consultarPedidos(c, filtros = {}, orden = 'desc') {
     }));
     return {
       _id:String(p.id),id:String(p.id),numeroPedido:p.numero_pedido,
-      mesa:{_id:String(p.mesa_id),id:String(p.mesa_id),numero:p.mesa_numero,ubicacion:p.mesa_ubicacion,capacidad:p.mesa_capacidad},
+      mesa:p.mesa_id===null?null:{_id:String(p.mesa_id),id:String(p.mesa_id),numero:p.mesa_numero,ubicacion:p.mesa_ubicacion,capacidad:p.mesa_capacidad},
+      origen:p.tipo_pedido?'Publico':'Interno',tipoPedido:p.tipo_pedido||'Local',
+      cliente:p.tipo_pedido?{nombre:p.cliente_nombre,telefono:p.cliente_telefono,email:p.cliente_email,direccion:p.cliente_direccion,referencia:p.cliente_referencia}:null,
+      metodoPagoSolicitado:p.metodo_pago_solicitado||null,
       numeroMesa:p.numero_mesa_historico,
-      mozo:{_id:String(p.mozo_id),id:String(p.mozo_id),nombre:p.mozo_nombre,apellido:p.mozo_apellido},
+      mozo:p.mozo_id===null?null:{_id:String(p.mozo_id),id:String(p.mozo_id),nombre:p.mozo_nombre,apellido:p.mozo_apellido},
       nombreMozo:p.nombre_mozo_historico,estado:p.estado,estadoCocina:p.estado_cocina,estadoCaja:p.estado_caja,
       productos,subtotal:Number(p.subtotal),descuento:{porcentaje:Number(p.descuento_porcentaje),monto:Number(p.descuento_monto),motivo:p.descuento_motivo},total:Number(p.total),
       metodoPago:p.metodo_pago,
       pago:p.cajero_id?{fecha:p.fecha_pago,cajero:{_id:String(p.cajero_id),id:String(p.cajero_id),nombre:p.cajero_nombre,apellido:p.cajero_apellido},montoPagado:Number(p.monto_recibido),cambio:Number(p.cambio)}:{cambio:0},
-      historialEstados:eventos.filter(e=>e.pedido_id===p.id).map(e=>({_id:String(e.id),estado:e.estado,fecha:e.fecha,usuario:{_id:String(e.usuario_id),id:String(e.usuario_id),nombre:e.nombre,apellido:e.apellido},observacion:e.observacion})),
+      historialEstados:eventos.filter(e=>e.pedido_id===p.id).map(e=>({_id:String(e.id),estado:e.estado,fecha:e.fecha,usuario:e.usuario_id===null?null:{_id:String(e.usuario_id),id:String(e.usuario_id),nombre:e.nombre,apellido:e.apellido},observacion:e.observacion})),
       observacionesGenerales:p.observaciones_generales,tiempoEstimado:p.tiempo_estimado,
       fechaCreacion:p.fecha_creacion,fechaListo:p.fecha_listo,fechaServido:p.fecha_servido,fechaCobrado:p.fecha_cobrado,
       cancelado:{activo:p.estado==='Cancelado',motivo:p.cancelado_motivo||'',fecha:p.cancelado_fecha,usuario:p.cancelado_por_id?String(p.cancelado_por_id):undefined},
@@ -131,11 +132,11 @@ async function notificar(req,pedido,tipo) {
     if(pedido.estado==='Cancelado')for(const sala of ['mozos','caja','cocina'])io.to(sala).emit('pedido-cancelado',datos);
     if(['crear','actualizar','cancelar','cobrar'].includes(tipo)){
       const info=await leerPedidosSQL(async c=>{
-        const [[mesa]]=await c.execute('SELECT id,numero,estado FROM mesas WHERE id=?',[Number(pedido.mesa._id)]);
+        const [[mesa]]=pedido.mesa?await c.execute('SELECT id,numero,estado FROM mesas WHERE id=?',[Number(pedido.mesa._id)]):[[]];
         const [productos]=await c.query(`SELECT p.id,p.nombre,p.descripcion,p.precio,p.costo,p.stock,p.stock_minimo stockMinimo,p.unidad_medida unidadMedida,p.disponible,p.imagen_url imagenUrl,c.nombre categoria FROM productos p JOIN categorias c ON c.id=p.categoria_id`);
         return {mesa,productos:productos.map(p=>({...p,_id:String(p.id),id:String(p.id),disponible:Boolean(p.disponible)}))};
       });
-      io.to('mozos').emit('mesa-actualizada',{mesaId:String(info.mesa.id),numeroMesa:info.mesa.numero,estado:info.mesa.estado});
+      if(info.mesa)io.to('mozos').emit('mesa-actualizada',{mesaId:String(info.mesa.id),numeroMesa:info.mesa.numero,estado:info.mesa.estado});
       io.to('mozos').emit('productos-actualizados',{productos:info.productos});
     }
   }catch(error){console.error('Notificación de pedido:',error.code||error.message);}
@@ -188,139 +189,16 @@ export const cobrarPedido=endpoint(async req=>{
 });
 export const registrarPago=cobrarPedido;
 
-/**
- * Crear un pedido desde el menú público, sin autenticación.
- * POST /api/pedidos/publico
- */
-export const crearPedidoPublico = async (req, res) => {
-  try {
-    const {
-      tipoPedido,
-      numeroMesa,
-      cliente,
-      productos,
-      observacionesGenerales,
-      metodoPago
-    } = req.body;
-
-    if (!['Local', 'Domicilio'].includes(tipoPedido)) {
-      return res.status(400).json({ mensaje: 'El tipo de pedido no es válido' });
-    }
-
-    if (!cliente?.nombre || !cliente?.telefono || !cliente?.email) {
-      return res.status(400).json({
-        mensaje: 'Nombre, teléfono y email son requeridos'
-      });
-    }
-
-    if (tipoPedido === 'Domicilio' && !cliente.direccion) {
-      return res.status(400).json({ mensaje: 'La dirección es requerida para pedidos a domicilio' });
-    }
-
-    let mesaDoc = null;
-    if (tipoPedido === 'Local') {
-      if (!Number.isInteger(Number(numeroMesa)) || Number(numeroMesa) < 1) {
-        return res.status(400).json({ mensaje: 'El número de mesa es requerido para pedidos en el local' });
-      }
-      mesaDoc = await Mesa.findOne({ numero: Number(numeroMesa) });
-      if (!mesaDoc) {
-        return res.status(404).json({ mensaje: 'La mesa indicada no existe' });
-      }
-    }
-
-    if (!Array.isArray(productos) || productos.length === 0) {
-      return res.status(400).json({ mensaje: 'El pedido debe incluir al menos un producto' });
-    }
-
-    const productosDelPedido = [];
-    for (const item of productos) {
-      const cantidad = Number(item.cantidad);
-      if (!item.producto || !Number.isInteger(cantidad) || cantidad < 1) {
-        return res.status(400).json({ mensaje: 'Los productos del pedido no son válidos' });
-      }
-
-      const producto = await Producto.findById(item.producto);
-      if (!producto || !producto.disponible) {
-        return res.status(400).json({ mensaje: 'Uno de los productos ya no está disponible' });
-      }
-      if (producto.stock < cantidad) {
-        return res.status(400).json({
-          mensaje: `Stock insuficiente para ${producto.nombre}. Stock disponible: ${producto.stock}`
-        });
-      }
-
-      productosDelPedido.push({
-        producto: producto._id,
-        nombre: producto.nombre,
-        cantidad,
-        precioUnitario: producto.precio,
-        subtotal: producto.precio * cantidad,
-        observaciones: String(item.observaciones || '').slice(0, 200)
-      });
-    }
-
-    const subtotal = productosDelPedido.reduce((total, item) => total + item.subtotal, 0);
-    const nuevoPedido = await Pedido.create({
-      numeroPedido: await Pedido.generarNumeroPedido(),
-      tipoPedido,
-      mesa: mesaDoc?._id,
-      numeroMesa: mesaDoc?.numero,
-      cliente: {
-        nombre: String(cliente.nombre).trim(),
-        telefono: String(cliente.telefono).trim(),
-        email: String(cliente.email).trim(),
-        direccion: String(cliente.direccion || '').trim(),
-        referencia: String(cliente.referencia || '').trim()
-      },
-      productos: productosDelPedido,
-      observacionesGenerales: String(observacionesGenerales || '').slice(0, 500),
-      subtotal,
-      total: subtotal,
-      metodoPago: ['Efectivo', 'Transferencia'].includes(metodoPago) ? metodoPago : 'Pendiente',
-      historialEstados: [{
-        estado: 'Pendiente',
-        fecha: new Date(),
-        observacion: 'Pedido recibido desde el menú público'
-      }]
-    });
-
-    for (const item of productos) {
-      await Producto.findByIdAndUpdate(item.producto, { $inc: { stock: -Number(item.cantidad) } });
-    }
-
-    if (mesaDoc) {
-      await Mesa.findByIdAndUpdate(mesaDoc._id, { estado: 'Ocupada' });
-    }
-
-    const pedidoCompleto = await Pedido.findById(nuevoPedido._id)
-      .populate('productos.producto', 'nombre categoria');
-    const io = req.app.get('io');
-    if (io) {
-      io.to('cocina').emit('nuevo-pedido-cocina', {
-        pedido: pedidoCompleto,
-        mensaje: `Nuevo pedido online #${pedidoCompleto.numeroPedido}`
-      });
-      io.to('caja').emit('nuevo-pedido-online', { pedido: pedidoCompleto });
-    }
-
-    enviarNotificacionPedido(pedidoCompleto).catch((error) => {
-      console.error('Error enviando email del pedido público:', error.message);
-    });
-
-    const whatsappNumber = process.env.WHATSAPP_RESTAURANTE;
-    const whatsappUrl = whatsappNumber
-      ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(
-        `Nuevo pedido ${pedidoCompleto.numeroPedido} por ${pedidoCompleto.total}`
-      )}`
-      : null;
-
-    return res.status(201).json({
-      mensaje: 'Pedido recibido correctamente',
-      pedido: pedidoCompleto,
-      whatsappUrl
-    });
-  } catch (error) {
-    console.error('Error al crear pedido público:', error);
-    return res.status(500).json({ mensaje: 'No se pudo registrar el pedido' });
+/** Crear el pedido público en MySQL. Los efectos externos ocurren después del COMMIT. */
+export const crearPedidoPublico = endpoint(async req => {
+  const resultado=await publicos.crear(req.body||{});
+  const pedido=await porId(resultado.id);
+  if(resultado.creado) {
+    await notificar(req,pedido,'crear');
+    try {req.app?.get('io')?.to('caja').emit('nuevo-pedido-online',{pedido});}catch(error){console.warn('No se pudo notificar a caja:',error.message);}
+    Promise.resolve().then(()=>enviarNotificacionPedido(pedido)).catch(error=>console.warn('Correo de pedido no enviado:',error.message));
   }
-};
+  const numero=(process.env.WHATSAPP_RESTAURANTE||'').replace(/\D/g,'');
+  const whatsappUrl=numero?`https://wa.me/${numero}?text=${encodeURIComponent(`Pedido ${pedido.numeroPedido} por $${pedido.total}`)}`:null;
+  return {status:resultado.creado?201:200,body:{mensaje:resultado.creado?'Pedido recibido correctamente':'Este pedido ya estaba registrado',pedido,whatsappUrl}};
+});

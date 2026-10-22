@@ -168,12 +168,14 @@ const MenuDigital = () => {
 
   const formatOrderPrice = (price) => formatPrice(price);
 
+  const solicitudPublica = useRef({ firma: '', clave: '' });
+
   const handleCheckoutSubmit = async (event) => {
     event.preventDefault();
     setEnviandoPedido(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-      const response = await axios.post(`${API_URL}/pedidos/publico`, {
+      const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+      const datosPedido = {
         tipoPedido: datosEntrega.tipoPedido,
         numeroMesa: datosEntrega.tipoPedido === 'Local' ? Number(datosEntrega.numeroMesa) : undefined,
         cliente: {
@@ -189,7 +191,15 @@ const MenuDigital = () => {
           cantidad: item.cantidad,
           observaciones: item.indicaciones
         }))
-      });
+      };
+      const firma = JSON.stringify(datosPedido);
+      if (solicitudPublica.current.firma !== firma) {
+        // Se conserva la clave si la respuesta se pierde y se reintenta el mismo pedido.
+        const clave = globalThis.crypto?.randomUUID?.() || `pedido-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        solicitudPublica.current = { firma, clave };
+      }
+      const response = await axios.post(`${API_URL}/pedidos/publico`, { ...datosPedido, solicitudId: solicitudPublica.current.clave });
+      solicitudPublica.current = { firma: '', clave: '' };
       setPedidoEnviado(response.data);
       setPedido([]);
       setCheckoutAbierto(false);

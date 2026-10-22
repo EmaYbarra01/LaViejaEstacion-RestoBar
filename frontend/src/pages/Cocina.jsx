@@ -249,14 +249,14 @@ const Cocina = () => {
             </div>
 
             <div className="pedido-mesa-info">
-              <span className="mesa-badge">Mesa {pedido.mesa.numero}</span>
+              <span className="mesa-badge">{pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa ?? pedido.mesa?.numero ?? ''}`}</span>
               <span className={`estado-badge-cocina ${pedido.estado.toLowerCase().replace(' ', '-')}`}>
                 {pedido.estado}
               </span>
             </div>
 
             <div className="pedido-mozo">
-              👤 {pedido.mozo.nombre} {pedido.mozo.apellido}
+              👤 {pedido.mozo ? `${pedido.mozo.nombre} ${pedido.mozo.apellido || ''}` : 'Pedido público'}
             </div>
 
             <div className="productos-lista-cocina">

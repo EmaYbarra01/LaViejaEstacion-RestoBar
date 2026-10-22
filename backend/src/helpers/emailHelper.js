@@ -680,15 +680,16 @@ const enviarNotificacionPedido = async (pedido) => {
     return { success: false, mensaje: 'Email no configurado' };
   }
 
+  const escapar = (valor) => String(valor ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const detalle = pedido.productos
-    .map((item) => `${item.cantidad} x ${item.nombre} - $${item.subtotal}`)
+    .map((item) => `${item.cantidad} x ${escapar(item.nombre)} - $${item.subtotal}`)
     .join('<br>');
   const contenido = `
-    <h2>Nuevo pedido ${pedido.numeroPedido}</h2>
-    <p><strong>Modalidad:</strong> ${pedido.tipoPedido}</p>
-    <p><strong>Cliente:</strong> ${pedido.cliente.nombre}<br>
-    <strong>Teléfono:</strong> ${pedido.cliente.telefono}<br>
-    <strong>Dirección:</strong> ${pedido.cliente.direccion || 'Retira en el local'}</p>
+    <h2>Nuevo pedido ${escapar(pedido.numeroPedido)}</h2>
+    <p><strong>Modalidad:</strong> ${escapar(pedido.tipoPedido)}</p>
+    <p><strong>Cliente:</strong> ${escapar(pedido.cliente.nombre)}<br>
+    <strong>Teléfono:</strong> ${escapar(pedido.cliente.telefono)}<br>
+    <strong>Dirección:</strong> ${escapar(pedido.cliente.direccion || 'Retira en el local')}</p>
     <p>${detalle}</p>
     <p><strong>Total:</strong> $${pedido.total}</p>
   `;
