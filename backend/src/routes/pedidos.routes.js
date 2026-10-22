@@ -5,6 +5,7 @@ import {
     obtenerPedidosPorEstado,
     obtenerPedidosPorMesa,
     obtenerPedidosPorMozo,
+    crearPedidoPublico,
     crearPedido,
     actualizarPedido,
     cambiarEstadoPedido,
@@ -43,6 +44,7 @@ router.get('/pedidos/caja/pendientes', verificarToken, verificarRol(['Cajero', '
 
 // HU3: Mozo crea pedido
 // ⚠️ Temporalmente sin verificarRol hasta resolver caché de Node.js
+router.post('/pedidos/publico', crearPedidoPublico);
 router.post('/pedidos', verificarToken, crearPedido);
 
 // Actualizar pedido (antes de enviarlo a cocina)

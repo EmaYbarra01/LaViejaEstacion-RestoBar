@@ -671,8 +671,41 @@ const enviarNotificacionRestobar = async (reserva) => {
   }
 };
 
+const enviarNotificacionPedido = async (pedido) => {
+  const transporter = crearTransporter();
+  const destinatarioRestaurante = process.env.EMAIL_PEDIDOS_RESTAURANTE;
+
+  if (!transporter || !destinatarioRestaurante) {
+    console.warn('[EMAIL] Pedido registrado sin email: falta EMAIL_PEDIDOS_RESTAURANTE o credenciales SMTP');
+    return { success: false, mensaje: 'Email no configurado' };
+  }
+
+  const detalle = pedido.productos
+    .map((item) => `${item.cantidad} x ${item.nombre} - $${item.subtotal}`)
+    .join('<br>');
+  const contenido = `
+    <h2>Nuevo pedido ${pedido.numeroPedido}</h2>
+    <p><strong>Modalidad:</strong> ${pedido.tipoPedido}</p>
+    <p><strong>Cliente:</strong> ${pedido.cliente.nombre}<br>
+    <strong>Teléfono:</strong> ${pedido.cliente.telefono}<br>
+    <strong>Dirección:</strong> ${pedido.cliente.direccion || 'Retira en el local'}</p>
+    <p>${detalle}</p>
+    <p><strong>Total:</strong> $${pedido.total}</p>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    to: [destinatarioRestaurante, pedido.cliente.email],
+    subject: `Pedido ${pedido.numeroPedido} recibido`,
+    html: contenido
+  });
+
+  return { success: true };
+};
+
 export {
   enviarEmailConfirmacion,
   enviarEmailCancelacion,
-  enviarNotificacionRestobar
+  enviarNotificacionRestobar,
+  enviarNotificacionPedido
 };

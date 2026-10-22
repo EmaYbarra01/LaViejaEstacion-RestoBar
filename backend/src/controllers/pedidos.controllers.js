@@ -2,6 +2,7 @@ import Pedido from "../models/pedidoSchema.js";
 import Mesa from "../models/mesaSchema.js";
 import Producto from "../models/productoSchema.js";
 import Usuario from "../models/usuarioSchema.js";
+import { enviarNotificacionPedido } from "../helpers/emailHelper.js";
 
 /**
  * Obtener todos los pedidos
@@ -78,6 +79,143 @@ export const obtenerUnPedido = async (req, res) => {
     res.status(500).json({
       mensaje: "Error interno del servidor al obtener el pedido"
     });
+  }
+};
+
+/**
+ * Crear un pedido desde el menú público, sin autenticación.
+ * POST /api/pedidos/publico
+ */
+export const crearPedidoPublico = async (req, res) => {
+  try {
+    const {
+      tipoPedido,
+      numeroMesa,
+      cliente,
+      productos,
+      observacionesGenerales,
+      metodoPago
+    } = req.body;
+
+    if (!['Local', 'Domicilio'].includes(tipoPedido)) {
+      return res.status(400).json({ mensaje: 'El tipo de pedido no es válido' });
+    }
+
+    if (!cliente?.nombre || !cliente?.telefono || !cliente?.email) {
+      return res.status(400).json({
+        mensaje: 'Nombre, teléfono y email son requeridos'
+      });
+    }
+
+    if (tipoPedido === 'Domicilio' && !cliente.direccion) {
+      return res.status(400).json({ mensaje: 'La dirección es requerida para pedidos a domicilio' });
+    }
+
+    let mesaDoc = null;
+    if (tipoPedido === 'Local') {
+      if (!Number.isInteger(Number(numeroMesa)) || Number(numeroMesa) < 1) {
+        return res.status(400).json({ mensaje: 'El número de mesa es requerido para pedidos en el local' });
+      }
+      mesaDoc = await Mesa.findOne({ numero: Number(numeroMesa) });
+      if (!mesaDoc) {
+        return res.status(404).json({ mensaje: 'La mesa indicada no existe' });
+      }
+    }
+
+    if (!Array.isArray(productos) || productos.length === 0) {
+      return res.status(400).json({ mensaje: 'El pedido debe incluir al menos un producto' });
+    }
+
+    const productosDelPedido = [];
+    for (const item of productos) {
+      const cantidad = Number(item.cantidad);
+      if (!item.producto || !Number.isInteger(cantidad) || cantidad < 1) {
+        return res.status(400).json({ mensaje: 'Los productos del pedido no son válidos' });
+      }
+
+      const producto = await Producto.findById(item.producto);
+      if (!producto || !producto.disponible) {
+        return res.status(400).json({ mensaje: 'Uno de los productos ya no está disponible' });
+      }
+      if (producto.stock < cantidad) {
+        return res.status(400).json({
+          mensaje: `Stock insuficiente para ${producto.nombre}. Stock disponible: ${producto.stock}`
+        });
+      }
+
+      productosDelPedido.push({
+        producto: producto._id,
+        nombre: producto.nombre,
+        cantidad,
+        precioUnitario: producto.precio,
+        subtotal: producto.precio * cantidad,
+        observaciones: String(item.observaciones || '').slice(0, 200)
+      });
+    }
+
+    const subtotal = productosDelPedido.reduce((total, item) => total + item.subtotal, 0);
+    const nuevoPedido = await Pedido.create({
+      numeroPedido: await Pedido.generarNumeroPedido(),
+      tipoPedido,
+      mesa: mesaDoc?._id,
+      numeroMesa: mesaDoc?.numero,
+      cliente: {
+        nombre: String(cliente.nombre).trim(),
+        telefono: String(cliente.telefono).trim(),
+        email: String(cliente.email).trim(),
+        direccion: String(cliente.direccion || '').trim(),
+        referencia: String(cliente.referencia || '').trim()
+      },
+      productos: productosDelPedido,
+      observacionesGenerales: String(observacionesGenerales || '').slice(0, 500),
+      subtotal,
+      total: subtotal,
+      metodoPago: ['Efectivo', 'Transferencia'].includes(metodoPago) ? metodoPago : 'Pendiente',
+      historialEstados: [{
+        estado: 'Pendiente',
+        fecha: new Date(),
+        observacion: 'Pedido recibido desde el menú público'
+      }]
+    });
+
+    for (const item of productos) {
+      await Producto.findByIdAndUpdate(item.producto, { $inc: { stock: -Number(item.cantidad) } });
+    }
+
+    if (mesaDoc) {
+      await Mesa.findByIdAndUpdate(mesaDoc._id, { estado: 'Ocupada' });
+    }
+
+    const pedidoCompleto = await Pedido.findById(nuevoPedido._id)
+      .populate('productos.producto', 'nombre categoria');
+    const io = req.app.get('io');
+    if (io) {
+      io.to('cocina').emit('nuevo-pedido-cocina', {
+        pedido: pedidoCompleto,
+        mensaje: `Nuevo pedido online #${pedidoCompleto.numeroPedido}`
+      });
+      io.to('caja').emit('nuevo-pedido-online', { pedido: pedidoCompleto });
+    }
+
+    enviarNotificacionPedido(pedidoCompleto).catch((error) => {
+      console.error('Error enviando email del pedido público:', error.message);
+    });
+
+    const whatsappNumber = process.env.WHATSAPP_RESTAURANTE;
+    const whatsappUrl = whatsappNumber
+      ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(
+        `Nuevo pedido ${pedidoCompleto.numeroPedido} por ${pedidoCompleto.total}`
+      )}`
+      : null;
+
+    return res.status(201).json({
+      mensaje: 'Pedido recibido correctamente',
+      pedido: pedidoCompleto,
+      whatsappUrl
+    });
+  } catch (error) {
+    console.error('Error al crear pedido público:', error);
+    return res.status(500).json({ mensaje: 'No se pudo registrar el pedido' });
   }
 };
 

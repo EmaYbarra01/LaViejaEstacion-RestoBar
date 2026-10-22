@@ -58,7 +58,7 @@ const pedidoSchema = new Schema({
     mesa: {
         type: Schema.Types.ObjectId,
         ref: 'Mesa',
-        required: [true, 'La mesa es requerida']
+        required: false
     },
 
     /**
@@ -68,7 +68,7 @@ const pedidoSchema = new Schema({
      */
     numeroMesa: {
         type: Number,
-        required: [true, 'El número de mesa es requerido']
+        required: false
     },
 
     /**
@@ -79,7 +79,7 @@ const pedidoSchema = new Schema({
     mozo: {
         type: Schema.Types.ObjectId,
         ref: 'Usuario',
-        required: [true, 'El mozo es requerido']
+        required: false
     },
 
     /**
@@ -88,8 +88,24 @@ const pedidoSchema = new Schema({
      */
     nombreMozo: {
         type: String,
-        required: [true, 'El nombre del mozo es requerido'],
+        required: false,
+        default: 'Pedido online',
         trim: true
+    },
+
+    tipoPedido: {
+        type: String,
+        enum: ['Local', 'Domicilio'],
+        default: 'Local',
+        required: true
+    },
+
+    cliente: {
+        nombre: { type: String, trim: true, maxlength: 100 },
+        telefono: { type: String, trim: true, maxlength: 30 },
+        email: { type: String, trim: true, lowercase: true, maxlength: 150 },
+        direccion: { type: String, trim: true, maxlength: 200 },
+        referencia: { type: String, trim: true, maxlength: 200 }
     },
 
     // ========================================================================

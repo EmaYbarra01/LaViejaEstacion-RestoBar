@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaHamburger, FaCocktail, FaIceCream, FaArrowLeft, FaChevronDown } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,11 +14,7 @@ const MenuPage = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
-    useEffect(() => {
-        fetchProductos();
-    }, []);
-
-    const fetchProductos = async () => {
+    const fetchProductos = useCallback(async () => {
         try {
             const response = await axios.get(`${API_URL}/menu`);
             console.log('Productos cargados desde BD:', response.data);
@@ -37,9 +33,15 @@ const MenuPage = () => {
             console.error('Detalles del error:', error.response?.data || error.message);
             setLoading(false);
         }
-    };
+    }, [API_URL]);
+
+    useEffect(() => {
+        fetchProductos();
+    }, [fetchProductos]);
+
+    const MotionDiv = motion.div;
     
-    // Función para construir la URL completa de la imagen
+    // Funcion para construir la URL completa de la imagen
     const getImageUrl = (imagenUrl) => {
         if (!imagenUrl) return null;
         // Si la URL ya es completa (http/https), devolverla tal cual
@@ -116,6 +118,9 @@ const MenuPage = () => {
                 <h1>Nuestro Menú</h1>
                 <div className="menu-divider"></div>
                 <p>La Vieja Estación - Sabores que cuentan historias</p>
+                <button className="order-now-button" onClick={() => navigate('/menu-digital')}>
+                    Pedir ahora
+                </button>
             </div>
 
             <div className="menu-container">
@@ -135,7 +140,7 @@ const MenuPage = () => {
                         </div>
                         <AnimatePresence>
                         {expandedCategory === 'comida' && (
-                            <motion.div 
+                            <MotionDiv
                                 className="accordion-content"
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: "auto", opacity: 1 }}
@@ -144,7 +149,7 @@ const MenuPage = () => {
                             >
                                 <div className="menu-grid">
                                     {comidas.map((item, index) => (
-                                        <motion.div 
+                                        <MotionDiv
                                             key={item._id} 
                                             className="menu-card"
                                             initial={{ opacity: 0, y: 20 }}
@@ -176,15 +181,15 @@ const MenuPage = () => {
                                             )}
                                             <div className="card-footer-info">
                                                 {item.disponible !== false && item.stock > 0 ? (
-                                                    <span className="card-badge disponible">✓ Disponible</span>
+                                                    <span className="card-badge disponible">Disponible</span>
                                                 ) : (
-                                                    <span className="card-badge agotado">✗ No disponible</span>
+                                                    <span className="card-badge agotado">No disponible</span>
                                                 )}
                                             </div>
-                                        </motion.div>
+                                        </MotionDiv>
                                     ))}
                                 </div>
-                            </motion.div>
+                            </MotionDiv>
                         )}
                         </AnimatePresence>
                     </div>
@@ -203,7 +208,7 @@ const MenuPage = () => {
                         </div>
                         <AnimatePresence>
                         {expandedCategory === 'bebidas' && (
-                            <motion.div 
+                            <MotionDiv
                                 className="accordion-content"
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: "auto", opacity: 1 }}
@@ -212,7 +217,7 @@ const MenuPage = () => {
                             >
                                 <div className="menu-grid">
                                     {bebidas.map((item, index) => (
-                                        <motion.div 
+                                        <MotionDiv
                                             key={item._id} 
                                             className="menu-card"
                                             initial={{ opacity: 0, y: 20 }}
@@ -249,15 +254,15 @@ const MenuPage = () => {
                                             )}
                                             <div className="card-footer-info">
                                                 {item.disponible !== false && item.stock > 0 ? (
-                                                    <span className="card-badge disponible">✓ Disponible</span>
+                                                    <span className="card-badge disponible">Disponible</span>
                                                 ) : (
-                                                    <span className="card-badge agotado">✗ No disponible</span>
+                                                    <span className="card-badge agotado">No disponible</span>
                                                 )}
                                             </div>
-                                        </motion.div>
+                                        </MotionDiv>
                                     ))}
                                 </div>
-                            </motion.div>
+                            </MotionDiv>
                         )}
                         </AnimatePresence>
                     </div>
@@ -276,7 +281,7 @@ const MenuPage = () => {
                         </div>
                         <AnimatePresence>
                         {expandedCategory === 'postres' && (
-                            <motion.div 
+                            <MotionDiv
                                 className="accordion-content"
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: "auto", opacity: 1 }}
@@ -285,7 +290,7 @@ const MenuPage = () => {
                             >
                                 <div className="menu-grid">
                                     {postres.map((item, index) => (
-                                        <motion.div 
+                                        <MotionDiv
                                             key={item._id} 
                                             className="menu-card"
                                             initial={{ opacity: 0, y: 20 }}
@@ -317,15 +322,15 @@ const MenuPage = () => {
                                             )}
                                             <div className="card-footer-info">
                                                 {item.disponible !== false && item.stock > 0 ? (
-                                                    <span className="card-badge disponible">✓ Disponible</span>
+                                                    <span className="card-badge disponible">Disponible</span>
                                                 ) : (
-                                                    <span className="card-badge agotado">✗ No disponible</span>
+                                                    <span className="card-badge agotado">No disponible</span>
                                                 )}
                                             </div>
-                                        </motion.div>
+                                        </MotionDiv>
                                     ))}
                                 </div>
-                            </motion.div>
+                            </MotionDiv>
                         )}
                         </AnimatePresence>
                     </div>

@@ -16,11 +16,7 @@ const ProductoCard = ({ producto, onSelect }) => {
   const stockBajo = stock > 0 && Number(producto.stockMinimo || 0) >= stock;
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0
-    }).format(price);
+    return `$${Number(price || 0).toFixed(2)}`;
   };
 
   const handleImageError = () => {
@@ -38,7 +34,8 @@ const ProductoCard = ({ producto, onSelect }) => {
     
     // Si la URL es relativa, usar el backend
     if (producto.imagenUrl.startsWith('/')) {
-      return `http://localhost:4000${producto.imagenUrl}`;
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+      return `${backendUrl}${producto.imagenUrl}`;
     }
     
     return producto.imagenUrl;
@@ -81,35 +78,38 @@ const ProductoCard = ({ producto, onSelect }) => {
         {/* Encabezado con nombre y precio */}
         <div className="producto-header">
           <h3 className="producto-nombre">{producto.nombre}</h3>
+          {producto.descripcion && (
+            <p className="producto-descripcion">{producto.descripcion}</p>
+          )}
           <span className="producto-precio">{formatPrice(producto.precio)}</span>
         </div>
 
-        {/* Descripción */}
-        {producto.descripcion && (
-          <p className="producto-descripcion">
-            {producto.descripcion}
-          </p>
-        )}
-
-        {/* Badge si no tiene imagen */}
-        {!showImage && (
-          <div className="no-image-badge">
-            <span className="utensils-icon">🍴</span>
-          </div>
-        )}
       </div>
 
-      {/* Indicador de disponibilidad */}
-      <div className="producto-badge">
-        {agotado ? (
-          <span className="badge-agotado">Agotado</span>
-        ) : disponible ? (
-          <span className={`badge-disponible ${stockBajo ? 'badge-stock-bajo' : ''}`}>
-            {stockBajo ? 'Stock bajo' : 'Disponible'}
-          </span>
-        ) : (
-          <span className="badge-no-disponible">No disponible</span>
-        )}
+      <div className="producto-details">
+        <div className="producto-badge">
+          {agotado ? (
+            <span className="badge-agotado">Agotado</span>
+          ) : disponible ? (
+            <span className={`badge-disponible ${stockBajo ? 'badge-stock-bajo' : ''}`}>
+              Disponible
+            </span>
+          ) : (
+            <span className="badge-no-disponible">No disponible</span>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="add-product-button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect && onSelect(producto);
+          }}
+          disabled={!disponible}
+        >
+          <span>{disponible ? 'Agregar al pedido' : 'No disponible'}</span>
+        </button>
       </div>
     </div>
   );
