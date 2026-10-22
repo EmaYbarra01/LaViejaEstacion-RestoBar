@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import {
     obtenerCompras,
+    obtenerComprasPendientes,
+    reporteComprasPorProveedor,
+    cancelarCompra,
     obtenerUnaCompra,
     obtenerComprasPorProveedor,
     obtenerComprasPendientesPago,
@@ -25,6 +28,8 @@ const router = Router();
 router.get('/compras', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerCompras);
 router.get('/compras/pendientes-pago', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerComprasPendientesPago);
 router.get('/compras/proveedor/:proveedor', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerComprasPorProveedor);
+router.get('/compras/pendientes', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerComprasPendientes);
+router.get('/compras/reporte/proveedor', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteComprasPorProveedor);
 router.get('/compras/:id', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), obtenerUnaCompra);
 
 // HU13: Registrar compras a proveedores
@@ -44,5 +49,8 @@ router.patch('/compras/:id/recepcion', verificarToken, verificarRol(['SuperAdmin
 
 // Registrar pago de compra
 router.patch('/compras/:id/pago', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), registrarPagoCompra);
+
+router.put('/compras/:id/recepcion', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), registrarRecepcion);
+router.put('/compras/:id/cancelar', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), cancelarCompra);
 
 export default router;
