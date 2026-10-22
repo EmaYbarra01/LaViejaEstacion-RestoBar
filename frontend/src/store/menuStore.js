@@ -29,7 +29,20 @@ const useMenuStore = create((set, get) => ({
       console.log('🔄 Iniciando fetch del menú desde:', `${API_BASE_URL}/api/menu`);
       const response = await axios.get(`${API_BASE_URL}/api/menu`);
       console.log('✅ Respuesta recibida:', response.data);
-      const { menu, ultimaActualizacion } = response.data;
+      const ultimaActualizacion = new Date().toISOString();
+      const productosRecibidos = Array.isArray(response.data)
+        ? response.data
+        : Object.values(response.data.menu || {}).flat();
+      const menu = productosRecibidos.reduce((menuPorCategoria, producto) => {
+        const categoria = producto.categoria || 'Otros';
+        const productoNormalizado = {
+          ...producto,
+          id: producto.id || producto._id
+        };
+        menuPorCategoria[categoria] = menuPorCategoria[categoria] || [];
+        menuPorCategoria[categoria].push(productoNormalizado);
+        return menuPorCategoria;
+      }, {});
       const categorias = Object.keys(menu);
       const primeraCategoria = categorias[0] || null;
       // Aplanar productos para búsquedas

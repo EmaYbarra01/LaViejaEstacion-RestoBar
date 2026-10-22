@@ -8,7 +8,7 @@ import {
 import { formatCurrency } from '../utils/currencyFormatter';
 import './SuperadminDashboard.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 const SuperadminDashboard = () => {
   const [estadisticas, setEstadisticas] = useState(null);
@@ -22,12 +22,16 @@ const SuperadminDashboard = () => {
   const cargarEstadisticas = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await axios.get(`${API_URL}/dashboard/estadisticas`, {
-        withCredentials: true
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
       if (response.data.success) {
         setEstadisticas(response.data.data);
+      } else {
+        throw new Error('Respuesta de estadísticas inválida');
       }
     } catch (err) {
       console.error('Error al cargar estadísticas:', err);
