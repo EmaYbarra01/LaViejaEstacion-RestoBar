@@ -7,7 +7,7 @@ try {
   if (!/^8\./.test(server.version)) throw new Error(`Se requiere MySQL 8; servidor: ${server.version}`);
   const [[existing]] = await connection.query("SELECT COUNT(*) cantidad FROM information_schema.tables WHERE table_schema='la_vieja_estacion'");
   if (existing.cantidad) throw new Error('la_vieja_estacion ya contiene tablas. No se sobrescribe: ejecutá db:mysql:check para revisarla.');
-  for (const file of ['001_schema.sql', '002_integridad.sql', '003_datos_iniciales.sql']) {
+  for (const file of ['001_schema.sql', '002_integridad.sql', '003_datos_iniciales.sql', '005_compras_pagos.sql']) {
     await executeFile(connection, new URL(`../../database/mysql/${file}`, import.meta.url));
     console.log(`OK ${file}`);
   }
