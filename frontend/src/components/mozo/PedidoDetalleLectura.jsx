@@ -1,3 +1,4 @@
+import EntregaPedido from '../EntregaPedido';
 import PropTypes from 'prop-types';
 import { formatCurrency } from '../../utils/currencyFormatter';
 import './PedidoDetalle.css';
@@ -8,7 +9,7 @@ const PedidoDetalleLectura = ({ pedido, onClose }) => (
       <div className="detalle-header">
         <button className="btn-back" onClick={onClose} aria-label="Cerrar detalle">←</button>
         <div className="detalle-header-titulo">
-          <h2>Mesa {pedido.numeroMesa || 'S/N'}</h2>
+          <h2>{pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa || 'S/N'}`}</h2>
           <div className="detalle-header-meta">
             <span className="detalle-badge">{pedido.estado || 'Pendiente'}</span>
             <span className="detalle-meta-item">👤 {pedido.nombreMozo || pedido.mozo?.nombre || 'Sin mozo'}</span>
@@ -20,6 +21,7 @@ const PedidoDetalleLectura = ({ pedido, onClose }) => (
         <button className="btn-close" onClick={onClose} aria-label="Cerrar detalle">✕</button>
       </div>
 
+      <EntregaPedido pedido={pedido} />
       <div className="resumen-financiero">
         <div className="resumen-item total">
           <span className="label">Total</span>

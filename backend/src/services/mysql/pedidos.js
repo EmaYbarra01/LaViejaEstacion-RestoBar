@@ -15,7 +15,7 @@ async function lockedOrder(c,id){
  const orderId=positiveId(id);
  const [[ref]]=await c.execute('SELECT mesa_id FROM pedidos WHERE id=?',[orderId]);
  ensure(ref,'Pedido no encontrado',404);
- await c.execute('SELECT id FROM mesas WHERE id=? FOR UPDATE',[ref.mesa_id]);
+ if(ref.mesa_id!==null)await c.execute('SELECT id FROM mesas WHERE id=? FOR UPDATE',[ref.mesa_id]);
  const [[order]]=await c.execute('SELECT * FROM pedidos WHERE id=? FOR UPDATE',[orderId]);
  ensure(order,'Pedido no encontrado',404);
  return order;
@@ -24,6 +24,7 @@ async function history(c,id,state,user,observation=''){
  await c.execute('INSERT INTO historial_estados_pedido(pedido_id,estado,usuario_id,observacion) VALUES(?,?,?,?)',[id,state,user,observation]);
 }
 async function freeTable(c,table){
+ if(table===null)return;
  const [r]=await c.execute("SELECT id FROM pedidos WHERE mesa_id=? AND activo=TRUE AND estado NOT IN ('Cobrado','Cancelado') FOR UPDATE",[table]);
  if(!r.length) await c.execute("UPDATE mesas SET estado='Libre' WHERE id=?",[table]);
 }
@@ -83,7 +84,7 @@ export function pedidoService(pool){
     const user=await actor(c,usuario,['Mozo',...adminRoles]);
     const order=await lockedOrder(c,id);
     ensure(order.estado==='Pendiente','Solo se editan pedidos pendientes');
-    if(user.rol==='Mozo')ensure(order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
+    if(user.rol==='Mozo')ensure(order.mozo_id===null || order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
     if(items){
      const [old]=await c.execute('SELECT * FROM detalle_pedido WHERE pedido_id=? ORDER BY orden',[order.id]);
      const before=new Map(),after=new Map(),catalog=new Map();
@@ -126,7 +127,10 @@ export function pedidoService(pool){
     const order=await lockedOrder(c,id);
     const previous={'En Preparación':'Pendiente',Listo:'En Preparación',Entregado:'Listo'}[estado];
     ensure(order.estado===previous,`El pedido debe estar en ${previous}`);
-    if(estado==='Entregado' && user.rol==='Mozo')ensure(order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
+    if(estado==='Entregado' && user.rol==='Mozo') {
+     ensure(order.mozo_id===null || order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
+     if(order.mozo_id===null)await c.execute('UPDATE pedidos SET mozo_id=?,nombre_mozo_historico=? WHERE id=?',[user.id,`${user.nombre} ${user.apellido}`,order.id]);
+    }
     if(estado==='Entregado') await c.execute("UPDATE pedidos SET estado='Entregado',fecha_servido=NOW(3) WHERE id=?",[order.id]);
     else await c.execute(`UPDATE pedidos SET estado=?,estado_cocina=?,fecha_listo=IF(?='Listo',NOW(3),fecha_listo) WHERE id=?`,[estado,estado,estado,order.id]);
     await history(c,order.id,estado,user.id,observacion);
@@ -161,7 +165,7 @@ export function pedidoService(pool){
     const user=await actor(c,usuario,['Mozo',...adminRoles]);
     const order=await lockedOrder(c,id);
     ensure(!['Cobrado','Cancelado'].includes(order.estado),'El pedido ya está finalizado');
-    if(user.rol==='Mozo')ensure(order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
+    if(user.rol==='Mozo')ensure(order.mozo_id===null || order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
     const [items]=await c.execute('SELECT producto_id,SUM(cantidad) cantidad FROM detalle_pedido WHERE pedido_id=? GROUP BY producto_id ORDER BY producto_id',[order.id]);
     for(const item of items){
      await c.execute('UPDATE productos SET stock=stock+? WHERE id=?',[item.cantidad,item.producto_id]);

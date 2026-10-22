@@ -132,7 +132,7 @@ const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
       <div className="pedido-header">
         <div className="pedido-info-principal">
           <h3 className="pedido-numero">{pedido.numeroPedido}</h3>
-          <span className="pedido-mesa">Mesa {pedido.numeroMesa}</span>
+          <span className="pedido-mesa">{pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa}`}</span>
         </div>
         <div className="pedido-tiempo">
           <div className="tiempo-creacion">
@@ -208,7 +208,7 @@ PedidoCard.propTypes = {
   pedido: PropTypes.shape({
     _id: PropTypes.string.isRequired,
     numeroPedido: PropTypes.string.isRequired,
-    numeroMesa: PropTypes.number.isRequired,
+    numeroMesa: PropTypes.number,
     nombreMozo: PropTypes.string.isRequired,
     estado: PropTypes.string.isRequired,
     fechaCreacion: PropTypes.string.isRequired,

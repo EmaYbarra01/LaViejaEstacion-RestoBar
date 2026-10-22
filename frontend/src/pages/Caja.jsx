@@ -1,3 +1,4 @@
+import EntregaPedido from '../components/EntregaPedido';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -126,9 +127,9 @@ const Caja = () => {
 
   const seleccionarPedido = (pedido) => {
     setPedidoSeleccionado(pedido);
-    setMetodoPago('Efectivo');
-    // Calcular total con descuento si es efectivo
-    const totalConDescuento = pedido.subtotal * 0.9;
+    const metodo = pedido.metodoPagoSolicitado || 'Efectivo';
+    setMetodoPago(metodo);
+    const totalConDescuento = pedido.subtotal * (metodo === 'Efectivo' ? 0.9 : 1);
     setMontoPagado(formatCurrency(totalConDescuento));
     setError(null);
   };
@@ -453,7 +454,7 @@ const Caja = () => {
                   </div>
 
                   <div className="pedido-item-info">
-                    <p><strong>Mesa:</strong> {pedido.numeroMesa}</p>
+                    <p><strong>Entrega:</strong> {pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa}`}</p>
                     <p><strong>Mozo:</strong> {pedido.nombreMozo}</p>
                     <p><strong>Productos:</strong> {pedido.productos.length} items</p>
                   </div>
@@ -494,6 +495,7 @@ const Caja = () => {
               </div>
 
               <div className="pedido-detalle">
+                <EntregaPedido pedido={pedidoSeleccionado} />
                 <div className="detalle-info">
                   <div className="info-row">
                     <span>Pedido:</span>
@@ -501,7 +503,7 @@ const Caja = () => {
                   </div>
                   <div className="info-row">
                     <span>Mesa:</span>
-                    <strong>{pedidoSeleccionado.numeroMesa}</strong>
+                    <strong>{pedidoSeleccionado.tipoPedido === 'Domicilio' ? 'Domicilio' : pedidoSeleccionado.numeroMesa}</strong>
                   </div>
                   <div className="info-row">
                     <span>Mozo:</span>
@@ -654,7 +656,7 @@ const Caja = () => {
               <div key={pedido._id} className="historial-item">
                 <div className="historial-item-main">
                   <strong>{pedido.numeroPedido}</strong>
-                  <span>Mesa {pedido.numeroMesa || 'N/A'}</span>
+                  <span>{pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa || 'N/A'}`}</span>
                 </div>
                 <div className="historial-item-side">
                   <span className={`badge badge-${pedido.estado.toLowerCase().replace(' ', '-')}`}>

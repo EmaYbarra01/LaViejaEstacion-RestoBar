@@ -1,3 +1,4 @@
+import EntregaPedido from '../EntregaPedido';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -440,7 +441,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
             ←
           </button>
           <div className="detalle-header-titulo">
-            <h2>Mesa {pedidoActual.numeroMesa || 'S/N'}</h2>
+            <h2>{pedidoActual.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedidoActual.numeroMesa || 'S/N'}`}</h2>
             <div className="detalle-header-meta">
               <span className={`detalle-badge estado-${String(pedidoActual.estado || '').toLowerCase().replace(/\s+/g, '-')}`}>
                 {pedidoActual.estado || 'Pendiente'}
@@ -464,7 +465,8 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
         </div>
 
         {/* Resumen financiero */}
-        <div className="resumen-financiero">
+        <EntregaPedido pedido={pedidoActual} />
+      <div className="resumen-financiero">
           <div className="resumen-item total">
             <span className="label">Total</span>
              <span className="valor">${formatCurrency(pedidoActual.total) || '0,00'}</span>
