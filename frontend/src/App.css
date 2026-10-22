@@ -1,33 +1,33 @@
 /* App.css */
 
 :root {
-  --app-ink: #2C3E35;
-  --app-ink-soft: #5A7C65;
-  --app-surface: #FFFFFF;
-  --app-surface-muted: #F4F6F4;
-  --app-border: #8FA396;
-  --app-text: #2C3E35;
-  --app-text-muted: #8FA396;
-  --app-accent: #5A7C65;
-  --app-accent-dark: #3B7A57;
-  --app-accent-soft: #F4F6F4;
-  --app-shadow: 0 8px 24px #8FA396;
+  --app-ink: #243326;
+  --app-ink-soft: #405C38;
+  --app-surface: #FFFEFA;
+  --app-surface-muted: #F3F6EA;
+  --app-border: #B7C99A;
+  --app-text: #263326;
+  --app-text-muted: #52634D;
+  --app-accent: #587A3C;
+  --app-accent-dark: #45652F;
+  --app-accent-soft: #E4EED4;
+  --app-shadow: 0 8px 24px rgba(69, 101, 47, 0.18);
   --app-radius: 10px;
   color-scheme: light;
 }
 
 :root[data-theme='night'] {
-  --app-ink: #101722;
-  --app-ink-soft: #1B2936;
-  --app-surface: #182330;
-  --app-surface-muted: #101722;
-  --app-border: #405466;
-  --app-text: #EDF2F7;
-  --app-text-muted: #B4C1CD;
-  --app-accent: #E3B85F;
-  --app-accent-dark: #C89535;
-  --app-accent-soft: #22313F;
-  --app-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --app-ink: #172218;
+  --app-ink-soft: #243625;
+  --app-surface: #202D20;
+  --app-surface-muted: #172218;
+  --app-border: #58704B;
+  --app-text: #F1F6E9;
+  --app-text-muted: #C0D0B1;
+  --app-accent: #B7D48B;
+  --app-accent-dark: #D0E5AD;
+  --app-accent-soft: #30472B;
+  --app-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   color-scheme: dark;
 }
 
@@ -77,7 +77,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid #8FA396;
+  outline: 3px solid var(--app-accent);
   outline-offset: 2px;
 }
 
@@ -252,7 +252,7 @@ header {
 .vision-card:hover,
 .reserva-card:hover {
   border-color: var(--app-accent) !important;
-  box-shadow: 0 12px 30px #8FA396 !important;
+  box-shadow: 0 12px 30px rgba(69, 101, 47, 0.22) !important;
 }
 
 .menu-card h3,
@@ -290,7 +290,7 @@ header {
   background: var(--app-accent) !important;
   border-color: var(--app-accent-dark) !important;
   color: var(--app-surface) !important;
-  box-shadow: 0 5px 14px #8FA396 !important;
+  box-shadow: 0 5px 14px rgba(69, 101, 47, 0.2) !important;
 }
 
 .admin-table thead,
@@ -361,7 +361,7 @@ textarea:focus,
 .select-filtro:focus,
 .input-fecha:focus {
   border-color: var(--app-accent) !important;
-  box-shadow: 0 0 0 3px #8FA396 !important;
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.28) !important;
 }
 
 button,
@@ -871,3 +871,392 @@ button:hover,
 }
 
 /* Footer styles moved to Footer.css */
+
+/* Final palette overrides for menu and authenticated workspaces. */
+.menu-page,
+.menu-page .accordion-content,
+.menu-page .menu-section {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.menu-page .accordion-item,
+.menu-page .menu-card {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+}
+
+.menu-page .accordion-header,
+.menu-page .accordion-header:hover,
+.menu-page .accordion-header.active {
+  background: var(--app-ink-soft) !important;
+  color: var(--app-surface) !important;
+  border-bottom-color: var(--app-accent) !important;
+}
+
+.menu-page .accordion-title span,
+.menu-page .section-title,
+.menu-page .card-name {
+  color: var(--app-text) !important;
+  text-shadow: none !important;
+}
+
+.menu-page .accordion-title span,
+.menu-page .section-title {
+  color: var(--app-surface) !important;
+}
+
+.menu-page .card-description,
+.menu-page .card-detail,
+.menu-page .menu-header p {
+  color: var(--app-text-muted) !important;
+}
+
+.menu-page .card-price,
+.menu-page .menu-header h1,
+.menu-page .section-icon,
+.menu-page .accordion-icon,
+.menu-page .chevron {
+  color: var(--app-accent-dark) !important;
+}
+
+.menu-page .card-badge.disponible {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-accent-dark) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+.menu-page .card-badge.agotado {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-ink) !important;
+}
+
+.menu-page .back-button {
+  color: var(--app-accent-dark) !important;
+  border-color: var(--app-accent-dark) !important;
+}
+
+.menu-page .back-button:hover {
+  background: var(--app-accent-dark) !important;
+  color: var(--app-surface) !important;
+}
+
+.admin-page,
+.admin-container,
+.admin-panel,
+.dashboard-layout,
+.admin-content {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+#admin-nav,
+.admin-page .admin-page-header,
+.admin-page .admin-header,
+.admin-page .admin-table-container,
+.admin-page .stat-card,
+.admin-page .admin-controls,
+.admin-page .admin-form,
+.admin-page .form-section {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+#admin-nav a,
+.admin-page .admin-subtitle,
+.admin-page .stat-info p,
+.admin-page .empty-table {
+  color: var(--app-text-muted) !important;
+}
+
+#admin-nav a:hover,
+#admin-nav a.active,
+.admin-page .admin-page-title,
+.admin-page .admin-header h1 {
+  color: var(--app-accent-dark) !important;
+}
+
+.admin-page .admin-table thead,
+.admin-page .admin-table thead th {
+  background: var(--app-ink) !important;
+  color: var(--app-surface) !important;
+}
+
+.admin-page .admin-table tbody tr:nth-child(even),
+.admin-page .admin-table tbody tr:hover {
+  background: var(--app-accent-soft) !important;
+}
+
+.admin-page .admin-table tbody td {
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.admin-page .create-button,
+.admin-page .edit-button,
+.admin-page .stat-icon,
+.admin-page .admin-submit,
+.admin-container button {
+  background: var(--app-accent-dark) !important;
+  border-color: var(--app-accent-dark) !important;
+  color: var(--app-surface) !important;
+  box-shadow: 0 4px 14px rgba(69, 101, 47, 0.22) !important;
+}
+
+.admin-page .create-button:hover,
+.admin-page .edit-button:hover,
+.admin-page .admin-submit:hover,
+.admin-container button:hover {
+  background: var(--app-accent) !important;
+  border-color: var(--app-accent) !important;
+}
+
+.admin-page .role-badge,
+.admin-page .status-badge,
+.admin-page .estado-badge {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+.admin-page input,
+.admin-page select,
+.admin-page textarea,
+.admin-container input,
+.admin-container select,
+.admin-container textarea {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.caja-container,
+.cocina-container,
+.mozo-container,
+.supervision-pedidos,
+.dashboard-container,
+.superadmin-dashboard {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.caja-container .caja-toolbar,
+.caja-container .caja-content,
+.cocina-container .pedido-card-cocina,
+.mozo-container .mozo-toolbar,
+.mozo-container .mesa-card,
+.supervision-pedidos .supervision-header,
+.supervision-pedidos .supervision-pedido,
+.supervision-pedidos .supervision-empty,
+.dashboard-container .metric-card,
+.superadmin-dashboard .dashboard-card {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.caja-container .caja-header,
+.cocina-container .cocina-header,
+.mozo-container .mozo-header,
+.supervision-pedidos .supervision-header {
+  background: var(--app-ink) !important;
+  color: var(--app-surface) !important;
+  border-color: var(--app-accent) !important;
+}
+
+.cocina-container .cocina-title,
+.mozo-container .mozo-title,
+.supervision-pedidos .supervision-header h1,
+.dashboard-container h1,
+.superadmin-dashboard h1 {
+  color: var(--app-ink) !important;
+}
+
+.caja-container .caja-header h1,
+.cocina-container .cocina-header h1,
+.mozo-container .mozo-header h1 {
+  color: var(--app-surface) !important;
+}
+
+.cocina-container .cocina-subtitle,
+.mozo-container .mozo-subtitle,
+.supervision-pedidos .supervision-header p,
+.supervision-pedidos .supervision-pedido-numero,
+.supervision-pedidos .supervision-pedido-estado {
+  color: var(--app-text-muted) !important;
+}
+
+.supervision-pedidos .supervision-pedido-total,
+.caja-container .stat-value,
+.dashboard-container .metric-value {
+  color: var(--app-accent-dark) !important;
+}
+
+.caja-container .search-input,
+.caja-container select,
+.cocina-container select,
+.mozo-container select {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+/* Unified green palette for the complete authenticated dashboard. */
+.admin-panel {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.admin-panel > div:first-child {
+  background: var(--app-ink) !important;
+  background-image: none !important;
+  color: var(--app-surface) !important;
+  border-bottom: 2px solid var(--app-accent) !important;
+}
+
+.admin-panel > div:first-child h1,
+.admin-panel > div:first-child button {
+  color: var(--app-surface) !important;
+}
+
+.admin-panel > nav,
+.admin-panel #admin-nav {
+  background: var(--app-ink) !important;
+  border-bottom-color: var(--app-accent) !important;
+}
+
+.admin-panel #admin-nav .nav-link,
+.admin-panel #admin-nav .nav-link:hover,
+.admin-panel #admin-nav .nav-link:focus {
+  background: transparent !important;
+  color: var(--app-surface) !important;
+  border-bottom-color: transparent !important;
+}
+
+.admin-panel #admin-nav .nav-link:hover,
+.admin-panel #admin-nav .nav-link.active,
+.admin-panel #admin-nav .nav-link[aria-current='page'] {
+  color: var(--app-accent) !important;
+  border-bottom-color: var(--app-accent) !important;
+}
+
+.menu-page .menu-card .card-header,
+.menu-page .menu-card .card-name,
+.menu-page .menu-card .card-price,
+.menu-page .menu-card .card-description,
+.menu-page .menu-card .card-detail {
+  background: transparent !important;
+}
+
+.menu-page .menu-card .card-name {
+  color: var(--app-surface) !important;
+}
+
+.menu-page .menu-card .card-price {
+  color: var(--app-accent) !important;
+}
+
+.menu-page .menu-card .card-description,
+.menu-page .menu-card .card-detail {
+  color: var(--app-surface-muted) !important;
+}
+
+.menu-page > h2 {
+  color: var(--app-accent-dark) !important;
+}
+
+.menu-page .menu-card,
+.menu-page .menu-card:hover {
+  background: var(--app-ink-soft) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.menu-page .menu-card .card-footer-info {
+  border-top-color: var(--app-accent) !important;
+}
+
+.superadmin-dashboard {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+.superadmin-dashboard .dashboard-header,
+.superadmin-dashboard .dashboard-card,
+.superadmin-dashboard .resumen-card {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+.superadmin-dashboard .dashboard-header {
+  border-bottom-color: var(--app-accent) !important;
+}
+
+.superadmin-dashboard .dashboard-header h1,
+.superadmin-dashboard .dashboard-card h2,
+.superadmin-dashboard .resumen-card h3,
+.superadmin-dashboard .card-valor {
+  color: var(--app-ink) !important;
+}
+
+.superadmin-dashboard .card-detalle,
+.superadmin-dashboard .stat-label,
+.superadmin-dashboard .producto-categoria,
+.superadmin-dashboard .no-datos,
+.superadmin-dashboard .dashboard-card p {
+  color: var(--app-text-muted) !important;
+}
+
+.superadmin-dashboard .btn-actualizar,
+.superadmin-dashboard .producto-rank,
+.superadmin-dashboard .rank,
+.superadmin-dashboard .dashboard-card .stat-valor {
+  background: var(--app-accent-dark) !important;
+  border-color: var(--app-accent-dark) !important;
+  color: var(--app-surface) !important;
+}
+
+.superadmin-dashboard .alerta-item,
+.superadmin-dashboard .metodo-item,
+.superadmin-dashboard .producto-item {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.superadmin-dashboard .alerta-item *,
+.superadmin-dashboard .metodo-item *,
+.superadmin-dashboard .producto-item * {
+  color: var(--app-text) !important;
+}
+
+.superadmin-dashboard .recharts-cartesian-grid line,
+.superadmin-dashboard .recharts-reference-line line {
+  stroke: var(--app-border) !important;
+}
+
+.superadmin-dashboard .recharts-text,
+.superadmin-dashboard .recharts-cartesian-axis-tick-value {
+  fill: var(--app-text-muted) !important;
+}
+
+.superadmin-dashboard .recharts-bar-rectangle,
+.superadmin-dashboard .recharts-pie-sector,
+.superadmin-dashboard .recharts-dot {
+  fill: var(--app-accent) !important;
+  stroke: var(--app-accent-dark) !important;
+}
+
+.superadmin-dashboard .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.superadmin-dashboard .recharts-tooltip-wrapper .recharts-tooltip-item,
+.superadmin-dashboard .recharts-tooltip-wrapper .recharts-tooltip-label {
+  color: var(--app-text) !important;
+}

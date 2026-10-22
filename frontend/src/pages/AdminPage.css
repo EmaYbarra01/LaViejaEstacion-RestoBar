@@ -7,7 +7,7 @@
 
 /* Legacy admin nav styles */
 #admin-nav{
-    background-color: #f0f0f0;
+    background-color: var(--app-surface-muted);
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -15,7 +15,7 @@
 
 #admin-nav a {
     text-decoration: none;
-    color: #333;
+    color: var(--app-text);
     padding: 10px 20px;
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
@@ -53,7 +53,7 @@
   max-width: 1400px;
   margin: 0 auto;
   min-height: calc(100vh - 160px);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--app-surface-muted) 0%, var(--app-accent-soft) 100%);
 }
 
 /* Header de la página */
@@ -71,7 +71,7 @@
 .admin-page-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #667eea;
+  color: var(--app-accent);
   margin: 0;
   display: flex;
   align-items: center;
@@ -80,7 +80,7 @@
 
 /* Botón de crear */
 .create-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%) !important;
   color: white !important;
   padding: 0.75rem 2rem !important;
   border-radius: 25px !important;
@@ -112,7 +112,7 @@
 }
 
 .admin-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
 }
 
 .admin-table thead th {
@@ -129,20 +129,20 @@
 }
 
 .admin-table tbody tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--app-surface-muted);
 }
 
 .admin-table tbody tr:hover {
-  background-color: #e3e9f7 !important;
+  background-color: var(--app-accent-soft) !important;
   transform: scale(1.01);
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
 
 .admin-table tbody td {
   padding: 1rem !important;
-  border-bottom: 1px solid #e0e0e0 !important;
+  border-bottom: 1px solid var(--app-border) !important;
   font-size: 0.95rem !important;
-  color: #333 !important;
+  color: var(--app-text) !important;
 }
 
 /* Botones de acción */
@@ -153,7 +153,7 @@
 }
 
 .edit-button {
-  background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark)) !important;
   color: white !important;
   padding: 0.5rem 1.25rem !important;
   border-radius: 20px !important;
@@ -165,13 +165,13 @@
 }
 
 .edit-button:hover {
-  background: linear-gradient(135deg, #45a049, #3d8b40) !important;
+  background: linear-gradient(135deg, var(--app-accent-dark), var(--app-accent-dark)) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4) !important;
 }
 
 .delete-button {
-  background: linear-gradient(135deg, #f44336, #d32f2f) !important;
+  background: linear-gradient(135deg, var(--app-accent-dark), var(--app-ink-soft)) !important;
   color: white !important;
   padding: 0.5rem 1.25rem !important;
   border-radius: 20px !important;
@@ -183,7 +183,7 @@
 }
 
 .delete-button:hover {
-  background: linear-gradient(135deg, #d32f2f, #b71c1c) !important;
+  background: linear-gradient(135deg, var(--app-ink-soft), var(--app-ink)) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4) !important;
 }
@@ -200,37 +200,37 @@
 
 .role-badge.admin,
 .role-badge.superadmin {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
   color: white;
 }
 
 .role-badge.superadministrador {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
   color: white;
 }
 
 .role-badge.gerente {
-  background: linear-gradient(135deg, #2196f3, #1976d2);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
   color: white;
 }
 
 .role-badge.mozo {
-  background: linear-gradient(135deg, #26a69a, #00897b);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
   color: white;
 }
 
 .role-badge.cajero {
-  background: linear-gradient(135deg, #ffb74d, #fb8c00);
-  color: white;
+  background: linear-gradient(135deg, var(--app-accent-soft), var(--app-accent));
+  color: var(--app-ink);
 }
 
 .role-badge.encargadococina {
-  background: linear-gradient(135deg, #8e24aa, #6a1b9a);
-  color: white;
+  background: linear-gradient(135deg, var(--app-ink-soft), var(--app-ink));
+  color: var(--app-surface);
 }
 
 .role-badge.user {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
   color: white;
 }
 
@@ -241,14 +241,14 @@
   align-items: center;
   min-height: 300px;
   font-size: 1.2rem;
-  color: #667eea;
+  color: var(--app-accent);
 }
 
 /* Mensaje de tabla vacía */
 .empty-table {
   text-align: center;
   padding: 3rem;
-  color: #999;
+  color: var(--app-text-muted);
   font-size: 1.1rem;
 }
 
@@ -307,7 +307,7 @@
   max-width: 1400px;
   margin: 0 auto;
   min-height: calc(100vh - 160px);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--app-surface-muted) 0%, var(--app-accent-soft) 100%);
 }
 
 .admin-header {
@@ -320,14 +320,14 @@
 
 .admin-header h1 {
   margin: 0;
-  color: #667eea;
+  color: var(--app-accent);
   font-size: 2rem;
   font-weight: 700;
 }
 
 .admin-subtitle {
   margin: 0.5rem 0 0 0;
-  color: #666;
+  color: var(--app-text-muted);
   font-size: 1rem;
 }
 
@@ -362,7 +362,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
@@ -370,13 +370,13 @@
 .stat-info h3 {
   margin: 0;
   font-size: 2rem;
-  color: #333;
+  color: var(--app-text);
   font-weight: 700;
 }
 
 .stat-info p {
   margin: 0.5rem 0 0 0;
-  color: #666;
+  color: var(--app-text-muted);
   font-size: 0.9rem;
 }
 
@@ -401,7 +401,7 @@
 
 .filter-btn {
   padding: 0.6rem 1.2rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--app-border);
   background: white;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -411,14 +411,14 @@
 }
 
 .filter-btn:hover {
-  border-color: #667eea;
-  background: #f5f7fa;
+  border-color: var(--app-accent);
+  background: var(--app-surface-muted);
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
-  border-color: #667eea;
+  border-color: var(--app-accent);
 }
 
 .search-container {
@@ -429,7 +429,7 @@
 .search-input {
   width: 100%;
   padding: 0.8rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--app-border);
   border-radius: 8px;
   font-size: 0.9rem;
   transition: border-color 0.3s;
@@ -437,7 +437,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--app-accent);
 }
 
 /* Tabla de ventas */
@@ -455,7 +455,7 @@
 }
 
 .admin-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
 }
 
@@ -470,7 +470,7 @@
 
 .admin-table tbody td {
   padding: 1rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--app-surface-muted);
   font-size: 0.9rem;
 }
 
@@ -479,12 +479,12 @@
 }
 
 .admin-table tbody tr:hover {
-  background: #f9f9f9;
+  background: var(--app-surface-muted);
 }
 
 .sale-id {
   font-family: monospace;
-  background: #f0f0f0;
+  background: var(--app-surface-muted);
   padding: 0.3rem 0.6rem;
   border-radius: 5px;
   font-size: 0.85rem;
@@ -498,7 +498,7 @@
 }
 
 .item-name {
-  background: #e8f4f8;
+  background: var(--app-accent-soft);
   padding: 0.2rem 0.5rem;
   border-radius: 5px;
   font-size: 0.85rem;
@@ -506,32 +506,32 @@
 }
 
 .more-items {
-  color: #666;
+  color: var(--app-text-muted);
   font-style: italic;
   font-size: 0.85rem;
 }
 
 .quantity-badge {
-  background: #e8f4f8;
+  background: var(--app-accent-soft);
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
   font-weight: 600;
-  color: #667eea;
+  color: var(--app-accent);
   font-size: 0.85rem;
 }
 
 .sale-total {
-  color: #27ae60;
+  color: var(--app-accent-dark);
   font-size: 1.1rem;
 }
 
 .sale-date {
-  color: #666;
+  color: var(--app-text-muted);
   font-size: 0.85rem;
 }
 
 .btn-view {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -555,8 +555,8 @@
 .spinner {
   width: 50px;
   height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #667eea;
+  border: 5px solid var(--app-surface-muted);
+  border-top: 5px solid var(--app-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -581,7 +581,7 @@
 }
 
 .empty-text {
-  color: #666;
+  color: var(--app-text-muted);
   font-size: 1.1rem;
 }
 
@@ -621,5 +621,5 @@
 .admin-results-count {
   margin: 0.75rem 0;
   font-size: 0.95rem;
-  color: #444;
+  color: var(--app-text);
 }

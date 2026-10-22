@@ -4,7 +4,7 @@
 
 .superadmin-dashboard {
   padding: 0.75rem;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, var(--app-ink-soft) 100%);
   min-height: 100vh;
   color: #fff;
   overflow: visible;
@@ -27,7 +27,7 @@
 
 .btn-actualizar {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border: none;
   border-radius: 8px;
   color: white;
@@ -51,7 +51,7 @@
 }
 
 .resumen-card {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, var(--app-ink-soft) 0%, var(--app-ink-soft) 100%);
   border-radius: 12px;
   padding: 0.75rem;
   display: flex;
@@ -79,17 +79,17 @@
 }
 
 .card-icon.ventas {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .card-icon.pedidos {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
 .card-icon.stock {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
 }
 
@@ -100,7 +100,7 @@
 .card-info h3 {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--app-text-muted);
   margin: 0 0 0.5rem 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -115,7 +115,7 @@
 
 .card-detalle {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--app-text-muted);
 }
 
 /* Dashboard Grid */
@@ -134,7 +134,7 @@
 }
 
 .dashboard-card {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, var(--app-ink-soft) 0%, var(--app-ink-soft) 100%);
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
@@ -157,8 +157,8 @@
 
 .card-header {
   padding: 0.6rem 0.75rem;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  border-bottom: 2px solid #2563eb;
+  background: linear-gradient(135deg, var(--app-ink) 0%, var(--app-ink-soft) 100%);
+  border-bottom: 2px solid var(--app-accent);
 }
 
 .card-header h2 {
@@ -188,7 +188,7 @@
   padding: 0.45rem;
   background: rgba(30, 41, 59, 0.5);
   border-radius: 8px;
-  border-left: 4px solid #2563eb;
+  border-left: 4px solid var(--app-accent);
   transition: all 0.3s;
 }
 
@@ -206,7 +206,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
   font-weight: 700;
   font-size: 1.125rem;
@@ -216,16 +216,16 @@
 }
 
 .rank-1 {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
+  box-shadow: 0 4px 15px rgba(88, 122, 60, 0.4);
 }
 
 .rank-2 {
-  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  background: linear-gradient(135deg, var(--app-text-muted) 0%, var(--app-text-muted) 100%);
 }
 
 .rank-3 {
-  background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
 }
 
 .producto-info {
@@ -241,7 +241,7 @@
 
 .producto-categoria {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--app-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -259,14 +259,14 @@
 
 .stat-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--app-text-muted);
   text-transform: uppercase;
 }
 
 .stat-valor {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--app-accent);
 }
 
 /* Alertas de Stock */
@@ -289,17 +289,17 @@
 }
 
 .alerta-item.urgencia-crítico {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--app-accent-dark);
   background: rgba(239, 68, 68, 0.1);
 }
 
 .alerta-item.urgencia-urgente {
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--app-accent);
   background: rgba(245, 158, 11, 0.1);
 }
 
 .alerta-item.urgencia-medio {
-  border-left: 4px solid #eab308;
+  border-left: 4px solid var(--app-accent);
   background: rgba(234, 179, 8, 0.1);
 }
 
@@ -321,7 +321,7 @@
 
 .alerta-categoria {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--app-text-muted);
   text-transform: uppercase;
 }
 
@@ -334,15 +334,15 @@
 }
 
 .stock-actual {
-  color: #ef4444;
+  color: var(--app-accent-dark);
 }
 
 .stock-separador {
-  color: #6b7280;
+  color: var(--app-text-muted);
 }
 
 .stock-minimo {
-  color: #9ca3af;
+  color: var(--app-text-muted);
   font-size: 1rem;
 }
 
@@ -360,17 +360,17 @@
 }
 
 .badge-urgencia.crítico {
-  background: #ef4444;
+  background: var(--app-accent-dark);
   color: white;
 }
 
 .badge-urgencia.urgente {
-  background: #f59e0b;
+  background: var(--app-accent);
   color: white;
 }
 
 .badge-urgencia.medio {
-  background: #eab308;
+  background: var(--app-accent);
   color: #000;
 }
 
@@ -378,11 +378,11 @@
 .no-datos {
   text-align: center;
   padding: 3rem 1rem;
-  color: #6b7280;
+  color: var(--app-text-muted);
 }
 
 .no-datos.success {
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 .no-datos p {
@@ -405,7 +405,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid rgba(37, 99, 235, 0.2);
-  border-top-color: #2563eb;
+  border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -416,7 +416,7 @@
 
 .btn-reintentar {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, var(--app-accent-dark) 0%, var(--app-ink-soft) 100%);
   border: none;
   border-radius: 8px;
   color: white;

@@ -1,7 +1,7 @@
 /* Reservas Page */
 .reservas-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
   padding: 120px 20px 40px;
   color: #e0e0e0;
 }
@@ -20,7 +20,7 @@
 .reservas-header h1 {
   font-size: 3.5rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   letter-spacing: 4px;
   margin-bottom: 1rem;
@@ -30,7 +30,7 @@
 .reservas-divider {
   width: 150px;
   height: 3px;
-  background: linear-gradient(to right, transparent, #ffc107, transparent);
+  background: linear-gradient(to right, transparent, var(--app-accent), transparent);
   margin: 1.5rem auto;
 }
 
@@ -53,12 +53,12 @@
   border-radius: 20px;
   padding: 30px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(88, 122, 60, 0.1);
   height: fit-content;
 }
 
 .reservas-info h2 {
-  color: #ffc107;
+  color: var(--app-accent);
   font-size: 1.8rem;
   margin-bottom: 25px;
   text-transform: uppercase;
@@ -70,7 +70,7 @@
   gap: 15px;
   margin-bottom: 25px;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 193, 7, 0.1);
+  border-bottom: 1px solid rgba(88, 122, 60, 0.1);
 }
 
 .info-item:last-child {
@@ -102,7 +102,7 @@
   border-radius: 20px;
   padding: 40px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(88, 122, 60, 0.1);
   position: relative;
 }
 
@@ -113,7 +113,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+  background: linear-gradient(90deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border-radius: 20px 20px 0 0;
 }
 
@@ -145,7 +145,7 @@
 
 .form-group label {
   display: block;
-  color: #ffc107;
+  color: var(--app-accent);
   font-weight: 600;
   margin-bottom: 8px;
   font-size: 0.95rem;
@@ -159,7 +159,7 @@
   width: 100%;
   padding: 12px 15px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  border: 1px solid rgba(88, 122, 60, 0.3);
   border-radius: 10px;
   color: #ffffff;
   font-size: 1rem;
@@ -176,14 +176,14 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #ffc107;
+  border-color: var(--app-accent);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .form-group select {
   cursor: pointer;
-  color: #ffc107;
+  color: var(--app-accent);
   font-weight: 600;
 }
 
@@ -208,7 +208,7 @@
 .submit-btn {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: #000;
   border: none;
   border-radius: 10px;
@@ -218,14 +218,14 @@
   letter-spacing: 2px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 15px rgba(88, 122, 60, 0.3);
   margin-bottom: 15px;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
+  background: linear-gradient(135deg, var(--app-accent-dark) 0%, var(--app-accent-dark) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+  box-shadow: 0 6px 20px rgba(88, 122, 60, 0.5);
 }
 
 .submit-btn:disabled {
@@ -238,8 +238,8 @@
   width: 100%;
   padding: 12px;
   background: transparent;
-  color: #ffc107;
-  border: 2px solid #ffc107;
+  color: var(--app-accent);
+  border: 2px solid var(--app-accent);
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
@@ -250,7 +250,7 @@
 }
 
 .back-btn:hover {
-  background: rgba(255, 193, 7, 0.1);
+  background: rgba(88, 122, 60, 0.1);
   transform: translateY(-2px);
 }
 
@@ -496,7 +496,7 @@
 }
 
 .post-reserva-info h3 {
-  color: #ffc107;
+  color: var(--app-accent);
   font-size: 1.5rem;
   margin-bottom: 25px;
   text-align: center;
@@ -530,7 +530,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #ffc107, #ff9800);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
   color: rgb(26, 25, 25);
   border-radius: 50%;
   font-weight: bold;
@@ -552,7 +552,7 @@
 
 .contacto-alternativo {
   background: #1a1919;
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid var(--app-accent);
   padding: 25px;
   border-radius: 8px;
   margin-top: 20px;
@@ -613,14 +613,14 @@
 }
 
 .contacto-item a {
-  color: #ffc107;
+  color: var(--app-accent);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .contacto-item a:hover {
-  color: #ff9800;
+  color: var(--app-accent-dark);
   text-decoration: underline;
 }
 

@@ -1,7 +1,7 @@
 /* MenuPage.css */
 .menu-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
   padding: 120px 20px 40px; /* Espacio superior aumentado para header fijo */
 }
 
@@ -14,7 +14,7 @@
 .menu-header h1 {
   font-size: 4rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   letter-spacing: 6px;
   margin-bottom: 1rem;
@@ -53,7 +53,7 @@
 .menu-divider {
   width: 150px;
   height: 3px;
-  background: linear-gradient(to right, transparent, #ffc107, transparent);
+  background: linear-gradient(to right, transparent, var(--app-accent), transparent);
   margin: 1.5rem auto;
 }
 
@@ -78,8 +78,8 @@
 }
 
 .accordion-item:hover {
-  border-color: #ffc107;
-  box-shadow: 0 5px 20px rgba(255, 193, 7, 0.15);
+  border-color: var(--app-accent);
+  box-shadow: 0 5px 20px rgba(88, 122, 60, 0.15);
 }
 
 .accordion-header {
@@ -102,7 +102,7 @@
 
 .accordion-header.active {
   background: linear-gradient(135deg, #3a3a3a 0%, #2f2f2f 100%);
-  border-bottom: 2px solid #ffc107;
+  border-bottom: 2px solid var(--app-accent);
 }
 
 .accordion-title {
@@ -113,7 +113,7 @@
 
 .accordion-icon {
   font-size: 2.5rem;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .accordion-title span {
@@ -126,7 +126,7 @@
 
 .chevron {
   font-size: 1.5rem;
-  color: #ffc107;
+  color: var(--app-accent);
   transition: transform 0.3s ease;
 }
 
@@ -169,7 +169,7 @@
 
 .section-icon {
   font-size: 3rem;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .section-title {
@@ -193,7 +193,7 @@
   padding: 0; /* Sin padding para que la imagen llegue al borde */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   transition: all 0.4s ease;
-  border: 1px solid rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(88, 122, 60, 0.1);
   position: relative;
   overflow: hidden;
 }
@@ -208,7 +208,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 193, 7, 0.1),
+    rgba(88, 122, 60, 0.1),
     transparent
   );
   transition: left 0.6s ease;
@@ -221,8 +221,8 @@
 
 .menu-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 35px rgba(255, 193, 7, 0.3);
-  border-color: rgba(255, 193, 7, 0.3);
+  box-shadow: 0 12px 35px rgba(88, 122, 60, 0.3);
+  border-color: rgba(88, 122, 60, 0.3);
 }
 
 /* Estilos para la imagen del producto */
@@ -266,6 +266,8 @@
 .card-price {
   font-size: 1.8rem;
   font-weight: 800;
+  color: var(--app-accent);
+  margin-left: 15px;
   color: #ffc107;
   flex: 0 0 auto;
   margin-left: 0;
@@ -292,7 +294,7 @@
 .card-footer-info {
   margin-top: 12px;
   padding: 10px 30px 20px 30px; /* Padding lateral y bottom */
-  border-top: 1px solid rgba(255, 193, 7, 0.2);
+  border-top: 1px solid rgba(88, 122, 60, 0.2);
 }
 
 .card-badge {
@@ -323,8 +325,8 @@
   gap: 10px;
   padding: 12px 30px;
   background: transparent;
-  color: #ffc107;
-  border: 2px solid #ffc107;
+  color: var(--app-accent);
+  border: 2px solid var(--app-accent);
   border-radius: 50px;
   font-size: 1.1rem;
   font-weight: 600;
@@ -339,7 +341,7 @@
 }
 
 .back-button:hover {
-  background: #ffc107;
+  background: var(--app-accent);
   color: #000;
   transform: translateX(-5px);
 }

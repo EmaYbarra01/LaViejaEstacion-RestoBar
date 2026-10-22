@@ -79,7 +79,7 @@
   font-size: 1.55rem;
   font-weight: 600;
   margin: 0;
-  color: #ffd54d;
+  color: var(--app-accent);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
@@ -362,7 +362,7 @@
 
 .btn-accion.btn-editar {
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: #059669;
+  color: var(--app-accent-dark);
   border-color: #a7f3d0;
 }
 
@@ -380,27 +380,27 @@
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-  color: #667eea;
+  color: var(--app-accent);
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .btn-agregar-item:hover {
-  border-color: #ffc107;
+  border-color: var(--app-accent);
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
 }
 
 .plus-icon {
   width: 30px;
   height: 30px;
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: #000;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 2px 8px rgba(88, 122, 60, 0.3);
 }
 
 /* Footer */
@@ -521,7 +521,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #e5e7eb;
-  border-top-color: #ffc107;
+  border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

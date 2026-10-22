@@ -70,7 +70,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 50%, #0f3460 100%);
   color: white;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
@@ -99,8 +99,8 @@
 }
 
 .modal-toolbar .search-input:focus {
-  border-color: #ffc107;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .modal-body {
@@ -130,8 +130,8 @@
 
 .mesa-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.25);
-  border-color: #ffc107;
+  box-shadow: 0 8px 25px rgba(88, 122, 60, 0.25);
+  border-color: var(--app-accent);
 }
 
 .mesa-card.ocupada {
@@ -148,7 +148,7 @@
 .mesa-numero {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--app-ink);
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -246,9 +246,9 @@
 }
 
 .categoria-tab.active {
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: #000;
-  box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 10px rgba(88, 122, 60, 0.3);
 }
 
 .productos-body {
@@ -279,8 +279,8 @@
 
 .producto-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.25);
-  border-color: #ffc107;
+  box-shadow: 0 8px 25px rgba(88, 122, 60, 0.25);
+  border-color: var(--app-accent);
 }
 
 .producto-imagen {
@@ -350,13 +350,13 @@
 .producto-precio {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .producto-stock {
   font-size: 0.85rem;
-  color: #059669;
+  color: var(--app-accent-dark);
   font-weight: 600;
   background: #d1fae5;
   padding: 0.15rem 0.5rem;
@@ -380,7 +380,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 100%);
   color: white;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -445,7 +445,7 @@
 .item-precio {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .item-controles {
@@ -516,8 +516,8 @@
 /* Info del pedido */
 .info-pedido {
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-bottom: 3px solid #ffc107;
+  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 100%);
+  border-bottom: 3px solid var(--app-accent);
   margin-bottom: 1rem;
 }
 
@@ -547,7 +547,7 @@
 .info-valor {
   font-size: 1rem;
   font-weight: 600;
-  color: #ffc107;
+  color: var(--app-accent);
   text-align: right;
 }
 
@@ -564,7 +564,7 @@
 
 .total-valor {
   font-size: 1.5rem;
-  color: #ffc107;
+  color: var(--app-accent);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -572,7 +572,7 @@
   width: calc(100% - 3rem);
   margin: 0 1.5rem 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border: none;
   border-radius: 8px;
   color: #000;
@@ -580,15 +580,15 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 15px rgba(88, 122, 60, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .btn-continuar:hover {
-  background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
+  background: linear-gradient(135deg, var(--app-accent-dark) 0%, var(--app-accent-dark) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+  box-shadow: 0 6px 20px rgba(88, 122, 60, 0.5);
 }
 
 /* Responsive */
