@@ -28,6 +28,30 @@ const AdminReservas = () => {
   const [reservaEditar, setReservaEditar] = useState(null);
   const [mesas, setMesas] = useState([]);
   const [mesasDisponibles, setMesasDisponibles] = useState([]);
+  const [reservaOriginal, setReservaOriginal] = useState(null);
+  const [cargandoDisponibilidad, setCargandoDisponibilidad] = useState(false);
+  const [errorDisponibilidad, setErrorDisponibilidad] = useState('');
+  const [consultaDisponibilidad, setConsultaDisponibilidad] = useState('');
+  const fechaEdicion = reservaEditar?.fecha || '';
+  const horaEdicion = reservaEditar?.hora || '';
+  const claveDisponibilidad = `${fechaEdicion}/${horaEdicion}`;
+  const disponibilidadLista = consultaDisponibilidad === claveDisponibilidad &&
+    !cargandoDisponibilidad && !errorDisponibilidad;
+
+  const mesaDisponible = (mesa) => {
+    const conservaAsignacion = reservaOriginal &&
+      ['Pendiente', 'Confirmada'].includes(reservaOriginal.estado) &&
+      fechaEdicion === reservaOriginal.fecha &&
+      horaEdicion === reservaOriginal.hora &&
+      Number(mesa.numero) === Number(reservaOriginal.numeroMesa);
+    return disponibilidadLista && (
+      conservaAsignacion || mesasDisponibles.some(m => Number(m.numero) === Number(mesa.numero))
+    );
+  };
+  const mesaSeleccionadaValida = !reservaEditar?.numeroMesa || mesas.some(mesa =>
+    Number(mesa.numero) === Number(reservaEditar.numeroMesa) &&
+    mesaDisponible(mesa) && Number(mesa.capacidad) >= Number(reservaEditar.comensales)
+  );
 
   const limitarFechaA4Digitos = (value) => {
     if (!value) return value;
@@ -49,6 +73,7 @@ const AdminReservas = () => {
       
       if (filtroEstado) params.append('estado', filtroEstado);
       if (filtroFecha) params.append('fecha', filtroFecha);
+      if (busqueda.trim()) params.append('cliente', busqueda.trim());
 
       const response = await axios.get(`${API_URL}/reservas?${params}`);
       
@@ -63,7 +88,7 @@ const AdminReservas = () => {
       setError('Error al cargar las reservas');
       setLoading(false);
     }
-  }, [page, filtroEstado, filtroFecha]);
+  }, [page, filtroEstado, filtroFecha, busqueda]);
 
   useEffect(() => {
     fetchReservas();
@@ -96,39 +121,45 @@ const AdminReservas = () => {
     fetchMesas();
   }, [fetchMesas]);
 
-  // Verificar mesas disponibles para una fecha y hora específica
-  const verificarMesasDisponibles = async (fecha, hora) => {
-    try {
-      const token = localStorage.getItem('token');
-      
-      const response = await axios.get(
-        `${API_URL}/reservas/disponibilidad/${fecha}/${hora}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-      
-      console.log('Disponibilidad:', response.data);
-      
-      if (response.data.disponible) {
+  // Actualizar al abrir el modal y al cambiar fecha u hora.
+  useEffect(() => {
+    if (!showEditModal || !fechaEdicion || !horaEdicion) return;
+    let vigente = true;
+    const controller = new AbortController();
+    setCargandoDisponibilidad(true);
+    setErrorDisponibilidad('');
+    setMesasDisponibles([]);
+    const consultar = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `${API_URL}/reservas/disponibilidad/${fechaEdicion}/${horaEdicion}`,
+          { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }
+        );
+        if (!vigente) return;
         setMesasDisponibles(response.data.mesasDisponibles || []);
-      } else {
-        setMesasDisponibles([]);
+        setConsultaDisponibilidad(`${fechaEdicion}/${horaEdicion}`);
+      } catch (err) {
+        if (!vigente) return;
+        setErrorDisponibilidad(err.response?.data?.mensaje || 'No se pudo consultar la disponibilidad. Cerrá y volvé a abrir la edición para reintentar.');
+      } finally {
+        if (vigente) setCargandoDisponibilidad(false);
       }
-    } catch (err) {
-      console.error('Error al verificar disponibilidad:', err);
-      setMesasDisponibles([]);
-    }
-  };
+    };
+    consultar();
+    return () => {
+      vigente = false;
+      controller.abort();
+    };
+  }, [showEditModal, fechaEdicion, horaEdicion]);
 
   // Filtrar por búsqueda en cliente
-  const reservasFiltradas = reservas.filter(reserva => 
-    reserva.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
-    reserva.email.toLowerCase().includes(busqueda.toLowerCase()) ||
-    reserva.telefono.includes(busqueda)
-  );
+  const reservasFiltradas = reservas.filter((reserva) => {
+    const termino = busqueda.trim().toLocaleLowerCase();
+    return !termino || [reserva.cliente, reserva.email, reserva.telefono].some((value) =>
+      String(value || '').toLocaleLowerCase().includes(termino)
+    );
+  });
 
   // Manejar eliminación
   const handleEliminar = async (id) => {
@@ -168,22 +199,25 @@ const AdminReservas = () => {
   };
 
   // Manejar edición
-  const handleEditar = async (reserva) => {
+  const handleEditar = (reserva) => {
     const fechaFormateada = new Date(reserva.fecha).toISOString().split('T')[0];
     setReservaEditar({
       ...reserva,
       fecha: fechaFormateada,
       numeroMesa: reserva.numeroMesa || ''
     });
-    // Verificar mesas disponibles para esa fecha y hora
-    await verificarMesasDisponibles(fechaFormateada, reserva.hora);
+    setReservaOriginal({ ...reserva, fecha: fechaFormateada });
+    setMesasDisponibles([]);
+    setConsultaDisponibilidad('');
+    setErrorDisponibilidad('');
     setShowEditModal(true);
   };
 
   // Guardar cambios de edición
   const handleGuardarEdicion = async (e) => {
     e.preventDefault();
-    
+    if (!disponibilidadLista || !mesaSeleccionadaValida) return;
+
     try {
       const token = localStorage.getItem('token');
       
@@ -304,7 +338,7 @@ const AdminReservas = () => {
 
   // Formatear fecha
   const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-AR', {
+    return new Date(typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? `${fecha}T12:00:00` : fecha).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -358,7 +392,7 @@ const AdminReservas = () => {
               type="text"
               placeholder="Nombre, email o teléfono..."
               value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              onChange={(e) => { setBusqueda(e.target.value); setPage(1); }}
               className="input-busqueda"
             />
           </div>
@@ -378,8 +412,8 @@ const AdminReservas = () => {
               <option value="">Todos los estados</option>
               <option value="Pendiente">Pendiente</option>
               <option value="Confirmada">Confirmada</option>
-              <option value="Cancelada">Cancelada</option>
-              <option value="Completada">Completada</option>
+              <option value="Cancelada">Cancelado</option>
+              <option value="Completada">Completado</option>
             </select>
           </div>
 
@@ -588,24 +622,24 @@ const AdminReservas = () => {
                 <label>Mesa Asignada</label>
                 <select
                   value={reservaEditar.numeroMesa || ''}
+                  disabled={!disponibilidadLista}
                   onChange={(e) => setReservaEditar({...reservaEditar, numeroMesa: e.target.value})}
                 >
                   <option value="">Sin asignar</option>
                   {mesas.length > 0 ? (
                     mesas.map(mesa => {
-                      const estaDisponible = mesasDisponibles.length === 0 || 
-                                           mesasDisponibles.some(m => m.numero === mesa.numero) ||
-                                           mesa.numero === reservaEditar.numeroMesa;
-                      
+                      const estaDisponible = mesaDisponible(mesa);
+                      const capacidadSuficiente = Number(mesa.capacidad) >= Number(reservaEditar.comensales);
+
                       return (
                         <option 
                           key={mesa._id || mesa.numero} 
                           value={mesa.numero}
-                          disabled={!estaDisponible && mesa.numero !== reservaEditar.numeroMesa}
+                          disabled={!estaDisponible || !capacidadSuficiente}
                         >
                           Mesa {mesa.numero} - Cap: {mesa.capacidad} personas
                           {mesa.ubicacion ? ` - ${mesa.ubicacion}` : ''}
-                          {!estaDisponible && mesa.numero !== reservaEditar.numeroMesa ? ' (Ocupada)' : ''}
+                          {!capacidadSuficiente ? ' (Capacidad insuficiente)' : disponibilidadLista && !estaDisponible ? ' (Ocupada)' : ''}
                         </option>
                       );
                     })
@@ -614,13 +648,17 @@ const AdminReservas = () => {
                   )}
                 </select>
                 <small style={{color: '#b0b0b0', fontSize: '0.85rem', marginTop: '5px', display: 'block'}}>
-                  {mesas.length === 0 ? (
-                    '⚠️ No se pudieron cargar las mesas. Verifica que existan mesas en el sistema.'
+                  {errorDisponibilidad || (!disponibilidadLista ? (
+                    'Consultando disponibilidad…'
+                  ) : mesas.length === 0 ? (
+                    'No se pudieron cargar las mesas.'
+                  ) : !mesaSeleccionadaValida ? (
+                    'La mesa seleccionada no está disponible o no tiene capacidad suficiente. Elegí otra mesa.'
                   ) : reservaEditar.numeroMesa ? (
-                    `✅ Mesa ${reservaEditar.numeroMesa} asignada`
+                    `Mesa ${reservaEditar.numeroMesa} seleccionada`
                   ) : (
-                    'ℹ️ Selecciona una mesa para asignar al cliente'
-                  )}
+                    'Selecciona una mesa para asignar al cliente'
+                  ))}
                 </small>
               </div>
 
@@ -634,7 +672,7 @@ const AdminReservas = () => {
               </div>
 
               <div className="modal-acciones">
-                <button type="submit" className="btn-guardar">
+                <button type="submit" className="btn-guardar" disabled={!disponibilidadLista || !mesaSeleccionadaValida}>
                   Guardar Cambios
                 </button>
                 <button

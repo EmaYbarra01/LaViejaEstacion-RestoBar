@@ -52,9 +52,9 @@ export const FECHAS_ESPECIALES = {
  * Validar si el restaurante está abierto en una fecha y hora específica
  */
 export const validarHorarioAtencion = (fecha, hora) => {
-  const fechaObj = new Date(fecha);
-  const diaSemana = fechaObj.getDay();
-  const mesYDia = `${String(fechaObj.getMonth() + 1).padStart(2, '0')}-${String(fechaObj.getDate()).padStart(2, '0')}`;
+  const fechaObj = new Date(`${fecha}T12:00:00Z`);
+  const diaSemana = fechaObj.getUTCDay();
+  const mesYDia = `${String(fechaObj.getUTCMonth() + 1).padStart(2, '0')}-${String(fechaObj.getUTCDate()).padStart(2, '0')}`;
   
   // Verificar si es un día cerrado
   if (FECHAS_ESPECIALES.diasCerrados.includes(mesYDia)) {
@@ -130,7 +130,7 @@ export const validarHorarioAtencion = (fecha, hora) => {
  */
 export const validarAnticipacion = (fecha, hora) => {
   const ahora = new Date();
-  const fechaHoraReserva = new Date(`${fecha}T${hora}`);
+  const fechaHoraReserva = new Date(`${fecha}T${hora}:00-03:00`);
   
   const diferenciaHoras = (fechaHoraReserva - ahora) / (1000 * 60 * 60);
   const diferenciaDias = diferenciaHoras / 24;

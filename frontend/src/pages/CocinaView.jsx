@@ -18,7 +18,7 @@ import './CocinaView.css';
  */
 const CocinaView = () => {
   const { user } = useUserStore();
-  const isGerente = user?.role === 'Gerente' || user?.role === 'SuperAdministrador';
+  const isGerente = user?.role === 'Gerente';
   const [vistaActiva, setVistaActiva] = useState('todos'); // todos, pendientes, preparacion, listos
   const [estadisticas, setEstadisticas] = useState(null);
   
@@ -27,7 +27,6 @@ const CocinaView = () => {
     pedidos,
     loading,
     error,
-    filtroEstado,
     setFiltroEstado,
     cargarPedidos,
     cambiarEstado
@@ -107,7 +106,7 @@ const CocinaView = () => {
         <div className="header-content">
           <div>
             <h1 className="cocina-title">Módulo Encargado de Cocina</h1>
-            <p className="cocina-subtitle">Control de pedidos en preparación</p>
+            <p className="cocina-subtitle">Control de pedidos 'En Preparación'</p>
           </div>
           <button 
             onClick={refrescarTodo} 
@@ -217,6 +216,7 @@ const CocinaView = () => {
               key={pedido._id}
               pedido={pedido}
               onCambiarEstado={cambiarEstado}
+              readOnly={isGerente}
             />
           ))}
         </div>

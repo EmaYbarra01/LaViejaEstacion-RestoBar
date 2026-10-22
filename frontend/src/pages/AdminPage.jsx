@@ -191,7 +191,7 @@ const AdminPage = () => {
               verticalAlign: 'middle'
             }} />
             <Link 
-              to="/mozo" 
+              to="/supervision-pedidos" 
               className="nav-link"
               style={{
                 display: 'inline-flex',
@@ -214,6 +214,7 @@ const AdminPage = () => {
                 e.target.style.borderBottomColor = 'transparent';
               }}
             >
+              🍽️ Supervisión de Pedidos
               Módulo Mozo
             </Link>
             <Link 

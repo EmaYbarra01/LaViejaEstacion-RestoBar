@@ -41,7 +41,7 @@ const CalendarioReservas = () => {
         
         // Filtrar reservas del mes actual
         const reservasMes = todasReservas.filter(reserva => {
-          const fechaReserva = new Date(reserva.fecha);
+          const fechaReserva = new Date(`${reserva.fecha.slice(0, 10)}T00:00:00`);
           return fechaReserva >= primerDia && fechaReserva <= ultimoDia;
         });
 
@@ -136,7 +136,7 @@ const CalendarioReservas = () => {
   };
 
   const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-AR', {
+    return new Date(typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? `${fecha}T12:00:00` : fecha).toLocaleDateString('es-AR', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',

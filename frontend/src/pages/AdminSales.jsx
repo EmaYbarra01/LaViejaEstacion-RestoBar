@@ -7,7 +7,7 @@ import '../pages/AdminPage.css';
 function AdminSales() {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('today'); // all, today, week, month
+  const [filter, setFilter] = useState('all'); // all, today, week, month
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useUserStore();
 
@@ -90,6 +90,34 @@ function AdminSales() {
     }
   };
 
+  const filterSalesByDate = (salesList) => {
+    const now = new Date();
+    
+    return salesList.filter(sale => {
+      const saleDate = new Date(sale.date);
+      
+      switch (filter) {
+        case 'today': {
+          const inicioDia = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const finDia = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+          return saleDate >= inicioDia && saleDate < finDia;
+        }
+        case 'week': {
+          const inicioSemana = new Date(now);
+          inicioSemana.setHours(0, 0, 0, 0);
+          inicioSemana.setDate(now.getDate() - now.getDay());
+          return saleDate >= inicioSemana;
+        }
+        case 'month': {
+          const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
+          return saleDate >= inicioMes;
+        }
+        default:
+          return true;
+      }
+    });
+  };
+
   const formatCurrency = (value) => {
     const number = Number(value) || 0;
     const parts = number.toFixed(2).split('.');
@@ -97,37 +125,9 @@ function AdminSales() {
     return `${parts[0]},${parts[1]}`;
   };
 
-  const removeAccents = (value) =>
-    String(value || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
-
-  const filterSalesBySearch = (salesList) => {
-    if (!searchTerm.trim()) return salesList;
-    
-    const search = searchTerm.trim();
-    const digits = search.replace(/\D/g, '');
-    
-    // Si el término es numérico, buscar SOLO por mesa
-    if (digits && digits === search) {
-      return salesList.filter(sale => {
-        const mesaStr = sale.mesa !== undefined && sale.mesa !== null ? String(sale.mesa).trim() : '';
-        return mesaStr === digits || mesaStr === search;
-      });
-    }
-    
-    // Búsqueda case-insensitive y sin acentos en mozo, numeroPedido y cajero
-    const searchNormalized = removeAccents(search);
-    return salesList.filter(sale => 
-      removeAccents(sale.mozo).includes(searchNormalized) ||
-      sale.numeroPedido?.toLowerCase().includes(searchNormalized) ||
-      removeAccents(sale.cajero).includes(searchNormalized)
-    );
-  };
-
   const getFilteredSales = () => {
     let filtered = [...sales];
+    filtered = filterSalesByDate(filtered);
     filtered = filterSalesBySearch(filtered);
     return filtered;
   };
@@ -192,7 +192,7 @@ function AdminSales() {
             className={`filter-btn ${filter === 'today' ? 'active' : ''}`}
             onClick={() => setFilter('today')}
           >
-            📆 Hoy
+            📆 Día
           </button>
           <button
             className={`filter-btn ${filter === 'week' ? 'active' : ''}`}
@@ -214,21 +214,10 @@ function AdminSales() {
           </button>
         </div>
         
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="🔍 Buscar por pedido, mozo, mesa o cajero..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-            maxLength={50}
-          />
-        </div>
       </div>
 
       <div className="admin-results-count">
         Mostrando <strong>{filteredSales.length}</strong> de <strong>{sales.length}</strong> ventas
-        {searchTerm ? ` | Buscando: "${searchTerm}"` : ''}
       </div>
 
       {/* Tabla de ventas */}
@@ -324,7 +313,7 @@ function AdminSales() {
 
   function viewSaleDetails(sale) {
     const itemsList = sale.items
-      .map((item, idx) => `
+      .map((item) => `
         <div style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
           <strong>${item.name || 'Producto'}</strong><br/>
           Precio: $${item.price} × ${item.quantity} = $${formatCurrency(item.price * item.quantity)}

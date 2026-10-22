@@ -389,6 +389,13 @@ const Caja = () => {
               </span>
             </div>
           </div>
+          <button
+            className="btn-cierre-caja"
+            onClick={() => navigate('/caja/historial-cierres')}
+            title="Consultar cierres registrados"
+          >
+            Historial de cierres
+          </button>
           <button 
             className="btn-cierre-caja"
             onClick={() => setMostrarCierreCaja(true)}

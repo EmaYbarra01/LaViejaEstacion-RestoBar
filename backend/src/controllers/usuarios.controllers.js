@@ -1,319 +1,227 @@
-import Usuario from "../models/usuarioSchema.js";
-import bcrypt from "bcrypt";
-import { validationResult } from "express-validator";
-import generarToken from "../auth/token-sign.js";
+import bcrypt from 'bcryptjs';
+import { validationResult } from 'express-validator';
+import { getMySQLConnection } from '../database/mysql/pool.js';
 
-/**
- * Obtener todos los usuarios
- * GET /api/usuarios
- */
-export const obtenerUsuarios = async (req, res) => {
-  try {
-    const usuarios = await Usuario.find()
-      .select('-password')
-      .sort({ createdAt: -1 });
-    
-    res.status(200).json(usuarios);
-  } catch (error) {
-    console.error('Error al obtener usuarios:', error);
-    res.status(500).json({ 
-      mensaje: 'Error interno del servidor al obtener usuarios' 
-    });
+export {
+  loginMysql as login,
+  getMeMysql as getMe,
+} from './authMysql.controllers.js';
+
+const SELECT_USUARIOS = `
+  SELECT u.id, u.nombre, u.apellido, u.email, u.dni,
+         u.telefono, u.direccion, u.activo, u.fecha_ingreso,
+         u.ultimo_acceso, u.created_at, u.updated_at,
+         r.nombre AS rol
+  FROM usuarios u
+  INNER JOIN roles r ON r.id = u.rol_id`;
+
+function errorPeticion(mensaje, status = 400) {
+  return Object.assign(new Error(mensaje), { status });
+}
+
+function idValido(valor) {
+  const id = Number(valor);
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw errorPeticion('Identificador de usuario inválido');
   }
-};
+  return id;
+}
 
-/**
- * Crear un nuevo usuario
- * POST /api/usuarios
- */
-export const crearUsuario = async (req, res) => {
-  try {
-    // Validar datos
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errores: errors.array() });
-    }
+function datosPublicos(u) {
+  return {
+    _id: String(u.id),
+    id: String(u.id),
+    nombre: u.nombre,
+    apellido: u.apellido,
+    nombreCompleto: `${u.nombre} ${u.apellido}`,
+    email: u.email,
+    dni: u.dni,
+    rol: u.rol,
+    telefono: u.telefono,
+    direccion: u.direccion,
+    activo: Boolean(u.activo),
+    fechaIngreso: u.fecha_ingreso,
+    ultimoAcceso: u.ultimo_acceso,
+    createdAt: u.created_at,
+    updatedAt: u.updated_at,
+  };
+}
 
-    // Verificar si el email ya existe
-    const usuarioExistente = await Usuario.findOne({ email: req.body.email });
-    if (usuarioExistente) {
-      return res.status(400).json({
-        mensaje: "El correo electrónico ya está registrado",
-      });
-    }
-
-    // Verificar si el DNI ya existe
-    const dniExistente = await Usuario.findOne({ dni: req.body.dni });
-    if (dniExistente) {
-      return res.status(400).json({
-        mensaje: "El DNI ya está registrado",
-      });
-    }
-
-    // Crear usuario
-    // El schema ya hashea la contraseña en pre-save, por lo que no debe cifrarse aquí otra vez.
-    const usuarioNuevo = new Usuario(req.body);
-    await usuarioNuevo.save();
-    
-    res.status(201).json({
-      mensaje: "Usuario creado exitosamente",
-      usuario: {
-        id: usuarioNuevo._id,
-        nombre: usuarioNuevo.nombre,
-        apellido: usuarioNuevo.apellido,
-        email: usuarioNuevo.email,
-        rol: usuarioNuevo.rol
+function manejar(operacion) {
+  return async (req, res) => {
+    let connection;
+    try {
+      connection = await getMySQLConnection();
+      return await operacion(req, res, connection);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        return res.status(409).json({
+          mensaje: 'El correo electrónico o el DNI ya está registrado',
+        });
       }
-    });
-  } catch (error) {
-    console.error('Error al crear usuario:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al crear usuario",
-    });
-  }
-};
-
-/**
- * Obtener un usuario por ID
- * GET /api/usuarios/:id
- */
-export const obtenerUnUsuario = async (req, res) => {
-  try {
-    const usuario = await Usuario.findById(req.params.id).select('-password');
-    
-    if (!usuario) {
-      return res.status(404).json({
-        mensaje: "Usuario no encontrado",
-      });
-    }
-    
-    res.status(200).json(usuario);
-  } catch (error) {
-    console.error('Error al obtener usuario:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al obtener el usuario",
-    });
-  }
-};
-
-/**
- * Actualizar un usuario
- * PUT /api/usuarios/:id
- */
-export const actualizarUsuario = async (req, res) => {
-  try {
-    // Validar datos
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errores: errors.array() });
-    }
-
-    // Si se envía password, hashearlo
-    if (req.body.password) {
-      const salt = bcrypt.genSaltSync(10);
-      req.body.password = bcrypt.hashSync(req.body.password, salt);
-    }
-
-    const usuarioActualizado = await Usuario.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    if (!usuarioActualizado) {
-      return res.status(404).json({
-        mensaje: "Usuario no encontrado",
-      });
-    }
-
-    res.status(200).json({
-      mensaje: "Usuario actualizado correctamente",
-      usuario: usuarioActualizado
-    });
-  } catch (error) {
-    console.error('Error al actualizar usuario:', error);
-    
-    if (error.code === 11000) {
-      return res.status(400).json({
-        mensaje: "El email o DNI ya está registrado",
-      });
-    }
-    
-    res.status(500).json({
-      mensaje: "Error interno del servidor al actualizar usuario",
-    });
-  }
-};
-
-/**
- * Eliminar un usuario (borrado lógico)
- * DELETE /api/usuarios/:id
- */
-export const eliminarUsuario = async (req, res) => {
-  try {
-    // Borrado lógico: marcar como inactivo
-    const usuarioEliminado = await Usuario.findByIdAndUpdate(
-      req.params.id,
-      { activo: false },
-      { new: true }
-    ).select('-password');
-
-    if (!usuarioEliminado) {
-      return res.status(404).json({
-        mensaje: "Usuario no encontrado",
-      });
-    }
-
-    res.status(200).json({
-      mensaje: "Usuario desactivado correctamente",
-      usuario: usuarioEliminado
-    });
-  } catch (error) {
-    console.error('Error al eliminar usuario:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor al eliminar usuario",
-    });
-  }
-};
-
-/**
- * Login de usuario
- * POST /api/auth/login
- */
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // Validar datos
-    if (!email || !password) {
-      return res.status(400).json({
-        mensaje: "Email y contraseña son requeridos"
-      });
-    }
-
-    // Buscar usuario por email
-    const usuario = await Usuario.findOne({ email });
-    
-    if (!usuario) {
-      return res.status(404).json({
-        mensaje: "Correo o contraseña inválidos",
-      });
-    }
-
-    // Verificar si el usuario está activo
-    if (!usuario.activo) {
-      return res.status(403).json({
-        mensaje: "Usuario desactivado. Contacte al administrador",
-      });
-    }
-
-    // Verificar password usando el método del schema
-    const passwordValido = await usuario.compararPassword(password);
-
-    if (!passwordValido) {
-      return res.status(404).json({
-        mensaje: "Correo o contraseña inválidos",
-      });
-    }
-
-    // Actualizar último acceso
-    usuario.ultimoAcceso = new Date();
-    await usuario.save();
-
-    // Generar token
-    const token = await generarToken(usuario._id, usuario.nombre, usuario.rol);
-
-    // Configurar cookie
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      sameSite: 'strict',
-      maxAge: 3600000 // 1 hora
-    });
-
-    res.status(200).json({
-      mensaje: "Login exitoso",
-      token: token, // ⚠️ AGREGADO: Enviar token en response para clientes que no usan cookies
-      usuario: {
-        id: usuario._id,
-        nombre: usuario.nombre,
-        apellido: usuario.apellido,
-        email: usuario.email,
-        rol: usuario.rol,
-        nombreCompleto: usuario.nombreCompleto
+      if (error.status) {
+        return res.status(error.status).json({ mensaje: error.message });
       }
-    });
-  } catch (error) {
-    console.error('Error en login:', error);
-    res.status(500).json({
-      mensaje: "Error al iniciar sesión",
-      error: error.message
-    });
-  }
-};
-/**
- * Obtener información del usuario autenticado
- * GET /api/auth/me
- */
-export const getMe = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const usuario = await Usuario.findById(userId).select('-password');
-    
-    if (!usuario) {
-      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+      console.error('Error en usuarios MySQL:', error.code || error.message);
+      return res.status(500).json({ mensaje: 'Error al procesar el usuario' });
+    } finally {
+      connection?.release();
     }
+  };
+}
 
-    res.json({
-      id: usuario._id,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      email: usuario.email,
-      rol: usuario.rol,
-      nombreCompleto: usuario.nombreCompleto,
-      dni: usuario.dni,
-      telefono: usuario.telefono,
-      direccion: usuario.direccion
-    });
-  } catch (error) {
-    console.error('Error en /me:', error);
-    res.status(500).json({ mensaje: 'Error del servidor' });
+async function autorizar(req, connection, roles) {
+  const valor = req.user?.id ?? req.id;
+  if (valor == null) throw errorPeticion('Usuario no autenticado', 401);
+  const id = idValido(valor);
+  const [rows] = await connection.execute(
+    `SELECT r.nombre AS rol
+     FROM usuarios u INNER JOIN roles r ON r.id = u.rol_id
+     WHERE u.id = ? AND u.activo = TRUE`,
+    [id]
+  );
+  if (!rows.length) throw errorPeticion('Sesión no válida', 401);
+  if (roles && !roles.includes(rows[0].rol)) {
+    throw errorPeticion('No tiene permiso para esta operación', 403);
   }
-};
+}
 
-/**
- * Logout de usuario
- * POST /api/auth/logout
- */
+function texto(valor, nombre, maximo, obligatorio = true) {
+  if (valor == null && !obligatorio) return '';
+  if (typeof valor !== 'string') {
+    throw errorPeticion(`${nombre}: valor inválido`);
+  }
+  const resultado = valor.trim();
+  if ((obligatorio && !resultado) || resultado.length > maximo) {
+    throw errorPeticion(`${nombre}: campo vacío o demasiado largo`);
+  }
+  return resultado;
+}
+
+function validarPassword(password) {
+  if (typeof password !== 'string' || password.length < 6 ||
+      Buffer.byteLength(password, 'utf8') > 72) {
+    throw errorPeticion('La contraseña debe tener al menos 6 caracteres y no superar 72 bytes');
+  }
+}
+
+async function prepararDatos(req, connection, creacion) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw errorPeticion(errors.array()[0].msg);
+  }
+  const body = req.body || {};
+  const datos = {
+    nombre: texto(body.nombre, 'Nombre', 100),
+    apellido: texto(body.apellido, 'Apellido', 100),
+    email: texto(body.email, 'Email', 254).toLowerCase(),
+    dni: texto(body.dni, 'DNI', 20),
+    telefono: texto(body.telefono, 'Teléfono', 40, false),
+    direccion: texto(body.direccion, 'Dirección', 255, false),
+  };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) {
+    throw errorPeticion('Email inválido');
+  }
+  const rol = texto(body.rol || (creacion ? 'Mozo' : ''), 'Rol', 40);
+  const [roles] = await connection.execute(
+    'SELECT id FROM roles WHERE nombre = ? LIMIT 1', [rol]
+  );
+  if (!roles.length) throw errorPeticion('El rol seleccionado no existe');
+  datos.rolId = roles[0].id;
+  if (body.activo !== undefined && typeof body.activo !== 'boolean') {
+    throw errorPeticion('Activo debe ser verdadero o falso');
+  }
+  datos.activo = body.activo;
+  if (creacion || (body.password != null && body.password !== '')) {
+    validarPassword(body.password);
+    datos.hash = await bcrypt.hash(body.password, 10);
+  }
+  if (body.fechaIngreso != null && body.fechaIngreso !== '') {
+    const fecha = new Date(body.fechaIngreso);
+    if (Number.isNaN(fecha.getTime())) throw errorPeticion('Fecha de ingreso inválida');
+    datos.fechaIngreso = fecha;
+  }
+  return datos;
+}
+
+async function buscar(connection, id) {
+  const [rows] = await connection.execute(`${SELECT_USUARIOS} WHERE u.id = ?`, [id]);
+  if (!rows.length) throw errorPeticion('Usuario no encontrado', 404);
+  return datosPublicos(rows[0]);
+}
+
+export const obtenerUsuarios = manejar(async (req, res, connection) => {
+  await autorizar(req, connection, ['SuperAdministrador', 'Gerente']);
+  const [rows] = await connection.query(`${SELECT_USUARIOS} ORDER BY u.created_at DESC, u.id DESC`);
+  return res.status(200).json(rows.map(datosPublicos));
+});
+
+export const obtenerUnUsuario = manejar(async (req, res, connection) => {
+  await autorizar(req, connection);
+  const usuario = await buscar(connection, idValido(req.params.id));
+  return res.status(200).json(usuario);
+});
+
+export const obtenerUsuariosPorRol = manejar(async (req, res, connection) => {
+  await autorizar(req, connection, ['SuperAdministrador', 'Gerente']);
+  const rol = texto(req.params.rol, 'Rol', 40);
+  const [rows] = await connection.execute(
+    `${SELECT_USUARIOS} WHERE r.nombre = ? AND u.activo = TRUE ORDER BY u.nombre, u.apellido`,
+    [rol]
+  );
+  return res.status(200).json(rows.map(datosPublicos));
+});
+
+export const crearUsuario = manejar(async (req, res, connection) => {
+  // Las cuentas del personal se crean desde administración autenticada.
+  await autorizar(req, connection, ['SuperAdministrador', 'Gerente']);
+  const d = await prepararDatos(req, connection, true);
+  const [resultado] = await connection.execute(
+    `INSERT INTO usuarios
+      (rol_id, nombre, apellido, email, password_hash, dni, telefono,
+       direccion, activo, fecha_ingreso)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [d.rolId, d.nombre, d.apellido, d.email, d.hash, d.dni,
+     d.telefono, d.direccion, d.activo ?? true, d.fechaIngreso ?? new Date()]
+  );
+  const usuario = await buscar(connection, resultado.insertId);
+  return res.status(201).json({ mensaje: 'Usuario creado exitosamente', usuario });
+});
+
+export const actualizarUsuario = manejar(async (req, res, connection) => {
+  await autorizar(req, connection, ['SuperAdministrador', 'Gerente']);
+  const id = idValido(req.params.id);
+  await buscar(connection, id);
+  const d = await prepararDatos(req, connection, false);
+  await connection.execute(
+    `UPDATE usuarios SET rol_id = ?, nombre = ?, apellido = ?, email = ?,
+       dni = ?, telefono = ?, direccion = ?,
+       activo = COALESCE(?, activo),
+       password_hash = COALESCE(?, password_hash),
+       fecha_ingreso = COALESCE(?, fecha_ingreso)
+     WHERE id = ?`,
+    [d.rolId, d.nombre, d.apellido, d.email, d.dni,
+     d.telefono, d.direccion, d.activo ?? null,
+     d.hash ?? null, d.fechaIngreso ?? null, id]
+  );
+  const usuario = await buscar(connection, id);
+  return res.status(200).json({ mensaje: 'Usuario actualizado correctamente', usuario });
+});
+
+export const eliminarUsuario = manejar(async (req, res, connection) => {
+  await autorizar(req, connection, ['SuperAdministrador']);
+  const id = idValido(req.params.id);
+  await buscar(connection, id);
+  await connection.execute('UPDATE usuarios SET activo = FALSE WHERE id = ?', [id]);
+  const usuario = await buscar(connection, id);
+  return res.status(200).json({ mensaje: 'Usuario desactivado correctamente', usuario });
+});
+
 export const logout = (req, res) => {
-  res.cookie('jwt', '', {
+  res.clearCookie('jwt', {
     httpOnly: true,
     sameSite: 'strict',
-    expires: new Date(0)
+    secure: process.env.NODE_ENV === 'production',
   });
-  
-  res.status(200).json({
-    mensaje: "Logout exitoso"
-  });
-};
-
-/**
- * Obtener usuarios por rol
- * GET /api/usuarios/rol/:rol
- */
-export const obtenerUsuariosPorRol = async (req, res) => {
-  try {
-    const { rol } = req.params;
-    
-    const usuarios = await Usuario.find({ rol, activo: true })
-      .select('-password')
-      .sort({ nombre: 1 });
-    
-    res.status(200).json(usuarios);
-  } catch (error) {
-    console.error('Error al obtener usuarios por rol:', error);
-    res.status(500).json({
-      mensaje: "Error interno del servidor",
-    });
-  }
+  return res.status(200).json({ mensaje: 'Logout exitoso' });
 };

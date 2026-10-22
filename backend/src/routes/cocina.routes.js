@@ -6,7 +6,7 @@ import {
   getPedidoDetalle
 } from '../controllers/cocina.controllers.js';
 import verificarToken from '../auth/token-verify.js';
-import { requireCocina } from '../middlewares/requireRole.middleware.js';
+import { requireCocina, requireRole } from '../middlewares/requireRole.middleware.js';
 
 const router = Router();
 
@@ -44,7 +44,7 @@ router.get(
 router.patch(
   '/pedidos/:id/estado',
   verificarToken,
-  requireCocina,
+  requireRole(['EncargadoCocina', 'SuperAdministrador']),
   updateEstadoPedido
 );
 

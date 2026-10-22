@@ -53,7 +53,7 @@ const formatearFecha = (fecha) => {
     month: 'long', 
     day: 'numeric' 
   };
-  return new Date(fecha).toLocaleDateString('es-AR', opciones);
+  return new Date(/^\d{4}-\d{2}-\d{2}$/.test(fecha) ? `${fecha}T12:00:00-03:00` : fecha).toLocaleDateString('es-AR', opciones);
 };
 
 /**

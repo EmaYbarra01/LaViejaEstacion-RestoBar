@@ -78,7 +78,7 @@ const MisReservas = () => {
   };
 
   const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-AR', {
+    return new Date(typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? `${fecha}T12:00:00` : fecha).toLocaleDateString('es-AR', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -114,7 +114,7 @@ const MisReservas = () => {
 
   const esFutura = (fecha, hora) => {
     const ahora = new Date();
-    const fechaReserva = new Date(`${fecha}T${hora}`);
+    const fechaReserva = new Date(`${fecha.slice(0, 10)}T${hora}:00-03:00`);
     return fechaReserva > ahora;
   };
 

@@ -174,7 +174,7 @@ node scripts/generarQR.js
 
 ```json
 {
-  "qrcode": "^1.5.3",
+  "qrcode": "^1.5.4",
   "mongoose": "^8.18.0"
 }
 ```

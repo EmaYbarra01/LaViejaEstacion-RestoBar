@@ -1,288 +1,83 @@
-import Pedido from "../models/pedidoSchema.js";
+import {
+  consultarPedidos,
+  leerPedidosSQL,
+  normalizarEstado,
+  cambiarEstadoPedido,
+} from './pedidos.controllers.js';
+import { positiveId, requireCondition as ensure } from '../database/mysql/transaction.js';
 
-/**
- * CONTROLADOR DE COCINA
- * Gestiona operaciones específicas para el rol EncargadoCocina
- * Basado en HU5 y HU6 ya implementadas
- */
-
-/**
- * Obtener pedidos para la vista de cocina
- * GET /api/cocina/pedidos
- * 
- * Query params:
- * - estado: filtrar por estado (Pendiente, En Preparación, Listo)
- * - limit: cantidad de pedidos a retornar (default: 50)
- * 
- * @returns {Array} Lista de pedidos ordenados por fecha de creación
- */
-export const getPedidosCocina = async (req, res) => {
-  try {
-    const { estado, limit = 50 } = req.query;
-    
-    // Filtro base: solo pedidos que no están cancelados ni cobrados
-    const filtro = {
-      estado: { $nin: ['Cancelado', 'Cobrado'] }
-    };
-    
-    // Si se especifica un estado, filtrar por él
-    if (estado) {
-      filtro.estado = estado;
+const ESTADOS_COCINA = ['Pendiente', 'En Preparación', 'Listo'];
+function manejar(operacion) {
+  return async (req, res) => {
+    try {
+      return res.status(200).json({ success: true, ...await operacion(req) });
+    } catch (error) {
+      if (error.status) return res.status(error.status).json({ success: false, mensaje: error.message });
+      console.error('Error en cocina MySQL:', error.code || error.message);
+      return res.status(500).json({ success: false, mensaje: 'Error al consultar cocina' });
     }
-    
-    const pedidos = await Pedido.find(filtro)
-      .populate('mesa', 'numero ubicacion')
-      .populate('mozo', 'nombre apellido')
-      .populate('productos.producto', 'nombre categoria precio')
-      .sort({ fechaCreacion: 1 }) // Más antiguos primero
-      .limit(parseInt(limit))
-      .lean(); // Convertir a objeto plano para manipular
+  };
+}
 
-    // Formatear pedidos para la respuesta
-    const pedidosFormateados = pedidos.map(pedido => ({
-      ...pedido,
-      productos: pedido.productos.map(item => ({
-        _id: item._id,
-        nombre: item.nombre,
-        cantidad: item.cantidad,
-        precioUnitario: item.precioUnitario,
-        subtotal: item.subtotal,
-        observaciones: item.observaciones || '',
-        producto: item.producto // Info poblada del catálogo
-      }))
-    }));
-    
-    res.status(200).json({
-      success: true,
-      count: pedidosFormateados.length,
-      pedidos: pedidosFormateados
-    });
-    
-  } catch (error) {
-    console.error('[Cocina] Error al obtener pedidos:', error);
-    res.status(500).json({
-      success: false,
-      mensaje: 'Error al obtener pedidos de cocina',
-      error: error.message
-    });
+export const getPedidosCocina = manejar(async req => {
+  const query = req.query || {};
+  const filtros = { limit: query.limit ?? 50 };
+  if (query.estado) {
+    const estado = normalizarEstado(query.estado);
+    ensure(ESTADOS_COCINA.includes(estado), 'Estado no válido para cocina');
+    filtros.estado = estado;
+  } else {
+    filtros.estados = ['Pendiente', 'En Preparación'];
   }
-};
+  const pedidos = await leerPedidosSQL(c => consultarPedidos(c, filtros, 'asc'));
+  return { count: pedidos.length, pedidos };
+});
 
-/**
- * Actualizar estado de un pedido
- * PATCH /api/cocina/pedidos/:id/estado
- * 
- * Body:
- * - estado: nuevo estado (En Preparación, Listo, Entregado)
- * - observacion: opcional
- * 
- * @returns {Object} Pedido actualizado
- */
+export const getPedidoDetalle = manejar(async req => {
+  const pedido = await leerPedidosSQL(async c => {
+    const [resultado] = await consultarPedidos(c, { id: positiveId(req.params.id) });
+    ensure(resultado, 'Pedido no encontrado', 404);
+    return resultado;
+  });
+  return { pedido };
+});
+
 export const updateEstadoPedido = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { estado, observacion } = req.body;
-    
-    // Validar que se envió el estado
-    if (!estado) {
-      return res.status(400).json({
-        success: false,
-        mensaje: 'El estado es requerido'
-      });
-    }
-    
-    // Validar que el estado sea válido
-    const estadosValidos = ['Pendiente', 'En Preparación', 'Listo', 'Entregado'];
-    if (!estadosValidos.includes(estado)) {
-      return res.status(400).json({
-        success: false,
-        mensaje: `Estado no válido. Valores permitidos: ${estadosValidos.join(', ')}`
-      });
-    }
-    
-    // Buscar el pedido
-    const pedido = await Pedido.findById(id);
-    
-    if (!pedido) {
-      return res.status(404).json({
-        success: false,
-        mensaje: 'Pedido no encontrado'
-      });
-    }
-    
-    // Verificar que no esté cancelado o cobrado
-    if (['Cancelado', 'Cobrado'].includes(pedido.estado)) {
-      return res.status(400).json({
-        success: false,
-        mensaje: `No se puede modificar un pedido en estado ${pedido.estado}`
-      });
-    }
-    
-    // Actualizar estado
-    const estadoAnterior = pedido.estado;
-    pedido.estado = estado;
-    
-    // Actualizar también estadoCocina si existe
-    if (pedido.estadoCocina !== undefined && ['Pendiente', 'En Preparación', 'Listo'].includes(estado)) {
-      pedido.estadoCocina = estado;
-    }
-    
-    // Agregar al historial
-    pedido.historialEstados.push({
-      estado,
-      fecha: new Date(),
-      usuario: req.user.id,  // ⚠️ CORREGIDO: usar req.user.id en lugar de req.user._id
-      observacion: observacion || `Cambio de estado: ${estadoAnterior} → ${estado}`
-    });
-    
-    // Actualizar fecha específica según el estado
-    if (estado === 'Listo') {
-      pedido.fechaListo = new Date();
-    } else if (estado === 'Entregado') {
-      pedido.fechaEntregado = new Date();
-    }
-    
-    await pedido.save();
-    console.log('[Cocina] Pedido guardado en DB:', pedido._id.toString(), 'estado:', pedido.estado, 'productosCount:', (pedido.productos||[]).length);
-    
-    // Poblar para respuesta
-    await pedido.populate([
-      { path: 'mesa', select: 'numero ubicacion' },
-      { path: 'mozo', select: 'nombre apellido' },
-      { path: 'productos.producto', select: 'nombre categoria precio' }
-    ]);
-
-    // Formatear productos
-    const pedidoFormateado = {
-      ...pedido.toObject(),
-      productos: pedido.productos.map(item => ({
-        _id: item._id,
-        nombre: item.nombre,
-        cantidad: item.cantidad,
-        precioUnitario: item.precioUnitario,
-        subtotal: item.subtotal,
-        observaciones: item.observaciones || '',
-        producto: item.producto
-      }))
-    };
-    
-    // Emitir evento por socket.io si está disponible
-    const io = req.app.get('io');
-    if (io) {
-      io.emit('pedidoUpdated', {
-        pedidoId: pedido._id,
-        estadoAnterior,
-        nuevoEstado: estado,
-        pedido: pedidoFormateado
-      });
-      
-      // Si se marcó como listo, notificar específicamente
-      if (estado === 'Listo') {
-        io.emit('pedido-listo', {
-          pedidoId: pedido._id,
-          numeroMesa: pedido.numeroMesa,
-          numeroPedido: pedido.numeroPedido
-        });
-      }
-    }
-    
-    res.status(200).json({
-      success: true,
-      mensaje: `Pedido actualizado a estado: ${estado}`,
-      pedido: pedidoFormateado
-    });
-    
+    const estado = normalizarEstado(req.body?.estado);
+    ensure(['En Preparación', 'Listo'].includes(estado), 'Cocina solo cambia el pedido a En Preparación o Listo');
   } catch (error) {
-    console.error('[Cocina] Error al actualizar estado:', error);
-    res.status(500).json({
-      success: false,
-      mensaje: 'Error al actualizar estado del pedido',
-      error: error.message
-    });
+    return res.status(error.status || 400).json({ success: false, mensaje: error.message });
   }
+  // Reutiliza las transacciones y notificaciones de pedidos; no duplica el cobro ni el stock.
+  let status = 200;
+  return cambiarEstadoPedido(req, {
+    status(codigo) { status = codigo; return this; },
+    json(body) { return res.status(status).json({ success: status >= 200 && status < 300, ...body }); },
+  });
 };
 
-/**
- * Obtener estadísticas de cocina
- * GET /api/cocina/estadisticas
- * 
- * @returns {Object} Estadísticas de pedidos en cocina
- */
-export const getEstadisticasCocina = async (req, res) => {
-  try {
-    const [pendientes, enPreparacion, listos, totalHoy] = await Promise.all([
-      Pedido.countDocuments({ estado: 'Pendiente' }),
-      Pedido.countDocuments({ estado: 'En Preparación' }),
-      Pedido.countDocuments({ estado: 'Listo' }),
-      Pedido.countDocuments({
-        fechaCreacion: {
-          $gte: new Date(new Date().setHours(0, 0, 0, 0))
-        },
-        estado: { $ne: 'Cancelado' }
-      })
-    ]);
-    
-    res.status(200).json({
-      success: true,
-      estadisticas: {
-        pendientes,
-        enPreparacion,
-        listos,
-        totalHoy
-      }
-    });
-    
-  } catch (error) {
-    console.error('[Cocina] Error al obtener estadísticas:', error);
-    res.status(500).json({
-      success: false,
-      mensaje: 'Error al obtener estadísticas',
-      error: error.message
-    });
-  }
-};
+export const getEstadisticasCocina = manejar(async () => {
+  const estadisticas = await leerPedidosSQL(async c => {
+    // La jornada se delimita en hora argentina y se compara con las fechas UTC.
+    const [[row]] = await c.query(`
+      WITH dia AS (
+        SELECT CONVERT_TZ(
+          CONCAT(DATE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '-03:00')), ' 00:00:00'),
+          '-03:00', '+00:00'
+        ) inicio
+      )
+      SELECT
+        COALESCE(SUM(p.estado = 'Pendiente'), 0) pendientes,
+        COALESCE(SUM(p.estado = 'En Preparación'), 0) enPreparacion,
+        COALESCE(SUM(p.estado = 'Listo'), 0) listos,
+        COALESCE(SUM(p.estado <> 'Cancelado' AND p.fecha_creacion >= dia.inicio
+          AND p.fecha_creacion < DATE_ADD(dia.inicio, INTERVAL 1 DAY)), 0) totalHoy
+      FROM pedidos p CROSS JOIN dia WHERE p.activo = TRUE
+    `);
+    return Object.fromEntries(Object.entries(row).map(([key, value]) => [key, Number(value)]));
+  });
+  return { estadisticas };
+});
 
-/**
- * Obtener detalle de un pedido específico
- * GET /api/cocina/pedidos/:id
- * 
- * @returns {Object} Detalle completo del pedido
- */
-export const getPedidoDetalle = async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const pedido = await Pedido.findById(id)
-      .populate('mesa', 'numero ubicacion capacidad')
-      .populate('mozo', 'nombre apellido')
-      .populate('productos.producto', 'nombre categoria precio')
-      .populate('historialEstados.usuario', 'nombre apellido rol');
-    
-    if (!pedido) {
-      return res.status(404).json({
-        success: false,
-        mensaje: 'Pedido no encontrado'
-      });
-    }
-    
-    res.status(200).json({
-      success: true,
-      pedido
-    });
-    
-  } catch (error) {
-    console.error('[Cocina] Error al obtener detalle:', error);
-    res.status(500).json({
-      success: false,
-      mensaje: 'Error al obtener detalle del pedido',
-      error: error.message
-    });
-  }
-};
-
-export default {
-  getPedidosCocina,
-  updateEstadoPedido,
-  getEstadisticasCocina,
-  getPedidoDetalle
-};
+export default { getPedidosCocina, updateEstadoPedido, getEstadisticasCocina, getPedidoDetalle };

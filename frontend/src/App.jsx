@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
@@ -15,11 +14,12 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Reservas from "./pages/Reservas";
 import Mozo from "./pages/Mozo";
+import SupervisionPedidos from "./pages/SupervisionPedidos";
 import CocinaView from "./pages/CocinaView";
 import Caja from "./pages/Caja";
+import HistorialCierres from "./pages/HistorialCierres";
 import "./App.css";
 import Products from "./pages/Products";
-import Users from "./pages/Users";
 import AdminSales from "./pages/AdminSales";
 import ProtectedRoute from "./components/ProtectedRoute";
 import useAuthInitializer from "./hooks/useAuthInitializer";
@@ -29,11 +29,8 @@ import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
 import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
-import useUserStore from './store/useUserStore';
 
 function App() {
-  const { user } = useUserStore();
-
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
 
@@ -60,6 +57,11 @@ function App() {
               <Mozo />
             </ProtectedRoute>
           } />
+          <Route path="/supervision-pedidos" element={
+            <ProtectedRoute role={["Gerente", "SuperAdministrador"]}>
+              <SupervisionPedidos />
+            </ProtectedRoute>
+          } />
           {/* Módulo de Cocina - Gestión de pedidos - EncargadoCocina + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/encargado-cocina" element={
             <ProtectedRoute role={["EncargadoCocina", "Gerente", "SuperAdministrador"]}>
@@ -70,6 +72,11 @@ function App() {
           <Route path="/caja" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
               <Caja />
+            </ProtectedRoute>
+          } />
+          <Route path="/caja/historial-cierres" element={
+            <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
+              <HistorialCierres />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />
@@ -83,7 +90,6 @@ function App() {
           }>        
             <Route path="dashboard" element={<SuperadminDashboard />} />
             <Route path="products" element={<Products />} />
-            <Route path="users" element={<Users />} />
             <Route path="sales" element={<AdminSales />} />
             <Route path="reservas" element={<AdminReservas />} />
             <Route path="calendario" element={<CalendarioReservas />} />
