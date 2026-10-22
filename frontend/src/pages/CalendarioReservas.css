@@ -1,7 +1,7 @@
 /* Calendario Reservas Page */
 .calendario-reservas-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
   padding: 120px 20px 40px;
   color: #e0e0e0;
 }
@@ -21,7 +21,7 @@
 .calendario-header h1 {
   font-size: 3rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   letter-spacing: 4px;
   margin-bottom: 0.5rem;
@@ -47,12 +47,12 @@
   padding: 20px 30px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 15px;
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(88, 122, 60, 0.2);
   animation: fadeInUp 0.8s ease-out;
 }
 
 .btn-nav {
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border: none;
   color: #000;
   padding: 12px 20px;
@@ -67,13 +67,13 @@
 
 .btn-nav:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 5px 15px rgba(88, 122, 60, 0.4);
 }
 
 .mes-año {
   font-size: 2rem;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: capitalize;
   letter-spacing: 2px;
 }
@@ -83,7 +83,7 @@
   background: rgba(255, 255, 255, 0.02);
   border-radius: 15px;
   padding: 20px;
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(88, 122, 60, 0.2);
   margin-bottom: 30px;
   animation: fadeInUp 1s ease-out;
 }
@@ -98,7 +98,7 @@
 .dia-semana-header {
   text-align: center;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   font-size: 0.9rem;
   letter-spacing: 1px;
@@ -133,24 +133,24 @@
 }
 
 .dia-celda.hoy {
-  border-color: #ffc107;
-  box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 15px rgba(88, 122, 60, 0.3);
 }
 
 .dia-celda.selected {
-  background: rgba(255, 193, 7, 0.15);
-  border-color: #ffc107;
+  background: rgba(88, 122, 60, 0.15);
+  border-color: var(--app-accent);
   transform: scale(1.05);
-  box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 5px 20px rgba(88, 122, 60, 0.4);
 }
 
 .dia-celda.con-reservas {
-  border-color: rgba(255, 193, 7, 0.4);
+  border-color: rgba(88, 122, 60, 0.4);
 }
 
 .dia-celda:not(.vacio):hover {
-  background: rgba(255, 193, 7, 0.08);
-  border-color: #ffc107;
+  background: rgba(88, 122, 60, 0.08);
+  border-color: var(--app-accent);
   transform: translateY(-2px);
 }
 
@@ -186,8 +186,8 @@
 
 .badge.badge-warning {
   background: rgba(255, 152, 0, 0.3);
-  color: #ff9800;
-  border: 1px solid #ff9800;
+  color: var(--app-accent-dark);
+  border: 1px solid var(--app-accent-dark);
 }
 
 .badge.badge-success {
@@ -198,8 +198,8 @@
 
 .badge.badge-info {
   background: rgba(33, 150, 243, 0.3);
-  color: #2196f3;
-  border: 1px solid #2196f3;
+  color: var(--app-accent);
+  border: 1px solid var(--app-accent);
 }
 
 /* Detalles del día */
@@ -207,13 +207,13 @@
   background: rgba(255, 255, 255, 0.03);
   border-radius: 15px;
   padding: 30px;
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(88, 122, 60, 0.2);
   animation: fadeInUp 0.5s ease-out;
 }
 
 .detalles-dia h3 {
   font-size: 1.8rem;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 25px;
   display: flex;
   align-items: center;
@@ -247,7 +247,7 @@
 
 .stat-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+  box-shadow: 0 5px 15px rgba(88, 122, 60, 0.2);
 }
 
 .stat-card.warning {
@@ -262,7 +262,7 @@
   display: block;
   font-size: 2.5rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 5px;
 }
 
@@ -296,11 +296,11 @@
 .reserva-card:hover {
   background: rgba(255, 255, 255, 0.05);
   transform: translateX(5px);
-  border-color: rgba(255, 193, 7, 0.3);
+  border-color: rgba(88, 122, 60, 0.3);
 }
 
 .reserva-card.pendiente {
-  border-left: 4px solid #ff9800;
+  border-left: 4px solid var(--app-accent-dark);
 }
 
 .reserva-card.confirmada {
@@ -313,7 +313,7 @@
 }
 
 .reserva-card.completada {
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid var(--app-accent);
   opacity: 0.8;
 }
 
@@ -323,20 +323,20 @@
   align-items: center;
   gap: 5px;
   padding: 10px 15px;
-  background: rgba(255, 193, 7, 0.1);
+  background: rgba(88, 122, 60, 0.1);
   border-radius: 8px;
   min-width: 80px;
 }
 
 .reserva-hora svg {
   font-size: 1.5rem;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .reserva-hora span {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .reserva-info {
@@ -397,7 +397,7 @@
 }
 
 .icon-warning {
-  color: #ff9800;
+  color: var(--app-accent-dark);
 }
 
 .icon-success {
@@ -409,7 +409,7 @@
 }
 
 .icon-info {
-  color: #2196f3;
+  color: var(--app-accent);
 }
 
 /* Loading */
@@ -421,7 +421,7 @@
   background: rgba(0, 0, 0, 0.9);
   padding: 30px 50px;
   border-radius: 15px;
-  border: 2px solid #ffc107;
+  border: 2px solid var(--app-accent);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -432,8 +432,8 @@
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 193, 7, 0.2);
-  border-top-color: #ffc107;
+  border: 4px solid rgba(88, 122, 60, 0.2);
+  border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

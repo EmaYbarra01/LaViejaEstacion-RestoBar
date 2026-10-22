@@ -27,7 +27,7 @@
 }
 
 .socket-notification.success {
-  border-left: 4px solid #10b981;
+  border-left: 4px solid var(--app-accent);
 }
 
 .socket-notification.warning {

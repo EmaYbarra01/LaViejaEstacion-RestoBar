@@ -1,7 +1,7 @@
 /* Admin Reservas Page */
 .admin-reservas-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
   padding: 120px 20px 40px;
   color: #e0e0e0;
 }
@@ -21,7 +21,7 @@
 .admin-reservas-header h1 {
   font-size: 3rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   letter-spacing: 4px;
   margin-bottom: 0.5rem;
@@ -47,8 +47,8 @@
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 193, 7, 0.2);
-  border-top-color: #ffc107;
+  border: 4px solid rgba(88, 122, 60, 0.2);
+  border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -66,7 +66,7 @@
   padding: 25px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 15px;
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(88, 122, 60, 0.2);
   animation: fadeInUp 0.8s ease-out;
 }
 
@@ -79,7 +79,7 @@
 .filtro-grupo label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #ffc107;
+  color: var(--app-accent);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -90,7 +90,7 @@
 .input-fecha {
   padding: 12px 15px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  border: 1px solid rgba(88, 122, 60, 0.3);
   border-radius: 8px;
   color: #e0e0e0;
   font-size: 1rem;
@@ -101,9 +101,9 @@
 .select-filtro:focus,
 .input-fecha:focus {
   outline: none;
-  border-color: #ffc107;
+  border-color: var(--app-accent);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .btn-limpiar-filtros {
@@ -128,7 +128,7 @@
   background: rgba(255, 255, 255, 0.02);
   border-radius: 15px;
   overflow: hidden;
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(88, 122, 60, 0.2);
   animation: fadeInUp 1s ease-out;
 }
 
@@ -138,18 +138,18 @@
 }
 
 .tabla-reservas thead {
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 179, 0, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(88, 122, 60, 0.2) 0%, rgba(255, 179, 0, 0.2) 100%);
 }
 
 .tabla-reservas th {
   padding: 18px 15px;
   text-align: left;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 1px;
-  border-bottom: 2px solid rgba(255, 193, 7, 0.3);
+  border-bottom: 2px solid rgba(88, 122, 60, 0.3);
 }
 
 .tabla-reservas tbody tr {
@@ -158,7 +158,7 @@
 }
 
 .tabla-reservas tbody tr:hover {
-  background: rgba(255, 193, 7, 0.05);
+  background: rgba(88, 122, 60, 0.05);
   transform: scale(1.01);
 }
 
@@ -186,7 +186,7 @@
 
 .td-hora {
   font-weight: 600;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .td-center {
@@ -208,8 +208,8 @@
 
 .estado-badge.warning {
   background: rgba(255, 152, 0, 0.2);
-  color: #ff9800;
-  border: 1px solid #ff9800;
+  color: var(--app-accent-dark);
+  border: 1px solid var(--app-accent-dark);
 }
 
 .estado-badge.success {
@@ -226,8 +226,8 @@
 
 .estado-badge.info {
   background: rgba(33, 150, 243, 0.2);
-  color: #2196f3;
-  border: 1px solid #2196f3;
+  color: var(--app-accent);
+  border: 1px solid var(--app-accent);
 }
 
 /* Acciones */
@@ -265,7 +265,7 @@
 }
 
 .btn-accion.completar {
-  background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
 }
 
@@ -275,13 +275,13 @@
 }
 
 .btn-accion.editar {
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: #000;
 }
 
 .btn-accion.editar:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 5px 15px rgba(88, 122, 60, 0.4);
 }
 
 .btn-accion.eliminar {
@@ -306,7 +306,7 @@
 
 .btn-paginacion {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border: none;
   border-radius: 8px;
   color: #000;
@@ -322,12 +322,12 @@
 
 .btn-paginacion:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 5px 15px rgba(88, 122, 60, 0.4);
 }
 
 .pagina-info {
   font-size: 1rem;
-  color: #ffc107;
+  color: var(--app-accent);
   font-weight: 600;
 }
 
@@ -356,19 +356,19 @@
 }
 
 .modal-content {
-  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, #1a1a1a 100%);
   border-radius: 15px;
   padding: 30px;
   max-width: 600px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  border: 2px solid rgba(255, 193, 7, 0.3);
+  border: 2px solid rgba(88, 122, 60, 0.3);
   animation: slideUp 0.3s ease-out;
 }
 
 .modal-content h2 {
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 25px;
   font-size: 2rem;
   text-align: center;
@@ -381,7 +381,7 @@
 .form-grupo label {
   display: block;
   margin-bottom: 8px;
-  color: #ffc107;
+  color: var(--app-accent);
   font-weight: 600;
   font-size: 0.95rem;
 }
@@ -391,7 +391,7 @@
   width: 100%;
   padding: 12px 15px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  border: 1px solid rgba(88, 122, 60, 0.3);
   border-radius: 8px;
   color: #e0e0e0;
   font-size: 1rem;
@@ -401,9 +401,9 @@
 .form-grupo input:focus,
 .form-grupo textarea:focus {
   outline: none;
-  border-color: #ffc107;
+  border-color: var(--app-accent);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .modal-acciones {

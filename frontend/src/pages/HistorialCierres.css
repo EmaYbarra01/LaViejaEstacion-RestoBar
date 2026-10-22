@@ -9,7 +9,7 @@
 }
 
 .historial-header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 100%);
   color: white;
   padding: 2rem;
   border-radius: 12px;
@@ -69,8 +69,8 @@
 .filtro-item input:focus,
 .filtro-item select:focus {
   outline: none;
-  border-color: #ffc107;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .filtros-acciones {
@@ -90,14 +90,14 @@
 }
 
 .btn-aplicar {
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.3);
 }
 
 .btn-aplicar:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 6px 20px rgba(88, 122, 60, 0.4);
 }
 
 .btn-limpiar {
@@ -148,7 +148,7 @@
 
 .resumen-card.ventas {
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-color: #10b981;
+  border-color: var(--app-accent);
 }
 
 .resumen-card.descuentos {
@@ -158,7 +158,7 @@
 
 .resumen-card.balance {
   background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-  border-color: #ffc107;
+  border-color: var(--app-accent);
 }
 
 .card-label {
@@ -195,7 +195,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #e5e7eb;
-  border-top-color: #ffc107;
+  border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;
@@ -216,7 +216,7 @@
 }
 
 .cierres-table thead {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 100%);
   color: white;
 }
 
@@ -255,7 +255,7 @@
 
 .total-ventas {
   font-weight: 700;
-  color: #10b981;
+  color: var(--app-accent);
   font-size: 1.05rem;
 }
 
@@ -265,7 +265,7 @@
 }
 
 .diferencia.exacto {
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 .diferencia.sobrante {
@@ -286,7 +286,7 @@
 
 .estado-badge.cerrado {
   background: #d1fae5;
-  color: #059669;
+  color: var(--app-accent-dark);
 }
 
 .estado-badge.revisado {
@@ -300,7 +300,7 @@
 }
 
 .btn-ver-detalle {
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -313,7 +313,7 @@
 
 .btn-ver-detalle:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.3);
 }
 
 /* Responsive */

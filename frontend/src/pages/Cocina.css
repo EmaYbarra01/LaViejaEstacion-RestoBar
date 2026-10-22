@@ -38,7 +38,7 @@
   padding: 12px 24px;
   font-size: 1em;
   font-weight: 600;
-  background: #3498db;
+  background: var(--app-accent);
   color: white;
   border: none;
   border-radius: 8px;
@@ -47,7 +47,7 @@
 }
 
 .btn-actualizar:hover {
-  background: #2980b9;
+  background: var(--app-accent);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
@@ -84,12 +84,12 @@
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  border-left: 6px solid #3498db;
+  border-left: 6px solid var(--app-accent);
 }
 
 .pedido-card-cocina.warning {
   border-left-color: #f39c12;
-  background: #fff8e1;
+  background: var(--app-accent-soft);
 }
 
 .pedido-card-cocina.urgent {
@@ -131,7 +131,7 @@
 }
 
 .pedido-card-cocina.warning .pedido-tiempo {
-  background: #fff3cd;
+  background: var(--app-accent-soft);
   color: #856404;
 }
 
@@ -161,7 +161,7 @@
   font-size: 1.2em;
   font-weight: 700;
   padding: 6px 16px;
-  background: #3498db;
+  background: var(--app-accent);
   color: white;
   border-radius: 20px;
 }
@@ -174,7 +174,7 @@
 }
 
 .estado-badge-cocina.pendiente {
-  background: #fff3cd;
+  background: var(--app-accent-soft);
   color: #856404;
 }
 
@@ -232,8 +232,8 @@
   width: 100%;
   margin-top: 6px;
   padding: 8px;
-  background: #fff3cd;
-  border-left: 3px solid #ffc107;
+  background: var(--app-accent-soft);
+  border-left: 3px solid var(--app-accent);
   border-radius: 4px;
   font-size: 0.9em;
   color: #856404;
@@ -268,12 +268,12 @@
 }
 
 .btn-preparar {
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent));
   color: white;
 }
 
 .btn-preparar:hover {
-  background: linear-gradient(135deg, #2980b9, #21618c);
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
 }

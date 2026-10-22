@@ -45,7 +45,7 @@
 }
 
 .cierre-caja-header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 100%);
   color: white;
   padding: 1.5rem 2rem;
   border-radius: 16px 16px 0 0;
@@ -155,7 +155,7 @@
 }
 
 .form-group input.cierre-caja-input-time {
-  background-color: #fff8e1;
+  background-color: var(--app-accent-soft);
   border-color: #f59e0b;
   color: #92400e;
   -webkit-text-fill-color: #92400e;
@@ -171,8 +171,8 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #ffc107;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .desglose-grid {
@@ -207,7 +207,7 @@
 
 .desglose-total {
   font-weight: 700;
-  color: #10b981;
+  color: var(--app-accent);
   text-align: right;
   font-size: 1rem;
 }
@@ -220,7 +220,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
-  border: 2px solid #10b981;
+  border: 2px solid var(--app-accent);
 }
 
 .total-desglose strong {
@@ -231,7 +231,7 @@
 .total-desglose span {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 .pedidos-header {
@@ -248,7 +248,7 @@
 .btn-toggle-todos {
   padding: 0.5rem 1rem;
   background: white;
-  border: 2px solid #ffc107;
+  border: 2px solid var(--app-accent);
   border-radius: 6px;
   color: #1f2937;
   font-weight: 600;
@@ -258,7 +258,7 @@
 }
 
 .btn-toggle-todos:hover {
-  background: #ffc107;
+  background: var(--app-accent);
   color: white;
 }
 
@@ -290,12 +290,12 @@
 }
 
 .pedido-item-cierre:hover {
-  border-color: #ffc107;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+  border-color: var(--app-accent);
+  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
 }
 
 .pedido-item-cierre.selected {
-  border-color: #10b981;
+  border-color: var(--app-accent);
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
@@ -304,7 +304,7 @@
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #10b981;
+  accent-color: var(--app-accent);
 }
 
 .pedido-info-cierre {
@@ -342,7 +342,7 @@
 
 .metodo-badge.efectivo {
   background: #dcfce7;
-  color: #059669;
+  color: var(--app-accent-dark);
 }
 
 .metodo-badge.transferencia {
@@ -352,13 +352,13 @@
 
 .pedido-total {
   font-weight: 700;
-  color: #10b981;
+  color: var(--app-accent);
   font-size: 1.125rem;
 }
 
 .resumen-section {
   background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-  border: 2px solid #ffc107;
+  border: 2px solid var(--app-accent);
 }
 
 .resumen-grid {
@@ -372,7 +372,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+  border-bottom: 1px solid rgba(88, 122, 60, 0.2);
 }
 
 .resumen-item:last-child {
@@ -390,7 +390,7 @@
 }
 
 .resumen-item.total {
-  background: rgba(255, 193, 7, 0.1);
+  background: rgba(88, 122, 60, 0.1);
   padding: 0.75rem;
   border-radius: 8px;
   margin-top: 0.5rem;
@@ -398,15 +398,15 @@
 
 .resumen-item.total strong {
   font-size: 1.25rem;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .resumen-item .descuento {
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 .resumen-divider {
-  border-top: 2px dashed #ffc107;
+  border-top: 2px dashed var(--app-accent);
   margin: 0.5rem 0;
 }
 
@@ -420,8 +420,8 @@
 
 .resumen-item.diferencia.exacto {
   background: #d1fae5;
-  border: 2px solid #10b981;
-  color: #059669;
+  border: 2px solid var(--app-accent);
+  color: var(--app-accent-dark);
 }
 
 .resumen-item.diferencia.sobrante {
@@ -469,7 +469,7 @@
 }
 
 .btn-realizar-cierre {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }

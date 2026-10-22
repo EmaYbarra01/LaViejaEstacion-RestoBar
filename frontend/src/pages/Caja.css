@@ -11,7 +11,7 @@
 
 /* Header */
 .caja-header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 100%);
   color: white;
   padding: 1.5rem 2rem;
   display: flex;
@@ -75,7 +75,7 @@
   display: block;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .header-right {
@@ -85,7 +85,7 @@
 }
 
 .btn-cierre-caja {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -127,13 +127,13 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #ffc107;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .btn-search {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border: none;
   border-radius: 8px;
   font-size: 1.25rem;
@@ -143,7 +143,7 @@
 
 .btn-search:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.3);
 }
 
 /* Content */
@@ -186,7 +186,7 @@
 .panel-header h2 {
   font-size: 1.125rem;
   margin: 0;
-  color: #1a1a2e;
+  color: var(--app-ink);
   font-weight: 700;
 }
 
@@ -216,7 +216,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid #e5e7eb;
-  border-top-color: #ffc107;
+  border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;
@@ -243,15 +243,15 @@
 }
 
 .pedido-item:hover {
-  border-color: #ffc107;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+  border-color: var(--app-accent);
+  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
   transform: translateX(4px);
 }
 
 .pedido-item.selected {
-  border-color: #ffc107;
-  background: linear-gradient(135deg, #fffbf0 0%, #fff8e1 100%);
-  box-shadow: 0 4px 16px rgba(255, 193, 7, 0.2);
+  border-color: var(--app-accent);
+  background: linear-gradient(135deg, #fffbf0 0%, var(--app-accent-soft) 100%);
+  box-shadow: 0 4px 16px rgba(88, 122, 60, 0.2);
 }
 
 .pedido-item-header {
@@ -263,7 +263,7 @@
 
 .pedido-numero {
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--app-ink);
   font-size: 1rem;
 }
 
@@ -276,7 +276,7 @@
 
 .estado-listo {
   background: #d1fae5;
-  color: #059669;
+  color: var(--app-accent-dark);
 }
 
 .estado-servido {
@@ -317,7 +317,7 @@
 .pedido-total {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 /* Panel de cobro */
@@ -411,7 +411,7 @@
 
 .badge-listo {
   background: #d1fae5;
-  color: #059669;
+  color: var(--app-accent-dark);
 }
 
 .badge-servido {
@@ -492,7 +492,7 @@
 }
 
 .total-linea.descuento {
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 .total-linea.total {
@@ -532,21 +532,21 @@
 }
 
 .metodo-btn:hover {
-  border-color: #ffc107;
+  border-color: var(--app-accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
 }
 
 .metodo-btn.active {
-  border-color: #ffc107;
-  background: linear-gradient(135deg, #fffbf0 0%, #fff8e1 100%);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+  border-color: var(--app-accent);
+  background: linear-gradient(135deg, #fffbf0 0%, var(--app-accent-soft) 100%);
+  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.2);
 }
 
 .metodo-btn small {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 .monto-input-group {
@@ -573,8 +573,8 @@
 
 .monto-input:focus {
   outline: none;
-  border-color: #ffc107;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .cambio-info {
@@ -589,7 +589,7 @@
 
 .cambio-info strong {
   font-size: 1.25rem;
-  color: #059669;
+  color: var(--app-accent-dark);
 }
 
 .error-message {
@@ -604,7 +604,7 @@
 .btn-cobrar {
   width: 100%;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -794,7 +794,7 @@
 }
 
 .ticket-linea.descuento {
-  color: #10b981;
+  color: var(--app-accent);
 }
 
 .ticket-linea.total {

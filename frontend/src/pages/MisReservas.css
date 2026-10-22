@@ -1,7 +1,7 @@
 /* Mis Reservas Page */
 .mis-reservas-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
   padding: 120px 20px 40px;
   color: #e0e0e0;
 }
@@ -18,9 +18,9 @@
   gap: 8px;
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  border: 1px solid rgba(88, 122, 60, 0.3);
   border-radius: 8px;
-  color: #ffc107;
+  color: var(--app-accent);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -28,7 +28,7 @@
 }
 
 .btn-volver:hover {
-  background: rgba(255, 193, 7, 0.1);
+  background: rgba(88, 122, 60, 0.1);
   transform: translateX(-5px);
 }
 
@@ -42,7 +42,7 @@
 .mis-reservas-header h1 {
   font-size: 3rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   letter-spacing: 4px;
   margin-bottom: 1rem;
@@ -56,22 +56,22 @@
 }
 
 .mis-reservas-header strong {
-  color: #ffc107;
+  color: var(--app-accent);
 }
 
 .btn-cambiar-email {
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  border: 1px solid rgba(88, 122, 60, 0.3);
   border-radius: 6px;
-  color: #ffc107;
+  color: var(--app-accent);
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .btn-cambiar-email:hover {
-  background: rgba(255, 193, 7, 0.1);
+  background: rgba(88, 122, 60, 0.1);
   transform: translateY(-2px);
 }
 
@@ -82,7 +82,7 @@
   padding: 40px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 15px;
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(88, 122, 60, 0.2);
   animation: fadeInUp 0.8s ease-out;
 }
 
@@ -100,14 +100,14 @@
 
 .form-grupo label {
   font-weight: 600;
-  color: #ffc107;
+  color: var(--app-accent);
   font-size: 1rem;
 }
 
 .form-grupo input {
   padding: 15px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  border: 1px solid rgba(88, 122, 60, 0.3);
   border-radius: 8px;
   color: #e0e0e0;
   font-size: 1rem;
@@ -116,14 +116,14 @@
 
 .form-grupo input:focus {
   outline: none;
-  border-color: #ffc107;
+  border-color: var(--app-accent);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .btn-consultar {
   padding: 15px;
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border: none;
   border-radius: 8px;
   color: #000;
@@ -137,15 +137,15 @@
 
 .btn-consultar:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 5px 20px rgba(88, 122, 60, 0.4);
 }
 
 .info-privacidad {
   margin-top: 20px;
   padding: 15px;
-  background: rgba(255, 193, 7, 0.05);
+  background: rgba(88, 122, 60, 0.05);
   border-radius: 8px;
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(88, 122, 60, 0.2);
 }
 
 .info-privacidad p {
@@ -175,7 +175,7 @@
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(255, 193, 7, 0.2);
+  box-shadow: 0 10px 25px rgba(88, 122, 60, 0.2);
 }
 
 .stat-card.warning {
@@ -194,7 +194,7 @@
   display: block;
   font-size: 3rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 10px;
 }
 
@@ -213,7 +213,7 @@
 
 .seccion-reservas h2 {
   font-size: 2rem;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 25px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -238,7 +238,7 @@
 
 .reserva-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 10px 30px rgba(88, 122, 60, 0.3);
 }
 
 .reserva-card.warning {
@@ -284,7 +284,7 @@
 
 .estado-badge.warning {
   background: rgba(255, 152, 0, 0.2);
-  color: #ff9800;
+  color: var(--app-accent-dark);
 }
 
 .estado-badge.success {
@@ -299,7 +299,7 @@
 
 .estado-badge.info {
   background: rgba(33, 150, 243, 0.2);
-  color: #2196f3;
+  color: var(--app-accent);
 }
 
 .btn-cancelar-mini {
@@ -332,7 +332,7 @@
 
 .reserva-info-item .icon {
   font-size: 1.5rem;
-  color: #ffc107;
+  color: var(--app-accent);
   min-width: 25px;
 }
 
@@ -359,13 +359,13 @@
 .reserva-comentarios {
   margin-top: 10px;
   padding: 15px;
-  background: rgba(255, 193, 7, 0.05);
+  background: rgba(88, 122, 60, 0.05);
   border-radius: 8px;
-  border-left: 3px solid #ffc107;
+  border-left: 3px solid var(--app-accent);
 }
 
 .reserva-comentarios strong {
-  color: #ffc107;
+  color: var(--app-accent);
   display: block;
   margin-bottom: 8px;
 }
@@ -380,9 +380,9 @@
   margin-top: 15px;
   padding: 12px;
   background: rgba(255, 152, 0, 0.1);
-  border: 1px solid #ff9800;
+  border: 1px solid var(--app-accent-dark);
   border-radius: 8px;
-  color: #ff9800;
+  color: var(--app-accent-dark);
   font-size: 0.9rem;
   text-align: center;
 }
@@ -401,8 +401,8 @@
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 193, 7, 0.2);
-  border-top-color: #ffc107;
+  border: 4px solid rgba(88, 122, 60, 0.2);
+  border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 20px;
@@ -421,7 +421,7 @@
 .btn-nueva-reserva {
   margin-top: 20px;
   padding: 12px 25px;
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border: none;
   border-radius: 8px;
   color: #000;
@@ -434,7 +434,7 @@
 
 .btn-nueva-reserva:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 5px 20px rgba(88, 122, 60, 0.4);
 }
 
 .error-message {
