@@ -15,11 +15,11 @@
 
 /* Estados */
 .pedido-card.estado-pendiente {
-  border-left-color: #ffc107;
+  border-left-color: var(--app-accent);
 }
 
 .pedido-card.estado-preparacion {
-  border-left-color: #2196f3;
+  border-left-color: var(--app-accent);
 }
 
 .pedido-card.estado-listo {
@@ -67,7 +67,7 @@
 .pedido-mesa {
   display: inline-block;
   background: #e3f2fd;
-  color: #1976d2;
+  color: var(--app-accent-dark);
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-weight: 600;
@@ -113,7 +113,7 @@
 }
 
 .estado-pendiente .estado-badge {
-  background: #fff3cd;
+  background: var(--app-accent-soft);
   color: #856404;
 }
 
@@ -123,7 +123,7 @@
 }
 
 .estado-listo .estado-badge {
-  background: #d1e7dd;
+  background: var(--app-accent-soft);
   color: #0f5132;
 }
 
@@ -168,7 +168,7 @@
   margin-bottom: 0.5rem;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 3px solid #2196f3;
+  border-left: 3px solid var(--app-accent);
 }
 
 .producto-info {
@@ -179,7 +179,7 @@
 
 .producto-cantidad {
   display: inline-block;
-  background: #2196f3;
+  background: var(--app-accent);
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -225,7 +225,7 @@
   margin-bottom: 1rem;
   padding: 0.75rem;
   background: #fff9e6;
-  border-left: 3px solid #ffc107;
+  border-left: 3px solid var(--app-accent);
   border-radius: 8px;
 }
 
@@ -264,12 +264,12 @@
 }
 
 .btn-comenzar {
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
 }
 
 .btn-comenzar:hover {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(135deg, var(--app-accent-dark) 0%, #1565c0 100%);
 }
 
 .btn-listo {
@@ -291,7 +291,7 @@
   flex: 1;
   padding: 0.75rem;
   text-align: center;
-  background: #d1e7dd;
+  background: var(--app-accent-soft);
   color: #0f5132;
   border-radius: 8px;
   font-weight: 600;

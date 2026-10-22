@@ -12,9 +12,9 @@
     linear-gradient(135deg, var(--app-ink) 0%, var(--app-ink-soft) 100%),
     linear-gradient(90deg, 
       transparent 0%, 
-      rgba(181, 139, 67, 0.35) 25%,
-      rgba(181, 139, 67, 0.7) 50%,
-      rgba(181, 139, 67, 0.35) 75%,
+      rgba(183, 212, 139, 0.35) 25%,
+      rgba(183, 212, 139, 0.7) 50%,
+      rgba(183, 212, 139, 0.35) 75%,
       transparent 100%
     );
   background-origin: border-box;
@@ -57,7 +57,7 @@
 .logo-icon {
   font-size: 2.2rem;
   color: var(--app-accent);
-  filter: drop-shadow(0 0 10px rgba(181, 139, 67, 0.35));
+  filter: drop-shadow(0 0 10px rgba(183, 212, 139, 0.35));
   flex-shrink: 0;
 }
 
@@ -117,10 +117,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 193, 7, 0.45);
+  border: 1px solid rgba(88, 122, 60, 0.45);
   border-radius: 50%;
-  background: rgba(255, 193, 7, 0.12);
-  color: #ffc107;
+  background: rgba(88, 122, 60, 0.12);
+  color: var(--app-accent);
   cursor: pointer;
   font-size: 1rem;
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
@@ -128,8 +128,8 @@
 
 .theme-toggle:hover,
 .theme-toggle:focus-visible {
-  background: #ffc107;
-  color: #1a1a2e;
+  background: var(--app-accent);
+  color: var(--app-ink);
   transform: translateY(-2px);
   outline: none;
 }
@@ -175,13 +175,13 @@
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(181, 139, 67, 0.25);
+  box-shadow: 0 4px 15px rgba(183, 212, 139, 0.25);
 }
 
 .purchase-btn:hover {
-  background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
+  background: linear-gradient(135deg, var(--app-accent-dark) 0%, var(--app-accent-dark) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+  box-shadow: 0 6px 20px rgba(88, 122, 60, 0.5);
 }
 
 /* DateTime Display */
@@ -191,8 +191,8 @@
   align-items: flex-end;
   gap: 0.2rem;
   padding: 0.5rem 1rem;
-  background: rgba(255, 193, 7, 0.1);
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  background: rgba(88, 122, 60, 0.1);
+  border: 1px solid rgba(88, 122, 60, 0.3);
   border-radius: 10px;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);

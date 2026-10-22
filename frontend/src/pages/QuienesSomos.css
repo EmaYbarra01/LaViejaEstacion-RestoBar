@@ -1,7 +1,7 @@
 /* QuienesSomos.css */
 .quienes-somos-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
   padding: 120px 20px 40px;
 }
 
@@ -14,7 +14,7 @@
 .quienes-somos-header h1 {
   font-size: 4rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   text-transform: uppercase;
   letter-spacing: 6px;
   margin-bottom: 1rem;
@@ -31,7 +31,7 @@
 .header-divider {
   width: 150px;
   height: 3px;
-  background: linear-gradient(to right, transparent, #ffc107, transparent);
+  background: linear-gradient(to right, transparent, var(--app-accent), transparent);
   margin: 1.5rem auto;
 }
 
@@ -55,7 +55,7 @@
   border-radius: 20px;
   padding: 50px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(88, 122, 60, 0.1);
 }
 
 .historia-image {
@@ -80,7 +80,7 @@
 .historia-text h2 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 25px;
   text-transform: uppercase;
   letter-spacing: 3px;
@@ -104,7 +104,7 @@
   text-align: center;
   font-size: 3rem;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 50px;
   text-transform: uppercase;
   letter-spacing: 4px;
@@ -122,19 +122,19 @@
   padding: 40px 30px;
   text-align: center;
   transition: all 0.4s ease;
-  border: 1px solid rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(88, 122, 60, 0.1);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .valor-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 12px 35px rgba(255, 193, 7, 0.3);
-  border-color: rgba(255, 193, 7, 0.3);
+  box-shadow: 0 12px 35px rgba(88, 122, 60, 0.3);
+  border-color: rgba(88, 122, 60, 0.3);
 }
 
 .valor-icon {
   font-size: 4rem;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 20px;
 }
 
@@ -171,22 +171,22 @@
   border-radius: 20px;
   padding: 50px 40px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(88, 122, 60, 0.1);
   transition: all 0.4s ease;
 }
 
 .mision-card:hover,
 .vision-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(255, 193, 7, 0.2);
-  border-color: rgba(255, 193, 7, 0.3);
+  box-shadow: 0 12px 35px rgba(88, 122, 60, 0.2);
+  border-color: rgba(88, 122, 60, 0.3);
 }
 
 .mision-card h2,
 .vision-card h2 {
   font-size: 2.2rem;
   font-weight: 700;
-  color: #ffc107;
+  color: var(--app-accent);
   margin-bottom: 25px;
   text-transform: uppercase;
   letter-spacing: 3px;
@@ -207,8 +207,8 @@
   gap: 10px;
   padding: 12px 30px;
   background: transparent;
-  color: #ffc107;
-  border: 2px solid #ffc107;
+  color: var(--app-accent);
+  border: 2px solid var(--app-accent);
   border-radius: 50px;
   font-size: 1.1rem;
   font-weight: 600;
@@ -223,7 +223,7 @@
 }
 
 .back-button:hover {
-  background: #ffc107;
+  background: var(--app-accent);
   color: #000;
   transform: translateX(-5px);
 }

@@ -5,7 +5,7 @@
  */
 
 .producto-card {
-  background: #2d2d2d;
+  background: var(--app-ink);
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -20,8 +20,8 @@
 
 .producto-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(255, 193, 7, 0.3);
-  border-color: #ffc107;
+  box-shadow: 0 12px 40px rgba(88, 122, 60, 0.3);
+  border-color: var(--app-accent);
 }
 
 /* ===== IMAGEN DEL PRODUCTO ===== */
@@ -30,7 +30,7 @@
   width: 100%;
   padding-top: 75%; /* Aspect ratio 4:3 */
   overflow: hidden;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
 }
 
 .producto-image {
@@ -63,7 +63,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+  background: linear-gradient(90deg, var(--app-ink) 25%, var(--app-ink-soft) 50%, var(--app-ink) 75%);
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
 }
@@ -112,7 +112,7 @@
 }
 
 .view-details {
-  color: #ffc107;
+  color: var(--app-accent);
   font-weight: 600;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -148,7 +148,7 @@
 .producto-precio {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #ffc107;
+  color: var(--app-accent);
   white-space: nowrap;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -177,12 +177,12 @@
   right: 1rem;
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 4px 15px rgba(88, 122, 60, 0.4);
 }
 
 .utensils-icon {
@@ -213,7 +213,7 @@
 }
 
 .badge-stock-bajo {
-  background: rgba(255, 193, 7, 0.95);
+  background: rgba(88, 122, 60, 0.95);
 }
 
 .badge-agotado,
