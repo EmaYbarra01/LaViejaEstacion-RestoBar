@@ -1,3 +1,14 @@
+import Pedido from "../models/pedidoSchema.js";
+import Mesa from "../models/mesaSchema.js";
+import Producto from "../models/productoSchema.js";
+import Usuario from "../models/usuarioSchema.js";
+import { enviarNotificacionPedido } from "../helpers/emailHelper.js";
+
+/**
+ * Obtener todos los pedidos
+ * GET /api/pedidos
+ */
+export const obtenerPedidos = async (req, res) => {
 import { pool, getMySQLConnection } from '../database/mysql/pool.js';
 import { pedidoService } from '../services/mysql/pedidos.js';
 import { requireCondition as ensure, positiveId } from '../database/mysql/transaction.js';
@@ -38,6 +49,322 @@ export async function consultarPedidos(c, filtros = {}, orden = 'desc') {
   for (const [campo,columna] of [['id','p.id'],['mesa','p.mesa_id'],['mozo','p.mozo_id']]) {
     if (filtros[campo] != null) { where.push(columna+' = ?'); valores.push(positiveId(filtros[campo])); }
   }
+};
+
+/**
+ * Obtener un pedido por ID
+ * GET /api/pedidos/:id
+ */
+export const obtenerUnPedido = async (req, res) => {
+  try {
+    const pedido = await Pedido.findById(req.params.id)
+      .populate('mesa', 'numero ubicacion capacidad')
+      .populate('mozo', 'nombre apellido email')
+      .populate('productos.producto', 'nombre categoria precio')
+      .populate('pago.cajero', 'nombre apellido')
+      .populate('historialEstados.usuario', 'nombre apellido');
+    
+    if (!pedido) {
+      return res.status(404).json({
+        mensaje: "Pedido no encontrado"
+      });
+    }
+    
+    res.status(200).json(pedido);
+  } catch (error) {
+    console.error('Error al obtener pedido:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor al obtener el pedido"
+    });
+  }
+};
+
+/**
+ * Crear un pedido desde el menú público, sin autenticación.
+ * POST /api/pedidos/publico
+ */
+export const crearPedidoPublico = async (req, res) => {
+  try {
+    const {
+      tipoPedido,
+      numeroMesa,
+      cliente,
+      productos,
+      observacionesGenerales,
+      metodoPago
+    } = req.body;
+
+    if (!['Local', 'Domicilio'].includes(tipoPedido)) {
+      return res.status(400).json({ mensaje: 'El tipo de pedido no es válido' });
+    }
+
+    if (!cliente?.nombre || !cliente?.telefono || !cliente?.email) {
+      return res.status(400).json({
+        mensaje: 'Nombre, teléfono y email son requeridos'
+      });
+    }
+
+    if (tipoPedido === 'Domicilio' && !cliente.direccion) {
+      return res.status(400).json({ mensaje: 'La dirección es requerida para pedidos a domicilio' });
+    }
+
+    let mesaDoc = null;
+    if (tipoPedido === 'Local') {
+      if (!Number.isInteger(Number(numeroMesa)) || Number(numeroMesa) < 1) {
+        return res.status(400).json({ mensaje: 'El número de mesa es requerido para pedidos en el local' });
+      }
+      mesaDoc = await Mesa.findOne({ numero: Number(numeroMesa) });
+      if (!mesaDoc) {
+        return res.status(404).json({ mensaje: 'La mesa indicada no existe' });
+      }
+    }
+
+    if (!Array.isArray(productos) || productos.length === 0) {
+      return res.status(400).json({ mensaje: 'El pedido debe incluir al menos un producto' });
+    }
+
+    const productosDelPedido = [];
+    for (const item of productos) {
+      const cantidad = Number(item.cantidad);
+      if (!item.producto || !Number.isInteger(cantidad) || cantidad < 1) {
+        return res.status(400).json({ mensaje: 'Los productos del pedido no son válidos' });
+      }
+
+      const producto = await Producto.findById(item.producto);
+      if (!producto || !producto.disponible) {
+        return res.status(400).json({ mensaje: 'Uno de los productos ya no está disponible' });
+      }
+      if (producto.stock < cantidad) {
+        return res.status(400).json({
+          mensaje: `Stock insuficiente para ${producto.nombre}. Stock disponible: ${producto.stock}`
+        });
+      }
+
+      productosDelPedido.push({
+        producto: producto._id,
+        nombre: producto.nombre,
+        cantidad,
+        precioUnitario: producto.precio,
+        subtotal: producto.precio * cantidad,
+        observaciones: String(item.observaciones || '').slice(0, 200)
+      });
+    }
+
+    const subtotal = productosDelPedido.reduce((total, item) => total + item.subtotal, 0);
+    const nuevoPedido = await Pedido.create({
+      numeroPedido: await Pedido.generarNumeroPedido(),
+      tipoPedido,
+      mesa: mesaDoc?._id,
+      numeroMesa: mesaDoc?.numero,
+      cliente: {
+        nombre: String(cliente.nombre).trim(),
+        telefono: String(cliente.telefono).trim(),
+        email: String(cliente.email).trim(),
+        direccion: String(cliente.direccion || '').trim(),
+        referencia: String(cliente.referencia || '').trim()
+      },
+      productos: productosDelPedido,
+      observacionesGenerales: String(observacionesGenerales || '').slice(0, 500),
+      subtotal,
+      total: subtotal,
+      metodoPago: ['Efectivo', 'Transferencia'].includes(metodoPago) ? metodoPago : 'Pendiente',
+      historialEstados: [{
+        estado: 'Pendiente',
+        fecha: new Date(),
+        observacion: 'Pedido recibido desde el menú público'
+      }]
+    });
+
+    for (const item of productos) {
+      await Producto.findByIdAndUpdate(item.producto, { $inc: { stock: -Number(item.cantidad) } });
+    }
+
+    if (mesaDoc) {
+      await Mesa.findByIdAndUpdate(mesaDoc._id, { estado: 'Ocupada' });
+    }
+
+    const pedidoCompleto = await Pedido.findById(nuevoPedido._id)
+      .populate('productos.producto', 'nombre categoria');
+    const io = req.app.get('io');
+    if (io) {
+      io.to('cocina').emit('nuevo-pedido-cocina', {
+        pedido: pedidoCompleto,
+        mensaje: `Nuevo pedido online #${pedidoCompleto.numeroPedido}`
+      });
+      io.to('caja').emit('nuevo-pedido-online', { pedido: pedidoCompleto });
+    }
+
+    enviarNotificacionPedido(pedidoCompleto).catch((error) => {
+      console.error('Error enviando email del pedido público:', error.message);
+    });
+
+    const whatsappNumber = process.env.WHATSAPP_RESTAURANTE;
+    const whatsappUrl = whatsappNumber
+      ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(
+        `Nuevo pedido ${pedidoCompleto.numeroPedido} por ${pedidoCompleto.total}`
+      )}`
+      : null;
+
+    return res.status(201).json({
+      mensaje: 'Pedido recibido correctamente',
+      pedido: pedidoCompleto,
+      whatsappUrl
+    });
+  } catch (error) {
+    console.error('Error al crear pedido público:', error);
+    return res.status(500).json({ mensaje: 'No se pudo registrar el pedido' });
+  }
+};
+
+/**
+ * Crear un nuevo pedido
+ * POST /api/pedidos
+ */
+export const crearPedido = async (req, res) => {
+  try {
+    const { mesa, mozo, productos, observacionesGenerales } = req.body;
+    
+    // Validar datos
+    if (!mesa || !mozo || !productos || productos.length === 0) {
+      return res.status(400).json({
+        mensaje: "Mesa, mozo y productos son requeridos"
+      });
+    }
+    
+    // Verificar que la mesa existe y está disponible
+    const mesaDoc = await Mesa.findById(mesa);
+    if (!mesaDoc) {
+      return res.status(404).json({
+        mensaje: "Mesa no encontrada"
+      });
+    }
+    
+    // Verificar que el mozo existe
+    const mozoDoc = await Usuario.findById(mozo);
+    if (!mozoDoc || !mozoDoc.rol.startsWith('Mozo')) {
+      return res.status(400).json({
+        mensaje: "Mozo no válido"
+      });
+    }
+    
+    // Procesar productos y verificar disponibilidad
+    const productosDelPedido = [];
+    for (let item of productos) {
+      const producto = await Producto.findById(item.producto);
+      
+      if (!producto) {
+        return res.status(404).json({
+          mensaje: `Producto ${item.producto} no encontrado`
+        });
+      }
+      
+      if (!producto.disponible) {
+        return res.status(400).json({
+          mensaje: `El producto ${producto.nombre} no está disponible`
+        });
+      }
+      
+      // Verificar stock suficiente
+      if (producto.stock < item.cantidad) {
+        return res.status(400).json({
+          mensaje: `Stock insuficiente para ${producto.nombre}. Stock disponible: ${producto.stock}`
+        });
+      }
+      
+      productosDelPedido.push({
+        producto: producto._id,
+        nombre: producto.nombre,
+        cantidad: item.cantidad,
+        precioUnitario: producto.precio,
+        subtotal: producto.precio * item.cantidad,
+        observaciones: item.observaciones || ''
+      });
+    }
+    
+    // Obtener siguiente número de pedido
+    const numeroPedido = await Pedido.generarNumeroPedido();
+    
+    // Calcular subtotal y total
+    const subtotal = productosDelPedido.reduce((acc, p) => acc + p.subtotal, 0);
+    const total = subtotal; // Sin descuento inicial
+    
+    // Crear pedido
+    const nuevoPedido = new Pedido({
+      numeroPedido,
+      numeroMesa: mesaDoc.numero,
+      mesa,
+      mozo,
+      nombreMozo: `${mozoDoc.nombre} ${mozoDoc.apellido}`,
+      productos: productosDelPedido,
+      observacionesGenerales: observacionesGenerales || '',
+      subtotal,
+      total,
+      historialEstados: [{
+        estado: 'Pendiente',
+        fecha: new Date(),
+        usuario: mozo,
+        observacion: 'Pedido creado'
+      }]
+    });
+    
+    await nuevoPedido.save();
+    
+    // Descontar stock de los productos
+    for (let item of productos) {
+      await Producto.findByIdAndUpdate(
+        item.producto,
+        { $inc: { stock: -item.cantidad } }
+      );
+    }
+    
+    // Actualizar estado de la mesa a Ocupada
+    await Mesa.findByIdAndUpdate(mesa, { estado: 'Ocupada' });
+    
+    // Poblar el pedido antes de enviarlo
+    const pedidoCompleto = await Pedido.findById(nuevoPedido._id)
+      .populate('mesa', 'numero ubicacion')
+      .populate('mozo', 'nombre apellido')
+      .populate('productos.producto', 'nombre categoria');
+    
+    // HU4: Emitir evento Socket.io para notificar a cocina
+    const io = req.app.get('io');
+    if (io) {
+      // Notificar nuevo pedido a cocina
+      io.to('cocina').emit('nuevo-pedido-cocina', {
+        pedido: pedidoCompleto,
+        mensaje: `Nuevo pedido #${pedidoCompleto.numeroPedido} - Mesa ${pedidoCompleto.numeroMesa}`
+      });
+      console.log(`[Socket.io] Evento 'nuevo-pedido-cocina' emitido para pedido #${pedidoCompleto.numeroPedido}`);
+      
+      // Notificar actualización de mesa a todos los mozos
+      io.to('mozos').emit('mesa-actualizada', {
+        mesaId: mesa,
+        estado: 'Ocupada',
+        numeroMesa: mesaDoc.numero
+      });
+      console.log(`[Socket.io] Evento 'mesa-actualizada' emitido para mesa ${mesaDoc.numero}`);
+      
+      // Notificar actualización de productos (stock descontado)
+      const productosActualizados = await Producto.find({ 
+        _id: { $in: productos.map(p => p.producto) } 
+      });
+      io.to('mozos').emit('productos-actualizados', {
+        productos: productosActualizados
+      });
+      console.log(`[Socket.io] Evento 'productos-actualizados' emitido`);
+    }
+    
+    res.status(201).json({
+      mensaje: "Pedido creado exitosamente",
+      pedido: pedidoCompleto
+    });
+  } catch (error) {
+    console.error('Error al crear pedido:', error);
+    res.status(500).json({
+      mensaje: "Error interno del servidor al crear pedido",
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   if (filtros.estado) { where.push('p.estado = ?'); valores.push(normalizarEstado(filtros.estado)); }
   if (filtros.estados) {
     const estados = filtros.estados.map(normalizarEstado);
