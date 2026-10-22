@@ -1,5 +1,6 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import MenuPage from "./pages/MenuPage";
@@ -31,8 +32,19 @@ import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
 
 function App() {
+  const [isNightMode, setIsNightMode] = useState(() => (
+    localStorage.getItem("app-theme") === "night"
+  ));
+
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
+
+  useEffect(() => {
+    const theme = isNightMode ? "night" : "day";
+    document.documentElement.dataset.theme = theme;
+    document.body.classList.toggle("dark-mode", isNightMode);
+    localStorage.setItem("app-theme", theme);
+  }, [isNightMode]);
 
   // No bloquear la UI mientras se verifica la autenticación
   // Dejar que las rutas protegidas manejen su propio loading
@@ -40,7 +52,10 @@ function App() {
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
-      <Header />
+      <Header
+        isNightMode={isNightMode}
+        onToggleNightMode={() => setIsNightMode((current) => !current)}
+      />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<HomePage />} />

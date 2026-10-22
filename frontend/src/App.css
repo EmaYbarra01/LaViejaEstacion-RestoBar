@@ -48,11 +48,45 @@ body {
   background: var(--app-surface-muted);
   color: var(--app-text);
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 #root {
   background: var(--app-surface-muted);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+body,
+#root,
+.app-container,
+.main-content,
+.menu-page,
+.admin-panel,
+.admin-page,
+.admin-container,
+.dashboard-container,
+.superadmin-dashboard,
+.caja-container,
+.cocina-container,
+.cocina-view,
+.mozo-container,
+.supervision-pedidos,
+.modal-content,
+.cierre-caja-modal,
+.menu-card,
+.accordion-item,
+.dashboard-card,
+.resumen-card,
+.stat-card,
+button,
+input,
+select,
+textarea {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    color 0.35s ease;
 }
 
 :root[data-theme='night'] input::placeholder,
@@ -1175,6 +1209,105 @@ button:hover,
 
 .menu-page .menu-card .card-footer-info {
   border-top-color: var(--app-accent) !important;
+}
+
+:root[data-theme='night'] .modern-header {
+  background-image: linear-gradient(135deg, var(--app-ink) 0%, var(--app-ink-soft) 100%);
+}
+
+:root[data-theme='night'] .header-nav {
+  background: var(--app-ink) !important;
+}
+
+:root[data-theme='night'] .theme-toggle {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-accent) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+:root[data-theme='night'] .theme-toggle:hover,
+:root[data-theme='night'] .theme-toggle:focus-visible {
+  background: var(--app-accent) !important;
+  color: var(--app-ink) !important;
+}
+
+:root[data-theme='night'] .menu-page,
+:root[data-theme='night'] .admin-panel,
+:root[data-theme='night'] .admin-page,
+:root[data-theme='night'] .admin-container,
+:root[data-theme='night'] .dashboard-container,
+:root[data-theme='night'] .superadmin-dashboard,
+:root[data-theme='night'] .caja-container,
+:root[data-theme='night'] .cocina-container,
+:root[data-theme='night'] .cocina-view,
+:root[data-theme='night'] .mozo-container,
+:root[data-theme='night'] .supervision-pedidos {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .menu-card,
+:root[data-theme='night'] .menu-page .accordion-item,
+:root[data-theme='night'] .admin-page .admin-page-header,
+:root[data-theme='night'] .admin-page .admin-header,
+:root[data-theme='night'] .admin-page .admin-table-container,
+:root[data-theme='night'] .admin-page .stat-card,
+:root[data-theme='night'] .admin-page .admin-controls,
+:root[data-theme='night'] .dashboard-card,
+:root[data-theme='night'] .resumen-card,
+:root[data-theme='night'] .stat-card,
+:root[data-theme='night'] .metric-card,
+:root[data-theme='night'] .pedido-card,
+:root[data-theme='night'] .pedido-card-cocina,
+:root[data-theme='night'] .mesa-card,
+:root[data-theme='night'] .supervision-pedido {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .menu-card {
+  background: var(--app-ink-soft) !important;
+}
+
+:root[data-theme='night'] .menu-page .card-name,
+:root[data-theme='night'] .menu-page .card-description,
+:root[data-theme='night'] .menu-page .card-detail,
+:root[data-theme='night'] .admin-page .admin-table tbody td,
+:root[data-theme='night'] .dashboard-card *,
+:root[data-theme='night'] .resumen-card *,
+:root[data-theme='night'] .stat-card *,
+:root[data-theme='night'] .metric-card *,
+:root[data-theme='night'] .supervision-pedido * {
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .card-name,
+:root[data-theme='night'] .menu-page .card-description,
+:root[data-theme='night'] .menu-page .card-detail {
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .card-price,
+:root[data-theme='night'] .menu-page .menu-header h1,
+:root[data-theme='night'] .admin-page .admin-page-title,
+:root[data-theme='night'] .dashboard-card h2,
+:root[data-theme='night'] .resumen-card .card-valor {
+  color: var(--app-accent-dark) !important;
+}
+
+:root[data-theme='night'] #admin-nav,
+:root[data-theme='night'] .admin-panel > div:first-child {
+  background: var(--app-ink) !important;
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] input,
+:root[data-theme='night'] select,
+:root[data-theme='night'] textarea {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
 }
 
 .superadmin-dashboard {
