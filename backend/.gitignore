@@ -31,3 +31,5 @@ Thumbs.db
 *.test.*
 debug/
 out/
+# Conservar las pruebas de los servicios MySQL
+!test/mysql/*.test.js
