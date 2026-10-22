@@ -190,6 +190,8 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 15px rgba(88, 122, 60, 0.4);
+}
+
 .add-product-button {
   display: flex;
   align-items: center;
