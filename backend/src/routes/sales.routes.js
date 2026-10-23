@@ -8,7 +8,7 @@ const router = Router();
 
 // Rutas para administradores
 router.route('/sales/all')
-    .get(verificarToken, verificarRol('admin'), obtenerVentas); // Solo admin puede ver todas las ventas
+    .get(verificarToken, verificarRol(['Gerente','SuperAdministrador']), obtenerVentas); // Solo admin puede ver todas las ventas
 
 // Rutas para usuarios autenticados
 router.route('/sales/myhistory')
@@ -19,8 +19,8 @@ router.route('/sales')
 
 router.route('/sales/:id')
     .get(verificarToken, obtenerUnaVenta); // Cualquier usuario autenticado puede ver una venta por ID
-    // .patch(verificarToken, verificarRol('admin'), validarVenta, actualizarVenta) // Solo admin puede actualizar ventas
-    // .delete(verificarToken, verificarRol('admin'), eliminarVenta); // Solo admin puede eliminar ventas
+    // .patch(verificarToken, verificarRol(['Gerente','SuperAdministrador']), validarVenta, actualizarVenta) // Solo admin puede actualizar ventas
+    // .delete(verificarToken, verificarRol(['Gerente','SuperAdministrador']), eliminarVenta); // Solo admin puede eliminar ventas
 
 
 export default router;

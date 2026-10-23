@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
-import './src/database/dbConnection.js';
+import { verificarBaseMySQL } from './src/database/dbConnection.js';
+import { pool } from './src/database/mysql/pool.js';
 import { initializeSocket } from './src/config/socket.config.js';
 
 // Obtener __dirname en módulos ES
@@ -97,9 +98,13 @@ const httpServer = createServer(app);
 const io = initializeSocket(httpServer);
 app.set('io', io);
 
+try { await verificarBaseMySQL(); }
+catch(error){console.error('No se pudo iniciar:',error.message);await pool.end();process.exit(1);}
+
 httpServer.listen(PORT, () => {
   console.log(`✅ Servidor activo en el puerto ${PORT}`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log(`📚 API Docs: http://localhost:${PORT}/api`);
   console.log('📡 Socket.io: inicializado y disponible en app.get("io")');
 });
+export { app, httpServer };

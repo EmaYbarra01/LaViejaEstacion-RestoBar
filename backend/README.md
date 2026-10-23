@@ -1,284 +1,53 @@
-# Backend CRUD COM-12
+# Backend — La Vieja Estación
 
-Backend API REST construido con Node.js, Express y MongoDB para gestión de productos, usuarios y ventas.
+Express, Socket.IO y MySQL 8.0.16 o posterior. Todo el servidor usa MySQL; no requiere MongoDB, Atlas ni MONGODB_URI. Las referencias antiguas están en legacy-mongo como archivos de texto que no se ejecutan.
 
-## 🚀 Tecnologías
+## Instalación existente
 
-- **Node.js** - Entorno de ejecución
-- **Express** - Framework web
-- **MongoDB** - Base de datos NoSQL
-- **Mongoose** - ODM para MongoDB
-- **bcryptjs** - Encriptación de contraseñas
-- **jsonwebtoken** - Autenticación JWT
-- **express-validator** - Validación de datos
-- **nodemailer** - Envío de correos electrónicos
-- **dotenv** - Variables de entorno
+Conservar el .env actual y hacer un respaldo de MySQL. En backend:
 
-## 📋 Requisitos previos
-
-- Node.js (v22 o superior)
-- MongoDB (local o Atlas)
-- Cuenta de Gmail (para recuperación de contraseñas)
-
-## 🔧 Instalación
-
-1. Clonar el repositorio:
-```bash
-git clone https://github.com/NahuFed/Backend-Crud-com12.git
-cd Backend-Crud-com12
+```powershell
+npm ci
+npm run db:mysql:migrate:final
+npm run db:mysql:audit
+npm run db:mysql:check
+npm run dev
 ```
 
-2. Instalar dependencias:
-```bash
-npm install
+No ejecutar db:mysql:setup ni INSTALAR_BASE_DATOS.sql en una base con datos. La migración final aplica las actualizaciones 005, 006 y 007; no recarga datos iniciales.
+
+## Base nueva de desarrollo
+
+```powershell
+npm ci
+npm run db:mysql:setup
+npm run db:mysql:check
 ```
 
-3. Configurar variables de entorno (ver sección siguiente)
+Setup requiere una base vacía y carga datos de demostración. No es un importador de MongoDB.
 
-4. Iniciar el servidor:
-```bash
-npm start
+## Variables
+
+MYSQL_HOST (127.0.0.1), MYSQL_PORT (3306), MYSQL_USER (root), MYSQL_PASSWORD, MYSQL_DATABASE (la_vieja_estacion), JWT_SECRET_KEY y PORT (4000). Los scripts de instalación y migración utilizan la base la_vieja_estacion. SMTP: EMAIL_USER, EMAIL_PASS, EMAIL_FROM y FRONTEND_URL para recuperación de contraseña. No subir .env ni exportaciones de datos a GitHub.
+
+## Funciones migradas
+
+Usuarios/login, productos, mesas, pedidos internos/públicos, cocina, reservas, compras, caja, cierres, reportes, dashboard, empleados, asistencias, inasistencias, pagos del personal, mensajes entre gerente y superadministrador, recuperación de contraseña y sales.
+
+El identificador público de un empleado corresponde al ID del usuario. Su ID de legajo SQL se utiliza internamente al relacionar jornadas y pagos. No se expone password_hash en las respuestas. Los usuarios con historial relacionado se desactivan: las claves foráneas bloquean una eliminación que destruiría referencias.
+
+Sales conserva la API heredada y sus tablas ventas/detalle_venta. No se suma a reportes de caja: no hay una acreditación de pago equivalente a pagos_pedido. El POS y el menú público siguen el circuito pedidos → entrega → cobro. No mezclar ambos circuitos ni registrar dos veces una venta.
+
+## Historiales pendientes
+
+Ver scripts/mysql/IMPORTAR_HISTORIALES.md. Los tokens antiguos de recuperación no se migran; solicitar un enlace nuevo. El código SQL no importa automáticamente las colecciones del servidor MongoDB.
+
+## Verificación
+
+```powershell
+npm run db:mysql:audit
+npm run db:mysql:check
+npm run test:mysql
 ```
 
-## ⚙️ Configuración de Variables de Entorno
-
-Crea un archivo `.env` en la raíz del proyecto basándote en `.env.example`:
-
-```bash
-# Copia el archivo de ejemplo y edítalo con tus valores
-cp .env.example .env
-```
-
-Luego edita el archivo `.env` con tus valores reales:
-
-```env
-# Base de datos MongoDB
-MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/CRUD-COM12?retryWrites=true&w=majority
-
-# Configuración de Email (Nodemailer con Gmail)
-EMAIL_USER=tu.email@gmail.com
-EMAIL_PASS=xxxx xxxx xxxx xxxx
-EMAIL_FROM=tu.email@gmail.com
-
-# URL del Frontend (para enlaces en emails)
-FRONTEND_URL=http://localhost:5173
-
-# Puerto del servidor (opcional)
-PORT=3000
-
-# Clave secreta para JWT (opcional)
-JWT_SECRET=tu_clave_secreta_aqui
-```
-
-> 💡 **Tip**: Usa `.env.example` como plantilla. Nunca subas tu archivo `.env` al repositorio.
-
-## 📧 Configuración de Gmail para Nodemailer
-
-Para poder enviar correos electrónicos de recuperación de contraseña, necesitas configurar una **Contraseña de Aplicación** en tu cuenta de Gmail:
-
-### Paso 1: Habilitar verificación en dos pasos
-
-1. Ve a tu [Cuenta de Google](https://myaccount.google.com/)
-2. Selecciona **Seguridad** en el menú lateral
-3. En "Cómo inicias sesión en Google", selecciona **Verificación en dos pasos**
-4. Sigue las instrucciones para habilitar la verificación en dos pasos
-
-### Paso 2: Crear una Contraseña de Aplicación
-
-1. Una vez habilitada la verificación en dos pasos, regresa a **Seguridad**
-2. En "Cómo inicias sesión en Google", selecciona **Contraseñas de aplicaciones**
-3. Es posible que tengas que iniciar sesión nuevamente
-4. En la parte inferior, selecciona **Aplicación** y elige "Correo"
-5. Selecciona **Dispositivo** y elige "Otro (nombre personalizado)"
-6. Escribe un nombre descriptivo (ejemplo: "Backend CRUD API")
-7. Haz clic en **Generar**
-8. Gmail te mostrará una contraseña de 16 caracteres
-9. **Copia esta contraseña** (no podrás verla de nuevo)
-
-### Paso 3: Configurar en el archivo .env
-
-Usa la contraseña generada en tu archivo `.env`:
-
-```env
-EMAIL_USER=tu.email@gmail.com
-EMAIL_PASS=xxxx xxxx xxxx xxxx  # La contraseña de 16 caracteres generada
-EMAIL_FROM=tu.email@gmail.com
-```
-
-> ⚠️ **Importante**: 
-> - NO uses tu contraseña normal de Gmail
-> - La contraseña de aplicación tiene 16 caracteres (puede tener espacios)
-> - Mantén este archivo `.env` privado (ya está en `.gitignore`)
-
-### Solución de problemas comunes
-
-**Error: "Invalid login"**
-- Verifica que la verificación en dos pasos esté habilitada
-- Asegúrate de usar la contraseña de aplicación, no tu contraseña normal
-- Verifica que el email en `EMAIL_USER` sea correcto
-
-**Error: "Username and Password not accepted"**
-- Crea una nueva contraseña de aplicación
-- Verifica que no haya espacios extra al copiar la contraseña
-
-**Los correos no llegan**
-- Revisa la carpeta de spam
-- Verifica que `EMAIL_FROM` use el mismo email que `EMAIL_USER`
-- Verifica la configuración del servicio de nodemailer
-
-## 📁 Estructura del proyecto
-
-```
-Backend-Crud-com12/
-├── src/
-│   ├── auth/                    # Autenticación y autorización
-│   │   ├── token-sign.js
-│   │   ├── token-verify.js
-│   │   └── verificar-rol.js
-│   ├── config/                  # Configuraciones
-│   │   └── nodemailer.config.js
-│   ├── controllers/             # Controladores
-│   │   ├── products.controllers.js
-│   │   ├── users.controllers.js
-│   │   ├── sales.controllers.js
-│   │   └── auth.controllers.js
-│   ├── database/                # Conexión a BD
-│   │   └── dbConnection.js
-│   ├── helpers/                 # Funciones auxiliares
-│   │   ├── validarProducto.js
-│   │   ├── validarUsuario.js
-│   │   └── resultadoValidacion.js
-│   ├── models/                  # Modelos de Mongoose
-│   │   ├── productsSchema.js
-│   │   ├── usersSchema.js
-│   │   ├── salesSchema.js
-│   │   └── passwordResetSchema.js
-│   └── routes/                  # Rutas de la API
-│       ├── products.routes.js
-│       ├── users.routes.js
-│       ├── sales.routes.js
-│       └── auth.routes.js
-├── public/                      # Archivos estáticos
-├── .env                         # Variables de entorno (no subir a git)
-├── .gitignore
-├── index.js                     # Punto de entrada
-├── package.json
-└── README.md
-```
-
-## 🔐 API Endpoints
-
-### Autenticación
-
-```
-POST   /api/auth/login              # Login de usuario
-POST   /api/auth/register           # Registro de usuario
-POST   /api/auth/forgot-password    # Solicitar recuperación de contraseña
-POST   /api/auth/reset-password     # Resetear contraseña con token
-```
-
-### Usuarios
-
-```
-GET    /api/users                   # Obtener todos los usuarios (admin)
-GET    /api/users/:id               # Obtener usuario por ID
-POST   /api/users                   # Crear usuario (admin)
-PUT    /api/users/:id               # Actualizar usuario
-DELETE /api/users/:id               # Eliminar usuario (admin)
-```
-
-### Productos
-
-```
-GET    /api/products                # Obtener todos los productos
-GET    /api/products/:id            # Obtener producto por ID
-POST   /api/products                # Crear producto (admin)
-PUT    /api/products/:id            # Actualizar producto (admin)
-DELETE /api/products/:id            # Eliminar producto (admin)
-```
-
-### Ventas
-
-```
-GET    /api/sales                   # Obtener todas las ventas (admin)
-GET    /api/sales/:id               # Obtener venta por ID
-POST   /api/sales                   # Crear venta
-```
-
-## 🔒 Roles y Permisos
-
-- **user**: Usuario regular (puede ver productos, hacer compras)
-- **admin**: Administrador (puede gestionar productos y usuarios)
-- **superadmin**: Super administrador (acceso total)
-
-## 🛠️ Scripts disponibles
-
-```bash
-npm start          # Iniciar servidor en producción
-npm run dev        # Iniciar servidor en desarrollo (con nodemon)
-```
-
-## 📝 Notas de desarrollo
-
-- Todas las contraseñas se encriptan con bcrypt antes de guardarse
-- Los tokens JWT tienen una expiración de 24 horas
-- Los tokens de recuperación de contraseña expiran en 1 hora
-- El stock de productos se actualiza automáticamente al crear una venta
-- El servidor exige `MONGODB_URI`; si falta, no usa localhost por defecto
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## � Verificar Conexiones
-
-### Verificar conexión a MongoDB
-
-Ejecuta el siguiente comando para comprobar que MongoDB está conectado:
-
-```bash
-node scripts/checkDb.js
-```
-
-Deberías ver algo como:
-```
-✅ Conectado a MongoDB. Base de datos: CRUD-COM12
-Estado (readyState): 1 (1 = conectado)
-```
-
-### Solución de problemas comunes
-
-#### Error: "Missing credentials for PLAIN"
-
-Si ves este error de Nodemailer, significa que las variables de entorno `EMAIL_USER`, `EMAIL_PASS` o `EMAIL_FROM` no están configuradas:
-
-1. Verifica que tienes un archivo `.env` en la carpeta `backend`
-2. Asegúrate de que las variables estén definidas correctamente
-3. Reinicia el servidor después de crear/editar el `.env`
-
-El sistema ahora incluye validación automática y usará un transportador de desarrollo (sin enviar correos reales) si faltan las credenciales, evitando que la aplicación falle.
-
-#### MongoDB no conecta
-
-Si MongoDB no se conecta:
-
-1. Verifica que MongoDB esté corriendo: `mongod --version`
-2. Comprueba la URI en `.env`: `MONGODB_URI`
-3. Para MongoDB local usa: `mongodb://localhost:27017/CRUD-COM12`
-4. Para MongoDB Atlas usa la URI completa con credenciales
-
-## �📄 Licencia
-
-Este proyecto es parte del curso de la UTN - Tecnicatura Universitaria en Programación.
-
-## 👥 Autores
-
-- Comisión 12 - UTN TUP
-
-## 📞 Contacto
-
-Para preguntas o soporte, contacta al equipo de desarrollo.
+Sin MYSQL_TESTS=1, las pruebas de integración SQL se omiten. Para desarrolladores: MYSQL_TESTS=1 habilita esas pruebas; los tests anteriores usan una base de desarrollo con los datos iniciales y no deben ejecutarse sobre datos reales. modulosFinales.test.js crea y elimina una base aislada final_prueba_* y necesita permisos CREATE/DROP DATABASE.
