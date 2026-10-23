@@ -47,7 +47,12 @@ if (process.env.EMAIL_SMTP_VERIFY === 'true') {
 
 // Función para enviar email de recuperación de contraseña
 export const sendPasswordResetEmail = async (email, token, username) => {
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  if (!EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) throw new Error('SMTP no configurado');
+  const destino = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const enlace = new URL('/reset-password', destino);
+  enlace.searchParams.set('token', token);
+  const resetUrl = enlace.toString().replaceAll('&','&amp;');
+  username = String(username || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   
   const mailOptions = {
     from: `"La Vieja Estación Resto-Bar" <${process.env.EMAIL_FROM}>`,
@@ -168,6 +173,7 @@ export const sendPasswordResetEmail = async (email, token, username) => {
 
 // Función para enviar email de confirmación de cambio de contraseña
 export const sendPasswordChangedEmail = async (email, username) => {
+  username = String(username || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const mailOptions = {
     from: `"La Vieja Estación Resto-Bar" <${process.env.EMAIL_FROM}>`,
     to: email,

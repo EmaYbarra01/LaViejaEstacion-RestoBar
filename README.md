@@ -1,3 +1,5 @@
+> Migración final a MySQL: todas las rutas del servidor usan SQL. Para actualizar sin recargar datos, ver [backend/README.md](backend/README.md). Los historiales antiguos de Mongo requieren exportación y conciliación antes de retirar definitivamente esa base.
+
 # 🍽️ Sistema de Gestión Integral - La Vieja Estación RestoBar
 
 <div align="center">
@@ -9,7 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-22+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19.3-blue.svg)](https://react.dev/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-8.0-green.svg)](https://www.mongodb.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 
 </div>
 
@@ -108,8 +110,8 @@ Sistema web integral que permite:
 ### Backend
 - **Node.js** v22+ - Entorno de ejecución
 - **Express.js** v5 - Framework web
-- **MongoDB** v8 - Base de datos NoSQL
-- **Mongoose** v8 - ODM para MongoDB
+- **MySQL** v8 - Base de datos relacional
+- **mysql2** - Acceso SQL parametrizado
 - **JWT** - Autenticación y autorización
 - **bcryptjs** - Encriptación de contraseñas
 - **Nodemailer** - Envío de emails
@@ -141,7 +143,7 @@ Sistema web integral que permite:
 ### Software Necesario
 - **Node.js** v22 o superior
 - **npm** v10 o superior
-- **MongoDB** v8 o superior (local o Atlas)
+- **MySQL** v8.0.16 o superior
 - **Docker** (opcional, para contenedores)
 - **Git** (para clonar el repositorio)
 
@@ -183,8 +185,12 @@ npm install
 Crear archivo `.env` en la carpeta `backend`:
 
 ```env
-# Base de datos MongoDB
-MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/laviejaestacion?retryWrites=true&w=majority
+# Base de datos MySQL
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=tu_clave
+MYSQL_DATABASE=la_vieja_estacion
 
 # Puerto del servidor
 PORT=4000
@@ -220,7 +226,7 @@ cd backend
 npm run init-db
 ```
 
-Si usas MongoDB Atlas, confirmá que `MONGODB_URI` tenga la URI correcta antes de iniciar el backend. El proyecto ya no cae automáticamente a una base local cuando falta esa variable.
+El servidor utiliza MySQL. Conservá tu .env y ejecutá `npm run db:mysql:migrate:final` al aplicar esta actualización. No se requiere MONGODB_URI.
 
 ### 6. Poblar con Datos de Ejemplo (Opcional)
 
@@ -296,7 +302,7 @@ docker-compose up -d
 └─────────────────────────────────────────────────────────┘
                             ↕ Mongoose ODM
 ┌─────────────────────────────────────────────────────────┐
-│                   BASE DE DATOS (MongoDB)                │
+│                   BASE DE DATOS (MySQL)                │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │  Usuarios │ Productos │ Pedidos │ Ventas │ ...  │   │
 │  └──────────────────────────────────────────────────┘   │
