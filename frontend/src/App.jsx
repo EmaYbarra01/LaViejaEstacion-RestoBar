@@ -1,8 +1,9 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import EntrarPage from "./pages/EntrarPage";
 import MenuPage from "./pages/MenuPage";
 import MenuDigital from "./pages/MenuDigital";
 import ServiciosPage from "./pages/ServiciosPage";
@@ -32,6 +33,7 @@ import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
 
 function App() {
+  const location = useLocation();
   const [isNightMode, setIsNightMode] = useState(() => (
     localStorage.getItem("app-theme") === "night"
   ));
@@ -52,13 +54,24 @@ function App() {
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
-      <Header
-        isNightMode={isNightMode}
-        onToggleNightMode={() => setIsNightMode((current) => !current)}
-      />
-      <div className="main-content">
+      {location.pathname !== "/" && (
+        <Header
+          isNightMode={isNightMode}
+          onToggleNightMode={() => setIsNightMode((current) => !current)}
+        />
+      )}
+      <div className={location.pathname === "/" ? "" : "main-content"}>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/"
+            element={(
+              <HomePage
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              />
+            )}
+          />
+          <Route path="/entrar" element={<EntrarPage />} />
           <Route path="/menu" element={<MenuPage />} />
           {/* HU1: Menú digital público accesible por QR - Sin autenticación */}
           <Route path="/menu-digital" element={<MenuDigital />} />
@@ -118,7 +131,7 @@ function App() {
 
         </Routes>
       </div>
-      <Footer />
+      {location.pathname !== "/" && <Footer />}
     </>
   );
 }

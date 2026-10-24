@@ -1,0 +1,20 @@
+.enter-page {
+  min-height: calc(100vh - 140px);
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+  text-align: center;
+}
+
+.enter-page h1,
+.enter-page p {
+  margin: 0;
+}
+
+.enter-page a {
+  color: var(--app-accent);
+  font-weight: 700;
+}
