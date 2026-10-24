@@ -1,221 +1,245 @@
-/* HomePage.css */
 .home-container {
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
   overflow: hidden;
-  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
-  padding-top: 80px; /* Espacio para el header fijo */
+  color: #f3e7cd;
+  background: #17130f;
+  font-family: Montserrat, "Segoe UI", sans-serif;
+}
+
+.home-background,
+.home-overlay {
+  position: absolute;
+  inset: 0;
 }
 
 .home-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: brightness(0.4);
-  z-index: 1;
+  z-index: 0 !important;
+  background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center / cover no-repeat !important;
+  filter: brightness(0.72) !important;
 }
 
 .home-overlay {
+  z-index: 1 !important;
+  background: linear-gradient(180deg, rgba(9, 7, 5, 0.34), rgba(9, 7, 5, 0.52) 48%, rgba(9, 7, 5, 0.72)) !important;
+}
+
+.home-content,
+.home-enter-button,
+.home-datetime,
+.home-actions,
+.home-copyright {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    rgba(0, 0, 0, 0.8) 100%
-  );
   z-index: 2;
 }
 
+.home-enter-button {
+  top: 20px;
+  left: 0;
+  width: 168px;
+  height: 76px;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0 8px 8px 0 !important;
+  background: rgba(25, 21, 17, 0.62) !important;
+  color: #f3e7cd !important;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  backdrop-filter: blur(8px);
+}
+
+.home-container .home-enter-button:hover,
+.home-container .home-enter-button:focus,
+.home-container .home-enter-button:focus-visible {
+  border: 0 !important;
+  background: rgba(25, 21, 17, 0.62) !important;
+  color: #f3e7cd !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.home-datetime {
+  top: 20px;
+  right: 14px;
+  min-width: 182px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 8px 0 0 8px;
+  background: rgba(25, 21, 17, 0.62);
+  color: #f3e7cd;
+  text-align: right;
+  backdrop-filter: blur(8px);
+}
+
+.home-datetime div {
+  font-size: 0.8rem;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.home-datetime strong {
+  display: block;
+  margin-top: 5px;
+  color: #c9a96a;
+  font: 600 1.7rem "Courier New", monospace;
+}
+
 .home-content {
-  position: relative;
-  z-index: 3;
+  top: 3vh;
+  right: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 20px;
+  padding: 0 1.5rem;
   text-align: center;
 }
 
-.home-subtitle {
-  font-family: 'Brush Script MT', cursive;
-  font-size: 3rem;
-  color: var(--app-accent);
-  margin-bottom: 1rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  font-weight: 400;
-  letter-spacing: 2px;
-  animation: fadeInDown 1s ease-out;
+.home-logo {
+  width: min(340px, 48vw);
+  height: 300px;
+  object-fit: contain;
+  object-position: center;
+  filter: brightness(0) invert(1) sepia(0.25) saturate(0.8) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
 }
 
 .home-title {
-  font-size: 5.5rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 2rem;
+  margin: 8px 0 12px;
+  color: #fff;
+  font: 600 clamp(2.5rem, 5.5vw, 4.75rem) "Cormorant Garamond", Georgia, serif;
+  letter-spacing: 7px;
+  line-height: 1.05;
   text-transform: uppercase;
-  letter-spacing: 8px;
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
-  animation: fadeInUp 1s ease-out;
-  line-height: 1.2;
-}
-
-.home-divider {
-  width: 200px;
-  height: 2px;
-  background: linear-gradient(to right, transparent, var(--app-accent), transparent);
-  margin: 1.5rem auto;
-  animation: fadeIn 1.5s ease-out;
+  text-shadow: 0 2px 8px #000;
 }
 
 .home-tagline {
-  font-size: 1.2rem;
-  color: #e0e0e0;
-  margin-bottom: 3rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  font-weight: 300;
-  animation: fadeIn 1.8s ease-out;
+  max-width: 520px;
+  margin: 0 22px 42px;
+  color: #f3e7cd;
+  font: italic 500 clamp(1.15rem, 2.1vw, 1.6rem) / 1.25 "Cormorant Garamond", Georgia, serif;
+  text-shadow: 0 2px 5px #000;
 }
 
-.home-cta-button {
-  padding: 18px 60px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #000;
-  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
-  border: none;
-  border-radius: 50px;
+.home-container .home-cta-button {
+  padding: 18px 52px;
+  border: 0 !important;
+  background: rgba(126, 55, 53, 0.8) !important;
+  color: #f3e7cd !important;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  transition: all 0.4s ease;
-  box-shadow: 0 8px 25px rgba(88, 122, 60, 0.4);
-  animation: fadeInUp 2s ease-out;
-  position: relative;
-  overflow: hidden;
 }
 
-.home-cta-button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
+.home-container .home-cta-button:hover,
+.home-container .home-cta-button:focus-visible {
+  border: 0 !important;
+  background: rgba(126, 55, 53, 0.8) !important;
+  color: #f3e7cd !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.home-actions {
+  right: 18px;
+  bottom: 27px;
+  display: grid;
+  gap: 12px;
+}
+
+.home-container .home-round-button {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 0 !important;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  background: rgba(126, 55, 53, 0.8) !important;
+  color: #f3e7cd !important;
+  cursor: pointer;
+  font-size: 1.8rem;
+  backdrop-filter: blur(8px);
 }
 
-.home-cta-button:hover::before {
-  width: 300px;
-  height: 300px;
+.home-container .home-round-button:hover,
+.home-container .home-round-button:focus-visible {
+  border: 0 !important;
+  background: rgba(126, 55, 53, 0.8) !important;
+  color: #f3e7cd !important;
+  box-shadow: none !important;
+  outline: none;
 }
 
-.home-cta-button:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 12px 35px rgba(88, 122, 60, 0.6);
-  background: linear-gradient(135deg, var(--app-accent-dark) 0%, var(--app-accent-dark) 100%);
+.home-accessibility-button svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
 }
 
-.home-cta-button:active {
-  transform: translateY(-1px) scale(1.02);
+.home-copyright {
+  right: 0;
+  bottom: 13px;
+  left: 0;
+  color: rgba(243, 231, 205, 0.82);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-align: center;
 }
 
-/* Animaciones */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
-  .home-container {
-    padding-top: 60px; /* Ajuste para header móvil */
+@media (max-width: 600px) {
+  .home-content {
+    top: 10vh;
   }
 
-  .home-subtitle {
-    font-size: 2rem;
+  .home-enter-button {
+    top: 12px;
+    width: 132px;
+    height: 64px;
+    font-size: 0.8rem;
+  }
+
+  .home-datetime {
+    top: 12px;
+    right: 10px;
+    min-width: 150px;
+    padding: 10px 12px;
+  }
+
+  .home-datetime strong {
+    font-size: 1.3rem;
+  }
+
+  .home-logo {
+    width: min(275px, 70vw);
+    height: 245px;
   }
 
   .home-title {
-    font-size: 3.5rem;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
   }
 
   .home-tagline {
-    font-size: 1rem;
-    letter-spacing: 2px;
+    max-width: 330px;
+    margin-bottom: 34px;
   }
 
-  .home-cta-button {
-    padding: 15px 40px;
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .home-subtitle {
-    font-size: 1.5rem;
+  .home-actions {
+    right: 12px;
+    bottom: 28px;
   }
 
-  .home-title {
-    font-size: 2.5rem;
-    letter-spacing: 2px;
-  }
-
-  .home-tagline {
-    font-size: 0.9rem;
-    margin-bottom: 2rem;
-  }
-
-  .home-cta-button {
-    padding: 12px 35px;
-    font-size: 1rem;
-  }
-
-  .home-divider {
-    width: 150px;
+  .home-round-button {
+    width: 50px;
+    height: 50px;
   }
 }
-
