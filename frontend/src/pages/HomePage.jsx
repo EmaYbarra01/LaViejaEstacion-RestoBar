@@ -1,107 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { FaMoon, FaSun } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import './HomePage.css';
 
-const HomePage = () => {
+function AccessibilityIcon() {
+    return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="4.5" r="2" />
+            <path d="M5.5 8.5h13M12 7v6.5M12 10.5 7.5 18M12 10.5 16.5 18M8.5 13.5 5 11M15.5 13.5 19 11" />
+        </svg>
+    );
+}
+
+const HomePage = ({ isNightMode, onToggleNightMode }) => {
     const navigate = useNavigate();
+    const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
-    const handleMenuClick = () => {
-        navigate('/menu');
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentDateTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatDate = (date) => {
+        const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
     };
 
-    // Variantes de animación
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.2,
-                delayChildren: 0.3
-            }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { y: 50, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: {
-                type: "spring",
-                stiffness: 100,
-                damping: 12
-            }
-        }
-    };
-
-    const buttonVariants = {
-        hidden: { scale: 0, opacity: 0 },
-        visible: {
-            scale: 1,
-            opacity: 1,
-            transition: {
-                type: "spring",
-                stiffness: 200,
-                damping: 15,
-                delay: 0.8
-            }
-        },
-        hover: {
-            scale: 1.1,
-            boxShadow: "0 0 25px rgba(255, 193, 7, 0.8)",
-            transition: {
-                type: "spring",
-                stiffness: 300
-            }
-        },
-        tap: {
-            scale: 0.95
-        }
-    };
+    const formatTime = (date) => date.toLocaleTimeString('es-AR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
 
     return (
         <div className="home-container">
-            <div className="home-background"></div>
-            <div className="home-overlay"></div>
-            <motion.div 
-                className="home-content"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
+            <div className="home-background" />
+            <div className="home-overlay" />
+
+            <button
+                type="button"
+                className="home-enter-button"
+                onClick={() => navigate('/entrar')}
             >
-                <motion.h2 
-                    className="home-subtitle"
-                    variants={itemVariants}
+                ENTRAR
+            </button>
+
+            <div className="home-datetime" aria-label={`Fecha ${formatDate(currentDateTime)}, hora ${formatTime(currentDateTime)}`}>
+                <div>{formatDate(currentDateTime)}</div>
+                <strong>{formatTime(currentDateTime)}</strong>
+            </div>
+
+            <main
+                className="home-content"
+            >
+                <img className="home-logo" src="/logo.svg" alt="La Vieja Estación" />
+                <h1 className="home-title">La Vieja Estación</h1>
+                <p className="home-tagline">
+                    “Porque alrededor de una buena mesa siempre hay algo para celebrar,
+                    una historia para contar y un motivo para quedarse un rato más”
+                </p>
+                <button type="button" className="home-cta-button" onClick={() => navigate('/menu')}>
+                    Ver menú
+                </button>
+            </main>
+
+            <div className="home-actions">
+                <button
+                    type="button"
+                    className="home-round-button"
+                    onClick={onToggleNightMode}
+                    aria-label={isNightMode ? 'Activar modo diurno' : 'Activar modo nocturno'}
+                    title={isNightMode ? 'Modo diurno' : 'Modo nocturno'}
                 >
-                    Resto-Bar
-                </motion.h2>
-                <motion.h1 
-                    className="home-title"
-                    variants={itemVariants}
-                >
-                    LA VIEJA ESTACIÓN
-                </motion.h1>
-                <motion.div 
-                    className="home-divider"
-                    variants={itemVariants}
-                ></motion.div>
-                <motion.p 
-                    className="home-tagline"
-                    variants={itemVariants}
-                >
-                    "Sabores que cuentan historias"
-                </motion.p>
-                <motion.button 
-                    className="home-cta-button" 
-                    onClick={handleMenuClick}
-                    variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                >
-                    Ver Menú
-                </motion.button>
-            </motion.div>
+                    {isNightMode ? <FaSun /> : <FaMoon />}
+                </button>
+                <button type="button" className="home-round-button home-accessibility-button" aria-label="Accesibilidad">
+                    <AccessibilityIcon />
+                </button>
+            </div>
+
+            <div className="home-copyright">
+                © 2026 La Vieja Estación. Todos los derechos reservados.
+            </div>
         </div>
     );
 };

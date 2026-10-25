@@ -1,8 +1,9 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import EntrarPage from "./pages/EntrarPage";
 import MenuPage from "./pages/MenuPage";
 import MenuDigital from "./pages/MenuDigital";
 import ServiciosPage from "./pages/ServiciosPage";
@@ -30,12 +31,16 @@ import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
 import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
-import EmployeePanelLayout from "./components/EmployeePanelLayout"; // <--- ¡Añadido aquí!
+import EmployeePanelLayout from "./components/EmployeePanelLayout";
+
+const employeePaths = ['/admin', '/mozo', '/supervision-pedidos', '/encargado-cocina', '/caja'];
 
 function App() {
+  const location = useLocation();
   const [isNightMode, setIsNightMode] = useState(() => (
     localStorage.getItem("app-theme") === "night"
   ));
+  const isEmployeePath = employeePaths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
 
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
@@ -49,13 +54,32 @@ function App() {
 
   return (
     <>
-      <Header
-        isNightMode={isNightMode}
-        onToggleNightMode={() => setIsNightMode((current) => !current)}
-      />
-      <div className="main-content">
+      {location.pathname !== "/" && location.pathname !== "/entrar" && !isEmployeePath && (
+        <Header
+          isNightMode={isNightMode}
+          onToggleNightMode={() => setIsNightMode((current) => !current)}
+        />
+      )}
+      <div className={location.pathname === "/" ? "" : "main-content"}>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/"
+            element={(
+              <HomePage
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              />
+            )}
+          />
+          <Route
+            path="/entrar"
+            element={(
+              <EntrarPage
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              />
+            )}
+          />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/menu-digital" element={<MenuDigital />} />
           <Route path="/servicios" element={<ServiciosPage />} />
@@ -64,7 +88,9 @@ function App() {
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/mozo" element={
             <ProtectedRoute role={["Mozo", "Gerente", "SuperAdministrador"]}>
-              <Mozo />
+              <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="Mozo">
+                <Mozo />
+              </EmployeePanelLayout>
             </ProtectedRoute>
           } />
           <Route path="/supervision-pedidos" element={
@@ -80,12 +106,16 @@ function App() {
           } />
           <Route path="/encargado-cocina" element={
             <ProtectedRoute role={["EncargadoCocina", "Gerente", "SuperAdministrador"]}>
-              <CocinaView />
+              <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="EncargadoCocina">
+                <CocinaView />
+              </EmployeePanelLayout>
             </ProtectedRoute>
           } />
           <Route path="/caja" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
-              <Caja />
+              <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="Cajero">
+                <Caja />
+              </EmployeePanelLayout>
             </ProtectedRoute>
           } />
           <Route path="/caja/historial-cierres" element={
@@ -104,7 +134,10 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
             <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
-                <AdminPage />
+                <AdminPage
+                  isNightMode={isNightMode}
+                  onToggleNightMode={() => setIsNightMode((current) => !current)}
+                />
             </ProtectedRoute>
           }>        
             <Route path="dashboard" element={<SuperadminDashboard />} />
@@ -125,7 +158,7 @@ function App() {
           <Route path="/mis-reservas" element={<MisReservas />} />
         </Routes>
       </div>
-      <Footer />
+      {location.pathname !== "/" && location.pathname !== "/entrar" && !isEmployeePath && <Footer />}
     </>
   );
 }

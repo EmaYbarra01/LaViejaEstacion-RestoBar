@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { FaBox, FaCalendarAlt, FaCashRegister, FaChartLine, FaClipboardList, FaFire, FaMoon, FaSun, FaUsers } from 'react-icons/fa';
+import { FaBox, FaCalendarAlt, FaCashRegister, FaChartLine, FaClipboardList, FaComments, FaFire, FaMoon, FaSun, FaUsers } from 'react-icons/fa';
 import useUserStore from '../store/useUserStore';
 import './EmployeePanelLayout.css';
 
@@ -16,12 +17,12 @@ const links = {
   admin: [
     ['/admin/dashboard', 'Dashboard', FaChartLine],
     ['/admin/products', 'Productos', FaBox],
-    ['/admin/sales', 'Ventas'],
+    ['/admin/sales', 'Ventas', FaChartLine],
     ['/admin/reservas', 'Reservas', FaClipboardList],
     ['/admin/calendario', 'Calendario', FaCalendarAlt],
     ['/admin/empleados', 'Empleados', FaUsers],
     ['/supervision-pedidos', 'Supervisión de pedidos', FaClipboardList],
-    ['/encargado-cocina', 'Supervisión de cocina'],
+    ['/encargado-cocina', 'Cocina', FaFire],
     ['/caja', 'Caja', FaCashRegister]
   ],
   Mozo: [
@@ -106,16 +107,23 @@ function EmployeePanelLayout({
           <span>{role}</span>
         </div>
         <nav aria-label="Opciones del panel" className="employee-nav">
-          {panelLinks.map(([path, label]) => (
+          {panelLinks.map(([path, label, IconComponent], index) => (
             <NavLink
               key={`${path}-${label}`}
               to={path}
               end={path !== '/mozo' && path !== '/encargado-cocina'}
-              className={({ isActive }) => `employee-nav-link${isActive ? ' active' : ''}`}
+              className={({ isActive }) => `employee-nav-link${isActive && (index === 0 || path !== '/mozo') ? ' active' : ''}`}
             >
+              {IconComponent && React.createElement(IconComponent, { 'aria-hidden': true })}
               <span>{label}</span>
             </NavLink>
           ))}
+          {isManagement && (
+            <NavLink to="/mensajeria" className="employee-nav-link">
+              <FaComments aria-hidden="true" />
+              <span>Mensajería</span>
+            </NavLink>
+          )}
         </nav>
       </aside>
       <section className="employee-main">
