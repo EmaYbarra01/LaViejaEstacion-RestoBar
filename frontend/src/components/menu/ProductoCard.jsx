@@ -46,7 +46,7 @@ const ProductoCard = ({ producto, onSelect }) => {
 
   return (
     <div 
-      className={`producto-card ${showImage ? 'with-image' : 'no-image'}`}
+      className={`producto-card ${showImage ? 'with-image' : 'no-image'}${disponible ? '' : ' producto-card-no-disponible'}`}
       onClick={() => onSelect && onSelect(producto)}
     >
       {/* Imagen del producto */}
@@ -89,7 +89,7 @@ const ProductoCard = ({ producto, onSelect }) => {
       <div className="producto-details">
         <div className="producto-badge">
           {agotado ? (
-            <span className="badge-agotado">Agotado</span>
+            <span className="badge-agotado">Sin stock</span>
           ) : disponible ? (
             <span className={`badge-disponible ${stockBajo ? 'badge-stock-bajo' : ''}`}>
               Disponible
@@ -108,7 +108,7 @@ const ProductoCard = ({ producto, onSelect }) => {
           }}
           disabled={!disponible}
         >
-          <span>{disponible ? 'Agregar al pedido' : 'No disponible'}</span>
+          <span>{disponible ? 'Agregar al pedido' : 'No disponible para pedidos'}</span>
         </button>
       </div>
     </div>

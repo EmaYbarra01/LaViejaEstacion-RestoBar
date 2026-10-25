@@ -55,6 +55,7 @@ const MenuDigital = () => {
   const [pedido, setPedido] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1);
+  const [errorSeleccion, setErrorSeleccion] = useState('');
   const [indicaciones, setIndicaciones] = useState('');
   const [pedidoAbierto, setPedidoAbierto] = useState(false);
   const [checkoutAbierto, setCheckoutAbierto] = useState(false);
@@ -135,11 +136,23 @@ const MenuDigital = () => {
 
     setProductoSeleccionado(producto);
     setCantidad(1);
+    setErrorSeleccion('');
     setIndicaciones('');
   };
 
   const handleAddToOrder = (event) => {
     event.preventDefault();
+
+    const stockDisponible = Number(productoSeleccionado?.stock || 0);
+    if (
+      !productoSeleccionado
+      || productoSeleccionado.disponible === false
+      || stockDisponible <= 0
+      || cantidad > stockDisponible
+    ) {
+      setErrorSeleccion('Este producto ya no está disponible en la cantidad solicitada.');
+      return;
+    }
 
     const productoId = productoSeleccionado.id || productoSeleccionado._id;
     setPedido((pedidoActual) => [
@@ -427,7 +440,10 @@ const MenuDigital = () => {
             <button
               type="button"
               className="modal-close-button"
-              onClick={() => setProductoSeleccionado(null)}
+              onClick={() => {
+                setProductoSeleccionado(null);
+                setErrorSeleccion('');
+              }}
               aria-label="Cerrar selección"
             >
               <FaTimes />
@@ -444,10 +460,16 @@ const MenuDigital = () => {
                 <FaMinus />
               </button>
               <output id="quantity">{cantidad}</output>
-              <button type="button" onClick={() => setCantidad((value) => value + 1)} aria-label="Aumentar cantidad">
+              <button
+                type="button"
+                disabled={cantidad >= Number(productoSeleccionado.stock || 0)}
+                onClick={() => setCantidad((value) => Math.min(Number(productoSeleccionado.stock || 0), value + 1))}
+                aria-label="Aumentar cantidad"
+              >
                 <FaPlus />
               </button>
             </div>
+            {errorSeleccion && <p className="order-stock-error" role="alert">{errorSeleccion}</p>}
 
             <label htmlFor="indicaciones">¿Cómo lo querés?</label>
             <textarea
@@ -458,8 +480,14 @@ const MenuDigital = () => {
               maxLength={250}
               rows={4}
             />
-            <button type="submit" className="add-order-button">
-              Agregar al pedido
+            <button
+              type="submit"
+              className="add-order-button"
+              disabled={productoSeleccionado.disponible === false || Number(productoSeleccionado.stock || 0) <= 0}
+            >
+              {productoSeleccionado.disponible === false || Number(productoSeleccionado.stock || 0) <= 0
+                ? 'No disponible para pedidos'
+                : 'Agregar al pedido'}
             </button>
           </form>
         </div>

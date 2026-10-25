@@ -14,6 +14,6 @@ export function ventasLegacyService(pool){return {
  const productos=[];for(const [id,q] of [...cantidades].sort((a,b)=>a[0]-b[0])){const [[p]]=await c.execute('SELECT * FROM productos WHERE id=? FOR UPDATE',[id]);check(p&&p.disponible,'Producto no disponible',404);check(Number(p.stock)>=q,`Stock insuficiente para ${p.nombre}`,409);productos.push({...p,q});}
  const [v]=await c.execute('INSERT INTO ventas(usuario_id,total) VALUES(?,0)',[u.id]);
  for(const p of productos){await c.execute('INSERT INTO detalle_venta(venta_id,producto_id,nombre_historico,cantidad,precio_unitario) VALUES(?,?,?,?,?)',[v.insertId,p.id,p.nombre,p.q,p.precio]);
- await c.execute('UPDATE productos SET stock=stock-? WHERE id=?',[p.q,p.id]);await c.execute('INSERT INTO movimientos_stock(producto_id,cantidad,motivo,registrado_por_id) VALUES(?,?,?,?)',[p.id,-p.q,`Venta heredada ${v.insertId}`,u.id]);}
+ await c.execute('UPDATE productos SET disponible=(stock-? > 0),stock=stock-? WHERE id=?',[p.q,p.q,p.id]);await c.execute('INSERT INTO movimientos_stock(producto_id,cantidad,motivo,registrado_por_id) VALUES(?,?,?,?)',[p.id,-p.q,`Venta heredada ${v.insertId}`,u.id]);}
  await c.execute('UPDATE ventas SET total=(SELECT SUM(ROUND(cantidad*precio_unitario,2)) FROM detalle_venta WHERE venta_id=?) WHERE id=?',[v.insertId,v.insertId]);return (await leer(c,'WHERE v.id=?',[v.insertId]))[0];});}
 };}

@@ -125,7 +125,8 @@ async function preparar(body, c, anterior) {
     stock: decimal(body.stock ?? anterior?.stock ?? 0, 'Stock', 3, 9),
     stockMinimo: decimal(body.stockMinimo ?? anterior?.stock_minimo ?? 0, 'Stock mínimo', 3, 9),
     unidad: body.unidadMedida ?? anterior?.unidad_medida ?? 'Unidad',
-    disponible: booleano(body.disponible ?? Boolean(anterior?.disponible ?? true), 'Disponible'),
+    disponible: Number(body.stock ?? anterior?.stock ?? 0) > 0
+      && booleano(body.disponible ?? Boolean(anterior?.disponible ?? true), 'Disponible'),
     imagen: texto(body.imagenUrl ?? anterior?.imagen_url ?? '/images/productos/default.jpg', 'Imagen', 500),
     codigo: body.codigo === undefined ? (anterior?.codigo ?? null)
       : (texto(body.codigo, 'Código', 100) || null),
@@ -233,7 +234,11 @@ export const actualizarStock = manejar(async (req, c) => {
     if (!r.suficiente) throw errorPeticion('Stock insuficiente');
   }
   const cambio = operacion === 'restar' ? '-' + cantidad : cantidad;
-  await c.execute('UPDATE productos SET stock=stock+CAST(? AS DECIMAL(12,3)) WHERE id=?', [cambio,id]);
+  await c.execute(
+    `UPDATE productos SET disponible=(stock+CAST(? AS DECIMAL(12,3)) > 0),
+     stock=stock+CAST(? AS DECIMAL(12,3)) WHERE id=?`,
+    [cambio,cambio,id]
+  );
   await c.execute(
     `INSERT INTO movimientos_stock(producto_id,cantidad,motivo,registrado_por_id)
      VALUES (?,?,'Ajuste manual de stock',?)`, [id,cambio,usuario]

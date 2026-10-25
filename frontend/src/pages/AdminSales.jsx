@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import useUserStore from '../store/useUserStore';
 import Swal from 'sweetalert2';
 import '../pages/AdminPage.css';
 
@@ -9,15 +8,10 @@ function AdminSales() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, today, week, month
   const [searchTerm, setSearchTerm] = useState('');
-  const { user } = useUserStore();
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-  useEffect(() => {
-    fetchAllSales();
-  }, [filter]);
-
-  const fetchAllSales = async () => {
+  const fetchAllSales = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -88,7 +82,11 @@ function AdminSales() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL, filter]);
+
+  useEffect(() => {
+    fetchAllSales();
+  }, [fetchAllSales]);
 
   const filterSalesByDate = (salesList) => {
     const now = new Date();
@@ -115,6 +113,29 @@ function AdminSales() {
         default:
           return true;
       }
+    });
+  };
+
+  const filterSalesBySearch = (salesList) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return salesList;
+    }
+
+    return salesList.filter((sale) => {
+      const searchableValues = [
+        sale.numeroPedido,
+        sale.mesa,
+        sale.mozo,
+        sale.cajero,
+        sale.metodoPago,
+        ...sale.items.map((item) => item.name)
+      ];
+
+      return searchableValues.some((value) => (
+        String(value || '').toLowerCase().includes(normalizedSearch)
+      ));
     });
   };
 
@@ -192,28 +213,37 @@ function AdminSales() {
             className={`filter-btn ${filter === 'today' ? 'active' : ''}`}
             onClick={() => setFilter('today')}
           >
-            📆 Día
+            Día
           </button>
           <button
             className={`filter-btn ${filter === 'week' ? 'active' : ''}`}
             onClick={() => setFilter('week')}
           >
-            📊 Semana
+            Semana
           </button>
           <button
             className={`filter-btn ${filter === 'month' ? 'active' : ''}`}
             onClick={() => setFilter('month')}
           >
-            📈 Mes
+            Mes
           </button>
           <button
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            📅 Todas
+            Todas
           </button>
         </div>
-        
+        <div className="search-container">
+          <input
+            type="search"
+            className="search-input"
+            placeholder="Buscar ventas"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            aria-label="Buscar ventas"
+          />
+        </div>
       </div>
 
       <div className="admin-results-count">
@@ -223,7 +253,6 @@ function AdminSales() {
       {/* Tabla de ventas */}
       {filteredSales.length === 0 ? (
         <div className="empty-state">
-          <p className="empty-icon">📭</p>
           <p className="empty-text">No hay ventas para mostrar</p>
         </div>
       ) : (
@@ -299,7 +328,7 @@ function AdminSales() {
                       onClick={() => viewSaleDetails(sale)}
                       title="Ver detalles"
                     >
-                      👁️ Ver
+                      Ver detalles
                     </button>
                   </td>
                 </tr>
@@ -322,7 +351,7 @@ function AdminSales() {
       .join('');
 
     Swal.fire({
-      title: '📋 Detalle de Venta',
+      title: 'Detalle de Venta',
       html: `
         <div style="text-align: left;">
           <p><strong>Número de Pedido:</strong> ${sale.numeroPedido}</p>

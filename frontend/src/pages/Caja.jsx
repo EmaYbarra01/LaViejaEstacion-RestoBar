@@ -156,16 +156,6 @@ const Caja = () => {
     return cambio > 0 ? cambio : 0;
   };
 
-  const handleMetodoPagoChange = (metodo) => {
-    setMetodoPago(metodo);
-    if (pedidoSeleccionado) {
-      const total = metodo === 'Efectivo' 
-        ? pedidoSeleccionado.subtotal * 0.9 
-        : pedidoSeleccionado.subtotal;
-      setMontoPagado(formatCurrency(total));
-    }
-  };
-
   const handleCobrar = async () => {
     if (!pedidoSeleccionado) {
       setError('Selecciona un pedido para cobrar');
@@ -247,14 +237,21 @@ const Caja = () => {
     setTicketData(null);
   };
 
-  const pedidosFiltrados = pedidosPendientes.filter(pedido => {
-    if (busqueda === '') return true;
-    
-    return (
-      pedido.numeroPedido?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      pedido.numeroMesa?.toString().includes(busqueda) ||
-      pedido.nombreMozo?.toLowerCase().includes(busqueda.toLowerCase())
-    );
+  const normalizarBusqueda = (valor) => String(valor ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+  const terminoBusqueda = normalizarBusqueda(busqueda.trim());
+
+  const pedidosFiltrados = pedidosPendientes.filter((pedido) => {
+    if (!terminoBusqueda) return true;
+
+    return [
+      pedido.numeroPedido,
+      pedido.numeroMesa,
+      pedido.nombreMozo
+    ].some((valor) => normalizarBusqueda(valor).includes(terminoBusqueda));
   });
 
   if (mostrarTicket && ticketData) {
@@ -417,7 +414,6 @@ const Caja = () => {
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
-          <button className="btn-search">🔍</button>
         </div>
       </div>
 
@@ -568,32 +564,26 @@ const Caja = () => {
                 <div className="forma-pago">
                   <h3>Forma de Pago</h3>
                   <div className="metodos-pago">
-                    <button
-                      className={`metodo-btn ${metodoPago === 'Efectivo' ? 'active' : ''}`}
-                      onClick={() => handleMetodoPagoChange('Efectivo')}
+                    <div
+                      className={`metodo-info ${metodoPago === 'Efectivo' ? 'active' : ''}`}
+                      aria-label={`Método de pago: ${metodoPago}`}
                     >
-                      💵 Efectivo
+                      <span>Efectivo</span>
                       <small>10% descuento</small>
-                    </button>
-                    <button
-                      className={`metodo-btn ${metodoPago === 'Transferencia' ? 'active' : ''}`}
-                      onClick={() => handleMetodoPagoChange('Transferencia')}
+                    </div>
+                    <div
+                      className={`metodo-info ${metodoPago === 'Transferencia' ? 'active' : ''}`}
+                      aria-label={`Método de pago: ${metodoPago}`}
                     >
-                      💳 Transferencia
-                    </button>
+                      <span>Transferencia</span>
+                    </div>
                   </div>
 
                   <div className="monto-input-group">
                     <label>Monto Pagado</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      className="monto-input"
-                      value={montoPagado}
-                      onChange={(e) => setMontoPagado(e.target.value)}
-                      placeholder="0.00"
-                    />
+                    <p className="monto-value" aria-label={`Monto pagado: ${montoPagado}`}>
+                      ${montoPagado || '0,00'}
+                    </p>
                   </div>
 
                   {parseFloat(montoPagado) > calcularTotal() && (

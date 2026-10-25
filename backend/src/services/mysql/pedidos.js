@@ -61,7 +61,7 @@ export function pedidoService(pool){
       VALUES(?,?,?,?,?,?,ROUND(?*?,2),?)`,[r.insertId,item.id,index+1,p.nombre,item.cantidad,p.precio,item.cantidad,p.precio,item.observaciones]);
     }
     for(const [id,quantity] of totals){
-     await c.execute('UPDATE productos SET stock=stock-? WHERE id=?',[quantity,id]);
+     await c.execute('UPDATE productos SET disponible=(stock-? > 0),stock=stock-? WHERE id=?',[quantity,quantity,id]);
      await c.execute(`INSERT INTO movimientos_stock(producto_id,pedido_id,cantidad,motivo,registrado_por_id)
       VALUES(?,?,?,'Pedido creado',?)`,[id,r.insertId,-quantity,user.id]);
     }
@@ -98,7 +98,7 @@ export function pedidoService(pool){
       ensure(delta>=0 || p.disponible,'Producto no disponible');
       ensure(Math.round(Number(p.stock)*1000)+Math.round(delta*1000)>=0,`Stock insuficiente para ${p.nombre}`);
       if(delta!==0){
-       await c.execute('UPDATE productos SET stock=stock+? WHERE id=?',[delta.toFixed(3),productId]);
+       await c.execute('UPDATE productos SET disponible=(stock+? > 0),stock=stock+? WHERE id=?',[delta.toFixed(3),delta.toFixed(3),productId]);
        await c.execute("INSERT INTO movimientos_stock(producto_id,pedido_id,cantidad,motivo,registrado_por_id) VALUES(?,?,?,'Edición de pedido',?)",[productId,order.id,delta.toFixed(3),user.id]);
       }
      }
@@ -168,7 +168,10 @@ export function pedidoService(pool){
     if(user.rol==='Mozo')ensure(order.mozo_id===null || order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
     const [items]=await c.execute('SELECT producto_id,SUM(cantidad) cantidad FROM detalle_pedido WHERE pedido_id=? GROUP BY producto_id ORDER BY producto_id',[order.id]);
     for(const item of items){
-     await c.execute('UPDATE productos SET stock=stock+? WHERE id=?',[item.cantidad,item.producto_id]);
+     await c.execute(
+      'UPDATE productos SET disponible=(stock+? > 0),stock=stock+? WHERE id=?',
+      [item.cantidad,item.cantidad,item.producto_id]
+     );
      await c.execute(`INSERT INTO movimientos_stock(producto_id,pedido_id,cantidad,motivo,registrado_por_id)
        VALUES(?,?,?,'Restitución por cancelación',?)`,[item.producto_id,order.id,item.cantidad,user.id]);
     }

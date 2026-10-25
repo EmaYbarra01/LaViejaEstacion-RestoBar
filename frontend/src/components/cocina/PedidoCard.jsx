@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { formatCurrency } from '../../utils/currencyFormatter';
 import './PedidoCard.css';
@@ -7,9 +6,7 @@ import './PedidoCard.css';
  * Componente para mostrar un pedido individual en la vista de cocina
  * Muestra información del pedido y botones de acción según el estado
  */
-const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
-  const [procesando, setProcesando] = useState(false);
-
+const PedidoCard = ({ pedido }) => {
   /**
    * Formatear fecha de manera legible
    */
@@ -63,69 +60,6 @@ const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
     return 'normal';
   };
 
-  /**
-   * Manejar cambio de estado
-   */
-  const handleCambiarEstado = async (nuevoEstado) => {
-    if (procesando) return;
-    
-    setProcesando(true);
-    try {
-      await onCambiarEstado(pedido._id, nuevoEstado);
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-    } finally {
-      setProcesando(false);
-    }
-  };
-
-  /**
-   * Renderizar botones de acción según el estado actual
-   */
-  const renderizarAcciones = () => {
-    if (readOnly) return null;
-
-    if (procesando) {
-      return (
-        <button className="btn-accion btn-procesando" disabled>
-          Procesando...
-        </button>
-      );
-    }
-
-    switch (pedido.estado) {
-      case 'Pendiente':
-        return (
-          <button
-            className="btn-accion btn-comenzar"
-            onClick={() => handleCambiarEstado('En Preparación')}
-          >
-            🔥 Comenzar Preparación
-          </button>
-        );
-      
-      case 'En Preparación':
-        return (
-          <button
-            className="btn-accion btn-listo"
-            onClick={() => handleCambiarEstado('Listo')}
-          >
-            ✅ Marcar Listo
-          </button>
-        );
-      
-      case 'Listo':
-        return (
-          <div className="estado-finalizado">
-            <span>✅ Listo para servir</span>
-          </div>
-        );
-      
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className={`pedido-card ${getEstadoClase()} ${getUrgenciaClase()}`}>
       {/* Header del pedido */}
@@ -135,11 +69,9 @@ const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
           <span className="pedido-mesa">{pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa}`}</span>
         </div>
         <div className="pedido-tiempo">
-          <div className="tiempo-creacion">
-            🕐 {formatearFecha(pedido.fechaCreacion)}
-          </div>
+          <div className="tiempo-creacion">{formatearFecha(pedido.fechaCreacion)}</div>
           <div className="tiempo-transcurrido">
-            ⏱️ {tiempoTranscurrido()}
+            {tiempoTranscurrido()}
           </div>
         </div>
       </div>
@@ -176,7 +108,7 @@ const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
                   </div>
                   {observaciones && (
                     <p className="producto-observaciones">
-                      📝 {observaciones}
+                      {observaciones}
                     </p>
                   )}
                 </li>
@@ -184,7 +116,7 @@ const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
             })}
           </ul>
         ) : (
-          <p className="sin-productos">⚠️ Sin productos registrados</p>
+          <p className="sin-productos">Sin productos registrados</p>
         )}
       </div>
 
@@ -196,10 +128,6 @@ const PedidoCard = ({ pedido, onCambiarEstado, readOnly = false }) => {
         </div>
       )}
 
-      {/* Botones de acción */}
-      <div className="pedido-acciones">
-        {renderizarAcciones()}
-      </div>
     </div>
   );
 };
@@ -219,8 +147,6 @@ PedidoCard.propTypes = {
     })).isRequired,
     observacionesGenerales: PropTypes.string
   }).isRequired,
-  onCambiarEstado: PropTypes.func,
-  readOnly: PropTypes.bool
 };
 
 export default PedidoCard;

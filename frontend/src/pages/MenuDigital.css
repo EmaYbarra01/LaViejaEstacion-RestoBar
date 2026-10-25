@@ -1080,3 +1080,9 @@
     padding: 1rem;
   }
 }
+.order-stock-error {
+  margin: 0.75rem 0 0;
+  color: #8a4b4b;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}

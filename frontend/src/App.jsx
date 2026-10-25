@@ -52,12 +52,8 @@ function App() {
     localStorage.setItem("app-theme", theme);
   }, [isNightMode]);
 
-  // No bloquear la UI mientras se verifica la autenticación
-  // Dejar que las rutas protegidas manejen su propio loading
-
   return (
     <>
-      {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
       {location.pathname !== "/" && location.pathname !== "/entrar" && !isEmployeePath && (
         <Header
           isNightMode={isNightMode}
@@ -85,13 +81,11 @@ function App() {
             )}
           />
           <Route path="/menu" element={<MenuPage />} />
-          {/* HU1: Menú digital público accesible por QR - Sin autenticación */}
           <Route path="/menu-digital" element={<MenuDigital />} />
           <Route path="/servicios" element={<ServiciosPage />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
           <Route path="/reservas" element={<Reservas />} />
-          {/* Módulo del Mozo - Gestión de pedidos - Mozos + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/mozo" element={
             <ProtectedRoute role={["Mozo", "Gerente", "SuperAdministrador"]}>
               <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="Mozo">
@@ -101,12 +95,15 @@ function App() {
           } />
           <Route path="/supervision-pedidos" element={
             <ProtectedRoute role={["Gerente", "SuperAdministrador"]}>
-              <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)}>
+              <EmployeePanelLayout
+                pageTitle="Supervisión de pedidos"
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              >
                 <SupervisionPedidos />
               </EmployeePanelLayout>
             </ProtectedRoute>
           } />
-          {/* Módulo de Cocina - Gestión de pedidos - EncargadoCocina + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/encargado-cocina" element={
             <ProtectedRoute role={["EncargadoCocina", "Gerente", "SuperAdministrador"]}>
               <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="EncargadoCocina">
@@ -114,7 +111,6 @@ function App() {
               </EmployeePanelLayout>
             </ProtectedRoute>
           } />
-          {/* Módulo de Caja - Gestión de cobros - Cajero + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/caja" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
               <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="Cajero">
@@ -124,7 +120,12 @@ function App() {
           } />
           <Route path="/caja/historial-cierres" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
-              <HistorialCierres />
+              <EmployeePanelLayout
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              >
+                <HistorialCierres />
+              </EmployeePanelLayout>
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />
@@ -141,7 +142,11 @@ function App() {
           }>        
             <Route path="dashboard" element={<SuperadminDashboard />} />
             <Route path="products" element={<Products />} />
-            <Route path="sales" element={<AdminSales />} />
+            <Route path="sales" element={
+              <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
+                <AdminSales />
+              </ProtectedRoute>
+            } />
             <Route path="reservas" element={<AdminReservas />} />
             <Route path="calendario" element={<CalendarioReservas />} />
             <Route path="empleados" element={
@@ -151,7 +156,6 @@ function App() {
             } />
           </Route>
           <Route path="/mis-reservas" element={<MisReservas />} />
-
         </Routes>
       </div>
       {location.pathname !== "/" && location.pathname !== "/entrar" && !isEmployeePath && <Footer />}
