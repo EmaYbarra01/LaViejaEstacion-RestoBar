@@ -74,7 +74,7 @@ export function pedidosPublicosService(pool) {
             VALUES(?,?,?,?,?,?,ROUND(?*?,2),?)`,[id,p.id,index+1,p.nombre,item.cantidad,p.precio,item.cantidad,p.precio,item.observaciones]);
         }
         for(const [producto,cantidad] of cantidades) {
-          await db.execute('UPDATE productos SET stock=stock-? WHERE id=?',[cantidad,producto]);
+          await db.execute('UPDATE productos SET disponible=(stock-? > 0),stock=stock-? WHERE id=?',[cantidad,cantidad,producto]);
           await db.execute(`INSERT INTO movimientos_stock(producto_id,pedido_id,cantidad,motivo,registrado_por_id)
             VALUES(?,?,?,'Pedido público creado',NULL)`,[producto,id,-cantidad]);
         }

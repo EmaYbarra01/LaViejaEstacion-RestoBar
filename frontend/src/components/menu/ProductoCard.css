@@ -25,6 +25,18 @@
   border-color: var(--app-accent);
 }
 
+.producto-card-no-disponible {
+  cursor: not-allowed;
+  opacity: 0.68;
+  filter: saturate(0.72);
+}
+
+.producto-card-no-disponible:hover {
+  transform: none;
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
 /* ===== IMAGEN DEL PRODUCTO ===== */
 .producto-image-wrapper {
   position: relative;
