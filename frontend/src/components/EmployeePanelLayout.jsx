@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { FaBox, FaCalendarAlt, FaCashRegister, FaChartLine, FaClipboardList, FaComments, FaFire, FaMoon, FaSun, FaUsers } from 'react-icons/fa';
+import { FaMoon, FaSun } from 'react-icons/fa';
 import useUserStore from '../store/useUserStore';
 import './EmployeePanelLayout.css';
 
@@ -15,28 +14,28 @@ const employeeNames = {
 
 const links = {
   admin: [
-    ['/admin/dashboard', 'Dashboard', FaChartLine],
-    ['/admin/products', 'Productos', FaBox],
-    ['/admin/sales', 'Ventas', FaChartLine],
-    ['/admin/reservas', 'Reservas', FaClipboardList],
-    ['/admin/calendario', 'Calendario', FaCalendarAlt],
-    ['/admin/empleados', 'Empleados', FaUsers],
-    ['/supervision-pedidos', 'Supervisión de pedidos', FaClipboardList],
-    ['/encargado-cocina', 'Cocina', FaFire],
-    ['/caja', 'Caja', FaCashRegister]
+    ['/admin/dashboard', 'Dashboard'],
+    ['/admin/products', 'Productos'],
+    ['/admin/sales', 'Ventas'],
+    ['/admin/reservas', 'Reservas'],
+    ['/admin/calendario', 'Calendario'],
+    ['/admin/empleados', 'Empleados'],
+    ['/supervision-pedidos', 'Supervisión de pedidos'],
+    ['/encargado-cocina', 'Supervisión de cocina'],
+    ['/caja', 'Caja']
   ],
   Mozo: [
-    ['/mozo', 'Pedidos', FaClipboardList],
-    ['/mozo', 'Menú', FaBox],
-    ['/mozo', 'Cuenta', FaCashRegister]
+    ['/mozo', 'Pedidos'],
+    ['/mozo', 'Menú'],
+    ['/mozo', 'Cuenta']
   ],
   EncargadoCocina: [
-    ['/encargado-cocina', 'Supervisión de cocina', FaFire],
-    ['/encargado-cocina', 'Pendientes', FaFire],
-    ['/encargado-cocina', 'En preparación', FaFire],
-    ['/encargado-cocina', 'Listos', FaFire]
+    ['/encargado-cocina', 'Supervisión de cocina'],
+    ['/encargado-cocina', 'Pendientes'],
+    ['/encargado-cocina', 'En preparación'],
+    ['/encargado-cocina', 'Listos']
   ],
-  Cajero: [['/caja', 'Cobros', FaCashRegister]]
+  Cajero: [['/caja', 'Cobros']]
 };
 
 const normalizeRole = (value) => String(value || '').trim().toLowerCase();
@@ -107,23 +106,16 @@ function EmployeePanelLayout({
           <span>{role}</span>
         </div>
         <nav aria-label="Opciones del panel" className="employee-nav">
-          {panelLinks.map(([path, label, IconComponent], index) => (
+          {panelLinks.map(([path, label]) => (
             <NavLink
               key={`${path}-${label}`}
               to={path}
               end={path !== '/mozo' && path !== '/encargado-cocina'}
-              className={({ isActive }) => `employee-nav-link${isActive && (index === 0 || path !== '/mozo') ? ' active' : ''}`}
+              className={({ isActive }) => `employee-nav-link${isActive ? ' active' : ''}`}
             >
-              {IconComponent && React.createElement(IconComponent, { 'aria-hidden': true })}
               <span>{label}</span>
             </NavLink>
           ))}
-          {isManagement && (
-            <NavLink to="/mensajeria" className="employee-nav-link">
-              <FaComments aria-hidden="true" />
-              <span>Mensajería</span>
-            </NavLink>
-          )}
         </nav>
       </aside>
       <section className="employee-main">

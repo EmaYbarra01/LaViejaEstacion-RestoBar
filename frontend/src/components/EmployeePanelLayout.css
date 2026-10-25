@@ -30,10 +30,8 @@
 .employee-user strong { font-size: 14px; }
 .employee-user span { color: #dec79c; font-size: 11px; }
 .employee-nav { display: grid; gap: 3px; min-height: 0; overflow-y: auto; }
-.employee-nav-link { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 6px; color: var(--panel-cream); text-decoration: none; font-size: 15px; font-weight: 600; }
-.employee-nav-link svg { width: 21px; color: var(--panel-gold); font-size: 18px; }
+.employee-nav-link { display: flex; align-items: center; padding: 12px 14px; border-radius: 6px; color: var(--panel-cream); text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: .15px; }
 .employee-nav-link:hover, .employee-nav-link.active { color: var(--panel-dark); background: var(--panel-cream); }
-.employee-nav-link.active svg, .employee-nav-link:hover svg { color: var(--panel-wine); }
 
 .employee-main {
   display: grid;
@@ -84,15 +82,12 @@
   background: transparent;
 }
 
-/* Solución para barras de filtro fijas / sticky en Cocina y otras vistas */
+/* Keep filter bars in the content flow so they cannot cover order cards. */
 .employee-page-content .filtros-container,
 .employee-page-content .cocina-filters,
 .employee-page-content .filtros-tabs {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(255, 250, 241, 0.95);
-  backdrop-filter: blur(4px);
+  position: static;
+  background: rgba(255, 250, 241, 0.9);
   padding: 10px 0;
   margin-bottom: 16px;
   border-bottom: 1px solid rgba(100, 47, 58, 0.15);
@@ -132,6 +127,494 @@
 .employee-page-content .pedido-item,
 .employee-page-content .dashboard-card,
 .employee-page-content .resumen-card { border-color: rgba(100,47,58,.15); background: rgba(255,250,241,.88); color: #3d3030; }
+.employee-page-content .pedido-card,
+.employee-page-content .supervision-pedido {
+  border: 1px solid rgba(100, 47, 58, 0.18) !important;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255, 250, 241, 0.98), rgba(234, 219, 195, 0.72)) !important;
+  box-shadow: 0 8px 20px rgba(71, 35, 45, 0.1) !important;
+}
+.employee-page-content .pedido-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+}
+.employee-page-content .pedido-card h3,
+.employee-page-content .pedido-card h4,
+.employee-page-content .supervision-pedido-numero {
+  color: var(--panel-wine) !important;
+}
+.employee-page-content .pedido-header,
+.employee-page-content .pedido-mozo,
+.employee-page-content .pedido-observaciones {
+  border-color: rgba(100, 47, 58, 0.14) !important;
+}
+.employee-page-content .pedido-productos,
+.employee-page-content .supervision-pedido-estado {
+  color: #5c4545 !important;
+}
+.employee-page-content .producto-item {
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(100, 47, 58, 0.12);
+}
+.employee-page-content .producto-item:last-child {
+  border-bottom: 0;
+}
+.employee-page-content .supervision-pedido {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  color: #3d3030 !important;
+  text-align: left;
+  text-decoration: none;
+}
+.employee-page-content .supervision-pedido:hover {
+  border-color: var(--panel-wine) !important;
+  box-shadow: 0 10px 24px rgba(71, 35, 45, 0.16) !important;
+}
+
+/* Shared management surface for Sales, Reservations, Calendar and Employees. */
+.employee-page-content .admin-container,
+.employee-page-content .admin-reservas-page,
+.employee-page-content .calendario-reservas-page {
+  min-height: 0 !important;
+  padding: 0 !important;
+  color: #3d3030 !important;
+  background: transparent !important;
+}
+
+.employee-page-content .admin-header,
+.employee-page-content .calendario-header,
+.employee-page-content .admin-reservas-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  border: 1px solid rgba(100, 47, 58, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 250, 241, 0.86) !important;
+  box-shadow: 0 5px 15px rgba(71, 35, 45, 0.06);
+}
+
+.employee-page-content .admin-header h1,
+.employee-page-content .calendario-header h1,
+.employee-page-content .admin-reservas-header h1 {
+  margin: 0;
+  color: var(--panel-wine) !important;
+  font: 700 1.65rem "Playfair Display", Georgia, serif;
+  letter-spacing: 0;
+  text-transform: none;
+  text-shadow: none;
+}
+
+.employee-page-content .admin-subtitle,
+.employee-page-content .calendario-header p,
+.employee-page-content .admin-reservas-header p {
+  margin: 0.35rem 0 0;
+  color: #75605a !important;
+  font-size: 0.9rem;
+}
+
+.employee-page-content .admin-controls,
+.employee-page-content .filtros-container,
+.employee-page-content .calendario-navegacion {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(100, 47, 58, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 250, 241, 0.86) !important;
+  box-shadow: 0 5px 15px rgba(71, 35, 45, 0.06);
+}
+
+.employee-page-content .filtros-container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+}
+
+.employee-page-content .filter-btn,
+.employee-page-content .btn-limpiar-filtros,
+.employee-page-content .btn-nav,
+.employee-page-content .btn-view {
+  min-height: 40px;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(100, 47, 58, 0.28) !important;
+  border-radius: 6px;
+  color: var(--panel-wine) !important;
+  background: rgba(234, 219, 195, 0.5) !important;
+  box-shadow: none;
+  font: 600 0.85rem Montserrat, Arial, sans-serif;
+  text-transform: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.employee-page-content .filter-btn:hover,
+.employee-page-content .btn-limpiar-filtros:hover,
+.employee-page-content .btn-nav:hover,
+.employee-page-content .btn-view:hover {
+  transform: none;
+  border-color: var(--panel-wine) !important;
+  color: var(--panel-cream) !important;
+  background: var(--panel-wine) !important;
+  box-shadow: none;
+}
+
+.employee-page-content .filter-btn.active,
+.employee-page-content .btn-view {
+  color: var(--panel-cream) !important;
+  border-color: var(--panel-wine) !important;
+  background: var(--panel-wine) !important;
+}
+
+.employee-page-content .search-input,
+.employee-page-content .input-busqueda,
+.employee-page-content .select-filtro,
+.employee-page-content .input-fecha {
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgba(100, 47, 58, 0.25) !important;
+  border-radius: 6px;
+  color: #3d3030 !important;
+  background: #fffaf1 !important;
+  font: 400 0.9rem Montserrat, Arial, sans-serif;
+}
+
+.employee-page-content .search-input:focus,
+.employee-page-content .input-busqueda:focus,
+.employee-page-content .select-filtro:focus,
+.employee-page-content .input-fecha:focus {
+  border-color: var(--panel-wine) !important;
+  box-shadow: 0 0 0 2px rgba(100, 47, 58, 0.12);
+  outline: none;
+}
+
+.employee-page-content .table-container,
+.employee-page-content .tabla-container,
+.employee-page-content .employees-table-container,
+.employee-page-content .calendario-grid-container,
+.employee-page-content .lista-reservas-dia {
+  overflow-x: auto;
+  border: 1px solid rgba(100, 47, 58, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 250, 241, 0.88) !important;
+  box-shadow: 0 6px 18px rgba(71, 35, 45, 0.07) !important;
+}
+
+.employee-page-content .admin-table,
+.employee-page-content .tabla-reservas {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.employee-page-content .admin-table thead,
+.employee-page-content .tabla-reservas thead {
+  background: var(--panel-wine) !important;
+}
+
+.employee-page-content .admin-table th,
+.employee-page-content .tabla-reservas th {
+  padding: 0.85rem 1rem;
+  color: var(--panel-cream) !important;
+  border-bottom: 1px solid rgba(244, 234, 215, 0.25);
+  background: var(--panel-wine) !important;
+  font: 600 0.78rem Montserrat, Arial, sans-serif;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.employee-page-content .admin-table td,
+.employee-page-content .tabla-reservas td {
+  padding: 0.85rem 1rem;
+  color: #3d3030 !important;
+  border-bottom: 1px solid rgba(100, 47, 58, 0.1);
+  background: transparent !important;
+  font-size: 0.88rem;
+}
+
+.employee-page-content .admin-table tbody tr:hover,
+.employee-page-content .tabla-reservas tbody tr:hover {
+  background: rgba(234, 219, 195, 0.35) !important;
+}
+
+.employee-page-content .employees-table-container {
+  margin-top: 1.25rem;
+}
+
+.employee-page-content .employees-table-container .MuiTableCell-head {
+  color: var(--panel-cream) !important;
+  background: var(--panel-wine) !important;
+  font: 600 0.78rem Montserrat, Arial, sans-serif;
+  text-transform: uppercase;
+}
+
+.employee-page-content .employees-table-container .MuiTableCell-root {
+  border-bottom-color: rgba(100, 47, 58, 0.1);
+}
+
+.employee-page-content .employees-table-container .MuiTableRow-hover:hover {
+  background: rgba(234, 219, 195, 0.35);
+}
+
+.employee-page-content .employees-table-container .MuiChip-root {
+  border-color: rgba(100, 47, 58, 0.25);
+  color: var(--panel-wine);
+  background: rgba(234, 219, 195, 0.55);
+}
+
+.employee-page-content .calendario-navegacion .mes-año {
+  margin: 0;
+  color: var(--panel-wine) !important;
+  font: 700 1.35rem "Playfair Display", Georgia, serif;
+  letter-spacing: 0;
+}
+
+.employee-page-content .dias-semana,
+.employee-page-content .dias-grid {
+  gap: 8px;
+}
+
+.employee-page-content .dia-semana-header {
+  padding: 0.65rem 0.4rem;
+  color: var(--panel-wine);
+  font-size: 0.75rem;
+}
+
+.employee-page-content .dia-celda {
+  min-height: 92px;
+  aspect-ratio: auto;
+  padding: 0.65rem;
+  border: 1px solid rgba(100, 47, 58, 0.14);
+  border-radius: 8px;
+  background: rgba(234, 219, 195, 0.3);
+}
+
+.employee-page-content .dia-celda.hoy,
+.employee-page-content .dia-celda.selected,
+.employee-page-content .dia-celda.con-reservas {
+  border-color: var(--panel-wine);
+  box-shadow: 0 4px 12px rgba(71, 35, 45, 0.1);
+}
+
+.employee-page-content .dia-celda.selected {
+  background: rgba(100, 47, 58, 0.1);
+  transform: none;
+}
+
+.employee-page-content .dia-celda:not(.vacio):hover {
+  background: rgba(234, 219, 195, 0.65);
+  border-color: var(--panel-wine);
+  transform: none;
+}
+
+.employee-page-content .dia-numero {
+  color: var(--panel-dark);
+  font-size: 1.05rem;
+}
+
+.employee-page-content .resumen-dia {
+  gap: 0.75rem;
+}
+
+.employee-page-content .reserva-card {
+  border: 1px solid rgba(100, 47, 58, 0.14) !important;
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.9) !important;
+  box-shadow: 0 4px 12px rgba(71, 35, 45, 0.06);
+}
+
+.employee-page-content .modal-overlay {
+  background: rgba(71, 35, 45, 0.48);
+}
+
+.employee-page-content .modal-content {
+  border: 1px solid rgba(100, 47, 58, 0.2);
+  border-radius: 12px;
+  background: #fffaf1;
+  box-shadow: 0 16px 36px rgba(71, 35, 45, 0.2);
+}
+
+.employee-page-content .form-grupo label {
+  color: var(--panel-wine);
+}
+
+.employee-page-content .modal-acciones {
+  border-top: 1px solid rgba(100, 47, 58, 0.12);
+}
+
+/* Shared manager presentation for Products and Kitchen supervision. */
+.employee-page-content .admin-page {
+  max-width: none;
+  padding: 0;
+  background: transparent !important;
+}
+
+.employee-page-content .admin-page-header,
+.employee-page-content .products-filters,
+.employee-page-content .admin-table-container {
+  border: 1px solid rgba(100, 47, 58, 0.15) !important;
+  border-radius: 10px !important;
+  background: rgba(255, 250, 241, 0.9) !important;
+  box-shadow: 0 5px 15px rgba(71, 35, 45, 0.06) !important;
+}
+
+.employee-page-content .admin-page-header {
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 18px 20px;
+}
+
+.employee-page-content .admin-page-title {
+  margin: 0;
+  color: var(--panel-dark) !important;
+  font: 700 26px "Playfair Display", Georgia, serif;
+}
+
+.employee-page-content .products-filters {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+}
+
+.employee-page-content .products-filters-heading {
+  margin-bottom: 14px;
+}
+
+.employee-page-content .products-filters-heading h2,
+.employee-page-content .products-filters-heading p,
+.employee-page-content .products-filter-field label {
+  color: var(--panel-wine) !important;
+}
+
+.employee-page-content .products-filter-field input,
+.employee-page-content .products-filter-field select {
+  border-color: rgba(100, 47, 58, 0.25) !important;
+  border-radius: 6px;
+  color: var(--panel-dark) !important;
+  background: #fffaf1 !important;
+}
+
+.employee-page-content .products-filter-field input:focus,
+.employee-page-content .products-filter-field select:focus {
+  border-color: var(--panel-wine) !important;
+  box-shadow: 0 0 0 2px rgba(100, 47, 58, 0.12) !important;
+}
+
+.employee-page-content .admin-table-container {
+  overflow: hidden;
+}
+
+.employee-page-content .admin-table {
+  background: transparent !important;
+}
+
+.employee-page-content .admin-table th {
+  color: var(--panel-dark) !important;
+  background: var(--panel-beige) !important;
+  font-weight: 700;
+}
+
+.employee-page-content .admin-table td {
+  color: #3d3030 !important;
+  background: rgba(255, 250, 241, 0.88) !important;
+}
+
+.employee-page-content .admin-table tbody tr:hover td {
+  background: rgba(234, 219, 195, 0.52) !important;
+}
+
+.employee-page-content .create-button,
+.employee-page-content .products-clear-filters {
+  min-height: 40px;
+  border: 1px solid var(--panel-wine) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  font-size: 0.85rem !important;
+}
+
+.employee-page-content .create-button {
+  color: var(--panel-cream) !important;
+  background: var(--panel-wine) !important;
+}
+
+.employee-page-content .products-clear-filters {
+  color: var(--panel-wine) !important;
+  background: var(--panel-beige) !important;
+}
+
+.employee-page-content .cocina-view {
+  padding-bottom: 1rem;
+}
+
+.employee-page-content .cocina-header {
+  padding: 0 0 16px;
+  color: var(--panel-dark);
+  background: transparent;
+  box-shadow: none;
+}
+
+.employee-page-content .cocina-title {
+  color: var(--panel-dark) !important;
+  font: 700 26px "Playfair Display", Georgia, serif;
+}
+
+.employee-page-content .cocina-subtitle {
+  color: #75605a;
+}
+
+.employee-page-content .filtros-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  justify-content: flex-start;
+  margin: 0 0 16px;
+  padding: 10px;
+  border: 1px solid rgba(100, 47, 58, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 250, 241, 0.98);
+  box-shadow: 0 5px 15px rgba(71, 35, 45, 0.08);
+}
+
+.employee-page-content .filtros-tabs .tab-btn {
+  min-height: 40px;
+  border-radius: 6px;
+  color: var(--panel-wine) !important;
+  border-color: rgba(100, 47, 58, 0.25) !important;
+  background: var(--panel-beige) !important;
+}
+
+.employee-page-content .filtros-tabs .tab-btn:hover,
+.employee-page-content .filtros-tabs .tab-btn.active {
+  color: var(--panel-cream) !important;
+  border-color: var(--panel-wine) !important;
+  background: var(--panel-wine) !important;
+}
+
+.employee-page-content .estadisticas-bar,
+.employee-page-content .pedidos-container,
+.employee-page-content .pedidos-grid {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.employee-page-content .pedidos-grid {
+  gap: 16px;
+}
+
+.employee-page-content .empty-state,
+.employee-page-content .loading-container {
+  border: 1px solid rgba(100, 47, 58, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 250, 241, 0.9);
+  color: var(--panel-dark);
+}
 .employee-page-content .btn-realizar-pedido,
 .employee-page-content .btn-refrescar,
 .employee-page-content .btn-actualizar,

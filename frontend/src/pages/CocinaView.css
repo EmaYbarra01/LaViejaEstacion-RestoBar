@@ -1,7 +1,8 @@
 /* Vista de Cocina - Estilos principales */
 .cocina-view {
   min-height: 0;
-  background: #f5f5f5;
+  color: #3d3030;
+  background: transparent;
   padding-bottom: 4rem;
 }
 
@@ -67,12 +68,14 @@
 
 /* Estadísticas */
 .estadisticas-bar {
-  background: white;
-  padding: 1.5rem 2rem;
+  background: rgba(255, 250, 241, 0.82);
+  padding: 1.25rem 1.5rem;
   display: flex;
   justify-content: center;
   gap: 3rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(100, 47, 58, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(71, 35, 45, 0.06);
 }
 
 .stat-item {
@@ -84,7 +87,7 @@
 
 .stat-label {
   font-size: 0.85rem;
-  color: #666;
+  color: #75605a;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -100,79 +103,82 @@
 }
 
 .stat-value.pendientes {
-  background: var(--app-accent-soft);
-  color: #856404;
+  background: rgba(184, 154, 100, 0.2);
+  color: var(--panel-wine);
 }
 
 .stat-value.preparacion {
-  background: #cfe2ff;
-  color: #084298;
+  background: rgba(142, 89, 96, 0.14);
+  color: var(--panel-wine);
 }
 
 .stat-value.listos {
-  background: var(--app-accent-soft);
-  color: #0f5132;
+  background: rgba(100, 47, 58, 0.1);
+  color: var(--panel-wine);
 }
 
 .stat-value.total {
-  background: #e7e7e7;
-  color: #333;
+  background: var(--panel-beige);
+  color: var(--panel-dark);
 }
 
 /* Filtros / Tabs */
 .filtros-tabs {
-  background: white;
-  padding: 1rem 2rem;
+  background: rgba(255, 250, 241, 0.92);
+  padding: 0.85rem 1rem;
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  border-bottom: 2px solid #e0e0e0;
+  gap: 0.65rem;
+  border: 1px solid rgba(100, 47, 58, 0.18);
+  border-radius: 10px;
   position: static;
+  box-shadow: 0 5px 14px rgba(71, 35, 45, 0.06);
 }
 
 .tab-btn {
-  padding: 0.75rem 1.5rem;
-  border: 2px solid transparent;
-  background: #f5f5f5;
-  border-radius: 8px;
+  padding: 0.65rem 1.2rem;
+  border: 1px solid rgba(100, 47, 58, 0.25);
+  background: rgba(234, 219, 195, 0.48);
+  border-radius: 6px;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  color: #666;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  color: var(--panel-wine);
 }
 
 .tab-btn:hover {
-  background: #e0e0e0;
-  transform: translateY(-2px);
+  background: var(--panel-beige);
+  border-color: var(--panel-wine);
 }
 
 .tab-btn.active {
-  background: var(--app-accent);
-  color: white;
-  border-color: var(--app-accent-dark);
+  background: var(--panel-wine);
+  color: var(--panel-cream);
+  border-color: var(--panel-wine);
 }
 
 /* Contenedor de pedidos */
 .pedidos-container {
   max-width: 1400px;
-  margin: 2rem auto;
-  padding: 0 2rem;
+  margin: 1.25rem auto;
+  padding: 0 0.5rem;
 }
 
 .pedidos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 /* Estados vacíos */
 .empty-state {
   text-align: center;
-  padding: 4rem 2rem;
-  background: white;
+  padding: 3rem 2rem;
+  background: rgba(255, 250, 241, 0.88);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(100, 47, 58, 0.14);
+  box-shadow: 0 6px 16px rgba(71, 35, 45, 0.06);
 }
 
 .empty-icon {
@@ -181,12 +187,12 @@
 }
 
 .empty-state h3 {
-  color: #333;
+  color: var(--panel-wine);
   margin-bottom: 0.5rem;
 }
 
 .empty-state p {
-  color: #666;
+  color: #75605a;
 }
 
 /* Loading */
@@ -221,9 +227,9 @@
 }
 
 .alert-error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: rgba(234, 212, 203, 0.8);
+  color: var(--panel-dark);
+  border: 1px solid rgba(100, 47, 58, 0.22);
 }
 
 .alert span {
@@ -236,8 +242,8 @@
 }
 
 .alert button {
-  background: #721c24;
-  color: white;
+  background: var(--panel-wine);
+  color: var(--panel-cream);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
