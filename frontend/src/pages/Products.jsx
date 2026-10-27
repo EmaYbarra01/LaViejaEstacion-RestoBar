@@ -100,14 +100,16 @@ const Products = () => {
       return;
     }
 
-    const stockValue = Number(form.stock || 0);
+    const stockValue = Number(form?.stock ?? 0);
+    const estadoActual = form?.available !== false;
+    const nuevoEstado = stockValue > 0 ? true : estadoActual;
     const normalizedForm = {
       ...form,
       stock: stockValue,
-      minimumStock: Number(form.minimumStock || 0),
-      price: Number(form.price || 0),
-      cost: Number(form.cost || 0),
-      available: stockValue > 0 ? form.available !== false : false
+      minimumStock: Number(form?.minimumStock ?? 0),
+      price: Number(form?.price ?? 0),
+      cost: Number(form?.cost ?? 0),
+      available: nuevoEstado
     };
     
     try {
@@ -115,7 +117,11 @@ const Products = () => {
         const updatedProduct = await updateProduct(form.id, normalizedForm);
         setProducts((currentProducts) =>
           currentProducts.map((product) =>
-            product.id === form.id ? updatedProduct : product
+            product?.id === form?.id ? {
+              ...(updatedProduct || normalizedForm),
+              stock: Number(updatedProduct?.stock ?? stockValue),
+              available: stockValue > 0 ? true : nuevoEstado
+            } : product
           )
         );
         setOpenModal(false);
@@ -173,13 +179,14 @@ const Products = () => {
   };
 
   const handleEditProduct = async (product) => {
+    if (!product) return;
     setIsEdit(true);
     setForm({
       ...product,
-      id: product.id,
-      stock: product.stock ?? 0,
-      minimumStock: product.minimumStock ?? 0,
-      available: product.available !== false
+      id: product?.id,
+      stock: product?.stock ?? 0,
+      minimumStock: product?.minimumStock ?? 0,
+      available: product?.available !== false
     });
     handleOpenModal();
   };
@@ -371,11 +378,11 @@ const Products = () => {
             ) : (
               filteredProducts.map((product) => (
                 (() => {
-                  const stock = Number(product.stock || 0);
-                  const minimumStock = Number(product.minimumStock || 0);
+                  const stock = Number(product?.stock ?? 0);
+                  const minimumStock = Number(product?.minimumStock ?? 0);
                   const isOutOfStock = stock <= 0;
                   const isLowStock = stock > 0 && stock <= minimumStock;
-                  const isAvailable = !isOutOfStock && product.available !== false;
+                  const isAvailable = stock > 0;
 
                   return (
                 <TableRow key={product.id} sx={{ 
@@ -384,10 +391,10 @@ const Products = () => {
                 }}>
                   <TableCell>
                     <strong>{product.name}</strong>
-                    {product.description && (
+                    {product?.description && (
                       <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
-                        {product.description.substring(0, 50)}
-                        {product.description.length > 50 && '...'}
+                        {String(product.description).substring(0, 50)}
+                        {String(product.description).length > 50 && '...'}
                       </div>
                     )}
                   </TableCell>
