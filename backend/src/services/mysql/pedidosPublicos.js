@@ -59,7 +59,7 @@ export function pedidosPublicosService(pool) {
         for(const p of v.productos)cantidades.set(p.producto,(cantidades.get(p.producto)||0)+p.cantidad);
         for(const id of [...cantidades.keys()].sort((a,b)=>a-b)) {
           const [[p]]=await db.execute('SELECT * FROM productos WHERE id=? FOR UPDATE',[id]);
-          check(p && p.disponible,'Uno de los productos no está disponible',400);
+          check(p && (Number(p.stock) > 0 || p.disponible),'Uno de los productos no está disponible',400);
           check(Number(p.stock)>=cantidades.get(id),`Stock insuficiente para ${p.nombre}`,409);
           catalogo.set(id,p);
         }

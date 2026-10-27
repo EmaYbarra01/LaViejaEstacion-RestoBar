@@ -46,7 +46,7 @@ export function pedidoService(pool){
     const products=new Map();
     for(const id of [...totals.keys()].sort((a,b)=>a-b)){
      const [[p]]=await c.execute('SELECT * FROM productos WHERE id=? FOR UPDATE',[id]);
-     ensure(p && p.disponible,'Producto no disponible');
+     ensure(p && (Number(p.stock) > 0 || p.disponible),'Producto no disponible');
      ensure(Number(p.stock)>=totals.get(id),`Stock insuficiente para ${p.nombre}`);
      products.set(id,p);
     }
@@ -95,7 +95,7 @@ export function pedidoService(pool){
       const [[p]]=await c.execute('SELECT * FROM productos WHERE id=? FOR UPDATE',[productId]);
       ensure(p,'Producto no encontrado',404);catalog.set(productId,p);
       const delta=((before.get(productId)||0)-(after.get(productId)||0))/1000;
-      ensure(delta>=0 || p.disponible,'Producto no disponible');
+      ensure(delta>=0 || Number(p.stock) > 0 || p.disponible,'Producto no disponible');
       ensure(Math.round(Number(p.stock)*1000)+Math.round(delta*1000)>=0,`Stock insuficiente para ${p.nombre}`);
       if(delta!==0){
        await c.execute('UPDATE productos SET disponible=(stock+? > 0),stock=stock+? WHERE id=?',[delta.toFixed(3),delta.toFixed(3),productId]);
