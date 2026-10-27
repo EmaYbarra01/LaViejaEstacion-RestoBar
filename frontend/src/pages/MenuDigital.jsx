@@ -130,7 +130,7 @@ const MenuDigital = () => {
   };
 
   const handleSelectProduct = (producto) => {
-    if (producto.disponible === false || Number(producto.stock || 0) <= 0) {
+    if (producto.disponible === false && Number(producto?.stock ?? 0) <= 0) {
       return;
     }
 
@@ -146,7 +146,7 @@ const MenuDigital = () => {
     const stockDisponible = Number(productoSeleccionado?.stock || 0);
     if (
       !productoSeleccionado
-      || productoSeleccionado.disponible === false
+      || (productoSeleccionado?.disponible === false && stockDisponible <= 0)
       || stockDisponible <= 0
       || cantidad > stockDisponible
     ) {
@@ -483,9 +483,9 @@ const MenuDigital = () => {
             <button
               type="submit"
               className="add-order-button"
-              disabled={productoSeleccionado.disponible === false || Number(productoSeleccionado.stock || 0) <= 0}
+              disabled={Number(productoSeleccionado?.stock ?? 0) <= 0}
             >
-              {productoSeleccionado.disponible === false || Number(productoSeleccionado.stock || 0) <= 0
+              {Number(productoSeleccionado?.stock ?? 0) <= 0
                 ? 'No disponible para pedidos'
                 : 'Agregar al pedido'}
             </button>
