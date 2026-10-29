@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { FaBox, FaCalendarAlt, FaCashRegister, FaChartLine, FaClipboardList, FaComments, FaFire, FaMoon, FaSun, FaUsers } from 'react-icons/fa';
 import useUserStore from '../store/useUserStore';
 import './EmployeePanelLayout.css';
+import { formatClockDate, formatClockTime } from '../utils/clockFormat';
 
 const employeeNames = {
   SuperAdministrador: 'Lucas Ferreyra',
@@ -100,8 +101,8 @@ function EmployeePanelLayout({ children, roleType = 'admin', isNightMode, onTogg
           <h1>LA VIEJA ESTACIÓN</h1>
           <div className="employee-top-actions">
             <div className="employee-clock">
-              <span>{currentDateTime.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: 'short' })}</span>
-              <strong>{currentDateTime.toLocaleTimeString('es-AR')}</strong>
+              <span>{formatClockDate(currentDateTime)}</span>
+              <strong>{formatClockTime(currentDateTime)}</strong>
             </div>
             <button type="button" className="employee-theme-toggle" onClick={onToggleNightMode} aria-label="Modo nocturno">
               {isNightMode ? <FaSun /> : <FaMoon />}

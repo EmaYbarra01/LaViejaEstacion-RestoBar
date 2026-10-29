@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaMoon, FaSun } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
+import { formatClockDate, formatClockTime } from '../utils/clockFormat';
 
 function AccessibilityIcon() {
     return (
@@ -21,18 +22,8 @@ const HomePage = ({ isNightMode, onToggleNightMode }) => {
         return () => clearInterval(timer);
     }, []);
 
-    const formatDate = (date) => {
-        const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
-    };
-
-    const formatTime = (date) => date.toLocaleTimeString('es-AR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-    });
+    const formatDate = formatClockDate;
+    const formatTime = formatClockTime;
 
     return (
         <div className="home-container">
@@ -48,8 +39,8 @@ const HomePage = ({ isNightMode, onToggleNightMode }) => {
             </button>
 
             <div className="home-datetime" aria-label={`Fecha ${formatDate(currentDateTime)}, hora ${formatTime(currentDateTime)}`}>
-                <div>{formatDate(currentDateTime)}</div>
-                <strong>{formatTime(currentDateTime)}</strong>
+                <div>{formatClockDate(currentDateTime)}</div>
+                <strong>{formatClockTime(currentDateTime)}</strong>
             </div>
 
             <main

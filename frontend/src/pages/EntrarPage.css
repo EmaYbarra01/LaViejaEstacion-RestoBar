@@ -18,7 +18,7 @@
 .enter-navigation a:hover { color: #f3e7cd; }
 .enter-datetime { position: absolute; top: 20px; right: 14px; z-index: 2; min-width: 182px; padding: 14px 18px; border-radius: 8px 0 0 8px; background: rgba(25, 21, 17, .62); text-align: right; backdrop-filter: blur(8px); }
 .enter-datetime div { font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; opacity: .86; }
-.enter-datetime strong { display: block; margin-top: 5px; color: #c9a96a; font: 600 25px "Courier New", monospace; }
+.enter-datetime strong { display: block; margin-top: 5px; color: #c9a96a; font: 600 22px "Courier New", monospace; white-space: nowrap; }
 .enter-actions { position: absolute; right: 18px; bottom: 30px; z-index: 2; display: grid; gap: 12px; }
 .enter-round-button { width: 58px; height: 58px; display: grid; place-items: center; border: 0 !important; border-radius: 50%; background: rgba(79, 34, 43, .86) !important; color: #f3e7cd !important; cursor: pointer; font-size: 29px; box-shadow: none !important; }
 .enter-round-button:hover, .enter-round-button:focus-visible { border: 0 !important; background: rgba(79, 34, 43, .86) !important; color: #f3e7cd !important; box-shadow: none !important; outline: none; }

@@ -1,445 +1,120 @@
-/* MenuPage.css */
-.menu-page {
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+
+.mv-page {
+  --mv-cream: #f3e7cd;
+  --mv-gold: #c9a96a;
+  --mv-wine: rgba(79, 34, 43, .86);
+  --mv-wine-solid: #4f222b;
+  --mv-bg: #d9c49a;
+  --mv-card: rgba(251, 244, 230, .55);
+  --mv-card-soft: rgba(251, 244, 230, .72);
+  --mv-line: rgba(79, 34, 43, .22);
+  --mv-text: #3b2428;
+  --mv-muted: #43292d;
+  --mv-title: #4f222b;
+  position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, var(--app-ink) 100%);
-  padding: 120px 20px 40px; /* Espacio superior aumentado para header fijo */
+  margin: 0;
+  padding: 0 0 46px;
+  color: var(--mv-text);
+  background: var(--mv-bg);
+  font-family: Montserrat, Arial, sans-serif;
 }
-
-.menu-header {
-  text-align: center;
-  margin-bottom: 60px;
-  animation: fadeInDown 0.8s ease-out;
+.mv-page.mv-night {
+  --mv-bg: #241a14;
+  --mv-card: #2f2320;
+  --mv-card-soft: #382a26;
+  --mv-line: rgba(201, 169, 106, .28);
+  --mv-text: #f3e7cd;
+  --mv-muted: rgba(243, 231, 205, .78);
+  --mv-title: #f3e7cd;
 }
+.mv-background { position: fixed; inset: 0; z-index: 0; background: url('/menu-background.png') center / cover no-repeat; filter: contrast(1.35) saturate(1.1) brightness(.93); pointer-events: none; }
+.mv-background::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 55% 60% at 50% 50%, rgba(120, 82, 40, .42), rgba(120, 82, 40, 0) 100%); }
+.mv-night .mv-background { display: none; }
 
-.menu-header h1 {
-  font-size: 4rem;
-  font-weight: 800;
-  color: var(--app-accent);
-  text-transform: uppercase;
-  letter-spacing: 6px;
-  margin-bottom: 1rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
+.mv-brand { position: absolute; top: 18px; left: 34px; z-index: 3; width: 140px; text-align: center; }
+.mv-brand a { color: var(--mv-title); text-decoration: none; }
+.mv-brand img { display: block; width: 125px; height: 125px; margin: 0 auto; object-fit: contain; filter: brightness(0) opacity(.82); }
+.mv-brand span { display: block; margin-top: -7px; font: 500 15px "Cormorant Garamond", Georgia, serif; letter-spacing: 1px; }
+.mv-night .mv-brand img { filter: brightness(0) invert(1) drop-shadow(0 2px 5px #000); }
+.mv-night .mv-brand span { text-shadow: 0 2px 4px #000; }
 
-.menu-header p {
-  font-size: 1.3rem;
-  color: #e0e0e0;
-  letter-spacing: 2px;
-  font-weight: 300;
-}
+.mv-navigation { position: absolute; top: 104px; right: 20px; left: 190px; z-index: 3; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px clamp(18px, 2vw, 30px); }
+.mv-navigation a { color: var(--mv-title); font-size: clamp(14px, 1.5vw, 19px); font-weight: 600; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+.mv-navigation a:hover, .mv-navigation a.active { color: #8a6a2f; }
+.mv-night .mv-navigation a { color: #fff; text-shadow: 0 2px 4px #000; }
+.mv-night .mv-navigation a:hover, .mv-night .mv-navigation a.active { color: var(--mv-gold); }
 
-.order-now-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  padding: 0.9rem 1.8rem;
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  border: 0;
-  border-radius: 999px;
-  color: #1a1a1a;
-  font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+.mv-datetime { position: absolute; top: 20px; right: 14px; z-index: 3; min-width: 182px; padding: 14px 18px; border-radius: 8px 0 0 8px; background: rgba(25, 21, 17, .9); color: var(--mv-cream); text-align: right; backdrop-filter: blur(8px); }
+.mv-datetime div { font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; opacity: .9; }
+.mv-datetime strong { display: block; margin-top: 5px; color: var(--mv-gold); font: 600 22px "Courier New", monospace; white-space: nowrap; }
 
-.order-now-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 7px 22px rgba(255, 193, 7, 0.55);
-}
+.mv-actions { position: fixed; right: 18px; bottom: 30px; z-index: 20; display: grid; gap: 12px; }
+.mv-round { position: relative; width: 58px; height: 58px; display: grid; place-items: center; padding: 0; border: 0 !important; border-radius: 50%; background: var(--mv-wine) !important; color: var(--mv-cream) !important; cursor: pointer; font-size: 29px; box-shadow: none !important; }
+.mv-round:hover, .mv-round:focus-visible { border: 0 !important; background: var(--mv-wine) !important; color: var(--mv-cream) !important; box-shadow: none !important; outline: none; }
+.mv-round svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; }
+.mv-moon svg { display: none; }
+.mv-moon::before, .mv-moon::after { content: ""; position: absolute; display: block; border-radius: 50%; }
+.mv-moon::before { width: 27px; height: 27px; background: var(--mv-cream); }
+.mv-moon::after { width: 24px; height: 24px; margin: -7px 0 0 8px; background: #4f222b; }
+.mv-day .mv-moon::before { background: #f6d77a; }
 
-.menu-divider {
-  width: 150px;
-  height: 3px;
-  background: linear-gradient(to right, transparent, var(--app-accent), transparent);
-  margin: 1.5rem auto;
-}
+/* Botón volver arriba: mismo efecto que noburestaurants.com */
+.mv-go-top { position: fixed; right: 18px; bottom: 170px; z-index: 19; display: grid; place-items: center; width: 58px; height: 58px; padding: 0; border: 0 !important; border-radius: 50%; background: var(--mv-wine) !important; color: var(--mv-cream) !important; cursor: pointer; box-shadow: rgba(0, 0, 0, .4) 0 3px 10px 0 !important; opacity: 1; outline: none; transition: .3s; }
+.mv-go-top svg { width: 24px; height: 24px; pointer-events: none; }
+.mv-go-top:hover { transform: scale(1.1); }
+.mv-go-top.busy { opacity: .8; cursor: progress; }
+.mv-go-top.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
+.mv-go-top-spinner { display: none; position: absolute; inset: 0; }
+.mv-go-top.busy .mv-go-top-spinner { display: block; }
+.mv-go-top-spinner::after { content: ""; display: block; width: 68px; height: 68px; margin: -5px; border-radius: 50%; border: 3px solid var(--mv-gold); border-color: var(--mv-gold) transparent var(--mv-gold) transparent; animation: mv-ring 1.2s linear infinite; }
+@keyframes mv-ring { to { transform: rotate(360deg); } }
 
-.menu-container {
-  max-width: 1400px;
-  margin: 0 auto;
-}
+.mv-main { position: relative; z-index: 1; padding: 200px 20px 40px; }
+.mv-header { margin-bottom: 52px; text-align: center; }
+.mv-header h1 { margin: 0 0 12px; color: var(--mv-title); font: 600 clamp(2.6rem, 5vw, 4.4rem) "Cormorant Garamond", Georgia, serif; letter-spacing: 7px; text-transform: uppercase; }
+.mv-divider { width: 150px; height: 3px; margin: 1.2rem auto; background: linear-gradient(to right, transparent, var(--mv-gold), transparent); }
+.mv-header p { margin: 0; color: var(--mv-muted); font-size: 1.15rem; font-weight: 300; letter-spacing: 2px; }
+.mv-order { display: inline-flex; margin-top: 1.4rem; padding: 18px 52px; border: 0 !important; border-radius: 0; background: var(--mv-wine) !important; color: var(--mv-cream) !important; font: 600 1rem Montserrat, sans-serif; letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer; box-shadow: none !important; }
+.mv-order:hover { background: #64303a !important; }
 
-/* Estilos para Acordeones */
-.menu-accordions {
-  margin-bottom: 60px;
-}
+.mv-container { max-width: 1400px; margin: 0 auto; }
+.mv-loading { text-align: center; font-size: 1.4rem; color: var(--mv-title); }
+.mv-accordion { margin-bottom: 20px; overflow: hidden; border: 1px solid var(--mv-line); border-radius: 15px; background: var(--mv-card); transition: border-color .3s; }
+.mv-accordion:hover { border-color: var(--mv-gold); }
+.mv-acc-header { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 25px 30px; border: 0 !important; border-radius: 0 !important; background: var(--mv-card-soft) !important; color: var(--mv-text) !important; cursor: pointer; text-align: left; font: inherit; box-shadow: none !important; }
+.mv-acc-header:hover { background: var(--mv-card-soft) !important; color: var(--mv-text) !important; }
+.mv-acc-header.active { border-bottom: 2px solid var(--mv-gold) !important; }
+.mv-acc-title { display: flex; align-items: center; gap: 20px; font: 600 2rem "Cormorant Garamond", Georgia, serif; }
+.mv-acc-icon { width: 40px; height: 40px; color: var(--mv-gold); }
+.mv-chevron { width: 26px; height: 26px; color: var(--mv-gold); transition: transform .3s; }
+.mv-chevron.rotated { transform: rotate(180deg); }
+.mv-acc-content { overflow: hidden; padding: 0 30px; }
+.mv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 30px 0; }
 
-.accordion-item {
-  margin-bottom: 20px;
-  border-radius: 15px;
-  overflow: hidden;
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  transition: all 0.3s ease;
-  scroll-margin-top: 120px; /* Espacio para header fijo */
-}
+.mv-card { display: flex; flex-direction: column; height: 100%; overflow: hidden; border: 1px solid var(--mv-line); border-radius: 15px; background: var(--mv-card-soft); }
+.mv-card-image { flex: none; height: 200px; background: linear-gradient(135deg, #4f222b, #7e3735); }
+.mv-card-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mv-card-head { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 12px; padding: 18px 20px 8px; }
+.mv-card-name { margin: 0; min-height: 2.3em; color: var(--mv-text); font: 600 1.1rem/1.15 "Cormorant Garamond", Georgia, serif; }
+.mv-card-price { padding-top: .3em; color: var(--mv-wine-solid); font-weight: 700; white-space: nowrap; }
+.mv-night .mv-card-price { color: var(--mv-gold); }
+.mv-card-desc { flex: 1; min-height: 4.5em; margin: 0; padding: 0 20px; color: var(--mv-muted); font-size: .92rem; line-height: 1.5; }
+.mv-card-foot { flex: none; padding: 14px 20px 20px; }
+.mv-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; background: var(--mv-wine); color: var(--mv-cream); font-size: .75rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.mv-badge-off { background: rgba(110, 110, 110, .8); }
 
-.accordion-item:hover {
-  border-color: var(--app-accent);
-  box-shadow: 0 5px 20px rgba(88, 122, 60, 0.15);
-}
+.mv-copyright { position: absolute; right: 0; bottom: 13px; left: 0; z-index: 2; margin: 0; color: var(--mv-title); font-size: 12px; letter-spacing: 1px; text-align: center; }
+.mv-night .mv-copyright { color: rgba(243, 231, 205, .9); }
 
-.accordion-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 30px;
-  background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.accordion-header:hover {
-  background: linear-gradient(135deg, #333 0%, #252525 100%);
-}
-
-.accordion-header.active {
-  background: linear-gradient(135deg, #3a3a3a 0%, #2f2f2f 100%);
-  border-bottom: 2px solid var(--app-accent);
-}
-
-.accordion-title {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.accordion-icon {
-  font-size: 2.5rem;
-  color: var(--app-accent);
-}
-
-.accordion-title span {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-.chevron {
-  font-size: 1.5rem;
-  color: var(--app-accent);
-  transition: transform 0.3s ease;
-}
-
-.chevron.rotated {
-  transform: rotate(180deg);
-}
-
-.accordion-content {
-  padding: 30px 20px;
-  background: #252525;
-  animation: expandAccordion 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  overflow: hidden;
-}
-
-@keyframes expandAccordion {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    max-height: 5000px;
-  }
-}
-
-.menu-section {
-  margin-bottom: 80px;
-  animation: fadeInUp 1s ease-out;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 40px;
-  gap: 20px;
-}
-
-.section-icon {
-  font-size: 3rem;
-  color: var(--app-accent);
-}
-
-.section-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 4px;
-}
-
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 30px;
-  padding: 0 20px;
-}
-
-.menu-card {
-  background: linear-gradient(145deg, #353535, #2a2a2a);
-  border-radius: 15px;
-  padding: 0; /* Sin padding para que la imagen llegue al borde */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  transition: all 0.4s ease;
-  border: 1px solid rgba(88, 122, 60, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.menu-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(88, 122, 60, 0.1),
-    transparent
-  );
-  transition: left 0.6s ease;
-  z-index: 1;
-}
-
-.menu-card:hover::before {
-  left: 100%;
-}
-
-.menu-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 35px rgba(88, 122, 60, 0.3);
-  border-color: rgba(88, 122, 60, 0.3);
-}
-
-/* Estilos para la imagen del producto */
-.card-image {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  position: relative;
-}
-
-.card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-.menu-card:hover .card-image img {
-  transform: scale(1.1);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15px;
-  padding: 20px 30px 0 30px; /* Padding solo en los lados */
-  gap: 16px;
-}
-
-.card-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  flex: 1;
-  min-width: 0;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
-}
-
-.card-price {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--app-accent);
-  margin-left: 15px;
-  color: #ffc107;
-  flex: 0 0 auto;
-  margin-left: 0;
-  white-space: nowrap;
-  line-height: 1.2;
-}
-
-.card-description {
-  font-size: 1rem;
-  color: #b0b0b0;
-  line-height: 1.6;
-  margin-bottom: 10px;
-  padding: 0 30px; /* Padding lateral */
-}
-
-.card-detail {
-  font-size: 0.9rem;
-  color: #888;
-  font-style: italic;
-  line-height: 1.5;
-  padding: 0 30px; /* Padding lateral */
-}
-
-.card-footer-info {
-  margin-top: 12px;
-  padding: 10px 30px 20px 30px; /* Padding lateral y bottom */
-  border-top: 1px solid rgba(88, 122, 60, 0.2);
-}
-
-.card-badge {
-  display: inline-block;
-  padding: 5px 15px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.card-badge.disponible {
-  background: rgba(76, 175, 80, 0.2);
-  border: 1px solid #4caf50;
-  color: #4caf50;
-}
-
-.card-badge.agotado {
-  background: rgba(244, 67, 54, 0.2);
-  border: 1px solid #f44336;
-  color: #f44336;
-}
-
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 30px;
-  background: transparent;
-  color: var(--app-accent);
-  border: 2px solid var(--app-accent);
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 40px auto;
-  display: flex;
-  justify-content: center;
-  max-width: 200px;
-}
-
-.back-button:hover {
-  background: var(--app-accent);
-  color: #000;
-  transform: translateX(-5px);
-}
-
-/* Animaciones */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
-  .menu-page {
-    padding: 100px 15px 30px; /* Ajuste para móvil con header */
-  }
-
-  .menu-header h1 {
-    font-size: 2.5rem;
-    letter-spacing: 3px;
-  }
-
-  .menu-header p {
-    font-size: 1.1rem;
-  }
-
-  .accordion-title span {
-    font-size: 1.5rem;
-  }
-
-  .accordion-icon {
-    font-size: 2rem;
-  }
-
-  .section-title {
-    font-size: 2rem;
-    letter-spacing: 2px;
-  }
-
-  .section-icon {
-    font-size: 2.5rem;
-  }
-
-  .menu-grid {
-    grid-template-columns: 1fr;
-    padding: 0 10px;
-  }
-
-  .menu-card {
-    padding: 20px;
-  }
-
-  .card-name {
-    font-size: 1.3rem;
-  }
-
-  .card-price {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .menu-header h1 {
-    font-size: 2rem;
-  }
-
-  .section-header {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .section-title {
-    font-size: 1.5rem;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .card-price {
-    margin-left: 0;
-    margin-top: 10px;
-  }
+@media (max-width: 800px) {
+  .mv-brand { left: 18px; width: 110px; }
+  .mv-brand img { width: 92px; height: 92px; }
+  .mv-brand span { font-size: 12px; }
+  .mv-navigation { top: 118px; right: 10px; left: 10px; gap: 8px 14px; }
+  .mv-navigation a { font-size: 11px; }
+  .mv-datetime { top: 12px; right: 10px; transform: scale(.85); transform-origin: top right; }
+  .mv-main { padding-top: 250px; }
+  .mv-acc-title { font-size: 1.5rem; }
 }
