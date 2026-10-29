@@ -9,15 +9,16 @@ export function validarPedidoPublico(body) {
   check(body && typeof body==='object','Datos del pedido inválidos');
   check(['Local','Domicilio'].includes(body.tipoPedido),'Tipo de pedido inválido');
   check(body.cliente && typeof body.cliente==='object','Datos del cliente requeridos');
+  const esLocal=body.tipoPedido==='Local';
   const cliente={
     nombre:texto(body.cliente.nombre,100,'Nombre del cliente',true),
-    telefono:texto(body.cliente.telefono,40,'Teléfono',true),
-    email:texto(body.cliente.email,254,'Email',true).toLowerCase(),
+    telefono:texto(body.cliente.telefono??'',40,'Teléfono',!esLocal),
+    email:texto(body.cliente.email??'',254,'Email',!esLocal).toLowerCase(),
     direccion:texto(body.cliente.direccion??'',255,'Dirección',body.tipoPedido==='Domicilio'),
     referencia:texto(body.cliente.referencia??'',255,'Referencia')
   };
-  check(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cliente.email),'Email inválido');
-  check(cliente.telefono.replace(/\D/g,'').length>=5,'Teléfono inválido');
+  if(cliente.email)check(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cliente.email),'Email inválido');
+  if(cliente.telefono)check(cliente.telefono.replace(/\D/g,'').length>=5,'Teléfono inválido');
   const numeroMesa=body.tipoPedido==='Local'?positiveId(body.numeroMesa):null;
   const metodoPago=body.metodoPago||'Efectivo';
   check(['Efectivo','Transferencia'].includes(metodoPago),'Método de pago inválido');

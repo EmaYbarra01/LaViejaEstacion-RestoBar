@@ -30,7 +30,7 @@ const ServiciosPage = () => {
                             Disfruta de nuestro ambiente acogedor con atención personalizada de nuestros mozos.
                         </p>
                         <ul className="service-features">
-                            <li><FaClock /> Lun-Dom: 09:00 -13:00</li>
+                            <li><FaClock /> Lun-Dom: 09:00 - 12:00</li>
                             <li><FaClock /> Lun-Dom: 20:00 - 00:00</li>
                             <li><FaMapMarkerAlt /> Salón Principal y VIP</li>
                         </ul>

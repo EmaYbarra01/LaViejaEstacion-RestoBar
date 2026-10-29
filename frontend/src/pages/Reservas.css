@@ -192,6 +192,34 @@
   color: #ffffff;
 }
 
+.evento-especial-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 0;
+  color: #b0b0b0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.evento-especial-aviso strong {
+  color: var(--app-accent);
+}
+
+.evento-especial-aviso p {
+  margin: 0;
+}
+
+.evento-especial-aviso a {
+  color: var(--app-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.evento-especial-aviso a:hover {
+  text-decoration: underline;
+}
+
 .form-group textarea {
   resize: vertical;
   min-height: 100px;
@@ -716,4 +744,3 @@
     width: auto;
   }
 }
-
