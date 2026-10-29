@@ -655,6 +655,10 @@
   background: rgba(0, 0, 0, 0.75);
 }
 
+.checkout-modal-backdrop {
+  z-index: 1100;
+}
+
 .order-modal,
 .order-panel {
   position: relative;
@@ -805,10 +809,121 @@
   margin-top: 0.8rem;
 }
 
+.checkout-modal {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 1.5rem 1.75rem;
+  background:
+    linear-gradient(145deg, rgba(52, 52, 52, 0.98), rgba(34, 34, 34, 0.98));
+  border: 1px solid rgba(255, 193, 7, 0.75);
+  border-radius: 18px;
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+.checkout-modal .modal-close-button {
+  z-index: 2;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+  line-height: 1;
+}
+
+.checkout-modal .modal-close-button:hover,
+.checkout-modal .modal-close-button:focus-visible {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--background-dark);
+  outline: none;
+}
+
+.checkout-modal .order-modal-kicker {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #ffd35a;
+  font-size: 0.72rem;
+  letter-spacing: 1.6px;
+}
+
+.checkout-modal h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  line-height: 1.2;
+}
+
+.checkout-modal .delivery-toggle {
+  margin: 1.1rem 0 0.9rem;
+  padding: 0.25rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 11px;
+}
+
+.checkout-modal label {
+  gap: 0.25rem;
+  margin-top: 0.65rem;
+  color: #f0f0f0;
+  font-size: 0.9rem;
+}
+
 .checkout-modal input,
 .checkout-modal select {
   width: 100%;
   box-sizing: border-box;
+  padding: 0.62rem 0.75rem;
+  background: rgba(20, 20, 20, 0.72);
+  border-color: rgba(255, 255, 255, 0.16);
+  border-radius: 9px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.checkout-modal input:focus,
+.checkout-modal select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.14);
+}
+
+.checkout-modal .delivery-toggle button {
+  padding: 0.62rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #c8c8c8;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.checkout-modal .delivery-toggle button:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.checkout-modal .delivery-toggle button.active {
+  background: var(--primary-color);
+  box-shadow: 0 3px 10px rgba(255, 193, 7, 0.2);
+}
+
+.checkout-modal .add-order-button {
+  margin-top: 1.2rem;
+  padding: 0.8rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 16px rgba(255, 193, 7, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.checkout-modal .add-order-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 20px rgba(255, 193, 7, 0.3);
 }
 
 .success-order {
@@ -1078,6 +1193,15 @@
 
   .producto-card {
     padding: 1rem;
+  }
+
+  .checkout-modal {
+    padding: 1.25rem;
+  }
+
+  .checkout-modal .modal-close-button {
+    top: 0.75rem;
+    right: 0.75rem;
   }
 }
 .order-stock-error {

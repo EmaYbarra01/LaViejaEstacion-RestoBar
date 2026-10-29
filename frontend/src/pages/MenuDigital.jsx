@@ -61,7 +61,6 @@ const MenuDigital = () => {
   const [checkoutAbierto, setCheckoutAbierto] = useState(false);
   const [enviandoPedido, setEnviandoPedido] = useState(false);
   const [pedidoEnviado, setPedidoEnviado] = useState(null);
-  const categoriaInicializada = useRef(false);
   const [datosEntrega, setDatosEntrega] = useState({
     tipoPedido: mesaNumero ? 'Local' : 'Domicilio',
     numeroMesa: mesaNumero || '',
@@ -86,15 +85,6 @@ const MenuDigital = () => {
     // Cargar menú al montar componente
     fetchMenu();
   }, [fetchMenu]);
-
-  useEffect(() => {
-    // Expandir primera categoría cuando se carga el menú
-    if (productosDisponibles.length > 0 && !categoriaInicializada.current) {
-      setExpandedCategory('Comidas');
-      setCategoriaActiva('Comidas');
-      categoriaInicializada.current = true;
-    }
-  }, [productosDisponibles, setCategoriaActiva]);
 
   useEffect(() => {
     if (!productoIdInicial || productoSeleccionado || productosDisponibles.length === 0) {
@@ -543,7 +533,7 @@ const MenuDigital = () => {
       )}
 
       {checkoutAbierto && (
-        <div className="order-modal-backdrop" onClick={() => setCheckoutAbierto(false)}>
+        <div className="order-modal-backdrop checkout-modal-backdrop" onClick={() => setCheckoutAbierto(false)}>
           <form className="order-modal checkout-modal" onSubmit={handleCheckoutSubmit} onClick={(event) => event.stopPropagation()}>
             <button type="button" className="modal-close-button" onClick={() => setCheckoutAbierto(false)} aria-label="Cerrar datos del pedido">
               <FaTimes />
@@ -563,10 +553,10 @@ const MenuDigital = () => {
               ))}
             </div>
             <label>Nombre<input required value={datosEntrega.nombre} onChange={(event) => setDatosEntrega({ ...datosEntrega, nombre: event.target.value })} /></label>
-            <label>Teléfono / WhatsApp<input required value={datosEntrega.telefono} onChange={(event) => setDatosEntrega({ ...datosEntrega, telefono: event.target.value })} /></label>
-            <label>Email<input required type="email" value={datosEntrega.email} onChange={(event) => setDatosEntrega({ ...datosEntrega, email: event.target.value })} /></label>
             {datosEntrega.tipoPedido === 'Domicilio' && (
               <>
+                <label>Teléfono / WhatsApp<input required value={datosEntrega.telefono} onChange={(event) => setDatosEntrega({ ...datosEntrega, telefono: event.target.value })} /></label>
+                <label>Email<input required type="email" value={datosEntrega.email} onChange={(event) => setDatosEntrega({ ...datosEntrega, email: event.target.value })} /></label>
                 <label>Dirección<input required value={datosEntrega.direccion} onChange={(event) => setDatosEntrega({ ...datosEntrega, direccion: event.target.value })} /></label>
                 <label>Referencia<input value={datosEntrega.referencia} onChange={(event) => setDatosEntrega({ ...datosEntrega, referencia: event.target.value })} /></label>
               </>
@@ -583,12 +573,14 @@ const MenuDigital = () => {
                 />
               </label>
             )}
-            <label>Forma de pago
-              <select value={datosEntrega.metodoPago} onChange={(event) => setDatosEntrega({ ...datosEntrega, metodoPago: event.target.value })}>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
-            </label>
+            {datosEntrega.tipoPedido === 'Domicilio' && (
+              <label>Forma de pago
+                <select value={datosEntrega.metodoPago} onChange={(event) => setDatosEntrega({ ...datosEntrega, metodoPago: event.target.value })}>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                </select>
+              </label>
+            )}
             <button disabled={enviandoPedido} type="submit" className="add-order-button">
               {enviandoPedido ? 'Enviando...' : 'Confirmar pedido'}
             </button>

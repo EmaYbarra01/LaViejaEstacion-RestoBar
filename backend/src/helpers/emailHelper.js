@@ -11,20 +11,52 @@ dotenv.config();
 /**
  * Configurar el transporter de Nodemailer
  */
+const hasRealSmtpCredentials = () => {
+  const user = String(process.env.EMAIL_USER || '').trim();
+  const pass = String(process.env.EMAIL_PASS || '').trim();
+
+  if (!user || !pass) return false;
+
+  const placeholderPattern = /^(tu_|your_|demo_|example|test_|placeholder|mailtrap|gmail)/i;
+  if (placeholderPattern.test(user) || placeholderPattern.test(pass) || user.includes('example') || pass.includes('example')) {
+    return false;
+  }
+
+  return true;
+};
+
 const crearTransporter = () => {
-  const { EMAIL_USER, EMAIL_PASS } = process.env;
-  
-  if (!EMAIL_USER || !EMAIL_PASS) {
-    console.warn('[EMAIL] No se encontró configuración de email (EMAIL_USER o EMAIL_PASS). Verifica tu archivo .env');
+  const { EMAIL_SERVICE, EMAIL_USER, EMAIL_PASS, EMAIL_HOST, EMAIL_PORT, EMAIL_SECURE } = process.env;
+
+  if (!hasRealSmtpCredentials()) {
+    console.warn('[EMAIL] SMTP desactivado porque faltan credenciales reales en .env (EMAIL_USER / EMAIL_PASS).');
     return null;
   }
 
-  // Intentar con Gmail usando múltiples configuraciones
   try {
-    console.log('[EMAIL] Creando transporter para Gmail con configuración robusta...');
-    
+    if (EMAIL_HOST) {
+      console.log('[EMAIL] Creando transporter para SMTP personalizado...');
+      return nodemailer.createTransport({
+        host: EMAIL_HOST,
+        port: Number(EMAIL_PORT) || 587,
+        secure: String(EMAIL_SECURE).toLowerCase() === 'true' || Number(EMAIL_PORT) === 465,
+        auth: {
+          user: EMAIL_USER,
+          pass: EMAIL_PASS
+        },
+        tls: {
+          rejectUnauthorized: false,
+          ciphers: 'SSLv3'
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000
+      });
+    }
+
+    console.log('[EMAIL] Creando transporter para SMTP configurado...');
     return nodemailer.createTransport({
-      service: 'gmail',
+      service: EMAIL_SERVICE || 'gmail',
       auth: {
         user: EMAIL_USER,
         pass: EMAIL_PASS
@@ -33,7 +65,7 @@ const crearTransporter = () => {
         rejectUnauthorized: false,
         ciphers: 'SSLv3'
       },
-      connectionTimeout: 10000, // 10 segundos
+      connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 10000
     });
@@ -356,6 +388,7 @@ const enviarEmailConfirmacion = async (reserva, token = null) => {
         success: false,
         mensaje: 'Email no configurado - La reserva se guardó correctamente'
       };
+
     }
 
     // Verificar que tenemos el email del destinatario
@@ -539,10 +572,18 @@ const enviarEmailCancelacion = async (reserva) => {
 const enviarNotificacionRestobar = async (reserva) => {
   try {
     const transporter = crearTransporter();
+    const destinatarioRestaurante = process.env.EMAIL_RESTOBAR
+      || process.env.EMAIL_RESTAURANTE
+      || process.env.EMAIL_PEDIDOS_RESTAURANTE
+      || process.env.EMAIL_USER;
     
     if (!transporter) {
       console.warn('[EMAIL] No se puede enviar notificación - transporter no configurado');
       return { success: false, mensaje: 'Transporter no configurado' };
+    }
+    if (!destinatarioRestaurante) {
+      console.warn('[EMAIL] No se puede enviar notificación - destinatario del restobar no configurado');
+      return { success: false, mensaje: 'Destinatario del restobar no configurado' };
     }
 
     const fechaFormateada = formatearFecha(reserva.fecha);
@@ -643,7 +684,7 @@ const enviarNotificacionRestobar = async (reserva) => {
 
     const mailOptions = {
       from: process.env.EMAIL_FROM || 'Sistema Reservas <noreply@laviejaestacion.com>',
-      to: process.env.EMAIL_RESTAURANTE || process.env.EMAIL_USER, // Email del restobar
+      to: destinatarioRestaurante,
       subject: `🔔 Nueva Reserva Pendiente - ${fechaFormateada} ${reserva.hora}`,
       html: htmlContent
     };
