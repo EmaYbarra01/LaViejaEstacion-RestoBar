@@ -41,7 +41,7 @@ function App() {
     localStorage.getItem("app-theme") === "night"
   ));
   const isEmployeePath = employeePaths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
-  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/login"].includes(location.pathname) || isEmployeePath;
+  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/equipo-desarrollo", "/login"].includes(location.pathname) || isEmployeePath;
   const toggleNightMode = () => setIsNightMode((current) => !current);
 
   // Inicializar la autenticación al cargar la aplicación
@@ -104,7 +104,7 @@ function App() {
           )} />
           <Route path="/servicios" element={<ServiciosPage isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/quienes-somos" element={<QuienesSomos isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
-          <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
+          <Route path="/equipo-desarrollo" element={<EquipoDesarrollo isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/reservas" element={<Reservas isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           {/* Módulo del Mozo - Gestión de pedidos - Mozos + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/mozo" element={
