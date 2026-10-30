@@ -41,6 +41,8 @@ function App() {
     localStorage.getItem("app-theme") === "night"
   ));
   const isEmployeePath = employeePaths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
+  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/login"].includes(location.pathname) || isEmployeePath;
+  const toggleNightMode = () => setIsNightMode((current) => !current);
 
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
@@ -58,7 +60,7 @@ function App() {
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
-      {location.pathname !== "/" && location.pathname !== "/entrar" && location.pathname !== "/menu" && location.pathname !== "/menu-digital" && !isEmployeePath && (
+      {!hideChrome && (
         <Header
           isNightMode={isNightMode}
           onToggleNightMode={() => setIsNightMode((current) => !current)}
@@ -100,10 +102,10 @@ function App() {
               onToggleNightMode={() => setIsNightMode((current) => !current)}
             />
           )} />
-          <Route path="/servicios" element={<ServiciosPage />} />
-          <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/servicios" element={<ServiciosPage isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
+          <Route path="/quienes-somos" element={<QuienesSomos isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
-          <Route path="/reservas" element={<Reservas />} />
+          <Route path="/reservas" element={<Reservas isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           {/* Módulo del Mozo - Gestión de pedidos - Mozos + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/mozo" element={
             <ProtectedRoute role={["Mozo", "Gerente", "SuperAdministrador"]}>
@@ -140,7 +142,7 @@ function App() {
               <HistorialCierres />
             </ProtectedRoute>
           } />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -167,7 +169,7 @@ function App() {
 
         </Routes>
       </div>
-      {location.pathname !== "/" && location.pathname !== "/entrar" && location.pathname !== "/menu" && location.pathname !== "/menu-digital" && !isEmployeePath && <Footer />}
+      {!hideChrome && <Footer />}
     </>
   );
 }
