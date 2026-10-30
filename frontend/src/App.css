@@ -1,32 +1,32 @@
 /* App.css */
 
 :root {
-  --app-ink: #243326;
-  --app-ink-soft: #405C38;
-  --app-surface: #FFFEFA;
-  --app-surface-muted: #F3F6EA;
-  --app-border: #B7C99A;
-  --app-text: #263326;
-  --app-text-muted: #52634D;
-  --app-accent: #587A3C;
-  --app-accent-dark: #45652F;
-  --app-accent-soft: #E4EED4;
-  --app-shadow: 0 8px 24px rgba(69, 101, 47, 0.18);
+  --app-ink: #3b1f26;
+  --app-ink-soft: #642f3a;
+  --app-surface: #fffaf0;
+  --app-surface-muted: #f4ead7;
+  --app-border: #d8c49a;
+  --app-text: #3b2428;
+  --app-text-muted: #7a5a5f;
+  --app-accent: #642f3a;
+  --app-accent-dark: #47232d;
+  --app-accent-soft: #eadbc3;
+  --app-shadow: 0 8px 24px rgba(79, 34, 43, 0.18);
   --app-radius: 10px;
   color-scheme: light;
 }
 
 :root[data-theme='night'] {
-  --app-ink: #172218;
-  --app-ink-soft: #243625;
-  --app-surface: #202D20;
-  --app-surface-muted: #172218;
-  --app-border: #58704B;
-  --app-text: #F1F6E9;
-  --app-text-muted: #C0D0B1;
-  --app-accent: #B7D48B;
-  --app-accent-dark: #D0E5AD;
-  --app-accent-soft: #30472B;
+  --app-ink: #1d1410;
+  --app-ink-soft: #3a2229;
+  --app-surface: #2d211c;
+  --app-surface-muted: #241a14;
+  --app-border: #5f463d;
+  --app-text: #f3e7cd;
+  --app-text-muted: #cdb99a;
+  --app-accent: #c9a96a;
+  --app-accent-dark: #dcc08a;
+  --app-accent-soft: #3d2a26;
   --app-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   color-scheme: dark;
 }
@@ -286,7 +286,7 @@ header {
 .vision-card:hover,
 .reserva-card:hover {
   border-color: var(--app-accent) !important;
-  box-shadow: 0 12px 30px rgba(69, 101, 47, 0.22) !important;
+  box-shadow: 0 12px 30px rgba(79, 34, 43, 0.22) !important;
 }
 
 .menu-card h3,
@@ -324,7 +324,7 @@ header {
   background: var(--app-accent) !important;
   border-color: var(--app-accent-dark) !important;
   color: var(--app-surface) !important;
-  box-shadow: 0 5px 14px rgba(69, 101, 47, 0.2) !important;
+  box-shadow: 0 5px 14px rgba(79, 34, 43, 0.2) !important;
 }
 
 .admin-table thead,
@@ -395,7 +395,7 @@ textarea:focus,
 .select-filtro:focus,
 .input-fecha:focus {
   border-color: var(--app-accent) !important;
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.28) !important;
+  box-shadow: 0 0 0 3px rgba(100, 47, 58, 0.28) !important;
 }
 
 button,
@@ -520,7 +520,7 @@ button:hover,
 
 .modal-overlay,
 .cierre-caja-overlay {
-  background: #2C3E35 !important;
+  background: #2a1a1d !important;
 }
 
 .modal-content,
@@ -1041,7 +1041,7 @@ button:hover,
   background: var(--app-accent-dark) !important;
   border-color: var(--app-accent-dark) !important;
   color: var(--app-surface) !important;
-  box-shadow: 0 4px 14px rgba(69, 101, 47, 0.22) !important;
+  box-shadow: 0 4px 14px rgba(79, 34, 43, 0.22) !important;
 }
 
 .admin-page .create-button:hover,

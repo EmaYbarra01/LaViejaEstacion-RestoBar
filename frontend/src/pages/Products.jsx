@@ -95,7 +95,7 @@ const Products = () => {
       await Swal.fire({
         title: 'Producto duplicado',
         text: 'Ya existe un producto con ese nombre. Por favor, use uno diferente.',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#642f3a'
       });
       return;
     }
@@ -128,7 +128,7 @@ const Products = () => {
         await Swal.fire({
           title: '¡Actualizado!',
           text: 'Producto actualizado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           timer: 2000
         });
       } else {
@@ -138,7 +138,7 @@ const Products = () => {
         await Swal.fire({
           title: '¡Creado!',
           text: 'Producto agregado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           timer: 2000
         });
       }
@@ -148,7 +148,7 @@ const Products = () => {
       await Swal.fire({
         title: 'Error',
         text: err.response?.data?.mensaje || 'Error al procesar el producto',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#642f3a'
       });
     }
   };
@@ -197,7 +197,7 @@ const Products = () => {
       text: "No podrás revertir esta acción",
       showCancelButton: true,
       confirmButtonColor: '#d33',
-      cancelButtonColor: '#667eea',
+      cancelButtonColor: '#642f3a',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     });
@@ -209,7 +209,7 @@ const Products = () => {
         await Swal.fire({
           title: '¡Eliminado!',
           text: 'Producto eliminado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           timer: 2000
         });
       } catch (err) {
@@ -217,7 +217,7 @@ const Products = () => {
         await Swal.fire({
           title: 'Error',
           text: 'Error al eliminar el producto',
-          confirmButtonColor: '#667eea'
+          confirmButtonColor: '#642f3a'
         });
       }
     }
@@ -404,7 +404,7 @@ const Products = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <strong style={{ color: '#2e7d32' }}>${formatCurrency(product.price)}</strong>
+                    <strong style={{ color: '#8a6a2f' }}>${formatCurrency(product.price)}</strong>
                   </TableCell>
                   <TableCell>
                     ${formatCurrency(product.cost || 0)}
@@ -416,7 +416,7 @@ const Products = () => {
                   </TableCell>
                   <TableCell>
                     <span style={{ 
-                      color: isOutOfStock || isLowStock ? '#d32f2f' : '#2e7d32',
+                      color: isOutOfStock || isLowStock ? '#d32f2f' : '#8a6a2f',
                       fontWeight: 'bold'
                     }}>
                       {stock}
@@ -433,7 +433,7 @@ const Products = () => {
                   </TableCell>
                   <TableCell>
                     {isAvailable ? (
-                      <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>Disponible</span>
+                      <span style={{ color: '#8a6a2f', fontWeight: 'bold' }}>Disponible</span>
                     ) : (
                       <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>No disponible</span>
                     )}

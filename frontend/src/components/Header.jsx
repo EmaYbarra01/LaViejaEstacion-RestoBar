@@ -73,7 +73,7 @@ export default function Header({ isNightMode, onToggleNightMode }) {
           
           {/* Pestañas específicas por rol */}
           {user?.role === 'Mozo' && (
-            <NavLink to="/mozo" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#4caf50' }}>
+            <NavLink to="/mozo" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#c9a96a' }}>
               MI MÓDULO
             </NavLink>
           )}

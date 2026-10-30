@@ -68,7 +68,7 @@
   text-align: center;
   padding: 80px 20px;
   font-size: 1.3em;
-  color: #27ae60;
+  color: #8a6a2f;
 }
 
 /* Grid de pedidos */
@@ -242,11 +242,11 @@
 .observaciones-generales {
   margin: 15px 0;
   padding: 12px;
-  background: #e8f5e9;
-  border-left: 3px solid #4caf50;
+  background: #f3e7cd;
+  border-left: 3px solid #8a6a2f;
   border-radius: 4px;
   font-size: 0.95em;
-  color: #2e7d32;
+  color: #6b4f1d;
 }
 
 /* Acciones */
@@ -279,14 +279,14 @@
 }
 
 .btn-listo {
-  background: linear-gradient(135deg, #27ae60, #229954);
+  background: linear-gradient(135deg, #b8934a, #8a6a2f);
   color: white;
 }
 
 .btn-listo:hover {
-  background: linear-gradient(135deg, #229954, #1e8449);
+  background: linear-gradient(135deg, #a8843c, #6b4f1d);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+  box-shadow: 0 6px 16px rgba(138, 106, 47, 0.4);
 }
 
 .btn-accion:disabled {

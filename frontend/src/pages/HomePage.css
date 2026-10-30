@@ -85,7 +85,8 @@
   display: block;
   margin-top: 5px;
   color: #c9a96a;
-  font: 600 1.7rem "Courier New", monospace;
+  font: 600 1.375rem "Courier New", monospace;
+  white-space: nowrap;
 }
 
 .home-content {

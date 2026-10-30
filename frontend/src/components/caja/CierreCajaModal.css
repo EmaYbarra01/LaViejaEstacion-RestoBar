@@ -172,7 +172,7 @@
 .form-group textarea:focus {
   outline: none;
   border-color: var(--app-accent);
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
+  box-shadow: 0 0 0 3px rgba(100, 47, 58, 0.1);
 }
 
 .desglose-grid {
@@ -213,7 +213,7 @@
 }
 
 .total-desglose {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  background: linear-gradient(135deg, #f7edd6 0%, #ead9b0 100%);
   padding: 1rem;
   border-radius: 8px;
   display: flex;
@@ -291,13 +291,13 @@
 
 .pedido-item-cierre:hover {
   border-color: var(--app-accent);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
+  box-shadow: 0 4px 12px rgba(100, 47, 58, 0.15);
 }
 
 .pedido-item-cierre.selected {
   border-color: var(--app-accent);
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  background: linear-gradient(135deg, #f7edd6 0%, #ead9b0 100%);
+  box-shadow: 0 4px 12px rgba(79, 34, 43, 0.2);
 }
 
 .pedido-checkbox input[type="checkbox"] {
@@ -341,7 +341,7 @@
 }
 
 .metodo-badge.efectivo {
-  background: #dcfce7;
+  background: #f3e7cd;
   color: var(--app-accent-dark);
 }
 
@@ -372,7 +372,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(88, 122, 60, 0.2);
+  border-bottom: 1px solid rgba(100, 47, 58, 0.2);
 }
 
 .resumen-item:last-child {
@@ -390,7 +390,7 @@
 }
 
 .resumen-item.total {
-  background: rgba(88, 122, 60, 0.1);
+  background: rgba(100, 47, 58, 0.1);
   padding: 0.75rem;
   border-radius: 8px;
   margin-top: 0.5rem;
@@ -419,7 +419,7 @@
 }
 
 .resumen-item.diferencia.exacto {
-  background: #d1fae5;
+  background: #f3e7cd;
   border: 2px solid var(--app-accent);
   color: var(--app-accent-dark);
 }
@@ -471,12 +471,12 @@
 .btn-realizar-cierre {
   background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(79, 34, 43, 0.3);
 }
 
 .btn-realizar-cierre:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 20px rgba(79, 34, 43, 0.4);
 }
 
 .btn-realizar-cierre:disabled {

@@ -247,7 +247,7 @@ const Empleados = () => {
         icon: 'success',
         title: '✅ Asistencia Registrada',
         text: 'La asistencia se registró correctamente',
-        confirmButtonColor: '#4caf50',
+        confirmButtonColor: '#642f3a',
         timer: 2000
       });
       

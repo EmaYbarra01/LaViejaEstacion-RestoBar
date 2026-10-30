@@ -286,7 +286,7 @@
   border-radius: 20px !important;
   font-weight: 500 !important;
   text-transform: none !important;
-  box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3) !important;
+  box-shadow: 0 2px 10px rgba(79, 34, 43, 0.3) !important;
   transition: all 0.3s ease !important;
   min-width: 80px !important;
 }
@@ -294,7 +294,7 @@
 .edit-button:hover {
   background: linear-gradient(135deg, var(--app-accent-dark), var(--app-accent-dark)) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(79, 34, 43, 0.4) !important;
 }
 
 .delete-button {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FaMoon, FaSun } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './EntrarPage.css';
+import { formatClockDate, formatClockTime } from '../utils/clockFormat';
 
 function AccessibilityIcon() {
     return (
@@ -41,8 +42,8 @@ function EntrarPage({ isNightMode, onToggleNightMode }) {
                 {navigation.map(([label, path]) => <Link key={path} to={path}>{label}</Link>)}
             </nav>
             <div className="enter-datetime" aria-label="Fecha y hora">
-                <div>{currentDateTime.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: 'short' })}</div>
-                <strong>{currentDateTime.toLocaleTimeString('es-AR', { hour12: false })}</strong>
+                <div>{formatClockDate(currentDateTime)}</div>
+                <strong>{formatClockTime(currentDateTime)}</strong>
             </div>
             <Link className="enter-employee-access" to="/login">Acceso empleados</Link>
             <div className="enter-actions">

@@ -41,6 +41,8 @@ function App() {
     localStorage.getItem("app-theme") === "night"
   ));
   const isEmployeePath = employeePaths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
+  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/equipo-desarrollo", "/login", "/forgot-password"].includes(location.pathname) || isEmployeePath;
+  const toggleNightMode = () => setIsNightMode((current) => !current);
 
   // Inicializar la autenticación al cargar la aplicación
   useAuthInitializer();
@@ -54,7 +56,8 @@ function App() {
 
   return (
     <>
-      {location.pathname !== "/" && location.pathname !== "/entrar" && !isEmployeePath && (
+      {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
+      {!hideChrome && (
         <Header
           isNightMode={isNightMode}
           onToggleNightMode={() => setIsNightMode((current) => !current)}
@@ -80,12 +83,27 @@ function App() {
               />
             )}
           />
-          <Route path="/menu" element={<MenuPage />} />
-          <Route path="/menu-digital" element={<MenuDigital />} />
-          <Route path="/servicios" element={<ServiciosPage />} />
-          <Route path="/quienes-somos" element={<QuienesSomos />} />
-          <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
-          <Route path="/reservas" element={<Reservas />} />
+          <Route
+            path="/menu"
+            element={(
+              <MenuPage
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              />
+            )}
+          />
+          {/* HU1: Menú digital público accesible por QR - Sin autenticación */}
+          <Route path="/menu-digital" element={(
+            <MenuDigital
+              isNightMode={isNightMode}
+              onToggleNightMode={() => setIsNightMode((current) => !current)}
+            />
+          )} />
+          <Route path="/servicios" element={<ServiciosPage isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
+          <Route path="/quienes-somos" element={<QuienesSomos isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
+          <Route path="/equipo-desarrollo" element={<EquipoDesarrollo isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
+          <Route path="/reservas" element={<Reservas isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
+          {/* Módulo del Mozo - Gestión de pedidos - Mozos + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/mozo" element={
             <ProtectedRoute role={["Mozo", "Gerente", "SuperAdministrador"]}>
               <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="Mozo">
@@ -128,9 +146,9 @@ function App() {
               </EmployeePanelLayout>
             </ProtectedRoute>
           } />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
             <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
@@ -158,7 +176,7 @@ function App() {
           <Route path="/mis-reservas" element={<MisReservas />} />
         </Routes>
       </div>
-      {location.pathname !== "/" && location.pathname !== "/entrar" && !isEmployeePath && <Footer />}
+      {!hideChrome && <Footer />}
     </>
   );
 }

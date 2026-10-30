@@ -209,7 +209,7 @@ const Caja = () => {
         text: `Pedido #${response.data.ticket.numeroPedido} cobrado correctamente`,
         icon: 'success',
         confirmButtonText: 'Ver Ticket',
-        confirmButtonColor: '#10b981'
+        confirmButtonColor: '#642f3a'
       });
 
     } catch (err) {

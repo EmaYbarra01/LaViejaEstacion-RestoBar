@@ -280,7 +280,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       showCancelButton: true,
       confirmButtonText: 'Sí, procesar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#28a745',
+      confirmButtonColor: '#642f3a',
       cancelButtonColor: '#6c757d'
     });
     

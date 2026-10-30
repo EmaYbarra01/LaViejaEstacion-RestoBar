@@ -100,7 +100,7 @@
 
 .modal-toolbar .search-input:focus {
   border-color: var(--app-accent);
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
+  box-shadow: 0 0 0 3px rgba(100, 47, 58, 0.1);
 }
 
 .modal-body {
@@ -130,7 +130,7 @@
 
 .mesa-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(88, 122, 60, 0.25);
+  box-shadow: 0 8px 25px rgba(100, 47, 58, 0.25);
   border-color: var(--app-accent);
 }
 
@@ -174,8 +174,8 @@
 }
 
 .mesa-estado.estado-libre {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: #065f46;
+  background: linear-gradient(135deg, #f7edd6 0%, #ead9b0 100%);
+  color: #6b4f1d;
 }
 
 .mesa-estado.estado-ocupada {
@@ -248,7 +248,7 @@
 .categoria-tab.active {
   background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
   color: #000;
-  box-shadow: 0 4px 10px rgba(88, 122, 60, 0.3);
+  box-shadow: 0 4px 10px rgba(100, 47, 58, 0.3);
 }
 
 .productos-body {
@@ -279,7 +279,7 @@
 
 .producto-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(88, 122, 60, 0.25);
+  box-shadow: 0 8px 25px rgba(100, 47, 58, 0.25);
   border-color: var(--app-accent);
 }
 
@@ -358,7 +358,7 @@
   font-size: 0.85rem;
   color: var(--app-accent-dark);
   font-weight: 600;
-  background: #d1fae5;
+  background: #f3e7cd;
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   margin-left: 0.5rem;
@@ -580,7 +580,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(88, 122, 60, 0.3);
+  box-shadow: 0 4px 15px rgba(100, 47, 58, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -588,7 +588,7 @@
 .btn-continuar:hover {
   background: linear-gradient(135deg, var(--app-accent-dark) 0%, var(--app-accent-dark) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(88, 122, 60, 0.5);
+  box-shadow: 0 6px 20px rgba(100, 47, 58, 0.5);
 }
 
 /* Responsive */
