@@ -1,28 +1,26 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-const URL_PRODUCTOS = `${API_URL}/productos`;
+import apiClient from '../api/apiClient';
 
 /**
  * Adaptador: convierte datos del backend (español) al formato frontend (inglés)
  */
 const adaptProductFromBackend = (product) => {
   if (!product) return null;
+  const stock = Number(product?.stock ?? 0);
   return {
-    id: product._id || product.id,
-    name: product.nombre,
-    description: product.descripcion,
-    category: product.categoria,
-    price: product.precio,
-    cost: product.costo,
-    stock: product.stock,
-    minimumStock: product.stockMinimo,
-    unit: product.unidadMedida,
-    available: product.disponible,
-    imgUrl: product.imagenUrl,
-    code: product.codigo,
-    createdAt: product.createdAt,
-    updatedAt: product.updatedAt,
+    id: product?._id || product?.id,
+    name: product?.nombre,
+    description: product?.descripcion,
+    category: product?.categoria,
+    price: product?.precio,
+    cost: product?.costo,
+    stock,
+    minimumStock: product?.stockMinimo,
+    unit: product?.unidadMedida,
+    available: stock > 0,
+    imgUrl: product?.imagenUrl,
+    code: product?.codigo,
+    createdAt: product?.createdAt,
+    updatedAt: product?.updatedAt,
   };
 };
 
@@ -30,18 +28,21 @@ const adaptProductFromBackend = (product) => {
  * Adaptador: convierte datos del frontend (inglés) al formato backend (español)
  */
 const adaptProductToBackend = (product) => {
+  const stock = Number(product?.stock ?? 0);
+  const estadoActual = product?.available !== false;
+  const nuevoEstado = stock > 0 ? true : estadoActual;
   const backendProduct = {
-    nombre: product.name,
-    descripcion: product.description || '',
-    categoria: product.category,
-    precio: parseFloat(product.price),
-    costo: parseFloat(product.cost) || 0,
-    stock: parseInt(product.stock) || 0,
-    stockMinimo: parseInt(product.minimumStock) || 0,
-    unidadMedida: product.unit || 'Unidad',
-    disponible: product.available !== undefined ? product.available : true,
-    imagenUrl: product.imgUrl || '/images/productos/default.jpg',
-    codigo: product.code || '',
+    nombre: product?.name,
+    descripcion: product?.description || '',
+    categoria: product?.category,
+    precio: parseFloat(product?.price),
+    costo: parseFloat(product?.cost) || 0,
+    stock,
+    stockMinimo: parseInt(product?.minimumStock) || 0,
+    unidadMedida: product?.unit || 'Unidad',
+    disponible: nuevoEstado,
+    imagenUrl: product?.imgUrl || '/images/productos/default.jpg',
+    codigo: product?.code || '',
   };
   
   // Remover campos undefined o vacíos
@@ -57,12 +58,14 @@ const adaptProductToBackend = (product) => {
 // Obtener todos los productos
 export const getAllProducts = async () => {
   try {
-    const response = await axios.get(URL_PRODUCTOS,{
+    const response = await apiClient.get('/productos',{
       withCredentials: true
     });
     // Adaptar cada producto del backend al formato frontend
     // El backend puede devolver un array directamente o un objeto con propiedad 'productos'
-    const data = Array.isArray(response.data) ? response.data : (response.data.productos || []);
+    const data = Array.isArray(response.data)
+      ? response.data
+      : (response.data.productos || response.data.data || response.data.menu || []);
     return data.map(adaptProductFromBackend);
   } catch (error) {
     console.error('Error al obtener productos:', error);
@@ -73,7 +76,7 @@ export const getAllProducts = async () => {
 // Obtener producto por ID
 export const getProductById = async (id) => {
   try {
-    const response = await axios.get(`${URL_PRODUCTOS}/${id}`, {
+    const response = await apiClient.get(`/productos/${id}`, {
       withCredentials: true
     });
     return adaptProductFromBackend(response.data);
@@ -88,7 +91,7 @@ export const createProduct = async (productData) => {
   try {
     // Convertir del formato frontend al backend
     const backendData = adaptProductToBackend(productData);
-    const response = await axios.post(URL_PRODUCTOS, backendData, {
+    const response = await apiClient.post('/productos', backendData, {
       withCredentials: true
     });
     // El backend devuelve { mensaje, producto }, extraemos solo producto
@@ -105,7 +108,7 @@ export const updateProduct = async (id, productData) => {
   try {
     // Convertir del formato frontend al backend
     const backendData = adaptProductToBackend(productData);
-    const response = await axios.put(`${URL_PRODUCTOS}/${id}`, backendData, {
+    const response = await apiClient.put(`/productos/${id}`, backendData, {
       withCredentials: true
     });
     // El backend devuelve { mensaje, producto }, extraemos solo producto
@@ -120,7 +123,7 @@ export const updateProduct = async (id, productData) => {
 // Eliminar producto
 export const deleteProduct = async (id) => {
   try {
-    await axios.delete(`${URL_PRODUCTOS}/${id}`, {
+    await apiClient.delete(`/productos/${id}`, {
       withCredentials: true
     });
     return true;

@@ -2,7 +2,7 @@ import { before, after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { connect } from '../../scripts/mysql/connection.js';
 import { reservaService, validarFecha, validarHora, validarDatos, seSuperponen, hashToken } from '../../src/services/mysql/reservas.js';
-import { validarAnticipacion, validarHorarioAtencion } from '../../src/config/reservasConfig.js';
+import { CONFIGURACION_RESERVAS, validarAnticipacion, validarHorarioAtencion } from '../../src/config/reservasConfig.js';
 
 const fechaFutura = () => {
   let date = new Date(Date.now()+7*86400000);
@@ -25,6 +25,7 @@ test('la ocupación dura dos horas y permite comenzar justo al finalizar', () =>
   assert.equal(seSuperponen('19:00','21:00'),false);
 });
 test('la anticipación interpreta la hora argentina aunque Node use UTC', () => {
+  assert.equal(CONFIGURACION_RESERVAS.anticipacionMinima, 1);
   const future = new Date(Date.now()+25*3600000).toISOString();
   const argentina = new Date(+new Date(future)-3*3600000).toISOString();
   assert.equal(validarAnticipacion(argentina.slice(0,10),argentina.slice(11,16)).valido,true);
@@ -32,8 +33,13 @@ test('la anticipación interpreta la hora argentina aunque Node use UTC', () => 
 });
 test('el día de semana y los feriados no cambian por la zona horaria', () => {
   assert.equal(validarHorarioAtencion('2026-12-25','19:00').valido,false);
+  assert.equal(validarHorarioAtencion('2026-10-23','09:00').valido,true);
+  assert.equal(validarHorarioAtencion('2026-10-23','12:00').valido,true);
+  assert.equal(validarHorarioAtencion('2026-10-23','12:01').valido,false);
+  assert.equal(validarHorarioAtencion('2026-10-23','14:00').valido,false);
+  assert.equal(validarHorarioAtencion('2026-10-23','19:00').valido,false);
   assert.equal(validarHorarioAtencion('2026-10-23','22:00').valido,true);
-  assert.equal(validarHorarioAtencion('2026-10-22','22:00').valido,false);
+  assert.equal(validarHorarioAtencion('2026-10-22','22:00').valido,true);
 });
 
 const enabled = process.env.MYSQL_TESTS === '1';
@@ -86,7 +92,7 @@ scenario('rechaza superposición al crear y editar; permite el límite y cancela
   assert.equal(libre.mesasDisponibles.some(m=>m.numero===1),true);
 });
 scenario('capacidad, cambio de fecha, desasignación y reservas finalizadas', async()=>{
-  await assert.rejects(service.crear(datos({numeroMesa:1,comensales:15})),/capacidad/);
+  await assert.rejects(service.crear(datos({numeroMesa:1,comensales:11})),/Comensales/);
   const {reserva} = await service.crear(datos({numeroMesa:1}));
   const cambio = await service.actualizar(reserva.id,{numeroMesa:null});
   assert.equal(cambio.reserva.mesa,null);

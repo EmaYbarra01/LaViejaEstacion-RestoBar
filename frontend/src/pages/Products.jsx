@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from 'axios';
 import { getAllProducts, createProduct, updateProduct, deleteProduct, checkProductNameExists } from "../helpers/queriesProductos";
 import ProductFormModal from "../crud/products/ProductFormModal";
 import {
@@ -12,10 +11,7 @@ import {
   Table,
   Chip,
   Alert,
-  TextField,
-  Box,
-  Typography,
-  Paper
+
 } from "@mui/material";
 import Swal from 'sweetalert2';
 import useUserStore from '../store/useUserStore';
@@ -26,17 +22,15 @@ const Products = () => {
   const { user } = useUserStore();
   const isSuperAdmin = user?.role === 'SuperAdministrador';
   const isGerente = user?.role === 'Gerente';
-  const canEdit = isSuperAdmin; // Solo SuperAdmin puede editar productos
+  const canEdit = isSuperAdmin || isGerente;
   
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [nameError, setNameError] = useState("");
-  const [lowStockCount, setLowStockCount] = useState(0);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [messageLoading, setMessageLoading] = useState(false);
-  const [filterTerm, setFilterTerm] = useState('');
+  const [filterName, setFilterName] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [productsError, setProductsError] = useState('');
 
   const [form, setForm] = useState({
     name: "",
@@ -53,63 +47,7 @@ const Products = () => {
 
   useEffect(() => {
     loadProducts();
-    if (isSuperAdmin || isGerente) {
-      loadMessages();
-    }
-  }, [user?.role, isGerente, isSuperAdmin]);
-
-  const loadMessages = async () => {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/mensajes`, {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token') || localStorage.getItem('accessToken') || ''}`
-        }
-      });
-      setMessages(response.data?.mensajes || []);
-    } catch (error) {
-      console.error('Error al cargar mensajes:', error);
-      setMessages([]);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    try {
-      setMessageLoading(true);
-      const targetRole = user?.role === 'Gerente' ? 'SuperAdministrador' : 'Gerente';
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/mensajes`,
-        { texto: newMessage.trim(), destinatarioRol: targetRole },
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token') || localStorage.getItem('accessToken') || ''}`
-          }
-        }
-      );
-
-      const sentMessage = response.data?.data;
-      if (sentMessage) {
-        setMessages((prev) => [...prev, sentMessage]);
-      } else {
-        await loadMessages();
-      }
-      setNewMessage('');
-    } catch (error) {
-      console.error('Error al enviar mensaje:', error);
-      await Swal.fire({
-        icon: 'error',
-        title: 'No se pudo enviar el mensaje',
-        text: error.response?.data?.mensaje || 'Reintente más tarde',
-        confirmButtonColor: '#667eea'
-      });
-    } finally {
-      setMessageLoading(false);
-    }
-  };
+  }, [user?.role]);
 
   const loadProducts = async () => {
     try {
@@ -117,17 +55,12 @@ const Products = () => {
       // Asegurar que siempre sea un array
       const productsArray = Array.isArray(productsData) ? productsData : [];
       setProducts(productsArray);
+      setProductsError('');
       
-      // Calcular productos con stock bajo
-      const lowStock = productsArray.filter((product) => {
-        const stock = Number(product.stock || 0);
-        const minimumStock = Number(product.minimumStock || 0);
-        return stock <= minimumStock;
-      }).length;
-      setLowStockCount(lowStock);
     } catch (err) {
       console.error("Error fetching products:", err);
-      setProducts([]); // Establecer array vacío en caso de error
+      setProducts([]);
+      setProductsError(err.response?.data?.mensaje || 'No se pudieron cargar los productos.');
     }
   };
 
@@ -146,7 +79,7 @@ const Products = () => {
     if (name === 'name' && value.trim()) {
       const exists = await checkProductNameExists(value, isEdit ? form.id : null);
       if (exists) {
-        setNameError(`⚠️ El producto "${value}" ya existe`);
+        setNameError(`El producto "${value}" ya existe`);
       } else {
         setNameError("");
       }
@@ -160,49 +93,52 @@ const Products = () => {
     
     if (nameError) {
       await Swal.fire({
-        icon: 'warning',
         title: 'Producto duplicado',
         text: 'Ya existe un producto con ese nombre. Por favor, use uno diferente.',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#642f3a'
       });
       return;
     }
 
-    const stockValue = Number(form.stock || 0);
+    const stockValue = Number(form?.stock ?? 0);
+    const estadoActual = form?.available !== false;
+    const nuevoEstado = stockValue > 0 ? true : estadoActual;
     const normalizedForm = {
       ...form,
       stock: stockValue,
-      minimumStock: Number(form.minimumStock || 0),
-      price: Number(form.price || 0),
-      cost: Number(form.cost || 0),
-      available: stockValue > 0 ? form.available !== false : false
+      minimumStock: Number(form?.minimumStock ?? 0),
+      price: Number(form?.price ?? 0),
+      cost: Number(form?.cost ?? 0),
+      available: nuevoEstado
     };
     
     try {
       if (isEdit) {
         const updatedProduct = await updateProduct(form.id, normalizedForm);
-        setProducts(
-          products.map((product) =>
-            product.id === form.id ? updatedProduct : product
+        setProducts((currentProducts) =>
+          currentProducts.map((product) =>
+            product?.id === form?.id ? {
+              ...(updatedProduct || normalizedForm),
+              stock: Number(updatedProduct?.stock ?? stockValue),
+              available: stockValue > 0 ? true : nuevoEstado
+            } : product
           )
         );
         setOpenModal(false);
         await Swal.fire({
-          icon: 'success',
           title: '¡Actualizado!',
           text: 'Producto actualizado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           timer: 2000
         });
       } else {
         const newProduct = await createProduct(normalizedForm);
-        setProducts([...products, newProduct]);
+        setProducts((currentProducts) => [...currentProducts, newProduct]);
         setOpenModal(false);
         await Swal.fire({
-          icon: 'success',
           title: '¡Creado!',
           text: 'Producto agregado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           timer: 2000
         });
       }
@@ -210,10 +146,9 @@ const Products = () => {
     } catch (err) {
       console.error("Error submitting product:", err);
       await Swal.fire({
-        icon: 'error',
         title: 'Error',
         text: err.response?.data?.mensaje || 'Error al procesar el producto',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#642f3a'
       });
     }
   };
@@ -244,13 +179,14 @@ const Products = () => {
   };
 
   const handleEditProduct = async (product) => {
+    if (!product) return;
     setIsEdit(true);
     setForm({
       ...product,
-      id: product.id,
-      stock: product.stock ?? 0,
-      minimumStock: product.minimumStock ?? 0,
-      available: product.available !== false
+      id: product?.id,
+      stock: product?.stock ?? 0,
+      minimumStock: product?.minimumStock ?? 0,
+      available: product?.available !== false
     });
     handleOpenModal();
   };
@@ -259,10 +195,9 @@ const Products = () => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
       text: "No podrás revertir esta acción",
-      icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
-      cancelButtonColor: '#667eea',
+      cancelButtonColor: '#642f3a',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     });
@@ -272,33 +207,49 @@ const Products = () => {
         await deleteProduct(id);
         setProducts(products.filter((product) => product.id !== id));
         await Swal.fire({
-          icon: 'success',
           title: '¡Eliminado!',
           text: 'Producto eliminado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           timer: 2000
         });
       } catch (err) {
         console.error("Error deleting product:", err);
         await Swal.fire({
-          icon: 'error',
           title: 'Error',
           text: 'Error al eliminar el producto',
-          confirmButtonColor: '#667eea'
+          confirmButtonColor: '#642f3a'
         });
       }
     }
   };
 
+  const categories = [...new Set(
+    products
+      .map((product) => String(product.category || '').trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
   const filteredProducts = [...products]
     .filter((product) => {
-      const term = filterTerm.trim().toLocaleLowerCase();
-      if (!term) return true;
-      return [product.name, product.category].some((value) =>
-        String(value || '').toLocaleLowerCase().includes(term)
-      );
+      const name = filterName.trim().toLocaleLowerCase();
+      const category = filterCategory.trim().toLocaleLowerCase();
+      return (!name || String(product.name || '').toLocaleLowerCase().includes(name))
+        && (!category || String(product.category || '').toLocaleLowerCase() === category);
     })
-    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'es', { sensitivity: 'base' }));
+    .sort((a, b) => (
+      String(a.name || '').localeCompare(String(b.name || ''), 'es', {
+        sensitivity: 'base',
+        numeric: true
+      })
+      || String(a.category || '').localeCompare(String(b.category || ''), 'es', { sensitivity: 'base' })
+      || String(a.id).localeCompare(String(b.id), 'es', { numeric: true })
+    ));
+
+  const lowStockProducts = products.filter((product) => {
+    const stock = Number(product.stock || 0);
+    const minimumStock = Number(product.minimumStock || 0);
+    return stock <= minimumStock;
+  });
 
   return (
     <div className="admin-page">
@@ -308,8 +259,8 @@ const Products = () => {
         </h1>
         {isGerente && (
           <Chip 
-            label="Solo Lectura" 
-            color="warning" 
+            label="Gestión completa"
+            color="success"
             size="small" 
             style={{ marginLeft: '10px' }}
           />
@@ -324,87 +275,74 @@ const Products = () => {
               handleOpenModal();
             }}
           >
-            ➕ Crear Producto
+            Crear producto
           </Button>
         )}
       </div>
 
-      {/* Banner de Solo Lectura para Gerente */}
-      {isGerente && (
-        <div style={{ padding: '10px', background: '#fff3cd', borderRadius: '8px', marginBottom: '20px', border: '1px solid #ffc107' }}>
-          <p style={{ margin: 0, color: '#856404' }}>📋 Solo visualización - Sin edición permitida</p>
-        </div>
-      )}
-
-      {/* Alertas de Stock Bajo */}
-      {lowStockCount > 0 && (
-        <Alert severity="warning" style={{ marginBottom: '20px' }}>
-          <strong>⚠️ Atención:</strong> Hay {lowStockCount} producto{lowStockCount > 1 ? 's' : ''} con stock bajo o agotado.
-          {isGerente && ' Contacte al SuperAdministrador para realizar reposición.'}
+      {productsError && (
+        <Alert severity="error" icon={false} sx={{ marginBottom: '20px' }}>
+          {productsError}
         </Alert>
       )}
 
-      {(isGerente || isSuperAdmin) && (
-        <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2, background: '#f8faff' }}>
-          <Typography variant="h6" sx={{ mb: 2, color: '#1f2d3d' }}>
-            Mensajería interna
-          </Typography>
+      <section className="products-filters" aria-label="Filtros de productos">
+        <div className="products-filters-heading">
+          <div>
+            <h2>Catálogo de productos</h2>
+            <p>Buscá por nombre o seleccioná una categoría para encontrar productos.</p>
+          </div>
+          <span className="products-results-count">
+            {filteredProducts.length} de {products.length}
+          </span>
+        </div>
+        <div className="products-filters-fields">
+          <div className="products-filter-field">
+            <label htmlFor="product-name-filter">Filtrar por nombre</label>
+            <input
+              id="product-name-filter"
+              type="search"
+              value={filterName}
+              onChange={(event) => setFilterName(event.target.value)}
+              maxLength={80}
+            />
+          </div>
+          <div className="products-filter-field products-category-filter">
+            <label htmlFor="product-category-filter">Filtrar por categoría</label>
+            <select
+              id="product-category-filter"
+              value={filterCategory}
+              onChange={(event) => setFilterCategory(event.target.value)}
+            >
+              <option value="">Todas las categorías</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+          {(filterName || filterCategory) && (
+            <Button
+              variant="outlined"
+              className="products-clear-filters"
+              onClick={() => {
+                setFilterName('');
+                setFilterCategory('');
+              }}
+            >
+              Limpiar filtros
+            </Button>
+          )}
+        </div>
+      </section>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Box sx={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 1.2, p: 1, background: '#fff', borderRadius: 1, border: '1px solid #e0e7ff' }}>
-              {messages.length === 0 ? (
-                <Typography variant="body2" sx={{ color: '#64748b', p: 1 }}>
-                  No hay mensajes entre Gerente y SuperAdministrador.
-                </Typography>
-              ) : (
-                messages.map((msg) => {
-                  const senderName = msg.remitente?.nombre ? `${msg.remitente.nombre} ${msg.remitente.apellido || ''}`.trim() : 'Sistema';
-                  const isMine = msg.remitenteRol === user?.role;
-                  return (
-                    <Box key={msg._id || msg.id || `${msg.remitenteRol}-${msg.createdAt}`} sx={{
-                      alignSelf: isMine ? 'flex-end' : 'flex-start',
-                      maxWidth: '75%',
-                      background: isMine ? '#dbeafe' : '#f1f5f9',
-                      color: '#0f172a',
-                      borderRadius: 2,
-                      p: 1.2,
-                      border: '1px solid rgba(148,163,184,0.35)'
-                    }}>
-                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, mb: 0.4 }}>
-                        {senderName} · {msg.remitenteRol}
-                      </Typography>
-                      <Typography variant="body2">{msg.texto}</Typography>
-                    </Box>
-                  );
-                })
-              )}
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <TextField
-                fullWidth
-                size="small"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder={user?.role === 'Gerente' ? 'Escribí un mensaje para el SuperAdministrador...' : 'Escribí un mensaje para el Gerente...'}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-              />
-              <Button
-                variant="contained"
-                onClick={sendMessage}
-                disabled={messageLoading || !newMessage.trim()}
-                sx={{ minWidth: 120 }}
-              >
-                {messageLoading ? 'Enviando...' : 'Enviar'}
-              </Button>
-            </Box>
-          </Box>
-        </Paper>
+      {lowStockProducts.length > 0 && (
+        <Alert severity="warning" icon={false} style={{ marginBottom: '20px' }}>
+          <strong>Atención:</strong> {lowStockProducts.length === 1
+            ? 'Este producto requiere reposición: '
+            : 'Estos productos requieren reposición: '}
+          {lowStockProducts.map((product) => product.name).join(', ')}.
+          {isGerente && ' Contacte al SuperAdministrador para realizar reposición.'}
+        </Alert>
       )}
 
       <ProductFormModal
@@ -416,16 +354,6 @@ const Products = () => {
         onClose={handleCloseModal}
         nameError={nameError}
       />
-
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <TextField
-          size="small"
-          label="Filtrar por nombre o categoría"
-          value={filterTerm}
-          onChange={(event) => setFilterTerm(event.target.value)}
-          inputProps={{ maxLength: 80 }}
-        />
-      </Box>
 
       <TableContainer className="admin-table-container">
         <Table className="admin-table">
@@ -450,11 +378,11 @@ const Products = () => {
             ) : (
               filteredProducts.map((product) => (
                 (() => {
-                  const stock = Number(product.stock || 0);
-                  const minimumStock = Number(product.minimumStock || 0);
+                  const stock = Number(product?.stock ?? 0);
+                  const minimumStock = Number(product?.minimumStock ?? 0);
                   const isOutOfStock = stock <= 0;
                   const isLowStock = stock > 0 && stock <= minimumStock;
-                  const isAvailable = !isOutOfStock && product.available !== false;
+                  const isAvailable = stock > 0;
 
                   return (
                 <TableRow key={product.id} sx={{ 
@@ -463,10 +391,10 @@ const Products = () => {
                 }}>
                   <TableCell>
                     <strong>{product.name}</strong>
-                    {product.description && (
+                    {product?.description && (
                       <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
-                        {product.description.substring(0, 50)}
-                        {product.description.length > 50 && '...'}
+                        {String(product.description).substring(0, 50)}
+                        {String(product.description).length > 50 && '...'}
                       </div>
                     )}
                   </TableCell>
@@ -499,15 +427,15 @@ const Products = () => {
                       </div>
                     ) : isLowStock && (
                       <div style={{ fontSize: '0.8em', color: '#d32f2f' }}>
-                        ⚠️ Stock bajo
+                        Stock bajo
                       </div>
                     )}
                   </TableCell>
                   <TableCell>
                     {isAvailable ? (
-                      <span style={{ color: '#8a6a2f', fontWeight: 'bold' }}>✅ Disponible</span>
+                      <span style={{ color: '#8a6a2f', fontWeight: 'bold' }}>Disponible</span>
                     ) : (
-                      <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>❌ No disponible</span>
+                      <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>No disponible</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -519,7 +447,7 @@ const Products = () => {
                           onClick={() => handleEditProduct(product)}
                           size="small"
                         >
-                          ✏️ Editar
+                          Editar
                         </Button>
                         <Button
                           variant="contained"
@@ -527,11 +455,11 @@ const Products = () => {
                           onClick={() => handleDeleteProduct(product.id)}
                           size="small"
                         >
-                          🗑️ Eliminar
+                          Eliminar
                         </Button>
                       </div>
                     ) : (
-                      <span style={{ color: '#999', fontSize: '0.9rem' }}>Solo visualización</span>
+                      <span style={{ color: '#999', fontSize: '0.9rem' }}>Sin acciones</span>
                     )}
                   </TableCell>
                 </TableRow>

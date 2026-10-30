@@ -9,15 +9,16 @@ export function validarPedidoPublico(body) {
   check(body && typeof body==='object','Datos del pedido inválidos');
   check(['Local','Domicilio'].includes(body.tipoPedido),'Tipo de pedido inválido');
   check(body.cliente && typeof body.cliente==='object','Datos del cliente requeridos');
+  const esLocal=body.tipoPedido==='Local';
   const cliente={
     nombre:texto(body.cliente.nombre,100,'Nombre del cliente',true),
-    telefono:texto(body.cliente.telefono,40,'Teléfono',true),
-    email:texto(body.cliente.email,254,'Email',true).toLowerCase(),
+    telefono:texto(body.cliente.telefono??'',40,'Teléfono',!esLocal),
+    email:texto(body.cliente.email??'',254,'Email',!esLocal).toLowerCase(),
     direccion:texto(body.cliente.direccion??'',255,'Dirección',body.tipoPedido==='Domicilio'),
     referencia:texto(body.cliente.referencia??'',255,'Referencia')
   };
-  check(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cliente.email),'Email inválido');
-  check(cliente.telefono.replace(/\D/g,'').length>=5,'Teléfono inválido');
+  if(cliente.email)check(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cliente.email),'Email inválido');
+  if(cliente.telefono)check(cliente.telefono.replace(/\D/g,'').length>=5,'Teléfono inválido');
   const numeroMesa=body.tipoPedido==='Local'?positiveId(body.numeroMesa):null;
   const metodoPago=body.metodoPago||'Efectivo';
   check(['Efectivo','Transferencia'].includes(metodoPago),'Método de pago inválido');
@@ -59,7 +60,7 @@ export function pedidosPublicosService(pool) {
         for(const p of v.productos)cantidades.set(p.producto,(cantidades.get(p.producto)||0)+p.cantidad);
         for(const id of [...cantidades.keys()].sort((a,b)=>a-b)) {
           const [[p]]=await db.execute('SELECT * FROM productos WHERE id=? FOR UPDATE',[id]);
-          check(p && p.disponible,'Uno de los productos no está disponible',400);
+          check(p && (Number(p.stock) > 0 || p.disponible),'Uno de los productos no está disponible',400);
           check(Number(p.stock)>=cantidades.get(id),`Stock insuficiente para ${p.nombre}`,409);
           catalogo.set(id,p);
         }
@@ -74,7 +75,7 @@ export function pedidosPublicosService(pool) {
             VALUES(?,?,?,?,?,?,ROUND(?*?,2),?)`,[id,p.id,index+1,p.nombre,item.cantidad,p.precio,item.cantidad,p.precio,item.observaciones]);
         }
         for(const [producto,cantidad] of cantidades) {
-          await db.execute('UPDATE productos SET stock=stock-? WHERE id=?',[cantidad,producto]);
+          await db.execute('UPDATE productos SET disponible=(stock-? > 0),stock=stock-? WHERE id=?',[cantidad,cantidad,producto]);
           await db.execute(`INSERT INTO movimientos_stock(producto_id,pedido_id,cantidad,motivo,registrado_por_id)
             VALUES(?,?,?,'Pedido público creado',NULL)`,[producto,id,-cantidad]);
         }

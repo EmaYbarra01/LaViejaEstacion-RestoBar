@@ -14,7 +14,7 @@ const services = [
         title: 'Servicio en Local',
         description: 'Disfruta de nuestro ambiente acogedor con atención personalizada de nuestros mozos.',
         icon: <path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2 1-3 4-3 8h3" />,
-        features: [['clock', 'Lun-Dom: 09:00 - 13:00'], ['clock', 'Lun-Dom: 20:00 - 00:00'], ['pin', 'Salón Principal y VIP']]
+        features: [['clock', 'Lun-Dom: 09:00 - 12:00'], ['clock', 'Lun-Dom: 20:00 - 00:00'], ['pin', 'Salón Principal y VIP']]
     },
     {
         title: 'Delivery',

@@ -43,7 +43,7 @@ function datosPublicos(p) {
     descripcion: p.descripcion, categoria: p.categoria,
     precio: Number(p.precio), costo: Number(p.costo), stock: Number(p.stock),
     stockMinimo: Number(p.stock_minimo), unidadMedida: p.unidad_medida,
-    disponible: Boolean(p.disponible), imagenUrl: p.imagen_url,
+    disponible: Number(p.stock) > 0, imagenUrl: p.imagen_url,
     codigo: p.codigo, createdAt: p.created_at, updatedAt: p.updated_at,
     margen: Number(p.costo) > 0
       ? ((Number(p.precio) - Number(p.costo)) / Number(p.costo) * 100).toFixed(2) : 0,
@@ -55,7 +55,7 @@ function datosMenu(p) {
     _id: String(p.id), id: String(p.id), nombre: p.nombre,
     descripcion: p.descripcion, categoria: p.categoria,
     precio: Number(p.precio), imagenUrl: p.imagen_url,
-    disponible: Boolean(p.disponible), stock: Number(p.stock),
+    disponible: Number(p.stock) > 0, stock: Number(p.stock),
   };
 }
 async function autorizar(req, c) {
@@ -125,7 +125,9 @@ async function preparar(body, c, anterior) {
     stock: decimal(body.stock ?? anterior?.stock ?? 0, 'Stock', 3, 9),
     stockMinimo: decimal(body.stockMinimo ?? anterior?.stock_minimo ?? 0, 'Stock mínimo', 3, 9),
     unidad: body.unidadMedida ?? anterior?.unidad_medida ?? 'Unidad',
-    disponible: booleano(body.disponible ?? Boolean(anterior?.disponible ?? true), 'Disponible'),
+    disponible: Number(body.stock ?? anterior?.stock ?? 0) > 0
+      ? true
+      : booleano(body.disponible ?? Boolean(anterior?.disponible ?? true), 'Disponible'),
     imagen: texto(body.imagenUrl ?? anterior?.imagen_url ?? '/images/productos/default.jpg', 'Imagen', 500),
     codigo: body.codigo === undefined ? (anterior?.codigo ?? null)
       : (texto(body.codigo, 'Código', 100) || null),
@@ -233,7 +235,11 @@ export const actualizarStock = manejar(async (req, c) => {
     if (!r.suficiente) throw errorPeticion('Stock insuficiente');
   }
   const cambio = operacion === 'restar' ? '-' + cantidad : cantidad;
-  await c.execute('UPDATE productos SET stock=stock+CAST(? AS DECIMAL(12,3)) WHERE id=?', [cambio,id]);
+  await c.execute(
+    `UPDATE productos SET disponible=(stock+CAST(? AS DECIMAL(12,3)) > 0),
+     stock=stock+CAST(? AS DECIMAL(12,3)) WHERE id=?`,
+    [cambio,cambio,id]
+  );
   await c.execute(
     `INSERT INTO movimientos_stock(producto_id,cantidad,motivo,registrado_por_id)
      VALUES (?,?,'Ajuste manual de stock',?)`, [id,cambio,usuario]

@@ -17,17 +17,16 @@ const manejar = fn => async (req, res) => {
   }
 };
 export const crearReserva = manejar(async (req, res) => {
-  const { reserva, token } = await service.crear(req.body);
-  notificar(enviarEmailConfirmacion, reserva, token);
+  const { reserva } = await service.crear(req.body);
   notificar(enviarNotificacionRestobar, reserva);
-  res.status(201).json({ success: true, mensaje: '¡Reserva creada exitosamente! Te enviaremos un email con los detalles.', reserva,
+  res.status(201).json({ success: true, mensaje: '¡Solicitud de reserva recibida! Te enviaremos un email cuando confirmemos la disponibilidad.', reserva,
     mesaAsignada: reserva.mesa ? { numero: reserva.mesa.numero, capacidad: reserva.mesa.capacidad, ubicacion: reserva.mesa.ubicacion } : null });
 });
 export const obtenerReservas = manejar(async (req, res) => res.json(await service.listar(req.query)));
 export const obtenerReservaPorId = manejar(async (req, res) => res.json({ success: true, reserva: await service.obtener(req.params.id) }));
 export const actualizarReserva = manejar(async (req, res) => {
   const { reserva, token } = await service.actualizar(req.params.id, req.body);
-  if (token) notificar(enviarEmailConfirmacion, reserva, token);
+  if (token && reserva.estado === 'Confirmada') notificar(enviarEmailConfirmacion, reserva, token);
   res.json({ success: true, mensaje: 'Reserva actualizada exitosamente', reserva });
 });
 const cambiar = (estado, mensaje) => manejar(async (req, res) => {

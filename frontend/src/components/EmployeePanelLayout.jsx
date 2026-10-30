@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { FaBox, FaCalendarAlt, FaCashRegister, FaChartLine, FaClipboardList, FaComments, FaFire, FaMoon, FaSun, FaUsers } from 'react-icons/fa';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { FaMoon, FaSun } from 'react-icons/fa';
 import useUserStore from '../store/useUserStore';
 import './EmployeePanelLayout.css';
 import { formatClockDate, formatClockTime } from '../utils/clockFormat';
@@ -16,44 +15,75 @@ const employeeNames = {
 
 const links = {
   admin: [
-    ['/admin/dashboard', 'Dashboard', FaChartLine],
-    ['/admin/products', 'Productos', FaBox],
-    ['/admin/sales', 'Ventas', FaChartLine],
-    ['/admin/reservas', 'Reservas', FaClipboardList],
-    ['/admin/calendario', 'Calendario', FaCalendarAlt],
-    ['/admin/empleados', 'Empleados', FaUsers],
-    ['/supervision-pedidos', 'Supervisión de pedidos', FaClipboardList],
-    ['/encargado-cocina', 'Cocina', FaFire],
-    ['/caja', 'Caja', FaCashRegister]
+    ['/admin/dashboard', 'Dashboard'],
+    ['/admin/products', 'Productos'],
+    ['/admin/sales', 'Ventas'],
+    ['/admin/reservas', 'Reservas'],
+    ['/admin/calendario', 'Calendario'],
+    ['/admin/empleados', 'Empleados'],
+    ['/supervision-pedidos', 'Supervisión de pedidos'],
+    ['/encargado-cocina', 'Supervisión de cocina'],
+    ['/caja', 'Caja']
   ],
   Mozo: [
-    ['/mozo', 'Pedidos', FaClipboardList],
-    ['/mozo', 'Menú', FaBox],
-    ['/mozo', 'Cuenta', FaCashRegister]
+    ['/mozo', 'Pedidos'],
+    ['/mozo', 'Menú'],
+    ['/mozo', 'Cuenta']
   ],
   EncargadoCocina: [
-    ['/encargado-cocina', 'Todos', FaFire],
-    ['/encargado-cocina', 'Pendientes', FaFire],
-    ['/encargado-cocina', 'En preparación', FaFire],
-    ['/encargado-cocina', 'Listos', FaFire]
+    ['/encargado-cocina', 'Supervisión de cocina'],
+    ['/encargado-cocina', 'Pendientes'],
+    ['/encargado-cocina', 'En preparación'],
+    ['/encargado-cocina', 'Listos']
   ],
-  Cajero: [['/caja', 'Cobros', FaCashRegister]]
+  Cajero: [['/caja', 'Cobros']]
 };
 
-function EmployeePanelLayout({ children, roleType = 'admin', isNightMode, onToggleNightMode }) {
+const normalizeRole = (value) => String(value || '').trim().toLowerCase();
+
+const getPanelTitle = (pathname, roleType, role) => {
+  if (pathname.startsWith('/admin/products')) return 'Productos';
+  if (pathname.startsWith('/admin/sales')) return 'Ventas';
+  if (pathname.startsWith('/admin/reservas')) return 'Reservas';
+  if (pathname.startsWith('/admin/calendario')) return 'Calendario';
+  if (pathname.startsWith('/admin/empleados')) return 'Empleados';
+  if (pathname.startsWith('/admin/dashboard') || pathname === '/admin') return 'Gerencia';
+  if (pathname.startsWith('/supervision-pedidos')) return 'Supervisión de pedidos';
+  if (pathname.startsWith('/encargado-cocina')) return 'Supervisión de cocina';
+  if (pathname.startsWith('/caja/historial-cierres')) return 'Historial de cierres';
+  if (pathname.startsWith('/caja')) return 'Caja - Cobros';
+  if (pathname.startsWith('/mozo')) return 'Pedidos';
+
+  if (roleType === 'admin') return 'Gerencia';
+  if (role === 'Mozo') return 'Pedidos';
+  if (role === 'EncargadoCocina') return 'Cocina';
+  if (role === 'Cajero') return 'Caja - Cobros';
+  return 'Supervisión de pedidos';
+};
+
+function EmployeePanelLayout({
+  children,
+  roleType = 'admin',
+  pageTitle,
+  isNightMode,
+  onToggleNightMode
+}) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useUserStore();
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const role = user?.role || 'SuperAdministrador';
-  const isManagement = role === 'SuperAdministrador' || role === 'Gerente';
-  const panelLinks = roleType === 'admin'
-    ? links.admin.filter(([path]) => path !== '/admin/empleados' || isManagement)
-    : links[role] || [];
-  const title = roleType === 'admin' ? 'Dashboard - Panel de Control' : (
-    role === 'Mozo' ? 'Pedidos' :
-      role === 'EncargadoCocina' ? 'Cocina' :
-        role === 'Cajero' ? 'Caja - Cobros' : 'Supervisión de pedidos'
-  );
+  const normalizedRole = normalizeRole(role);
+  const isManagement = ['superadministrador', 'gerente'].includes(normalizedRole);
+  const canViewSales = ['superadministrador', 'gerente'].includes(normalizedRole);
+  const managementLinks = links.admin.filter(([path]) => (
+    (path !== '/admin/empleados' || isManagement)
+    && (path !== '/admin/sales' || canViewSales)
+  ));
+  const panelLinks = isManagement
+    ? managementLinks
+    : (roleType === 'admin' ? managementLinks : links[role] || links[roleType] || []);
+  const title = pageTitle || getPanelTitle(location.pathname, roleType, role);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentDateTime(new Date()), 1000);
@@ -77,23 +107,16 @@ function EmployeePanelLayout({ children, roleType = 'admin', isNightMode, onTogg
           <span>{role}</span>
         </div>
         <nav aria-label="Opciones del panel" className="employee-nav">
-          {panelLinks.map(([path, label, IconComponent], index) => (
+          {panelLinks.map(([path, label]) => (
             <NavLink
               key={`${path}-${label}`}
               to={path}
               end={path !== '/mozo' && path !== '/encargado-cocina'}
-              className={({ isActive }) => `employee-nav-link${isActive && index === 0 ? ' active' : ''}`}
+              className={({ isActive }) => `employee-nav-link${isActive ? ' active' : ''}`}
             >
-              {React.createElement(IconComponent, { 'aria-hidden': true })}
               <span>{label}</span>
             </NavLink>
           ))}
-          {isManagement && (
-            <NavLink to="/mensajeria" className="employee-nav-link">
-              <FaComments aria-hidden="true" />
-              <span>Mensajería</span>
-            </NavLink>
-          )}
         </nav>
       </aside>
       <section className="employee-main">

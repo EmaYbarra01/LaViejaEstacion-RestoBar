@@ -898,6 +898,11 @@ button:hover,
   color: var(--app-text) !important;
 }
 
+.swal2-container {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 .swal2-confirm,
 .swal2-cancel {
   background: var(--app-accent) !important;

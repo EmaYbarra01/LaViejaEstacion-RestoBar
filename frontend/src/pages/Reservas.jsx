@@ -4,8 +4,26 @@ import Swal from 'sweetalert2';
 import PublicShell from '../components/PublicShell';
 import './Reservas.css';
 
+const HORARIOS_ATENCION = {
+  0: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  1: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  2: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  3: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  4: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  5: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  6: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] }
+};
+
+const FECHAS_ESPECIALES = {
+  diasCerrados: ['01-01', '05-01', '12-25'],
+  horariosEspeciales: {
+    '12-24': { franjas: [{ abre: '11:00', cierra: '20:00' }] },
+    '12-31': { franjas: [{ abre: '19:00', cierra: '03:00' }] }
+  }
+};
+
 const Reservas = ({ isNightMode, onToggleNightMode }) => {
-  const maxComensales = 15;
+  const maxComensales = 10;
   const maxFecha = '9999-12-31';
   const [formData, setFormData] = useState({
     cliente: '',
@@ -17,7 +35,6 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
     comentarios: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
 
   const limitarFechaA4Digitos = (value) => {
     if (!value) return value;
@@ -39,11 +56,41 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setMessage({ type: '', text: '' });
 
     // Validación básica
     if (!formData.cliente || !formData.email || !formData.telefono || !formData.fecha || !formData.hora) {
-      setMessage({ type: 'error', text: 'Por favor, completa todos los campos obligatorios.' });
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Datos incompletos',
+        text: 'Por favor, completa todos los campos obligatorios.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#642f3a'
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const horario = getHorarioAtencion(formData.fecha);
+    const minutosSeleccionados = Number(formData.hora.slice(0, 2)) * 60
+      + Number(formData.hora.slice(3, 5));
+    const horarioValido = horario?.franjas.some(({ abre, cierra }) => {
+      const minutosApertura = Number(abre.slice(0, 2)) * 60 + Number(abre.slice(3, 5));
+      let minutosCierre = Number(cierra.slice(0, 2)) * 60 + Number(cierra.slice(3, 5));
+      const cierraMedianoche = cierra === '00:00' || minutosCierre <= minutosApertura;
+      if (cierraMedianoche) minutosCierre = 24 * 60;
+      return minutosSeleccionados >= minutosApertura
+        && minutosSeleccionados <= minutosCierre
+        && (!cierraMedianoche || minutosSeleccionados < minutosCierre);
+    });
+
+    if (!horarioValido) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Horario no disponible',
+        text: 'Elegí un horario entre 09:00 y 12:00, o entre 20:00 y 00:00.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#642f3a'
+      });
       setIsSubmitting(false);
       return;
     }
@@ -56,7 +103,8 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
         telefono: formData.telefono,
         fecha: formData.fecha,
         hora: formData.hora,
-        comensales: parseInt(formData.comensales),
+        comensales: formData.comensales === 'evento-especial' ? 10 : parseInt(formData.comensales),
+        eventoEspecial: formData.comensales === 'evento-especial',
         comentarios: formData.comentarios
       };
 
@@ -68,35 +116,32 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
       console.log('[RESERVAS] Respuesta del servidor:', response);
 
       if (response.success) {
-        // Mostrar SweetAlert de éxito
         await Swal.fire({
           icon: 'success',
-          title: '¡Reserva Enviada!',
+          title: '¡Solicitud recibida!',
           html: `
             <div style="text-align: left;">
-              <p><strong>Tu reserva ha sido enviada exitosamente.</strong></p>
+              <p><strong>Recibimos tu solicitud de reserva.</strong></p>
               <br>
-              <p>📧 Hemos enviado un correo de confirmación a:</p>
-              <p style="color: #667eea; font-weight: bold; text-align: center;">${formData.email}</p>
+              <p>📧 Te enviaremos un correo a:</p>
+              <p style="color: #642f3a; font-weight: bold; text-align: center;">${formData.email}</p>
               <br>
-              <p>📬 También enviamos una notificación al restaurante:</p>
-              <p style="color: #667eea; font-weight: bold; text-align: center;">laviejaestacionbar@gmail.com</p>
+              <p>cuando confirmemos la disponibilidad de mesas para la fecha y hora elegidas.</p>
               <br>
-              ${response.mesaAsignada
-                ? `<p>🪑 <strong>Mesa asignada:</strong> Mesa ${response.mesaAsignada.numero}</p>`
-                : '<p>⏳ El administrador asignará tu mesa pronto.</p>'
+              ${formData.comensales === 'evento-especial'
+                ? '<p>🎉 Tu solicitud corresponde a un evento especial.</p>'
+                : response.mesaAsignada
+                  ? `<p>🪑 <strong>Mesa asignada:</strong> Mesa ${response.mesaAsignada.numero}</p>`
+                  : '<p>⏳ El restaurante revisará tu solicitud pronto.</p>'
               }
               <br>
               <p style="font-size: 14px; color: #666;">
-                <strong>Próximos pasos:</strong><br>
-                1️⃣ Revisa tu correo electrónico<br>
-                2️⃣ Confirma tu reserva desde el enlace<br>
-                3️⃣ Espera la confirmación final del restaurante
+                <strong>Importante:</strong> El correo se enviará una sola vez, cuando el restaurante confirme la disponibilidad.
               </p>
             </div>
           `,
           confirmButtonText: 'Entendido',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           allowOutsideClick: false
         });
 
@@ -110,7 +155,6 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
           comensales: 2,
           comentarios: ''
         });
-        setMessage({ type: '', text: '' });
       } else {
         throw new Error(response.mensaje || 'Error al crear la reserva');
       }
@@ -128,9 +172,12 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
         errorMessage = error.message;
       }
 
-      setMessage({
-        type: 'error',
-        text: errorMessage
+      await Swal.fire({
+        icon: 'error',
+        title: 'No se pudo crear la reserva',
+        text: errorMessage,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#642f3a'
       });
     } finally {
       setIsSubmitting(false);
@@ -143,6 +190,19 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
     return today.toISOString().split('T')[0];
   };
 
+  const getHorarioAtencion = (fecha) => {
+    if (!fecha) return null;
+
+    const fechaObj = new Date(`${fecha}T12:00:00Z`);
+    const mesYDia = fecha.slice(5);
+    if (FECHAS_ESPECIALES.diasCerrados.includes(mesYDia)) return null;
+
+    return FECHAS_ESPECIALES.horariosEspeciales[mesYDia]
+      || HORARIOS_ATENCION[fechaObj.getUTCDay()];
+  };
+
+  const horarioAtencion = getHorarioAtencion(formData.fecha);
+
   return (
     <PublicShell isNightMode={isNightMode} onToggleNightMode={onToggleNightMode} pageClass="rs-page">
       <div className="ps-container rs-container">
@@ -153,12 +213,6 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
         </div>
 
         <form className="ps-panel rs-form" onSubmit={handleSubmit}>
-          {message.text && (
-            <div className={`ps-msg ${message.type}`}>
-              {message.text}
-            </div>
-          )}
-
           <div className="rs-row rs-c1">
             <div className="ps-field">
               <label htmlFor="cliente">Nombre completo *</label>
@@ -210,7 +264,10 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
                 id="fecha"
                 name="fecha"
                 value={formData.fecha}
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e);
+                  setFormData(prev => ({ ...prev, hora: '' }));
+                }}
                 min={getMinDate()}
                 max={maxFecha}
                 required
@@ -225,8 +282,8 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
                 name="hora"
                 value={formData.hora}
                 onChange={handleChange}
-                min="09:00"
-                max="00:00"
+                disabled={!formData.fecha || !horarioAtencion}
+                step="60"
                 required
               />
             </div>
@@ -240,12 +297,24 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
                 onChange={handleChange}
                 required
               >
+                <option value="evento-especial">Evento especial (más de 10 personas)</option>
                 {Array.from({ length: maxComensales }, (_, index) => index + 1).map(num => (
                   <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'personas'}</option>
                 ))}
               </select>
             </div>
           </div>
+
+          {formData.comensales === 'evento-especial' ? (
+            <div className="rs-aviso">
+              <strong>Organizá tu evento especial</strong>
+              <p>Para más de 10 personas, contactanos directamente:</p>
+              <a href="mailto:laviejaestacionbar@gmail.com">laviejaestacionbar@gmail.com</a>
+              <a href="tel:+543816364592">+54 381 636-4592</a>
+            </div>
+          ) : (
+            <p className="rs-aviso-txt">¿Son más de 10 personas? Elegí “Evento especial”.</p>
+          )}
 
           <div className="rs-info">
             <svg className="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
@@ -277,24 +346,24 @@ const Reservas = ({ isNightMode, onToggleNightMode }) => {
           <div className="rs-steps">
             <div className="ps-panel rs-step">
               <span className="rs-num">1</span>
-              <h4>Revisa tu correo electrónico</h4>
-              <p>Recibirás un email con los detalles de tu reserva y un enlace de confirmación.</p>
+              <h4>Esperá la revisión del restaurante</h4>
+              <p>El restaurante revisará la disponibilidad de mesas para la fecha y hora que elegiste.</p>
             </div>
             <div className="ps-panel rs-step">
               <span className="rs-num">2</span>
-              <h4>Confirma tu reserva</h4>
-              <p>Haz clic en el enlace del correo para confirmar tu asistencia. Tu reserva quedará en estado "Pendiente" hasta que la confirmes.</p>
+              <h4>Esperá la confirmación de disponibilidad</h4>
+              <p>Tu solicitud quedará pendiente mientras el restaurante verifica si puede asignarte una mesa.</p>
             </div>
             <div className="ps-panel rs-step">
               <span className="rs-num">3</span>
-              <h4>Espera la confirmación final</h4>
-              <p>El restaurante revisará tu reserva y te enviará un correo de confirmación definitiva.</p>
+              <h4>Recibí un único correo de confirmación</h4>
+              <p>Si hay disponibilidad, recibirás un correo avisándote que tu reserva fue confirmada. No se envían correos antes de esa confirmación.</p>
             </div>
           </div>
 
           <div className="ps-panel rs-contact">
             <h4>¿No recibiste el correo de confirmación?</h4>
-            <p>Si escribiste mal tu email o no te llegó el correo en los próximos minutos:</p>
+            <p>Si el restaurante confirmó la disponibilidad y todavía no recibiste el correo:</p>
             <ul>
               <li>Revisa tu carpeta de spam o correo no deseado</li>
               <li>Verifica que escribiste correctamente tu dirección de email</li>

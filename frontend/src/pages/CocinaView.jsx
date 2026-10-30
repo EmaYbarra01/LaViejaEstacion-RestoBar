@@ -2,7 +2,6 @@ import { useState } from 'react';
 import usePedidosCocina from '../hooks/usePedidosCocina';
 import PedidoCard from '../components/cocina/PedidoCard';
 import { fetchEstadisticasCocina } from '../api/cocinaAPI';
-import useUserStore from '../store/useUserStore';
 import './CocinaView.css';
 
 /**
@@ -17,8 +16,6 @@ import './CocinaView.css';
  * - Interfaz intuitiva con indicadores visuales
  */
 const CocinaView = () => {
-  const { user } = useUserStore();
-  const isGerente = user?.role === 'Gerente';
   const [vistaActiva, setVistaActiva] = useState('todos'); // todos, pendientes, preparacion, listos
   const [estadisticas, setEstadisticas] = useState(null);
   
@@ -29,7 +26,6 @@ const CocinaView = () => {
     error,
     setFiltroEstado,
     cargarPedidos,
-    cambiarEstado
   } = usePedidosCocina({
     estadoInicial: null,
     autoRefresh: true,
@@ -105,33 +101,18 @@ const CocinaView = () => {
       <header className="cocina-header">
         <div className="header-content">
           <div>
-            <h1 className="cocina-title">Módulo Encargado de Cocina</h1>
-            <p className="cocina-subtitle">Control de pedidos 'En Preparación'</p>
+            <h1 className="cocina-title">Supervisión de cocina</h1>
+            <p className="cocina-subtitle">Consulta de pedidos pendientes y en preparación</p>
           </div>
           <button 
             onClick={refrescarTodo} 
             className="btn-refrescar"
             disabled={loading}
           >
-            🔄 Actualizar
+            Actualizar
           </button>
         </div>
       </header>
-
-      {/* Banner de Solo Lectura para Gerente */}
-      {isGerente && (
-        <div style={{ 
-          padding: '12px 20px', 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-          color: 'white',
-          textAlign: 'center',
-          fontWeight: 'bold',
-          borderBottom: '3px solid #ffc107',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-        }}>
-          MODO SUPERVISIÓN - Solo Lectura (No se pueden cambiar estados de pedidos)
-        </div>
-      )}
 
       {/* Estadísticas */}
       {estadisticas && (
@@ -186,7 +167,6 @@ const CocinaView = () => {
       {/* Mensajes de error */}
       {error && (
         <div className="alert alert-error">
-          <span>❌</span>
           <p>{error}</p>
           <button onClick={() => cargarPedidos(true)}>Reintentar</button>
         </div>
@@ -204,7 +184,6 @@ const CocinaView = () => {
       <div className="pedidos-container">
         {!loading && pedidosFiltrados().length === 0 && (
           <div className="empty-state">
-            <div className="empty-icon">📭</div>
             <h3>No hay pedidos {vistaActiva !== 'todos' ? `en estado "${vistaActiva}"` : 'en este momento'}</h3>
             <p>Los nuevos pedidos aparecerán automáticamente aquí</p>
           </div>
@@ -215,8 +194,6 @@ const CocinaView = () => {
             <PedidoCard
               key={pedido._id}
               pedido={pedido}
-              onCambiarEstado={cambiarEstado}
-              readOnly={isGerente}
             />
           ))}
         </div>
@@ -225,7 +202,7 @@ const CocinaView = () => {
       {/* Indicador de actualización automática */}
       <div className="footer-info">
         <span className="conexion-status">
-          🟢 Actualización automática activa
+          Actualización automática activa
         </span>
         <span className="ultimo-update">
           Última actualización: {new Date().toLocaleTimeString()}

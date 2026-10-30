@@ -48,7 +48,6 @@ const Empleados = () => {
   const isSuperAdmin = user?.role === 'SuperAdministrador';
   const isGerente = user?.role === 'Gerente';
   const canEdit = isSuperAdmin; // Solo SuperAdministrador puede editar
-  const canView = isSuperAdmin || isGerente; // Ambos pueden ver
   
   const [empleados, setEmpleados] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -170,7 +169,7 @@ const Empleados = () => {
     try {
       if (isEdit) {
         if (selectedEmpleado?.esUsuarioMadre) {
-          const response = await createEmpleado({
+          await createEmpleado({
             nombre: selectedEmpleado.usuario.nombre,
             apellido: selectedEmpleado.usuario.apellido,
             email: selectedEmpleado.usuario.email,
@@ -189,7 +188,7 @@ const Empleados = () => {
             timer: 2000
           });
         } else {
-          const response = await updateEmpleado(selectedEmpleado._id, {
+          await updateEmpleado(selectedEmpleado._id, {
             cargo: form.cargo,
             salarioMensual: parseFloat(form.salarioMensual),
             activo: form.activo
@@ -204,7 +203,7 @@ const Empleados = () => {
           });
         }
       } else {
-        const response = await createEmpleado({
+        await createEmpleado({
           nombre: form.nombre,
           apellido: form.apellido,
           email: form.email,
@@ -524,7 +523,7 @@ const Empleados = () => {
   };
 
   return (
-    <div className="admin-container">
+    <div className="admin-container employees-panel-page">
       {console.log('RENDER Empleados, count:', empleados.length)}
       <div className="admin-header">
         <h1 className="admin-title">
@@ -547,7 +546,7 @@ const Empleados = () => {
         )}
       </div>
 
-      <Paper elevation={3} sx={{ mt: 3 }}>
+      <Paper className="employees-table-container" elevation={3} sx={{ mt: 3 }}>
         <TableContainer>
           <Table>
             <TableHead>

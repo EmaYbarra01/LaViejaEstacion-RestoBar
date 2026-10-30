@@ -99,3 +99,6 @@
   .pd-toolbar { gap: 10px; }
   .pd-btn { padding: 0 18px; }
 }
+.pd-card-off { cursor: not-allowed; opacity: .7; filter: saturate(.72); }
+.pd-qty button:disabled { opacity: .45; cursor: not-allowed; }
+.order-stock-error { margin: .75rem 0 0; color: #8a4b4b; font-size: .9rem; line-height: 1.4; }

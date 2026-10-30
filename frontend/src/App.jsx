@@ -54,9 +54,6 @@ function App() {
     localStorage.setItem("app-theme", theme);
   }, [isNightMode]);
 
-  // No bloquear la UI mientras se verifica la autenticación
-  // Dejar que las rutas protegidas manejen su propio loading
-
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
@@ -116,12 +113,15 @@ function App() {
           } />
           <Route path="/supervision-pedidos" element={
             <ProtectedRoute role={["Gerente", "SuperAdministrador"]}>
-              <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)}>
+              <EmployeePanelLayout
+                pageTitle="Supervisión de pedidos"
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              >
                 <SupervisionPedidos />
               </EmployeePanelLayout>
             </ProtectedRoute>
           } />
-          {/* Módulo de Cocina - Gestión de pedidos - EncargadoCocina + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/encargado-cocina" element={
             <ProtectedRoute role={["EncargadoCocina", "Gerente", "SuperAdministrador"]}>
               <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="EncargadoCocina">
@@ -129,7 +129,6 @@ function App() {
               </EmployeePanelLayout>
             </ProtectedRoute>
           } />
-          {/* Módulo de Caja - Gestión de cobros - Cajero + Supervisión (Gerente, SuperAdmin) */}
           <Route path="/caja" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
               <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="Cajero">
@@ -139,7 +138,12 @@ function App() {
           } />
           <Route path="/caja/historial-cierres" element={
             <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
-              <HistorialCierres />
+              <EmployeePanelLayout
+                isNightMode={isNightMode}
+                onToggleNightMode={() => setIsNightMode((current) => !current)}
+              >
+                <HistorialCierres />
+              </EmployeePanelLayout>
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
@@ -156,7 +160,11 @@ function App() {
           }>        
             <Route path="dashboard" element={<SuperadminDashboard />} />
             <Route path="products" element={<Products />} />
-            <Route path="sales" element={<AdminSales />} />
+            <Route path="sales" element={
+              <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
+                <AdminSales />
+              </ProtectedRoute>
+            } />
             <Route path="reservas" element={<AdminReservas />} />
             <Route path="calendario" element={<CalendarioReservas />} />
             <Route path="empleados" element={
@@ -166,7 +174,6 @@ function App() {
             } />
           </Route>
           <Route path="/mis-reservas" element={<MisReservas />} />
-
         </Routes>
       </div>
       {!hideChrome && <Footer />}

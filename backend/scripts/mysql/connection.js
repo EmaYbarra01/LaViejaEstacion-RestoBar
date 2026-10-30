@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import mysql from 'mysql2/promise';
+import mysql from 'mysql2/promise.js';
 
 export async function connect({ database = false } = {}) {
   const options = {

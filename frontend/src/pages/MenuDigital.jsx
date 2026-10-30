@@ -85,6 +85,7 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   const [pedido, setPedido] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1);
+  const [errorSeleccion, setErrorSeleccion] = useState('');
   const [indicaciones, setIndicaciones] = useState('');
   const [pedidoAbierto, setPedidoAbierto] = useState(false);
   const [checkoutAbierto, setCheckoutAbierto] = useState(false);
@@ -190,17 +191,29 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   };
 
   const handleSelectProduct = (producto) => {
-    if (producto.disponible === false || Number(producto.stock || 0) <= 0) {
+    if (producto.disponible === false && Number(producto?.stock ?? 0) <= 0) {
       return;
     }
 
     setProductoSeleccionado(producto);
     setCantidad(1);
+    setErrorSeleccion('');
     setIndicaciones('');
   };
 
   const handleAddToOrder = (event) => {
     event.preventDefault();
+
+    const stockDisponible = Number(productoSeleccionado?.stock || 0);
+    if (
+      !productoSeleccionado
+      || (productoSeleccionado?.disponible === false && stockDisponible <= 0)
+      || stockDisponible <= 0
+      || cantidad > stockDisponible
+    ) {
+      setErrorSeleccion('Este producto ya no está disponible en la cantidad solicitada.');
+      return;
+    }
 
     const productoId = productoSeleccionado.id || productoSeleccionado._id;
     setPedido((pedidoActual) => [
@@ -462,10 +475,16 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
                 <FaMinus />
               </button>
               <output id="quantity">{cantidad}</output>
-              <button type="button" onClick={() => setCantidad((value) => value + 1)} aria-label="Aumentar cantidad">
+              <button
+                type="button"
+                disabled={cantidad >= Number(productoSeleccionado.stock || 0)}
+                onClick={() => setCantidad((value) => Math.min(Number(productoSeleccionado.stock || 0), value + 1))}
+                aria-label="Aumentar cantidad"
+              >
                 <FaPlus />
               </button>
             </div>
+            {errorSeleccion && <p className="order-stock-error" role="alert">{errorSeleccion}</p>}
 
             <label className="pd-label" htmlFor="indicaciones">¿Cómo lo querés?</label>
             <textarea
@@ -477,7 +496,15 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
               maxLength={250}
               rows={4}
             />
-            <button type="submit" className="pd-btn pd-btn-full">Agregar al pedido</button>
+            <button
+              type="submit"
+              className="pd-btn pd-btn-full"
+              disabled={Number(productoSeleccionado?.stock ?? 0) <= 0}
+            >
+              {Number(productoSeleccionado?.stock ?? 0) <= 0
+                ? 'No disponible para pedidos'
+                : 'Agregar al pedido'}
+            </button>
           </form>
         </div>
       )}
@@ -548,10 +575,10 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
               ))}
             </div>
             <label className="pd-label">Nombre<input className="pd-field" required value={datosEntrega.nombre} onChange={(event) => setDatosEntrega({ ...datosEntrega, nombre: event.target.value })} /></label>
-            <label className="pd-label">Teléfono / WhatsApp<input className="pd-field" required value={datosEntrega.telefono} onChange={(event) => setDatosEntrega({ ...datosEntrega, telefono: event.target.value })} /></label>
-            <label className="pd-label">Email<input className="pd-field" required type="email" value={datosEntrega.email} onChange={(event) => setDatosEntrega({ ...datosEntrega, email: event.target.value })} /></label>
             {datosEntrega.tipoPedido === 'Domicilio' && (
               <>
+                <label className="pd-label">Teléfono / WhatsApp<input className="pd-field" required value={datosEntrega.telefono} onChange={(event) => setDatosEntrega({ ...datosEntrega, telefono: event.target.value })} /></label>
+                <label className="pd-label">Email<input className="pd-field" required type="email" value={datosEntrega.email} onChange={(event) => setDatosEntrega({ ...datosEntrega, email: event.target.value })} /></label>
                 <label className="pd-label">Dirección<input className="pd-field" required value={datosEntrega.direccion} onChange={(event) => setDatosEntrega({ ...datosEntrega, direccion: event.target.value })} /></label>
                 <label className="pd-label">Referencia<input className="pd-field" value={datosEntrega.referencia} onChange={(event) => setDatosEntrega({ ...datosEntrega, referencia: event.target.value })} /></label>
               </>
@@ -569,12 +596,14 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
                 />
               </label>
             )}
-            <label className="pd-label">Forma de pago
-              <select className="pd-field" value={datosEntrega.metodoPago} onChange={(event) => setDatosEntrega({ ...datosEntrega, metodoPago: event.target.value })}>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
-            </label>
+            {datosEntrega.tipoPedido === 'Domicilio' && (
+              <label className="pd-label">Forma de pago
+                <select className="pd-field" value={datosEntrega.metodoPago} onChange={(event) => setDatosEntrega({ ...datosEntrega, metodoPago: event.target.value })}>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                </select>
+              </label>
+            )}
             <button disabled={enviandoPedido} type="submit" className="pd-btn pd-btn-full">
               {enviandoPedido ? 'Enviando...' : 'Confirmar pedido'}
             </button>

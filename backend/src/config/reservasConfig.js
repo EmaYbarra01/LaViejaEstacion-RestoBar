@@ -4,13 +4,13 @@
 
 export const HORARIOS_ATENCION = {
   // Horarios por día de la semana (0 = Domingo, 6 = Sábado)
-  0: { abre: '11:00', cierra: '23:00', cerrado: false }, // Domingo
-  1: { abre: '11:00', cierra: '23:00', cerrado: false }, // Lunes
-  2: { abre: '11:00', cierra: '23:00', cerrado: false }, // Martes
-  3: { abre: '11:00', cierra: '23:00', cerrado: false }, // Miércoles
-  4: { abre: '11:00', cierra: '23:00', cerrado: false }, // Jueves
-  5: { abre: '11:00', cierra: '00:00', cerrado: false }, // Viernes
-  6: { abre: '11:00', cierra: '00:00', cerrado: false }  // Sábado
+  0: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }], cerrado: false }, // Domingo
+  1: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }], cerrado: false }, // Lunes
+  2: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }], cerrado: false }, // Martes
+  3: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }], cerrado: false }, // Miércoles
+  4: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }], cerrado: false }, // Jueves
+  5: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }], cerrado: false }, // Viernes
+  6: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }], cerrado: false }  // Sábado
 };
 
 export const CONFIGURACION_RESERVAS = {
@@ -18,7 +18,7 @@ export const CONFIGURACION_RESERVAS = {
   duracionReserva: 2,
   
   // Tiempo mínimo de anticipación para reservar (en horas)
-  anticipacionMinima: 24,
+  anticipacionMinima: 1, 
   
   // Tiempo máximo de anticipación para reservar (en días)
   anticipacionMaxima: 30,
@@ -27,7 +27,7 @@ export const CONFIGURACION_RESERVAS = {
   comensalesMinimo: 1,
   
   // Cantidad máxima de comensales por reserva
-  comensalesMaximo: 15,
+  comensalesMaximo: 10,
   
   // Intervalo de tiempo entre reservas (en minutos)
   intervaloReservas: 30
@@ -43,8 +43,8 @@ export const FECHAS_ESPECIALES = {
   
   // Horarios especiales para fechas específicas
   horariosEspeciales: {
-    '12-24': { abre: '11:00', cierra: '20:00' }, // Nochebuena
-    '12-31': { abre: '19:00', cierra: '03:00' }  // Fin de año
+    '12-24': { franjas: [{ abre: '11:00', cierra: '20:00' }] }, // Nochebuena
+    '12-31': { franjas: [{ abre: '19:00', cierra: '03:00' }] }  // Fin de año
   }
 };
 
@@ -80,43 +80,24 @@ export const validarHorarioAtencion = (fecha, hora) => {
     };
   }
   
-  // Validar que la hora esté dentro del horario
+  // Validar que la hora esté dentro de alguna franja de atención
   const horaReserva = hora.substring(0, 5); // HH:MM
-  
-  if (horaReserva < horario.abre) {
+
+  const minutosReserva = Number(horaReserva.slice(0, 2)) * 60 + Number(horaReserva.slice(3, 5));
+  const franjaValida = horario.franjas.some(({ abre, cierra }) => {
+    const minutosApertura = Number(abre.slice(0, 2)) * 60 + Number(abre.slice(3, 5));
+    let minutosCierre = Number(cierra.slice(0, 2)) * 60 + Number(cierra.slice(3, 5));
+    const cierraMedianoche = cierra === '00:00' || minutosCierre <= minutosApertura;
+    if (cierraMedianoche) minutosCierre = 24 * 60;
+    return minutosReserva >= minutosApertura && minutosReserva <= minutosCierre
+      && (!cierraMedianoche || minutosReserva < minutosCierre);
+  });
+
+  if (!franjaValida) {
     return {
       valido: false,
-      mensaje: `El restaurante abre a las ${horario.abre}. Por favor, selecciona un horario posterior.`
+      mensaje: 'La hora seleccionada está fuera del horario de atención. El restaurante atiende de 09:00 a 12:00 y de 20:00 a 00:00.'
     };
-  }
-  
-  // Si cierra después de medianoche (ej: 00:00, 01:00, etc.)
-  if (horario.cierra === '00:00' || horario.cierra < horario.abre) {
-    // Permitir reservas hasta las 22:00 (última admisión para dar tiempo de cenar)
-    if (horaReserva > '22:00') {
-      return {
-        valido: false,
-        mensaje: `Última reserva a las 22:00. El restaurante cierra a la medianoche.`
-      };
-    }
-  } else {
-    // Calcular hora límite (2 horas antes del cierre para dar tiempo de cenar)
-    const [horasCierre, minutosCierre] = horario.cierra.split(':').map(Number);
-    let horasLimite = horasCierre - 2;
-    
-    // Asegurar que no sea negativo
-    if (horasLimite < 0) {
-      horasLimite = 22; // Por defecto última reserva a las 22:00
-    }
-    
-    const horaLimite = `${String(horasLimite).padStart(2, '0')}:${String(minutosCierre).padStart(2, '0')}`;
-    
-    if (horaReserva > horaLimite) {
-      return {
-        valido: false,
-        mensaje: `Última reserva a las ${horaLimite}. El restaurante cierra a las ${horario.cierra}.`
-      };
-    }
   }
   
   return {
@@ -170,7 +151,7 @@ export const validarComensales = (comensales) => {
   if (comensales > CONFIGURACION_RESERVAS.comensalesMaximo) {
     return {
       valido: false,
-      mensaje: `La cantidad máxima de comensales por reserva es ${CONFIGURACION_RESERVAS.comensalesMaximo}. Para grupos más grandes, por favor contacta directamente al restaurante.`
+      mensaje: `La cantidad máxima de comensales por reserva es ${CONFIGURACION_RESERVAS.comensalesMaximo}. Para grupos de más de ${CONFIGURACION_RESERVAS.comensalesMaximo} personas, contacta directamente al restaurante para organizar un evento especial.`
     };
   }
   

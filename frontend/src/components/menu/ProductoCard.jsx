@@ -43,7 +43,7 @@ const ProductoCard = ({ producto, onSelect }) => {
       <p className="mv-card-desc">{producto.descripcion}</p>
       <div className="mv-card-foot pd-card-foot">
         {agotado ? (
-          <span className="mv-badge mv-badge-off">Agotado</span>
+          <span className="mv-badge mv-badge-off">Sin stock</span>
         ) : disponible ? (
           <span className={`mv-badge ${stockBajo ? 'pd-badge-low' : ''}`}>Disponible</span>
         ) : (
@@ -58,7 +58,7 @@ const ProductoCard = ({ producto, onSelect }) => {
           }}
           disabled={!disponible}
         >
-          {disponible ? 'Agregar al pedido' : 'No disponible'}
+          {disponible ? 'Agregar al pedido' : 'No disponible para pedidos'}
         </button>
       </div>
     </article>
