@@ -41,7 +41,7 @@ function App() {
     localStorage.getItem("app-theme") === "night"
   ));
   const isEmployeePath = employeePaths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
-  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/equipo-desarrollo", "/login"].includes(location.pathname) || isEmployeePath;
+  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/equipo-desarrollo", "/login", "/forgot-password"].includes(location.pathname) || isEmployeePath;
   const toggleNightMode = () => setIsNightMode((current) => !current);
 
   // Inicializar la autenticación al cargar la aplicación
@@ -144,7 +144,7 @@ function App() {
           } />
           <Route path="/login" element={<Login isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword isNightMode={isNightMode} onToggleNightMode={toggleNightMode} />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
             <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
