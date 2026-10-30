@@ -1,117 +1,67 @@
 /**
  * ProductoCard.jsx
  * HU2 - Ver fotos, descripción y precio
- * Componente de tarjeta de producto con imagen, nombre, descripción y precio
+ * Tarjeta de producto del menú digital (usa los estilos mv-* de MenuPage.css y pd-* de MenuDigital.css)
  */
 
 import React, { useState } from 'react';
-import './ProductoCard.css';
+
+const FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%234f222b" width="300" height="200"/%3E%3Ctext fill="%23f3e7cd" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="16"%3EImagen No Disponible%3C/text%3E%3C/svg%3E';
 
 const ProductoCard = ({ producto, onSelect }) => {
   const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const stock = Number(producto.stock || 0);
   const disponible = producto.disponible !== false && stock > 0;
   const agotado = stock <= 0;
   const stockBajo = stock > 0 && Number(producto.stockMinimo || 0) >= stock;
 
-  const formatPrice = (price) => {
-    return `$${Number(price || 0).toFixed(2)}`;
-  };
-
-  const handleImageError = () => {
-    setImageError(true);
-  };
-
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-  };
+  const formatPrice = (price) => `$${Number(price || 0).toFixed(2)}`;
 
   const getImageUrl = () => {
     if (!producto.imagenUrl || imageError) {
-      return null;
+      return FALLBACK_IMAGE;
     }
-    
-    // Si la URL es relativa, usar el backend
     if (producto.imagenUrl.startsWith('/')) {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
       return `${backendUrl}${producto.imagenUrl}`;
     }
-    
     return producto.imagenUrl;
   };
 
-  const imageUrl = getImageUrl();
-  const showImage = imageUrl && !imageError;
-
   return (
-    <div 
-      className={`producto-card ${showImage ? 'with-image' : 'no-image'}`}
+    <article
+      className={`mv-card pd-card ${disponible ? '' : 'pd-card-off'}`}
       onClick={() => onSelect && onSelect(producto)}
     >
-      {/* Imagen del producto */}
-      {showImage && (
-        <div className="producto-image-wrapper">
-          {!imageLoaded && (
-            <div className="image-skeleton">
-              <div className="skeleton-loader"></div>
-            </div>
-          )}
-          <img
-            src={imageUrl}
-            alt={producto.nombre}
-            className={`producto-image ${imageLoaded ? 'loaded' : 'loading'}`}
-            onError={handleImageError}
-            onLoad={handleImageLoad}
-            loading="lazy"
-          />
-          <div className="image-overlay">
-            <div className="overlay-content">
-              <span className="view-details">Ver detalles</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Contenido del producto */}
-      <div className="producto-content">
-        {/* Encabezado con nombre y precio */}
-        <div className="producto-header">
-          <h3 className="producto-nombre">{producto.nombre}</h3>
-          {producto.descripcion && (
-            <p className="producto-descripcion">{producto.descripcion}</p>
-          )}
-          <span className="producto-precio">{formatPrice(producto.precio)}</span>
-        </div>
-
+      <div className="mv-card-image">
+        <img src={getImageUrl()} alt={producto.nombre} loading="lazy" onError={() => setImageError(true)} />
       </div>
-
-      <div className="producto-details">
-        <div className="producto-badge">
-          {agotado ? (
-            <span className="badge-agotado">Agotado</span>
-          ) : disponible ? (
-            <span className={`badge-disponible ${stockBajo ? 'badge-stock-bajo' : ''}`}>
-              Disponible
-            </span>
-          ) : (
-            <span className="badge-no-disponible">No disponible</span>
-          )}
-        </div>
-
+      <div className="mv-card-head">
+        <h3 className="mv-card-name">{producto.nombre}</h3>
+        <span className="mv-card-price">{formatPrice(producto.precio)}</span>
+      </div>
+      <p className="mv-card-desc">{producto.descripcion}</p>
+      <div className="mv-card-foot pd-card-foot">
+        {agotado ? (
+          <span className="mv-badge mv-badge-off">Agotado</span>
+        ) : disponible ? (
+          <span className={`mv-badge ${stockBajo ? 'pd-badge-low' : ''}`}>Disponible</span>
+        ) : (
+          <span className="mv-badge mv-badge-off">No disponible</span>
+        )}
         <button
           type="button"
-          className="add-product-button"
+          className="pd-add"
           onClick={(event) => {
             event.stopPropagation();
             onSelect && onSelect(producto);
           }}
           disabled={!disponible}
         >
-          <span>{disponible ? 'Agregar al pedido' : 'No disponible'}</span>
+          {disponible ? 'Agregar al pedido' : 'No disponible'}
         </button>
       </div>
-    </div>
+    </article>
   );
 };
 

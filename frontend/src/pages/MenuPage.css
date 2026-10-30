@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 
+/* Sin barra de scroll visible para que el reloj quede igual que en Inicio y Entrar */
+body:has(.mv-page) { scrollbar-width: none; -ms-overflow-style: none; }
+body:has(.mv-page)::-webkit-scrollbar { display: none; }
+
 .mv-page {
   --mv-cream: #f3e7cd;
   --mv-gold: #c9a96a;

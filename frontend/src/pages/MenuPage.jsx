@@ -4,6 +4,7 @@ import { FaHamburger, FaCocktail, FaIceCream, FaChevronDown, FaMoon, FaSun, FaAr
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { formatClockDate, formatClockTime } from '../utils/clockFormat';
+import { getScrollTop, scrollPageTo as scrollerScrollTo } from '../utils/pageScroll';
 import './MenuPage.css';
 
 const navigation = [
@@ -28,13 +29,6 @@ function AccessibilityIcon() {
 }
 
 const MotionDiv = motion.div;
-
-// En esta app el contenedor con scroll es el body, no la ventana
-const getScrollTop = () => Math.max(window.scrollY, document.body.scrollTop, document.documentElement.scrollTop);
-const scrollerScrollTo = (top) => {
-    window.scrollTo({ top, behavior: 'smooth' });
-    document.body.scrollTo({ top, behavior: 'smooth' });
-};
 
 const MenuPage = ({ isNightMode, onToggleNightMode }) => {
     const navigate = useNavigate();

@@ -58,7 +58,7 @@ function App() {
   return (
     <>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
-      {location.pathname !== "/" && location.pathname !== "/entrar" && location.pathname !== "/menu" && !isEmployeePath && (
+      {location.pathname !== "/" && location.pathname !== "/entrar" && location.pathname !== "/menu" && location.pathname !== "/menu-digital" && !isEmployeePath && (
         <Header
           isNightMode={isNightMode}
           onToggleNightMode={() => setIsNightMode((current) => !current)}
@@ -94,7 +94,12 @@ function App() {
             )}
           />
           {/* HU1: Menú digital público accesible por QR - Sin autenticación */}
-          <Route path="/menu-digital" element={<MenuDigital />} />
+          <Route path="/menu-digital" element={(
+            <MenuDigital
+              isNightMode={isNightMode}
+              onToggleNightMode={() => setIsNightMode((current) => !current)}
+            />
+          )} />
           <Route path="/servicios" element={<ServiciosPage />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/equipo-desarrollo" element={<EquipoDesarrollo />} />
@@ -162,7 +167,7 @@ function App() {
 
         </Routes>
       </div>
-      {location.pathname !== "/" && location.pathname !== "/entrar" && location.pathname !== "/menu" && !isEmployeePath && <Footer />}
+      {location.pathname !== "/" && location.pathname !== "/entrar" && location.pathname !== "/menu" && location.pathname !== "/menu-digital" && !isEmployeePath && <Footer />}
     </>
   );
 }
