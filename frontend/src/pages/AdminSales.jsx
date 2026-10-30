@@ -283,7 +283,7 @@ function AdminSales() {
                   <td>
                      <strong className="sale-total">${formatCurrency(sale.total)}</strong>
                      {sale.descuento?.monto > 0 && (
-                       <small style={{display: 'block', color: '#10b981'}}>
+                       <small style={{display: 'block', color: '#8a6a2f'}}>
                          (Desc: ${formatCurrency(sale.descuento.monto)})
                        </small>
                      )}
@@ -338,7 +338,7 @@ function AdminSales() {
           <div style="text-align: right; margin-top: 15px;">
             <p><strong>Subtotal:</strong> $${formatCurrency(sale.subtotal)}</p>
             ${sale.descuento?.monto > 0 ? `
-              <p style="color: #10b981;">
+              <p style="color: #8a6a2f;">
                 <strong>Descuento (${sale.descuento.porcentaje}%):</strong> 
                 -$${formatCurrency(sale.descuento.monto)}
               </p>

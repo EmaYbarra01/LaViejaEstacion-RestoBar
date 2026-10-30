@@ -112,7 +112,7 @@
 
 .stat-value.listos {
   background: var(--app-accent-soft);
-  color: #0f5132;
+  color: #6b4f1d;
 }
 
 .stat-value.total {
@@ -267,7 +267,7 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  color: #4caf50;
+  color: #8a6a2f;
 }
 
 .ultimo-update {

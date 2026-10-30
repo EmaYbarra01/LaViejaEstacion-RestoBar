@@ -23,7 +23,7 @@
 }
 
 .pedido-card.estado-listo {
-  border-left-color: #4caf50;
+  border-left-color: #8a6a2f;
 }
 
 /* Urgencia */
@@ -124,7 +124,7 @@
 
 .estado-listo .estado-badge {
   background: var(--app-accent-soft);
-  color: #0f5132;
+  color: #6b4f1d;
 }
 
 /* Mozo */
@@ -197,7 +197,7 @@
 
 .producto-precio {
   font-weight: 600;
-  color: #4caf50;
+  color: #8a6a2f;
   flex-shrink: 0;
 }
 
@@ -273,12 +273,12 @@
 }
 
 .btn-listo {
-  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  background: linear-gradient(135deg, #b8934a 0%, #8a6a2f 100%);
   color: white;
 }
 
 .btn-listo:hover {
-  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+  background: linear-gradient(135deg, #a8843c 0%, #6b4f1d 100%);
 }
 
 .btn-procesando {
@@ -292,7 +292,7 @@
   padding: 0.75rem;
   text-align: center;
   background: var(--app-accent-soft);
-  color: #0f5132;
+  color: #6b4f1d;
   border-radius: 8px;
   font-weight: 600;
 }

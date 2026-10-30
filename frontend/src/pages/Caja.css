@@ -94,13 +94,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(79, 34, 43, 0.3);
   white-space: nowrap;
 }
 
 .btn-cierre-caja:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 20px rgba(79, 34, 43, 0.4);
 }
 
 /* Toolbar */
@@ -128,7 +128,7 @@
 .search-input:focus {
   outline: none;
   border-color: var(--app-accent);
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
+  box-shadow: 0 0 0 3px rgba(100, 47, 58, 0.1);
 }
 
 .btn-search {
@@ -143,7 +143,7 @@
 
 .btn-search:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.3);
+  box-shadow: 0 4px 12px rgba(100, 47, 58, 0.3);
 }
 
 /* Content */
@@ -244,14 +244,14 @@
 
 .pedido-item:hover {
   border-color: var(--app-accent);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
+  box-shadow: 0 4px 12px rgba(100, 47, 58, 0.15);
   transform: translateX(4px);
 }
 
 .pedido-item.selected {
   border-color: var(--app-accent);
   background: linear-gradient(135deg, #fffbf0 0%, var(--app-accent-soft) 100%);
-  box-shadow: 0 4px 16px rgba(88, 122, 60, 0.2);
+  box-shadow: 0 4px 16px rgba(100, 47, 58, 0.2);
 }
 
 .pedido-item-header {
@@ -275,7 +275,7 @@
 }
 
 .estado-listo {
-  background: #d1fae5;
+  background: #f3e7cd;
   color: var(--app-accent-dark);
 }
 
@@ -410,7 +410,7 @@
 }
 
 .badge-listo {
-  background: #d1fae5;
+  background: #f3e7cd;
   color: var(--app-accent-dark);
 }
 
@@ -430,8 +430,8 @@
 }
 
 .badge-cobrado {
-  background: #d1fae5;
-  color: #047857;
+  background: #f3e7cd;
+  color: #6b4f1d;
 }
 
 /* Productos tabla */
@@ -534,13 +534,13 @@
 .metodo-btn:hover {
   border-color: var(--app-accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
+  box-shadow: 0 4px 12px rgba(100, 47, 58, 0.15);
 }
 
 .metodo-btn.active {
   border-color: var(--app-accent);
   background: linear-gradient(135deg, #fffbf0 0%, var(--app-accent-soft) 100%);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.2);
+  box-shadow: 0 4px 12px rgba(100, 47, 58, 0.2);
 }
 
 .metodo-btn small {
@@ -574,11 +574,11 @@
 .monto-input:focus {
   outline: none;
   border-color: var(--app-accent);
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
+  box-shadow: 0 0 0 3px rgba(100, 47, 58, 0.1);
 }
 
 .cambio-info {
-  background: #d1fae5;
+  background: #f3e7cd;
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -612,12 +612,12 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(79, 34, 43, 0.3);
 }
 
 .btn-cobrar:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 20px rgba(79, 34, 43, 0.4);
 }
 
 .btn-cobrar:disabled {

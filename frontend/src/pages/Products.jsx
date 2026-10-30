@@ -476,7 +476,7 @@ const Products = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <strong style={{ color: '#2e7d32' }}>${formatCurrency(product.price)}</strong>
+                    <strong style={{ color: '#8a6a2f' }}>${formatCurrency(product.price)}</strong>
                   </TableCell>
                   <TableCell>
                     ${formatCurrency(product.cost || 0)}
@@ -488,7 +488,7 @@ const Products = () => {
                   </TableCell>
                   <TableCell>
                     <span style={{ 
-                      color: isOutOfStock || isLowStock ? '#d32f2f' : '#2e7d32',
+                      color: isOutOfStock || isLowStock ? '#d32f2f' : '#8a6a2f',
                       fontWeight: 'bold'
                     }}>
                       {stock}
@@ -505,7 +505,7 @@ const Products = () => {
                   </TableCell>
                   <TableCell>
                     {isAvailable ? (
-                      <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>✅ Disponible</span>
+                      <span style={{ color: '#8a6a2f', fontWeight: 'bold' }}>✅ Disponible</span>
                     ) : (
                       <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>❌ No disponible</span>
                     )}
