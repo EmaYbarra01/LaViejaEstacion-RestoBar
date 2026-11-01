@@ -10,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) => {
   const [pedidoActual, setPedidoActual] = useState(pedido);
   const [loading, setLoading] = useState(false);
+  const puedeEditarPedido = !isReadOnly && pedidoActual.estado === 'Pendiente';
 
   useEffect(() => {
     setPedidoActual(pedido);
@@ -17,8 +18,30 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
 
   const normalizarPedido = (responseData) => responseData?.pedido || responseData;
 
+  const normalizarCategoria = (categoria = '') => {
+    const texto = String(categoria).trim().toLowerCase();
+
+    if (texto.includes('alcohol')) return 'Bebidas alcohólicas';
+    if (texto.includes('beb')) return 'Bebidas';
+    if (
+      texto.includes('post') ||
+      texto.includes('helad') ||
+      texto.includes('dulc')
+    ) return 'Postres';
+    if (
+      texto.includes('comida') ||
+      texto.includes('plato') ||
+      texto.includes('hamburg') ||
+      texto.includes('pizza') ||
+      texto.includes('empanad') ||
+      texto.includes('sandwich') ||
+      texto.includes('sándwich')
+    ) return 'Comidas';
+    return 'Otros';
+  };
+
   const actualizarCantidad = async (productoId, nuevaCantidad) => {
-    if (isReadOnly) return; // No permitir edición en modo solo lectura
+    if (!puedeEditarPedido) return;
     if (nuevaCantidad < 1) return;
     
     try {
@@ -26,14 +49,14 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       const token = localStorage.getItem('token');
       
       const productosActualizados = pedidoActual.productos.map(item => {
-        if (item.producto._id === productoId) {
-          return {
-            ...item,
-            cantidad: nuevaCantidad,
-            subtotal: nuevaCantidad * item.precioUnitario
-          };
-        }
-        return item;
+        const id = item.producto?._id || item.producto;
+        return {
+          producto: id,
+          nombre: item.nombre,
+          cantidad: id === productoId ? nuevaCantidad : item.cantidad,
+          precioUnitario: item.precioUnitario,
+          observaciones: item.observaciones || ''
+        };
       });
 
       const response = await axios.put(
@@ -49,7 +72,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       console.error('Error al actualizar cantidad:', error);
       Swal.fire({
         title: 'Error',
-        text: 'Error al actualizar la cantidad',
+        text: error.response?.data?.mensaje || 'Error al actualizar la cantidad',
         icon: 'error',
         confirmButtonText: 'Aceptar'
       });
@@ -59,7 +82,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
   };
 
   const eliminarProducto = async (productoId) => {
-    if (isReadOnly) return; // No permitir eliminación en modo solo lectura
+    if (!puedeEditarPedido) return;
 
     const itemSeleccionado = pedidoActual.productos.find(
       (item) => (item.producto?._id || item.producto) === productoId
@@ -88,9 +111,15 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const productosActualizados = pedidoActual.productos.filter(
-        item => item.producto._id !== productoId
-      );
+      const productosActualizados = pedidoActual.productos
+        .filter((item) => (item.producto?._id || item.producto?.id || item.producto) !== productoId)
+        .map((item) => ({
+          producto: item.producto?._id || item.producto?.id || item.producto,
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+          observaciones: item.observaciones || ''
+        }));
 
       if (productosActualizados.length === 0) {
         Swal.fire({
@@ -115,7 +144,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       console.error('Error al eliminar producto:', error);
       Swal.fire({
         title: 'Error',
-        text: 'Error al eliminar el producto',
+        text: error.response?.data?.mensaje || 'Error al eliminar el producto',
         icon: 'error',
         confirmButtonText: 'Aceptar'
       });
@@ -125,7 +154,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
   };
 
   const editarObservacionProducto = async (productoId) => {
-    if (isReadOnly) return;
+    if (!puedeEditarPedido) return;
 
     const itemSeleccionado = pedidoActual.productos.find(
       (item) => (item.producto?._id || item.producto) === productoId
@@ -239,7 +268,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       console.error('Error al cambiar estado:', error);
       Swal.fire({
         title: 'Error',
-        text: 'Error al cambiar el estado del pedido',
+        text: error.response?.data?.mensaje || 'Error al cambiar el estado del pedido',
         icon: 'error',
         confirmButtonText: 'Aceptar'
       });
@@ -248,8 +277,6 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
     }
   };
 
-  const enviarACocina = () => cambiarEstado('En Preparación');
-  
   const marcarComoEntregado = async () => {
     try {
       await cambiarEstado('Entregado');
@@ -325,7 +352,7 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
   };
   
   const agregarItem = async () => {
-    if (isReadOnly) return;
+    if (!puedeEditarPedido) return;
 
     const productosDisponibles = productos.filter((producto) => producto.disponible !== false);
 
@@ -339,8 +366,22 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
       return;
     }
 
-    const opciones = productosDisponibles
-      .map((producto) => `<option value="${producto._id}">${producto.nombre} - ${formatCurrency(Number(producto.precio || 0))}</option>`)
+    const ordenCategorias = ['Bebidas', 'Bebidas alcohólicas', 'Comidas', 'Postres', 'Otros'];
+    const opciones = ordenCategorias
+      .map((categoria) => {
+        const productosCategoria = productosDisponibles.filter(
+          (producto) => normalizarCategoria(producto.categoria) === categoria
+        );
+        if (productosCategoria.length === 0) return '';
+
+        const opcionesCategoria = productosCategoria
+          .map((producto) => (
+            `<option value="${producto._id}">${producto.nombre} - ${formatCurrency(Number(producto.precio || 0))}</option>`
+          ))
+          .join('');
+
+        return `<optgroup label="${categoria}">${opcionesCategoria}</optgroup>`;
+      })
       .join('');
 
     const { value } = await Swal.fire({
@@ -511,16 +552,16 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
                 <div className="cantidad-controles">
                   <button
                     className="btn-cantidad"
-                    onClick={() => actualizarCantidad(item.producto._id, item.cantidad - 1)}
-                    disabled={isReadOnly || loading || item.cantidad <= 1}
+                    onClick={() => actualizarCantidad(item.producto?._id || item.producto, item.cantidad - 1)}
+                    disabled={!puedeEditarPedido || loading || item.cantidad <= 1}
                   >
                     -1
                   </button>
                   <span className="cantidad">{item.cantidad}</span>
                   <button
                     className="btn-cantidad"
-                    onClick={() => actualizarCantidad(item.producto._id, item.cantidad + 1)}
-                    disabled={isReadOnly || loading}
+                    onClick={() => actualizarCantidad(item.producto?._id || item.producto, item.cantidad + 1)}
+                    disabled={!puedeEditarPedido || loading}
                   >
                     +1
                   </button>
@@ -530,16 +571,16 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
                   <button
                     className="btn-accion btn-editar-observacion"
                     title="Editar pedido"
-                    onClick={() => editarObservacionProducto(item.producto._id)}
-                    disabled={isReadOnly || loading}
+                    onClick={() => editarObservacionProducto(item.producto?._id || item.producto)}
+                    disabled={!puedeEditarPedido || loading}
                   >
                     ✏️
                   </button>
                   <button 
                     className="btn-accion btn-eliminar" 
                     title="Eliminar"
-                    onClick={() => eliminarProducto(item.producto._id)}
-                    disabled={isReadOnly || loading}
+                    onClick={() => eliminarProducto(item.producto?._id || item.producto)}
+                    disabled={!puedeEditarPedido || loading}
                   >
                     🗑️
                   </button>
@@ -550,22 +591,23 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
         </div>
 
         {/* Footer con acciones */}
-        <div className="detalle-footer">
-          <button className="footer-btn" onClick={handlePagar} disabled={isReadOnly}>
-            <span className="btn-icon">💲</span>
-            <span>Pagar</span>
-          </button>
-          
-          <button className="footer-btn" onClick={marcarComoEntregado} disabled={isReadOnly}>
-            <span className="btn-icon">✓</span>
-            <span>Entrega</span>
-          </button>
-          
-          <button className="footer-btn" onClick={agregarItem} disabled={isReadOnly || loading}>
-            <span className="btn-icon">+</span>
-            <span>Agregar Item</span>
-          </button>
-        </div>
+        {pedidoActual.estado !== 'Entregado' && (
+          <div className="detalle-footer">
+            {pedidoActual.estado === 'Listo' && (
+              <button className="footer-btn" onClick={marcarComoEntregado} disabled={isReadOnly || loading}>
+                <span className="btn-icon">✓</span>
+                <span>Entrega</span>
+              </button>
+            )}
+
+            {puedeEditarPedido && (
+              <button className="footer-btn" onClick={agregarItem} disabled={loading}>
+                <span className="btn-icon">+</span>
+                <span>Agregar Item</span>
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Loading overlay */}
         {loading && (

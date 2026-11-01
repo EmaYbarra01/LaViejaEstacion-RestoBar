@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import usePedidosCocina from '../hooks/usePedidosCocina';
 import PedidoCard from '../components/cocina/PedidoCard';
 import { fetchEstadisticasCocina } from '../api/cocinaAPI';
-import useUserStore from '../store/useUserStore';
 import './CocinaView.css';
 
 /**
@@ -17,9 +17,11 @@ import './CocinaView.css';
  * - Interfaz intuitiva con indicadores visuales
  */
 const CocinaView = () => {
-  const { user } = useUserStore();
-  const isGerente = user?.role === 'Gerente';
-  const [vistaActiva, setVistaActiva] = useState('todos'); // todos, pendientes, preparacion, listos
+  const [searchParams, setSearchParams] = useSearchParams();
+  const vistaInicial = ['preparacion', 'pendientes', 'listos', 'todos'].includes(searchParams.get('vista'))
+    ? searchParams.get('vista')
+    : 'todos';
+  const [vistaActiva, setVistaActiva] = useState(vistaInicial);
   const [estadisticas, setEstadisticas] = useState(null);
   
   // Hook personalizado para manejar pedidos
@@ -29,12 +31,22 @@ const CocinaView = () => {
     error,
     setFiltroEstado,
     cargarPedidos,
-    cambiarEstado
+    marcarEnPreparacion,
+    marcarListo,
+    pedidoActualizando,
   } = usePedidosCocina({
     estadoInicial: null,
     autoRefresh: true,
     refreshInterval: 30000
   });
+
+  useEffect(() => {
+    const vista = ['preparacion', 'pendientes', 'listos', 'todos'].includes(searchParams.get('vista'))
+      ? searchParams.get('vista')
+      : 'todos';
+    setVistaActiva(vista);
+    setFiltroEstado(vista === 'pendientes' ? 'Pendiente' : vista === 'preparacion' ? 'En Preparación' : vista === 'listos' ? 'Listo' : null);
+  }, [searchParams, setFiltroEstado]);
 
   /**
    * Cargar estadísticas
@@ -55,6 +67,7 @@ const CocinaView = () => {
    */
   const cambiarVista = (vista) => {
     setVistaActiva(vista);
+    setSearchParams(vista === 'todos' ? { vista: 'todos' } : { vista });
     
     switch (vista) {
       case 'pendientes':
@@ -105,33 +118,18 @@ const CocinaView = () => {
       <header className="cocina-header">
         <div className="header-content">
           <div>
-            <h1 className="cocina-title">Módulo Encargado de Cocina</h1>
-            <p className="cocina-subtitle">Control de pedidos 'En Preparación'</p>
+            <h1 className="cocina-title">Supervisión de cocina</h1>
+            <p className="cocina-subtitle">Consulta de pedidos pendientes y en preparación</p>
           </div>
           <button 
             onClick={refrescarTodo} 
             className="btn-refrescar"
             disabled={loading}
           >
-            🔄 Actualizar
+            Actualizar
           </button>
         </div>
       </header>
-
-      {/* Banner de Solo Lectura para Gerente */}
-      {isGerente && (
-        <div style={{ 
-          padding: '12px 20px', 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-          color: 'white',
-          textAlign: 'center',
-          fontWeight: 'bold',
-          borderBottom: '3px solid #ffc107',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-        }}>
-          MODO SUPERVISIÓN - Solo Lectura (No se pueden cambiar estados de pedidos)
-        </div>
-      )}
 
       {/* Estadísticas */}
       {estadisticas && (
@@ -157,11 +155,8 @@ const CocinaView = () => {
 
       {/* Filtros / Tabs */}
       <div className="filtros-tabs">
-        <button
-          className={`tab-btn ${vistaActiva === 'todos' ? 'active' : ''}`}
-          onClick={() => cambiarVista('todos')}
-        >
-          Todos
+        <button className={`tab-btn ${vistaActiva === 'preparacion' ? 'active' : ''}`} onClick={() => cambiarVista('preparacion')}>
+          En Cocina
         </button>
         <button
           className={`tab-btn ${vistaActiva === 'pendientes' ? 'active' : ''}`}
@@ -170,23 +165,19 @@ const CocinaView = () => {
           Pendientes
         </button>
         <button
-          className={`tab-btn ${vistaActiva === 'preparacion' ? 'active' : ''}`}
-          onClick={() => cambiarVista('preparacion')}
-        >
-          En Preparación
-        </button>
-        <button
           className={`tab-btn ${vistaActiva === 'listos' ? 'active' : ''}`}
           onClick={() => cambiarVista('listos')}
         >
           Listos
+        </button>
+        <button className={`tab-btn ${vistaActiva === 'todos' ? 'active' : ''}`} onClick={() => cambiarVista('todos')}>
+          Todos
         </button>
       </div>
 
       {/* Mensajes de error */}
       {error && (
         <div className="alert alert-error">
-          <span>❌</span>
           <p>{error}</p>
           <button onClick={() => cargarPedidos(true)}>Reintentar</button>
         </div>
@@ -204,7 +195,6 @@ const CocinaView = () => {
       <div className="pedidos-container">
         {!loading && pedidosFiltrados().length === 0 && (
           <div className="empty-state">
-            <div className="empty-icon">📭</div>
             <h3>No hay pedidos {vistaActiva !== 'todos' ? `en estado "${vistaActiva}"` : 'en este momento'}</h3>
             <p>Los nuevos pedidos aparecerán automáticamente aquí</p>
           </div>
@@ -215,8 +205,9 @@ const CocinaView = () => {
             <PedidoCard
               key={pedido._id}
               pedido={pedido}
-              onCambiarEstado={cambiarEstado}
-              readOnly={isGerente}
+              onIniciar={marcarEnPreparacion}
+              onFinalizar={marcarListo}
+              actualizando={pedidoActualizando === pedido._id}
             />
           ))}
         </div>
@@ -225,7 +216,7 @@ const CocinaView = () => {
       {/* Indicador de actualización automática */}
       <div className="footer-info">
         <span className="conexion-status">
-          🟢 Actualización automática activa
+          Actualización automática activa
         </span>
         <span className="ultimo-update">
           Última actualización: {new Date().toLocaleTimeString()}

@@ -94,13 +94,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(79, 34, 43, 0.3);
   white-space: nowrap;
 }
 
 .btn-cierre-caja:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 20px rgba(79, 34, 43, 0.4);
 }
 
 /* Toolbar */
@@ -112,7 +112,6 @@
 
 .search-container {
   display: flex;
-  gap: 0.75rem;
   max-width: 600px;
 }
 
@@ -128,22 +127,7 @@
 .search-input:focus {
   outline: none;
   border-color: var(--app-accent);
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
-}
-
-.btn-search {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
-  border: none;
-  border-radius: 8px;
-  font-size: 1.25rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-search:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.3);
+  box-shadow: 0 0 0 3px rgba(100, 47, 58, 0.1);
 }
 
 /* Content */
@@ -244,14 +228,14 @@
 
 .pedido-item:hover {
   border-color: var(--app-accent);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
+  box-shadow: 0 4px 12px rgba(100, 47, 58, 0.15);
   transform: translateX(4px);
 }
 
 .pedido-item.selected {
   border-color: var(--app-accent);
   background: linear-gradient(135deg, #fffbf0 0%, var(--app-accent-soft) 100%);
-  box-shadow: 0 4px 16px rgba(88, 122, 60, 0.2);
+  box-shadow: 0 4px 16px rgba(100, 47, 58, 0.2);
 }
 
 .pedido-item-header {
@@ -275,7 +259,7 @@
 }
 
 .estado-listo {
-  background: #d1fae5;
+  background: #f3e7cd;
   color: var(--app-accent-dark);
 }
 
@@ -410,7 +394,7 @@
 }
 
 .badge-listo {
-  background: #d1fae5;
+  background: #f3e7cd;
   color: var(--app-accent-dark);
 }
 
@@ -430,8 +414,8 @@
 }
 
 .badge-cobrado {
-  background: #d1fae5;
-  color: #047857;
+  background: #f3e7cd;
+  color: #6b4f1d;
 }
 
 /* Productos tabla */
@@ -517,33 +501,32 @@
   margin-bottom: 1.5rem;
 }
 
-.metodo-btn {
+.metodo-info {
   background: white;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
   padding: 1rem;
   text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
   font-weight: 600;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.metodo-btn:hover {
+.metodo-info:hover {
   border-color: var(--app-accent);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.15);
 }
 
-.metodo-btn.active {
+.metodo-info.active {
   border-color: var(--app-accent);
   background: linear-gradient(135deg, #fffbf0 0%, var(--app-accent-soft) 100%);
-  box-shadow: 0 4px 12px rgba(88, 122, 60, 0.2);
+  box-shadow: 0 4px 12px rgba(100, 47, 58, 0.2);
 }
 
-.metodo-btn small {
+.metodo-info small {
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--app-accent);
@@ -560,25 +543,21 @@
   margin-bottom: 0.5rem;
 }
 
-.monto-input {
+.monto-value {
   width: 100%;
+  box-sizing: border-box;
+  margin: 0;
   padding: 0.875rem 1rem;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
-  font-size: 1.25rem;
+  color: #374151;
+  background: #f8fafc;
+  font-size: 1rem;
   font-weight: 600;
-  text-align: right;
-  transition: all 0.3s;
-}
-
-.monto-input:focus {
-  outline: none;
-  border-color: var(--app-accent);
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.1);
 }
 
 .cambio-info {
-  background: #d1fae5;
+  background: #f3e7cd;
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -612,12 +591,12 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(79, 34, 43, 0.3);
 }
 
 .btn-cobrar:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 20px rgba(79, 34, 43, 0.4);
 }
 
 .btn-cobrar:disabled {

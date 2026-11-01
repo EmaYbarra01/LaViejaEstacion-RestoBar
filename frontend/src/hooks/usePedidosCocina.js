@@ -27,6 +27,7 @@ const usePedidosCocina = (options = {}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState(estadoInicial);
+  const [pedidoActualizando, setPedidoActualizando] = useState(null);
   
   const socketRef = useRef(null);
   const intervalRef = useRef(null);
@@ -63,6 +64,7 @@ const usePedidosCocina = (options = {}) => {
    */
   const cambiarEstado = useCallback(async (pedidoId, nuevoEstado, observacion = '') => {
     try {
+      setPedidoActualizando(pedidoId);
       const data = await updateEstadoPedido(pedidoId, {
         estado: nuevoEstado,
         observacion
@@ -94,6 +96,8 @@ const usePedidosCocina = (options = {}) => {
       const mensaje = err.response?.data?.mensaje || err.message || 'Error al actualizar estado';
       toast.error(mensaje);
       throw err;
+    } finally {
+      setPedidoActualizando(null);
     }
   }, [filtroEstado]);
 
@@ -168,7 +172,7 @@ const usePedidosCocina = (options = {}) => {
     });
 
     // Evento: pedido actualizado
-    socket.on('pedidoUpdated', (data) => {
+    socket.on('pedido-actualizado', (data) => {
       console.log('[Socket] Pedido actualizado:', data.pedidoId);
       
       setPedidos(prev => {
@@ -241,6 +245,7 @@ const usePedidosCocina = (options = {}) => {
     pedidos,
     loading,
     error,
+    pedidoActualizando,
     filtroEstado,
     setFiltroEstado,
     cargarPedidos,
