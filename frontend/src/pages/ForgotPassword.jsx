@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import PublicShell from '../components/PublicShell';
 import './ForgotPassword.css';
 
-const ForgotPassword = () => {
+const ForgotPassword = ({ isNightMode, onToggleNightMode }) => {
   const [email, setEmail] = useState('');
+  const [sentTo, setSentTo] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [emailSent, setEmailSent] = useState(false);
@@ -30,6 +32,7 @@ const ForgotPassword = () => {
           text: data.mensaje
         });
         setEmailSent(true);
+        setSentTo(email);
         setEmail('');
       } else {
         setMessage({
@@ -49,107 +52,67 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="forgot-password-container">
-      <div className="forgot-password-card">
-        <div className="forgot-password-header">
-          <div className="icon-container">
-            <i className="bi bi-shield-lock"></i>
-          </div>
-          <h2>¿Olvidaste tu contraseña?</h2>
-          <p className="subtitle">
-            No te preocupes, te enviaremos instrucciones para restablecerla
-          </p>
-        </div>
+    <PublicShell isNightMode={isNightMode} onToggleNightMode={onToggleNightMode} pageClass="fp-page" mainClass="fp-main">
+      <div className="ps-panel fp-card">
+        <h1>Recuperar contraseña</h1>
+        <div className="mv-divider" />
 
         {!emailSent ? (
-          <form onSubmit={handleSubmit} className="forgot-password-form">
-            <div className="form-group">
-              <label htmlFor="email">
-                <i className="bi bi-envelope"></i>
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="form-control"
-                placeholder="tu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-              />
-              <small className="form-text">
-                Ingresa el email asociado a tu cuenta
-              </small>
-            </div>
-
-            {message.text && (
-              <div className={`alert alert-${message.type}`}>
-                <i className={`bi bi-${message.type === 'success' ? 'check-circle' : 'exclamation-circle'}`}></i>
-                {message.text}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="btn btn-primary btn-block"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2"></span>
-                  Enviando...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-send me-2"></i>
-                  Enviar Instrucciones
-                </>
+          <>
+            <p className="fp-sub">No te preocupes, te enviaremos instrucciones para restablecerla</p>
+            <form onSubmit={handleSubmit} className="fp-form">
+              {message.text && (
+                <div className={`ps-msg fp-msg ${message.type}`}>{message.text}</div>
               )}
-            </button>
-          </form>
+              <div className="ps-field">
+                <label htmlFor="fp-email">Correo electrónico</label>
+                <input
+                  type="email"
+                  id="fp-email"
+                  placeholder="tu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+                <span className="fp-hint">Ingresa el email asociado a tu cuenta</span>
+              </div>
+              <button type="submit" className="ps-btn block" disabled={loading}>
+                {loading ? 'Enviando...' : 'Enviar instrucciones'}
+              </button>
+            </form>
+          </>
         ) : (
-          <div className="email-sent-message">
-            <div className="success-icon">
-              <i className="bi bi-envelope-check"></i>
-            </div>
-            <h3>¡Correo Enviado!</h3>
+          <div className="fp-sent">
+            <h3>¡Correo enviado!</h3>
             <p>
-              Si existe una cuenta con el email <strong>{email}</strong>, 
+              Si existe una cuenta con el email <strong>{sentTo}</strong>,
               recibirás un correo con las instrucciones para restablecer tu contraseña.
             </p>
-            <div className="info-box">
-              <i className="bi bi-info-circle"></i>
-              <div>
-                <p><strong>¿No recibiste el correo?</strong></p>
-                <ul>
-                  <li>Revisa tu carpeta de spam</li>
-                  <li>Espera unos minutos</li>
-                  <li>Verifica que el email sea correcto</li>
-                </ul>
-              </div>
+            <div className="fp-info">
+              <b>¿No recibiste el correo?</b>
+              <ul>
+                <li>Revisa tu carpeta de spam</li>
+                <li>Espera unos minutos</li>
+                <li>Verifica que el email sea correcto</li>
+              </ul>
             </div>
             <button
-              className="btn btn-secondary btn-block"
+              type="button"
+              className="ps-btn block"
               onClick={() => {
                 setEmailSent(false);
                 setMessage({ type: '', text: '' });
               }}
             >
-              <i className="bi bi-arrow-counterclockwise me-2"></i>
-              Enviar Nuevamente
+              Enviar nuevamente
             </button>
           </div>
         )}
 
-        <div className="forgot-password-footer">
-          <Link to="/login" className="back-link">
-            <i className="bi bi-arrow-left"></i>
-            Volver al inicio de sesión
-          </Link>
-        </div>
+        <Link to="/login" className="fp-back">Volver al inicio de sesión</Link>
       </div>
-    </div>
+    </PublicShell>
   );
 };
 

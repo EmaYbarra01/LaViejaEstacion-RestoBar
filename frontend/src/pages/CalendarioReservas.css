@@ -47,7 +47,7 @@
   padding: 20px 30px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 15px;
-  border: 1px solid rgba(88, 122, 60, 0.2);
+  border: 1px solid rgba(100, 47, 58, 0.2);
   animation: fadeInUp 0.8s ease-out;
 }
 
@@ -67,7 +67,7 @@
 
 .btn-nav:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(88, 122, 60, 0.4);
+  box-shadow: 0 5px 15px rgba(100, 47, 58, 0.4);
 }
 
 .mes-año {
@@ -83,7 +83,7 @@
   background: rgba(255, 255, 255, 0.02);
   border-radius: 15px;
   padding: 20px;
-  border: 1px solid rgba(88, 122, 60, 0.2);
+  border: 1px solid   rgba(100, 47, 58, 0.2);
   margin-bottom: 30px;
   animation: fadeInUp 1s ease-out;
 }
@@ -134,22 +134,22 @@
 
 .dia-celda.hoy {
   border-color: var(--app-accent);
-  box-shadow: 0 0 15px rgba(88, 122, 60, 0.3);
+  box-shadow: 0 0 15px rgba(100, 47, 58, 0.3);
 }
 
 .dia-celda.selected {
-  background: rgba(88, 122, 60, 0.15);
+  background: rgba(100, 47, 58, 0.15);
   border-color: var(--app-accent);
   transform: scale(1.05);
-  box-shadow: 0 5px 20px rgba(88, 122, 60, 0.4);
+  box-shadow: 0 5px 20px rgba(100, 47, 58, 0.4);
 }
 
 .dia-celda.con-reservas {
-  border-color: rgba(88, 122, 60, 0.4);
+  border-color: rgba(100, 47, 58, 0.4);
 }
 
 .dia-celda:not(.vacio):hover {
-  background: rgba(88, 122, 60, 0.08);
+  background: rgba(100, 47, 58, 0.08);
   border-color: var(--app-accent);
   transform: translateY(-2px);
 }
@@ -191,9 +191,9 @@
 }
 
 .badge.badge-success {
-  background: rgba(76, 175, 80, 0.3);
-  color: #4caf50;
-  border: 1px solid #4caf50;
+  background: rgba(201, 169, 106, 0.3);
+  color: #a8843c;
+  border: 1px solid #a8843c;
 }
 
 .badge.badge-info {
@@ -207,7 +207,7 @@
   background: rgba(255, 255, 255, 0.03);
   border-radius: 15px;
   padding: 30px;
-  border: 1px solid rgba(88, 122, 60, 0.2);
+  border: 1px solid   rgba(100, 47, 58, 0.2);
   animation: fadeInUp 0.5s ease-out;
 }
 
@@ -247,7 +247,7 @@
 
 .stat-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(88, 122, 60, 0.2);
+  box-shadow: 0 5px 15px rgba(100, 47, 58, 0.2);
 }
 
 .stat-card.warning {
@@ -255,7 +255,7 @@
 }
 
 .stat-card.success {
-  border-color: rgba(76, 175, 80, 0.4);
+  border-color: rgba(201, 169, 106, 0.4);
 }
 
 .stat-numero {
@@ -296,7 +296,7 @@
 .reserva-card:hover {
   background: rgba(255, 255, 255, 0.05);
   transform: translateX(5px);
-  border-color: rgba(88, 122, 60, 0.3);
+  border-color: rgba(100, 47, 58, 0.3);
 }
 
 .reserva-card.pendiente {
@@ -304,7 +304,7 @@
 }
 
 .reserva-card.confirmada {
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid #a8843c;
 }
 
 .reserva-card.cancelada {
@@ -323,7 +323,7 @@
   align-items: center;
   gap: 5px;
   padding: 10px 15px;
-  background: rgba(88, 122, 60, 0.1);
+  background: rgba(100, 47, 58, 0.1);
   border-radius: 8px;
   min-width: 80px;
 }
@@ -401,7 +401,7 @@
 }
 
 .icon-success {
-  color: #4caf50;
+  color: #a8843c;
 }
 
 .icon-danger {
@@ -432,7 +432,7 @@
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(88, 122, 60, 0.2);
+  border: 4px solid rgba(100, 47, 58, 0.2);
   border-top-color: var(--app-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;

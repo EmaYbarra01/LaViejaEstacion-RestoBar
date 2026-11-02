@@ -1,12 +1,29 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { crearReserva } from '../api/reservas.api';
 import Swal from 'sweetalert2';
+import PublicShell from '../components/PublicShell';
 import './Reservas.css';
 
-const Reservas = () => {
-  const navigate = useNavigate();
-  const maxComensales = 15;
+const HORARIOS_ATENCION = {
+  0: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  1: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  2: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  3: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  4: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  5: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] },
+  6: { franjas: [{ abre: '09:00', cierra: '12:00' }, { abre: '20:00', cierra: '00:00' }] }
+};
+
+const FECHAS_ESPECIALES = {
+  diasCerrados: ['01-01', '05-01', '12-25'],
+  horariosEspeciales: {
+    '12-24': { franjas: [{ abre: '11:00', cierra: '20:00' }] },
+    '12-31': { franjas: [{ abre: '19:00', cierra: '03:00' }] }
+  }
+};
+
+const Reservas = ({ isNightMode, onToggleNightMode }) => {
+  const maxComensales = 10;
   const maxFecha = '9999-12-31';
   const [formData, setFormData] = useState({
     cliente: '',
@@ -18,7 +35,6 @@ const Reservas = () => {
     comentarios: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
 
   const limitarFechaA4Digitos = (value) => {
     if (!value) return value;
@@ -40,11 +56,41 @@ const Reservas = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setMessage({ type: '', text: '' });
 
     // Validación básica
     if (!formData.cliente || !formData.email || !formData.telefono || !formData.fecha || !formData.hora) {
-      setMessage({ type: 'error', text: 'Por favor, completa todos los campos obligatorios.' });
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Datos incompletos',
+        text: 'Por favor, completa todos los campos obligatorios.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#642f3a'
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const horario = getHorarioAtencion(formData.fecha);
+    const minutosSeleccionados = Number(formData.hora.slice(0, 2)) * 60
+      + Number(formData.hora.slice(3, 5));
+    const horarioValido = horario?.franjas.some(({ abre, cierra }) => {
+      const minutosApertura = Number(abre.slice(0, 2)) * 60 + Number(abre.slice(3, 5));
+      let minutosCierre = Number(cierra.slice(0, 2)) * 60 + Number(cierra.slice(3, 5));
+      const cierraMedianoche = cierra === '00:00' || minutosCierre <= minutosApertura;
+      if (cierraMedianoche) minutosCierre = 24 * 60;
+      return minutosSeleccionados >= minutosApertura
+        && minutosSeleccionados <= minutosCierre
+        && (!cierraMedianoche || minutosSeleccionados < minutosCierre);
+    });
+
+    if (!horarioValido) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Horario no disponible',
+        text: 'Elegí un horario entre 09:00 y 12:00, o entre 20:00 y 00:00.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#642f3a'
+      });
       setIsSubmitting(false);
       return;
     }
@@ -57,7 +103,8 @@ const Reservas = () => {
         telefono: formData.telefono,
         fecha: formData.fecha,
         hora: formData.hora,
-        comensales: parseInt(formData.comensales),
+        comensales: formData.comensales === 'evento-especial' ? 10 : parseInt(formData.comensales),
+        eventoEspecial: formData.comensales === 'evento-especial',
         comentarios: formData.comentarios
       };
 
@@ -65,42 +112,39 @@ const Reservas = () => {
 
       // Enviar reserva al backend
       const response = await crearReserva(reservaData);
-      
+
       console.log('[RESERVAS] Respuesta del servidor:', response);
 
       if (response.success) {
-        // Mostrar SweetAlert de éxito
         await Swal.fire({
           icon: 'success',
-          title: '¡Reserva Enviada!',
+          title: '¡Solicitud recibida!',
           html: `
             <div style="text-align: left;">
-              <p><strong>Tu reserva ha sido enviada exitosamente.</strong></p>
+              <p><strong>Recibimos tu solicitud de reserva.</strong></p>
               <br>
-              <p>📧 Hemos enviado un correo de confirmación a:</p>
-              <p style="color: #667eea; font-weight: bold; text-align: center;">${formData.email}</p>
+              <p>📧 Te enviaremos un correo a:</p>
+              <p style="color: #642f3a; font-weight: bold; text-align: center;">${formData.email}</p>
               <br>
-              <p>📬 También enviamos una notificación al restaurante:</p>
-              <p style="color: #667eea; font-weight: bold; text-align: center;">laviejaestacionbar@gmail.com</p>
+              <p>cuando confirmemos la disponibilidad de mesas para la fecha y hora elegidas.</p>
               <br>
-              ${response.mesaAsignada 
-                ? `<p>🪑 <strong>Mesa asignada:</strong> Mesa ${response.mesaAsignada.numero}</p>` 
-                : '<p>⏳ El administrador asignará tu mesa pronto.</p>'
+              ${formData.comensales === 'evento-especial'
+                ? '<p>🎉 Tu solicitud corresponde a un evento especial.</p>'
+                : response.mesaAsignada
+                  ? `<p>🪑 <strong>Mesa asignada:</strong> Mesa ${response.mesaAsignada.numero}</p>`
+                  : '<p>⏳ El restaurante revisará tu solicitud pronto.</p>'
               }
               <br>
               <p style="font-size: 14px; color: #666;">
-                <strong>Próximos pasos:</strong><br>
-                1️⃣ Revisa tu correo electrónico<br>
-                2️⃣ Confirma tu reserva desde el enlace<br>
-                3️⃣ Espera la confirmación final del restaurante
+                <strong>Importante:</strong> El correo se enviará una sola vez, cuando el restaurante confirme la disponibilidad.
               </p>
             </div>
           `,
           confirmButtonText: 'Entendido',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#642f3a',
           allowOutsideClick: false
         });
-        
+
         // Limpiar formulario
         setFormData({
           cliente: '',
@@ -111,16 +155,15 @@ const Reservas = () => {
           comensales: 2,
           comentarios: ''
         });
-        setMessage({ type: '', text: '' });
       } else {
         throw new Error(response.mensaje || 'Error al crear la reserva');
       }
-      
+
     } catch (error) {
       console.error('[RESERVAS] Error:', error);
-      
+
       let errorMessage = 'Hubo un error al procesar tu reserva. Por favor, intenta nuevamente.';
-      
+
       if (error.mensaje) {
         errorMessage = error.mensaje;
       } else if (error.errores && Array.isArray(error.errores)) {
@@ -129,9 +172,12 @@ const Reservas = () => {
         errorMessage = error.message;
       }
 
-      setMessage({ 
-        type: 'error', 
-        text: errorMessage
+      await Swal.fire({
+        icon: 'error',
+        title: 'No se pudo crear la reserva',
+        text: errorMessage,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#642f3a'
       });
     } finally {
       setIsSubmitting(false);
@@ -144,25 +190,31 @@ const Reservas = () => {
     return today.toISOString().split('T')[0];
   };
 
+  const getHorarioAtencion = (fecha) => {
+    if (!fecha) return null;
+
+    const fechaObj = new Date(`${fecha}T12:00:00Z`);
+    const mesYDia = fecha.slice(5);
+    if (FECHAS_ESPECIALES.diasCerrados.includes(mesYDia)) return null;
+
+    return FECHAS_ESPECIALES.horariosEspeciales[mesYDia]
+      || HORARIOS_ATENCION[fechaObj.getUTCDay()];
+  };
+
+  const horarioAtencion = getHorarioAtencion(formData.fecha);
+
   return (
-    <div className="reservas-page">
-      <div className="reservas-container">
-        <div className="reservas-header">
+    <PublicShell isNightMode={isNightMode} onToggleNightMode={onToggleNightMode} pageClass="rs-page">
+      <div className="ps-container rs-container">
+        <div className="ps-head">
           <h1>Reserva tu Mesa</h1>
-          <div className="reservas-divider"></div>
+          <div className="mv-divider" />
           <p>La Vieja Estación - Una experiencia gastronómica inolvidable</p>
         </div>
 
-        
-
-          <form className="reservas-form" onSubmit={handleSubmit}>
-            {message.text && (
-              <div className={`form-message ${message.type}`}>
-                {message.text}
-              </div>
-            )}
-
-            <div className="form-group">
+        <form className="ps-panel rs-form" onSubmit={handleSubmit}>
+          <div className="rs-row rs-c1">
+            <div className="ps-field">
               <label htmlFor="cliente">Nombre completo *</label>
               <input
                 type="text"
@@ -174,89 +226,103 @@ const Reservas = () => {
                 required
               />
             </div>
+          </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="tu@email.com"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="telefono">Teléfono *</label>
-                <input
-                  type="tel"
-                  id="telefono"
-                  name="telefono"
-                  value={formData.telefono}
-                  onChange={handleChange}
-                  placeholder="+54 11 1234-5678"
-                  required
-                />
-              </div>
+          <div className="rs-row rs-c2">
+            <div className="ps-field">
+              <label htmlFor="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="tu@email.com"
+                required
+              />
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="fecha">Fecha *</label>
-                <input
-                  type="date"
-                  id="fecha"
-                  name="fecha"
-                  value={formData.fecha}
-                  onChange={handleChange}
-                  min={getMinDate()}
-                  max={maxFecha}
-                  required
-                />
-              </div>
+            <div className="ps-field">
+              <label htmlFor="telefono">Teléfono *</label>
+              <input
+                type="tel"
+                id="telefono"
+                name="telefono"
+                value={formData.telefono}
+                onChange={handleChange}
+                placeholder="+54 11 1234-5678"
+                required
+              />
+            </div>
+          </div>
 
-              <div className="form-group">
-                <label htmlFor="hora">Hora *</label>
-                <input
-                  type="time"
-                  id="hora"
-                  name="hora"
-                  value={formData.hora}
-                  onChange={handleChange}
-                  min="09:00"
-                  max="00:00"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="comensales">Comensales *</label>
-                <select
-                  id="comensales"
-                  name="comensales"
-                  value={formData.comensales}
-                  onChange={handleChange}
-                  required
-                >
-                  {Array.from({ length: maxComensales }, (_, index) => index + 1).map(num => (
-                    <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'personas'}</option>
-                  ))}
-                </select>
-              </div>
+          <div className="rs-row rs-c3">
+            <div className="ps-field">
+              <label htmlFor="fecha">Fecha *</label>
+              <input
+                type="date"
+                id="fecha"
+                name="fecha"
+                value={formData.fecha}
+                onChange={(e) => {
+                  handleChange(e);
+                  setFormData(prev => ({ ...prev, hora: '' }));
+                }}
+                min={getMinDate()}
+                max={maxFecha}
+                required
+              />
             </div>
 
-            <div className="form-group">
-              <div className="info-asignacion-automatica">
-                <span className="icon-info">ℹ️</span>
-                <p><strong>Informacion sobre la reserva:</strong> ¡Gracias por resevar con nosotros! La mesa se asignará teniendo en cuenta la cantidad de personas la disponibilidad del momento.
-                una vez confirmada tu reserva, recibiras un email con el numero de tu mesa asignada.</p>
-              </div>
+            <div className="ps-field">
+              <label htmlFor="hora">Hora *</label>
+              <input
+                type="time"
+                id="hora"
+                name="hora"
+                value={formData.hora}
+                onChange={handleChange}
+                disabled={!formData.fecha || !horarioAtencion}
+                step="60"
+                required
+              />
             </div>
 
-            <div className="form-group">
+            <div className="ps-field">
+              <label htmlFor="comensales">Comensales *</label>
+              <select
+                id="comensales"
+                name="comensales"
+                value={formData.comensales}
+                onChange={handleChange}
+                required
+              >
+                <option value="evento-especial">Evento especial (más de 10 personas)</option>
+                {Array.from({ length: maxComensales }, (_, index) => index + 1).map(num => (
+                  <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'personas'}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {formData.comensales === 'evento-especial' ? (
+            <div className="rs-aviso">
+              <strong>Organizá tu evento especial</strong>
+              <p>Para más de 10 personas, contactanos directamente:</p>
+              <a href="mailto:laviejaestacionbar@gmail.com">laviejaestacionbar@gmail.com</a>
+              <a href="tel:+543816364592">+54 381 636-4592</a>
+            </div>
+          ) : (
+            <p className="rs-aviso-txt">¿Son más de 10 personas? Elegí “Evento especial”.</p>
+          )}
+
+          <div className="rs-info">
+            <svg className="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
+            <p><strong>Información sobre la reserva:</strong> ¡Gracias por reservar con nosotros! La mesa se asignará teniendo en cuenta la cantidad de personas y la disponibilidad del momento. Una vez confirmada tu reserva, recibirás un email con el número de tu mesa asignada.</p>
+          </div>
+
+          <div className="rs-row rs-c1">
+            <div className="ps-field">
               <label htmlFor="comentarios">Comentarios adicionales</label>
               <textarea
                 id="comentarios"
@@ -267,94 +333,74 @@ const Reservas = () => {
                 rows="4"
               />
             </div>
+          </div>
 
-            <button 
-              type="submit" 
-              className="submit-btn"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Procesando...' : 'Reservar Mesa'}
-            </button>
+          <button type="submit" className="ps-btn block" disabled={isSubmitting}>
+            {isSubmitting ? 'Procesando...' : 'Reservar Mesa'}
+          </button>
+        </form>
 
-            <button 
-              type="button" 
-              className="back-btn"
-              onClick={() => navigate('/')}
-            >
-              Volver al Inicio
-            </button>
-          </form>
-
-          {/* Instrucciones post-reserva */}
-          <div className="post-reserva-info">
-            <h3>¿Qué sigue después de hacer tu reserva?</h3>
-            <div className="instrucciones-pasos">
-              <div className="paso">
-                <span className="paso-numero">1</span>
-                <div className="paso-content">
-                  <h4>Revisa tu correo electrónico</h4>
-                  <p>Recibirás un email con los detalles de tu reserva y un enlace de confirmación.</p>
-                </div>
-              </div>
-              <div className="paso">
-                <span className="paso-numero">2</span>
-                <div className="paso-content">
-                  <h4>Confirma tu reserva</h4>
-                  <p>Haz clic en el enlace del correo para confirmar tu asistencia. Tu reserva quedará en estado "Pendiente" hasta que la confirmes.</p>
-                </div>
-              </div>
-              <div className="paso">
-                <span className="paso-numero">3</span>
-                <div className="paso-content">
-                  <h4>Espera la confirmación final</h4>
-                  <p>El restaurante revisará tu reserva y te enviará un correo de confirmación definitiva.</p>
-                </div>
-              </div>
+        {/* Instrucciones post-reserva */}
+        <section className="rs-after">
+          <h2 className="ps-section-title">¿Qué sigue después de hacer tu reserva?</h2>
+          <div className="rs-steps">
+            <div className="ps-panel rs-step">
+              <span className="rs-num">1</span>
+              <h4>Esperá la revisión del restaurante</h4>
+              <p>El restaurante revisará la disponibilidad de mesas para la fecha y hora que elegiste.</p>
             </div>
-
-            <div className="contacto-alternativo">
-              <h4>¿No recibiste el correo de confirmación?</h4>
-              <p>Si escribiste mal tu email o no te llegó el correo en los próximos minutos:</p>
-              <ul>
-                <li>Revisa tu carpeta de spam o correo no deseado</li>
-                <li>Verifica que escribiste correctamente tu dirección de email</li>
-                <li>Contáctanos directamente:</li>
-              </ul>
-              <div className="contacto-directo">
-                <div className="contacto-item">
-                  <span className="contacto-icon">📧</span>
-                  <div>
-                    <strong>Email:</strong>
-                    <a href="mailto:laviejaestacionbar@gmail.com">
-                      laviejaestacionbar@gmail.com
-                    </a>
-                  </div>
-                </div>
-                <div className="contacto-item">
-                  <span className="contacto-icon">📞</span>
-                  <div>
-                    <strong>Teléfono:</strong>
-                    <a href="tel:+543816364592">+54 381 636-4592</a>
-                  </div>
-                </div>
-                <div className="contacto-item">
-                  <span className="contacto-icon">📍</span>
-                  <div>
-                    <strong>Dirección:</strong>
-                    <span>Ruta Nacional N°9, km. 1361</span>
-                  </div>
-                </div>
-              </div>
-              <p className="nota-importante">
-                <strong>Importante:</strong> Si necesitas cancelar o modificar tu reserva, 
-                puedes hacerlo desde el enlace que recibirás en el correo o contactándonos 
-                directamente con al menos 2 horas de anticipación.
-              </p>
+            <div className="ps-panel rs-step">
+              <span className="rs-num">2</span>
+              <h4>Esperá la confirmación de disponibilidad</h4>
+              <p>Tu solicitud quedará pendiente mientras el restaurante verifica si puede asignarte una mesa.</p>
+            </div>
+            <div className="ps-panel rs-step">
+              <span className="rs-num">3</span>
+              <h4>Recibí un único correo de confirmación</h4>
+              <p>Si hay disponibilidad, recibirás un correo avisándote que tu reserva fue confirmada. No se envían correos antes de esa confirmación.</p>
             </div>
           </div>
-        </div>
+
+          <div className="ps-panel rs-contact">
+            <h4>¿No recibiste el correo de confirmación?</h4>
+            <p>Si el restaurante confirmó la disponibilidad y todavía no recibiste el correo:</p>
+            <ul>
+              <li>Revisa tu carpeta de spam o correo no deseado</li>
+              <li>Verifica que escribiste correctamente tu dirección de email</li>
+              <li>Contáctanos directamente:</li>
+            </ul>
+            <div className="rs-contact-grid">
+              <div className="rs-contact-item">
+                <svg className="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
+                <div>
+                  <strong>Email</strong>
+                  <a href="mailto:laviejaestacionbar@gmail.com">laviejaestacionbar@gmail.com</a>
+                </div>
+              </div>
+              <div className="rs-contact-item">
+                <svg className="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" /></svg>
+                <div>
+                  <strong>Teléfono</strong>
+                  <a href="tel:+543816364592">+54 381 636-4592</a>
+                </div>
+              </div>
+              <div className="rs-contact-item">
+                <svg className="ps-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>
+                <div>
+                  <strong>Dirección</strong>
+                  <span>Ruta Nacional N°9, km. 1361</span>
+                </div>
+              </div>
+            </div>
+            <p className="rs-note">
+              <strong>Importante:</strong> Si necesitas cancelar o modificar tu reserva,
+              puedes hacerlo desde el enlace que recibirás en el correo o contactándonos
+              directamente con al menos 2 horas de anticipación.
+            </p>
+          </div>
+        </section>
       </div>
-    
+    </PublicShell>
   );
 };
 

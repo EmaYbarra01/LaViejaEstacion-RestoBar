@@ -41,7 +41,7 @@ const ProductFormModal = (props) => {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ bgcolor: '#667eea', color: 'white', fontWeight: 'bold' }}>
-                {isEdit ? "✏️ Editar Producto" : "➕ Crear Nuevo Producto"}
+                {isEdit ? "Editar producto" : "Crear nuevo producto"}
             </DialogTitle>
             <form id="product-form" onSubmit={handleSubmit}>
                 <DialogContent sx={{ pt: 3 }}>
@@ -215,7 +215,7 @@ const ProductFormModal = (props) => {
                                         color="primary"
                                     />
                                 }
-                                label={form.available !== false ? "✅ Producto Disponible" : "❌ Producto No Disponible"}
+                                label={form.available !== false ? "Producto disponible" : "Producto no disponible"}
                             />
                         </Grid>
 
@@ -234,7 +234,7 @@ const ProductFormModal = (props) => {
                                 size="large"
                                 sx={{ bgcolor: '#667eea', '&:hover': { bgcolor: '#5568d3' } }}
                             >
-                                {isEdit ? "💾 Actualizar" : "✅ Crear Producto"}
+                                {isEdit ? "Actualizar" : "Crear producto"}
                             </Button>
                         </Grid>
                     </Grid>

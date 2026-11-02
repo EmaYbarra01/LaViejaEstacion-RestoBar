@@ -361,9 +361,9 @@
 }
 
 .btn-accion.btn-editar {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  background: linear-gradient(135deg, #f7edd6 0%, #ead9b0 100%);
   color: var(--app-accent-dark);
-  border-color: #a7f3d0;
+  border-color: #d8c49a;
 }
 
 /* Botón agregar item */
@@ -400,7 +400,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  box-shadow: 0 2px 8px rgba(88, 122, 60, 0.3);
+  box-shadow: 0 2px 8px rgba(100, 47, 58, 0.3);
 }
 
 /* Footer */

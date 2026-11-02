@@ -30,7 +30,9 @@ export function validarDatos(datos, { anticipacion = true } = {}) {
   check(/^\d{10}$/.test(telefono), 'El teléfono debe tener 10 dígitos');
   const fecha = validarFecha(datos.fecha), hora = validarHora(datos.hora);
   const comensales = Number(datos.comensales);
-  check(Number.isInteger(comensales) && comensales >= 1 && comensales <= 15, 'Comensales: entero entre 1 y 15');
+  check(Number.isInteger(comensales) && comensales >= CONFIGURACION_RESERVAS.comensalesMinimo
+    && comensales <= CONFIGURACION_RESERVAS.comensalesMaximo,
+  `Comensales: entero entre ${CONFIGURACION_RESERVAS.comensalesMinimo} y ${CONFIGURACION_RESERVAS.comensalesMaximo}`);
   const comentarios = text(datos.comentarios ?? '', 0, 500, 'Comentarios');
   const horario = validarHorarioAtencion(fecha, hora);
   check(horario.valido, horario.mensaje);
@@ -90,17 +92,23 @@ export function reservaService(pool) {
   };
   return {
     async crear(datos) {
-      const validos = validarDatos(datos);
+      const eventoEspecial = datos.eventoEspecial === true;
+      const datosValidados = eventoEspecial
+        ? { ...datos, comensales: CONFIGURACION_RESERVAS.comensalesMaximo,
+            comentarios: `EVENTO ESPECIAL (más de ${CONFIGURACION_RESERVAS.comensalesMaximo} personas). ${datos.comentarios ?? ''}`.trim() }
+        : datos;
+      const validos = validarDatos(datosValidados);
       const token = randomBytes(32).toString('hex');
       const reserva = await transaction(pool, async db => {
         await bloquearMesas(db);
-        const mesaId = await asignar(db, datos.numeroMesa, validos);
+        const mesaId = eventoEspecial ? null : await asignar(db, datos.numeroMesa, validos);
         const [result] = await db.execute(`INSERT INTO reservas
           (mesa_id,cliente,email,telefono,fecha,hora,comensales,comentarios,confirmation_token_hash,token_expiry)
           VALUES (?,?,?,?,?,?,?,?,?,?)`, [mesaId, validos.cliente, validos.email, validos.telefono,
           validos.fecha, validos.hora, validos.comensales, validos.comentarios, hashToken(token), new Date(Date.now() + 72*3600000)]);
         return leer(db, result.insertId);
       });
+      reserva.eventoEspecial = eventoEspecial;
       return { reserva, token };
     },
     async listar({ estado, fecha, email, cliente, soloActivas = false, page = 1, limit = 50 } = {}) {
@@ -178,7 +186,8 @@ export function reservaService(pool) {
     async disponibilidad(fecha, hora, comensales = 1) {
       validarFecha(fecha); validarHora(hora);
       comensales = Number(comensales);
-      check(Number.isInteger(comensales) && comensales >= 1 && comensales <= 15, 'Comensales inválidos');
+      check(Number.isInteger(comensales) && comensales >= CONFIGURACION_RESERVAS.comensalesMinimo
+        && comensales <= CONFIGURACION_RESERVAS.comensalesMaximo, 'Comensales inválidos');
       const validacion = validarHorarioAtencion(fecha, hora);
       check(validacion.valido, validacion.mensaje);
       return transaction(pool, async db => {

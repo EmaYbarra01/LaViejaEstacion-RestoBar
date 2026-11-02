@@ -1,8 +1,8 @@
 .supervision-pedidos {
   min-height: 70vh;
   padding: 2rem;
-  background: #eef4ec;
-  color: #294438;
+  background: #f4ead7;
+  color: #3b2428;
 }
 
 .supervision-header {
@@ -12,26 +12,26 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 1.25rem 1.5rem;
-  background: #dbe8d7;
-  border: 1px solid #b8cdb3;
+  background: #eadbc3;
+  border: 1px solid #d8c49a;
   border-radius: 8px;
 }
 
 .supervision-header h1 {
   margin: 0;
-  color: #294438;
+  color: #3b2428;
 }
 
 .supervision-header p {
   margin: 0.35rem 0 0;
-  color: #5d7465;
+  color: #7a5a5f;
 }
 
 .supervision-refresh {
-  border: 1px solid #6f9277;
+  border: 1px solid #642f3a;
   border-radius: 6px;
   padding: 0.65rem 1rem;
-  background: #6f9277;
+  background: #642f3a;
   color: #fff;
   cursor: pointer;
 }
@@ -53,10 +53,10 @@
   min-height: 150px;
   padding: 1.25rem;
   text-align: left;
-  border: 1px solid #b8cdb3;
+  border: 1px solid #d8c49a;
   border-radius: 8px;
   background: #fff;
-  color: #294438;
+  color: #3b2428;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -64,7 +64,7 @@
 .supervision-pedido:hover,
 .supervision-pedido:focus-visible {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(55, 87, 64, 0.16);
+  box-shadow: 0 6px 16px rgba(79, 34, 43, 0.16);
   outline: none;
 }
 
@@ -75,14 +75,14 @@
 
 .supervision-pedido-numero,
 .supervision-pedido-estado {
-  color: #5d7465;
+  color: #7a5a5f;
 }
 
 .supervision-pedido-total {
   margin-top: auto;
   font-size: 1.2rem;
   font-weight: 700;
-  color: #4d7655;
+  color: #642f3a;
 }
 
 .supervision-error,
@@ -90,7 +90,7 @@
   padding: 1rem;
   border-radius: 8px;
   background: #fff;
-  color: #5d7465;
+  color: #7a5a5f;
 }
 
 .supervision-error {

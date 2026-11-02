@@ -80,7 +80,7 @@
 
 .card-icon.ventas {
   background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 15px rgba(79, 34, 43, 0.3);
 }
 
 .card-icon.pedidos {
@@ -217,7 +217,7 @@
 
 .rank-1 {
   background: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-dark) 100%);
-  box-shadow: 0 4px 15px rgba(88, 122, 60, 0.4);
+  box-shadow: 0 4px 15px rgba(100, 47, 58, 0.4);
 }
 
 .rank-2 {

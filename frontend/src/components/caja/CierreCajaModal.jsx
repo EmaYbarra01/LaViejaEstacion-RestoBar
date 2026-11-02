@@ -288,7 +288,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
         <p><strong>Monto Inicial:</strong> ${formatCurrency(cierre.montoInicial)}</p>
         <p><strong>Efectivo Esperado:</strong> ${formatCurrency(cierre.efectivoEnCaja)}</p>
         <p><strong>Efectivo Contado:</strong> ${formatCurrency(cierre.efectivoContado)}</p>
-        <p style="color: ${cierre.diferencia === 0 ? 'green' : cierre.diferencia > 0 ? 'blue' : 'red'}; font-weight: bold;">
+        <p style="color: ${cierre.diferencia === 0 ? '#8a6a2f' : cierre.diferencia > 0 ? 'blue' : 'red'}; font-weight: bold;">
           <strong>Diferencia:</strong> ${formatCurrency(Math.abs(cierre.diferencia))}
           ${cierre.diferencia > 0 ? '(SOBRANTE)' : cierre.diferencia < 0 ? '(FALTANTE)' : '(EXACTO)'}
         </p>
@@ -365,7 +365,7 @@ const CierreCajaModal = ({ isOpen, onClose, onCierreCreado }) => {
         <p>Monto Inicial: ${formatCurrency(cierre.montoInicial)}</p>
         <p>Efectivo Esperado: ${formatCurrency(cierre.efectivoEnCaja)}</p>
         <p>Efectivo Contado: ${formatCurrency(cierre.efectivoContado)}</p>
-        <p class="diferencia" style="color: ${cierre.diferencia === 0 ? 'green' : cierre.diferencia > 0 ? 'blue' : 'red'}">
+        <p class="diferencia" style="color: ${cierre.diferencia === 0 ? '#8a6a2f' : cierre.diferencia > 0 ? 'blue' : 'red'}">
           DIFERENCIA: ${formatCurrency(Math.abs(cierre.diferencia))}
           ${cierre.diferencia > 0 ? '(SOBRANTE)' : cierre.diferencia < 0 ? '(FALTANTE)' : '(EXACTO)'}
         </p>

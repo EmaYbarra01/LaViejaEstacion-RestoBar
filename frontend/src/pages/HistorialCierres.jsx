@@ -112,7 +112,7 @@ const HistorialCierres = () => {
           <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">Información General</h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
             <div><strong>Turno:</strong> ${escaparHTML(cierre.turno)}</div>
-            <div><strong>Estado:</strong> <span style="padding: 0.25rem 0.75rem; background: ${cierre.estado === 'Cerrado' ? '#d1fae5' : '#dbeafe'}; color: ${cierre.estado === 'Cerrado' ? '#059669' : '#1e40af'}; border-radius: 12px; font-size: 0.875rem;">${escaparHTML(cierre.estado)}</span></div>
+            <div><strong>Estado:</strong> <span style="padding: 0.25rem 0.75rem; background: ${cierre.estado === 'Cerrado' ? '#f3e7cd' : '#dbeafe'}; color: ${cierre.estado === 'Cerrado' ? '#6b4f1d' : '#1e40af'}; border-radius: 12px; font-size: 0.875rem;">${escaparHTML(cierre.estado)}</span></div>
             <div><strong>Realizado por:</strong> ${escaparHTML(cierre.realizadoPor.nombre)} ${escaparHTML(cierre.realizadoPor.apellido)}</div>
             <div><strong>Inicio del período:</strong> ${fechaArgentina(cierre.horaInicio)}</div>
             <div><strong>Fin del período:</strong> ${fechaArgentina(cierre.horaFin)}</div>
@@ -128,7 +128,7 @@ const HistorialCierres = () => {
             </div>
             <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 6px;">
               <span>Ventas en Efectivo:</span>
-              <strong style="color: #10b981;">${formatCurrency(cierre.ventasPorMetodo.efectivo.total)}</strong>
+              <strong style="color: #8a6a2f;">${formatCurrency(cierre.ventasPorMetodo.efectivo.total)}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 6px;">
               <span>Ventas en Transferencia:</span>
@@ -140,12 +140,12 @@ const HistorialCierres = () => {
             </div>
             <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 6px;">
               <span>Descuentos Aplicados:</span>
-              <strong style="color: #10b981;">${formatCurrency(cierre.totalDescuentos)}</strong>
+              <strong style="color: #8a6a2f;">${formatCurrency(cierre.totalDescuentos)}</strong>
             </div>
           </div>
         </div>
 
-        <div style="background: ${cierre.diferencia === 0 ? '#d1fae5' : cierre.diferencia > 0 ? '#dbeafe' : '#fee2e2'}; padding: 1.25rem; border-radius: 8px; border: 2px solid ${cierre.diferencia === 0 ? '#10b981' : cierre.diferencia > 0 ? '#3b82f6' : '#ef4444'};">
+        <div style="background: ${cierre.diferencia === 0 ? '#f3e7cd' : cierre.diferencia > 0 ? '#dbeafe' : '#fee2e2'}; padding: 1.25rem; border-radius: 8px; border: 2px solid ${cierre.diferencia === 0 ? '#8a6a2f' : cierre.diferencia > 0 ? '#3b82f6' : '#ef4444'};">
           <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1.25rem;">Efectivo en Caja</h3>
           <div style="display: grid; gap: 0.5rem;">
             <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: white; border-radius: 6px;">
@@ -160,7 +160,7 @@ const HistorialCierres = () => {
               <span>Efectivo Contado:</span>
               <strong>${formatCurrency(cierre.efectivoContado)}</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: ${cierre.diferencia === 0 ? '#10b981' : cierre.diferencia > 0 ? '#3b82f6' : '#ef4444'}; border-radius: 6px; font-size: 1.125rem;">
+            <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: ${cierre.diferencia === 0 ? '#8a6a2f' : cierre.diferencia > 0 ? '#3b82f6' : '#ef4444'}; border-radius: 6px; font-size: 1.125rem;">
               <span style="color: white; font-weight: 600;">DIFERENCIA:</span>
               <strong style="color: white;">
                 ${formatCurrency(Math.abs(cierre.diferencia))}

@@ -214,7 +214,10 @@ export function comprasService(pool) {
         const [[p]]=await db.execute('SELECT stock FROM productos WHERE id=? FOR UPDATE',[producto]);
         check(p,'Producto no encontrado',404);
         check(decimal(p.stock,3,'Stock')+delta<=maxDecimal,'Stock fuera de rango');
-        await db.execute('UPDATE productos SET stock=stock+? WHERE id=?',[sqlDecimal(delta,3),producto]);
+        await db.execute(
+          'UPDATE productos SET disponible=(stock+? > 0),stock=stock+? WHERE id=?',
+          [sqlDecimal(delta,3),sqlDecimal(delta,3),producto]
+        );
         await db.execute('INSERT INTO movimientos_stock(producto_id,cantidad,motivo,registrado_por_id) VALUES(?,?,?,?)',
           [producto,sqlDecimal(delta,3),`Recepción compra #${c.numero_compra}`,usuario]);
       }

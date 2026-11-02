@@ -15,7 +15,7 @@ const AsistenciaModal = (props) => {
     
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{ bgcolor: '#4caf50', color: 'white', fontWeight: 'bold' }}>
+            <DialogTitle sx={{ bgcolor: '#642f3a', color: 'white', fontWeight: 'bold' }}>
                 📅 Registrar Asistencia
             </DialogTitle>
             <form onSubmit={handleSubmit}>
@@ -124,8 +124,8 @@ const AsistenciaModal = (props) => {
                         type="submit" 
                         variant="contained"
                         sx={{ 
-                            bgcolor: '#4caf50',
-                            '&:hover': { bgcolor: '#45a049' }
+                            bgcolor: '#642f3a',
+                            '&:hover': { bgcolor: '#47232d' }
                         }}
                     >
                         📅 Registrar Asistencia

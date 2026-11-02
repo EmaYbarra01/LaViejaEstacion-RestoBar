@@ -4,23 +4,30 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Leer variables de entorno relevantes
-const { EMAIL_USER, EMAIL_PASS, EMAIL_FROM } = process.env;
+const { EMAIL_SERVICE, EMAIL_USER, EMAIL_PASS, EMAIL_FROM, EMAIL_HOST, EMAIL_PORT, EMAIL_SECURE } = process.env;
 
-// Crear un transportador seguro para Gmail cuando haya credenciales.
-// Si faltan, creamos un transportador de "stream" para desarrollo que no envía correos
-// reales pero permite que la app siga funcionando y devuelve información útil.
+const hasRealSmtpCredentials = () => {
+  const user = String(EMAIL_USER || '').trim();
+  const pass = String(EMAIL_PASS || '').trim();
+
+  if (!user || !pass) return false;
+
+  const placeholderPattern = /^(tu_|your_|demo_|example|test_|placeholder|mailtrap|gmail)/i;
+  if (placeholderPattern.test(user) || placeholderPattern.test(pass) || user.includes('example') || pass.includes('example')) {
+    return false;
+  }
+
+  return true;
+};
+
+// Crear un transportador compatible con Gmail o SMTP personalizado (Mailtrap, SMTP propio, etc.).
+// Si faltan credenciales reales, usamos un stream transport para desarrollo para que la app siga funcionando.
 let transporter;
-if (!EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) {
-  console.error('❌ Variables de entorno de email faltantes. Configura EMAIL_USER, EMAIL_PASS y EMAIL_FROM en tu .env');
-  // Transportador de fallback para desarrollo (no envía correos reales)
+if (hasRealSmtpCredentials() && EMAIL_HOST) {
   transporter = nodemailer.createTransport({
-    streamTransport: true,
-    newline: 'unix',
-    buffer: true
-  });
-} else {
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: EMAIL_HOST,
+    port: Number(EMAIL_PORT) || 587,
+    secure: String(EMAIL_SECURE).toLowerCase() === 'true' || Number(EMAIL_PORT) === 465,
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_PASS
@@ -28,6 +35,24 @@ if (!EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) {
     tls: {
       rejectUnauthorized: false
     }
+  });
+} else if (hasRealSmtpCredentials()) {
+  transporter = nodemailer.createTransport({
+    service: EMAIL_SERVICE || 'gmail',
+    auth: {
+      user: EMAIL_USER,
+      pass: EMAIL_PASS
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+} else {
+  console.warn('⚠️ SMTP desactivado: faltan credenciales reales de email. Completa EMAIL_USER y EMAIL_PASS en .env para activar envíos reales.');
+  transporter = nodemailer.createTransport({
+    streamTransport: true,
+    newline: 'unix',
+    buffer: true
   });
 }
 

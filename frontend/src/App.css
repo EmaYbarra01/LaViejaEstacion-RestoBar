@@ -1,32 +1,32 @@
 /* App.css */
 
 :root {
-  --app-ink: #243326;
-  --app-ink-soft: #405C38;
-  --app-surface: #FFFEFA;
-  --app-surface-muted: #F3F6EA;
-  --app-border: #B7C99A;
-  --app-text: #263326;
-  --app-text-muted: #52634D;
-  --app-accent: #587A3C;
-  --app-accent-dark: #45652F;
-  --app-accent-soft: #E4EED4;
-  --app-shadow: 0 8px 24px rgba(69, 101, 47, 0.18);
+  --app-ink: #3b1f26;
+  --app-ink-soft: #642f3a;
+  --app-surface: #fffaf0;
+  --app-surface-muted: #f4ead7;
+  --app-border: #d8c49a;
+  --app-text: #3b2428;
+  --app-text-muted: #7a5a5f;
+  --app-accent: #642f3a;
+  --app-accent-dark: #47232d;
+  --app-accent-soft: #eadbc3;
+  --app-shadow: 0 8px 24px rgba(79, 34, 43, 0.18);
   --app-radius: 10px;
   color-scheme: light;
 }
 
 :root[data-theme='night'] {
-  --app-ink: #172218;
-  --app-ink-soft: #243625;
-  --app-surface: #202D20;
-  --app-surface-muted: #172218;
-  --app-border: #58704B;
-  --app-text: #F1F6E9;
-  --app-text-muted: #C0D0B1;
-  --app-accent: #B7D48B;
-  --app-accent-dark: #D0E5AD;
-  --app-accent-soft: #30472B;
+  --app-ink: #1d1410;
+  --app-ink-soft: #3a2229;
+  --app-surface: #2d211c;
+  --app-surface-muted: #241a14;
+  --app-border: #5f463d;
+  --app-text: #f3e7cd;
+  --app-text-muted: #cdb99a;
+  --app-accent: #c9a96a;
+  --app-accent-dark: #dcc08a;
+  --app-accent-soft: #3d2a26;
   --app-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   color-scheme: dark;
 }
@@ -48,11 +48,45 @@ body {
   background: var(--app-surface-muted);
   color: var(--app-text);
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 #root {
   background: var(--app-surface-muted);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+body,
+#root,
+.app-container,
+.main-content,
+.menu-page,
+.admin-panel,
+.admin-page,
+.admin-container,
+.dashboard-container,
+.superadmin-dashboard,
+.caja-container,
+.cocina-container,
+.cocina-view,
+.mozo-container,
+.supervision-pedidos,
+.modal-content,
+.cierre-caja-modal,
+.menu-card,
+.accordion-item,
+.dashboard-card,
+.resumen-card,
+.stat-card,
+button,
+input,
+select,
+textarea {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    color 0.35s ease;
 }
 
 :root[data-theme='night'] input::placeholder,
@@ -252,7 +286,7 @@ header {
 .vision-card:hover,
 .reserva-card:hover {
   border-color: var(--app-accent) !important;
-  box-shadow: 0 12px 30px rgba(69, 101, 47, 0.22) !important;
+  box-shadow: 0 12px 30px rgba(79, 34, 43, 0.22) !important;
 }
 
 .menu-card h3,
@@ -290,7 +324,7 @@ header {
   background: var(--app-accent) !important;
   border-color: var(--app-accent-dark) !important;
   color: var(--app-surface) !important;
-  box-shadow: 0 5px 14px rgba(69, 101, 47, 0.2) !important;
+  box-shadow: 0 5px 14px rgba(79, 34, 43, 0.2) !important;
 }
 
 .admin-table thead,
@@ -361,7 +395,7 @@ textarea:focus,
 .select-filtro:focus,
 .input-fecha:focus {
   border-color: var(--app-accent) !important;
-  box-shadow: 0 0 0 3px rgba(88, 122, 60, 0.28) !important;
+  box-shadow: 0 0 0 3px rgba(100, 47, 58, 0.28) !important;
 }
 
 button,
@@ -486,7 +520,7 @@ button:hover,
 
 .modal-overlay,
 .cierre-caja-overlay {
-  background: #2C3E35 !important;
+  background: #2a1a1d !important;
 }
 
 .modal-content,
@@ -864,6 +898,11 @@ button:hover,
   color: var(--app-text) !important;
 }
 
+.swal2-container {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 .swal2-confirm,
 .swal2-cancel {
   background: var(--app-accent) !important;
@@ -1002,7 +1041,7 @@ button:hover,
   background: var(--app-accent-dark) !important;
   border-color: var(--app-accent-dark) !important;
   color: var(--app-surface) !important;
-  box-shadow: 0 4px 14px rgba(69, 101, 47, 0.22) !important;
+  box-shadow: 0 4px 14px rgba(79, 34, 43, 0.22) !important;
 }
 
 .admin-page .create-button:hover,
@@ -1175,6 +1214,105 @@ button:hover,
 
 .menu-page .menu-card .card-footer-info {
   border-top-color: var(--app-accent) !important;
+}
+
+:root[data-theme='night'] .modern-header {
+  background-image: linear-gradient(135deg, var(--app-ink) 0%, var(--app-ink-soft) 100%);
+}
+
+:root[data-theme='night'] .header-nav {
+  background: var(--app-ink) !important;
+}
+
+:root[data-theme='night'] .theme-toggle {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-accent) !important;
+  color: var(--app-accent-dark) !important;
+}
+
+:root[data-theme='night'] .theme-toggle:hover,
+:root[data-theme='night'] .theme-toggle:focus-visible {
+  background: var(--app-accent) !important;
+  color: var(--app-ink) !important;
+}
+
+:root[data-theme='night'] .menu-page,
+:root[data-theme='night'] .admin-panel,
+:root[data-theme='night'] .admin-page,
+:root[data-theme='night'] .admin-container,
+:root[data-theme='night'] .dashboard-container,
+:root[data-theme='night'] .superadmin-dashboard,
+:root[data-theme='night'] .caja-container,
+:root[data-theme='night'] .cocina-container,
+:root[data-theme='night'] .cocina-view,
+:root[data-theme='night'] .mozo-container,
+:root[data-theme='night'] .supervision-pedidos {
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .menu-card,
+:root[data-theme='night'] .menu-page .accordion-item,
+:root[data-theme='night'] .admin-page .admin-page-header,
+:root[data-theme='night'] .admin-page .admin-header,
+:root[data-theme='night'] .admin-page .admin-table-container,
+:root[data-theme='night'] .admin-page .stat-card,
+:root[data-theme='night'] .admin-page .admin-controls,
+:root[data-theme='night'] .dashboard-card,
+:root[data-theme='night'] .resumen-card,
+:root[data-theme='night'] .stat-card,
+:root[data-theme='night'] .metric-card,
+:root[data-theme='night'] .pedido-card,
+:root[data-theme='night'] .pedido-card-cocina,
+:root[data-theme='night'] .mesa-card,
+:root[data-theme='night'] .supervision-pedido {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .menu-card {
+  background: var(--app-ink-soft) !important;
+}
+
+:root[data-theme='night'] .menu-page .card-name,
+:root[data-theme='night'] .menu-page .card-description,
+:root[data-theme='night'] .menu-page .card-detail,
+:root[data-theme='night'] .admin-page .admin-table tbody td,
+:root[data-theme='night'] .dashboard-card *,
+:root[data-theme='night'] .resumen-card *,
+:root[data-theme='night'] .stat-card *,
+:root[data-theme='night'] .metric-card *,
+:root[data-theme='night'] .supervision-pedido * {
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .card-name,
+:root[data-theme='night'] .menu-page .card-description,
+:root[data-theme='night'] .menu-page .card-detail {
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] .menu-page .card-price,
+:root[data-theme='night'] .menu-page .menu-header h1,
+:root[data-theme='night'] .admin-page .admin-page-title,
+:root[data-theme='night'] .dashboard-card h2,
+:root[data-theme='night'] .resumen-card .card-valor {
+  color: var(--app-accent-dark) !important;
+}
+
+:root[data-theme='night'] #admin-nav,
+:root[data-theme='night'] .admin-panel > div:first-child {
+  background: var(--app-ink) !important;
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='night'] input,
+:root[data-theme='night'] select,
+:root[data-theme='night'] textarea {
+  background: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
 }
 
 .superadmin-dashboard {

@@ -223,7 +223,7 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
         text: 'El pedido ha sido enviado a cocina exitosamente',
         icon: 'success',
         confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#28a745'
+        confirmButtonColor: '#642f3a'
       });
       
       // Los productos y mesas se actualizarán automáticamente vía Socket.io

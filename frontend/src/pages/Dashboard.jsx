@@ -109,14 +109,14 @@ const Dashboard = () => {
         {trend && (
           <Box display="flex" alignItems="center" mt={1}>
             {trend > 0 ? (
-              <TrendingUp style={{ color: '#4caf50', fontSize: 16 }} />
+              <TrendingUp style={{ color: '#8a6a2f', fontSize: 16 }} />
             ) : (
               <TrendingDown style={{ color: '#f44336', fontSize: 16 }} />
             )}
             <Typography 
               variant="caption" 
               style={{ 
-                color: trend > 0 ? '#4caf50' : '#f44336',
+                color: trend > 0 ? '#8a6a2f' : '#f44336',
                 marginLeft: 4 
               }}
             >
@@ -165,7 +165,7 @@ const Dashboard = () => {
             title="Ventas Hoy"
             value={metrics.ventasHoy}
             icon={AttachMoney}
-            color="#4caf50"
+            color="#8a6a2f"
             subtitle="Ingresos del día"
           />
         </Grid>
@@ -187,7 +187,7 @@ const Dashboard = () => {
             title="Stock Bajo"
             value={metrics.productosStockBajo}
             icon={Warning}
-            color={metrics.productosStockBajo > 0 ? '#f44336' : '#4caf50'}
+            color={metrics.productosStockBajo > 0 ? '#f44336' : '#8a6a2f'}
             subtitle="Productos a reponer"
           />
         </Grid>
@@ -220,7 +220,7 @@ const Dashboard = () => {
             title="Estado General"
             value={metrics.pedidosPendientes === 0 ? 'Óptimo' : 'Normal'}
             icon={CheckCircle}
-            color={metrics.pedidosPendientes === 0 ? '#4caf50' : '#ff9800'}
+            color={metrics.pedidosPendientes === 0 ? '#8a6a2f' : '#ff9800'}
             subtitle="Operación"
           />
         </Grid>
