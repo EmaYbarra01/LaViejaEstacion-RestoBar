@@ -20,6 +20,7 @@ import SupervisionPedidos from "./pages/SupervisionPedidos";
 import CocinaView from "./pages/CocinaView";
 import Caja from "./pages/Caja";
 import HistorialCierres from "./pages/HistorialCierres";
+import HistorialMesas from "./pages/HistorialMesas";
 import "./App.css";
 import Products from "./pages/Products";
 import AdminSales from "./pages/AdminSales";
@@ -143,6 +144,13 @@ function App() {
                 onToggleNightMode={() => setIsNightMode((current) => !current)}
               >
                 <HistorialCierres />
+              </EmployeePanelLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/caja/historial-mesas" element={
+            <ProtectedRoute role={["Cajero", "Gerente", "SuperAdministrador"]}>
+              <EmployeePanelLayout isNightMode={isNightMode} onToggleNightMode={() => setIsNightMode((current) => !current)} roleType="Cajero">
+                <HistorialMesas />
               </EmployeePanelLayout>
             </ProtectedRoute>
           } />

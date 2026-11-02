@@ -27,7 +27,7 @@ export const getPedidosCocina = manejar(async req => {
     ensure(ESTADOS_COCINA.includes(estado), 'Estado no válido para cocina');
     filtros.estado = estado;
   } else {
-    filtros.estados = ['Pendiente', 'En Preparación'];
+    filtros.estados = ESTADOS_COCINA;
   }
   const pedidos = await leerPedidosSQL(c => consultarPedidos(c, filtros, 'asc'));
   return { count: pedidos.length, pedidos };

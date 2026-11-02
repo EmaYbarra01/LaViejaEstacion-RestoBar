@@ -6,7 +6,7 @@ import './PedidoCard.css';
  * Componente para mostrar un pedido individual en la vista de cocina
  * Muestra información del pedido y botones de acción según el estado
  */
-const PedidoCard = ({ pedido }) => {
+const PedidoCard = ({ pedido, onIniciar, onFinalizar, actualizando }) => {
   /**
    * Formatear fecha de manera legible
    */
@@ -128,6 +128,26 @@ const PedidoCard = ({ pedido }) => {
         </div>
       )}
 
+      {pedido.estado === 'Pendiente' && (
+        <button
+          type="button"
+          className="pedido-accion pedido-accion-iniciar"
+          onClick={() => onIniciar(pedido._id)}
+          disabled={actualizando}
+        >
+          {actualizando ? 'Iniciando...' : 'Iniciar'}
+        </button>
+      )}
+      {pedido.estado === 'En Preparación' && (
+        <button
+          type="button"
+          className="pedido-accion pedido-accion-finalizar"
+          onClick={() => onFinalizar(pedido._id)}
+          disabled={actualizando}
+        >
+          {actualizando ? 'Finalizando...' : 'Comanda finalizada'}
+        </button>
+      )}
     </div>
   );
 };
@@ -147,6 +167,9 @@ PedidoCard.propTypes = {
     })).isRequired,
     observacionesGenerales: PropTypes.string
   }).isRequired,
+  onIniciar: PropTypes.func.isRequired,
+  onFinalizar: PropTypes.func.isRequired,
+  actualizando: PropTypes.bool,
 };
 
 export default PedidoCard;

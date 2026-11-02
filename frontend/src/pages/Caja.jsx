@@ -29,11 +29,9 @@ const Caja = () => {
   const [notification, setNotification] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [mostrarCierreCaja, setMostrarCierreCaja] = useState(false);
-  const [historialPedidos, setHistorialPedidos] = useState([]);
-
+  const [, setHistorialPedidos] = useState([]);
   useEffect(() => {
     cargarPedidosPendientes();
-    cargarHistorialPedidos();
   }, []);
 
   // Escuchar eventos Socket.io para actualizaciones en tiempo real
@@ -41,7 +39,6 @@ const Caja = () => {
     const handlePedidoListo = (data) => {
       console.log('🔔 Nuevo pedido listo para cobrar:', data);
       cargarPedidosPendientes();
-      cargarHistorialPedidos();
       setNotification({
         message: `Pedido #${data.pedido?.numeroPedido || ''} listo para cobrar`,
         type: 'success'
@@ -52,13 +49,11 @@ const Caja = () => {
     const handlePedidoActualizado = () => {
       console.log('🔄 Pedido actualizado, recargando lista...');
       cargarPedidosPendientes();
-      cargarHistorialPedidos();
     };
 
     const handleNuevoPedido = (data) => {
       console.log('🔔 Nuevo pedido creado:', data);
       cargarPedidosPendientes();
-      cargarHistorialPedidos();
       setNotification({
         message: `Nuevo pedido creado: Mesa ${data.pedido?.numeroMesa || 'N/A'}`,
         type: 'info'
@@ -96,7 +91,7 @@ const Caja = () => {
     }
   };
 
-  const cargarHistorialPedidos = async () => {
+  const CargarHistorialPedidos = async () => {
     try {
       const token = localStorage.getItem('token');
 
@@ -120,7 +115,7 @@ const Caja = () => {
     }
   };
 
-  const obtenerEstadoVisible = (estado) => {
+  const ObtenerEstadoVisible = (estado) => {
     if (estado === 'Cobrado') return 'Pagada';
     return estado;
   };
@@ -130,7 +125,7 @@ const Caja = () => {
     const metodo = pedido.metodoPagoSolicitado || 'Efectivo';
     setMetodoPago(metodo);
     const totalConDescuento = pedido.subtotal * (metodo === 'Efectivo' ? 0.9 : 1);
-    setMontoPagado(formatCurrency(totalConDescuento));
+    setMontoPagado(totalConDescuento.toFixed(2));
     setError(null);
   };
 
@@ -198,7 +193,6 @@ const Caja = () => {
 
       // Actualizar lista de pedidos
       await cargarPedidosPendientes();
-      await cargarHistorialPedidos();
       
       // Limpiar selección
       setPedidoSeleccionado(null);
@@ -243,15 +237,23 @@ const Caja = () => {
     .toLowerCase();
 
   const terminoBusqueda = normalizarBusqueda(busqueda.trim());
+  const terminoMesa = terminoBusqueda.replace(/^mesa\s*/, '');
 
   const pedidosFiltrados = pedidosPendientes.filter((pedido) => {
     if (!terminoBusqueda) return true;
 
-    return [
+    const valoresGenerales = [
       pedido.numeroPedido,
-      pedido.numeroMesa,
-      pedido.nombreMozo
-    ].some((valor) => normalizarBusqueda(valor).includes(terminoBusqueda));
+      pedido.nombreMozo,
+      pedido.mozo?.nombre,
+      pedido.mozo?.apellido
+    ];
+    const numeroMesa = normalizarBusqueda(pedido.numeroMesa || pedido.mesa?.numero);
+
+    return valoresGenerales.some((valor) => normalizarBusqueda(valor).includes(terminoBusqueda))
+      || numeroMesa === terminoBusqueda
+      || numeroMesa === terminoMesa
+      || numeroMesa.includes(terminoMesa);
   });
 
   if (mostrarTicket && ticketData) {
@@ -564,32 +566,46 @@ const Caja = () => {
                 <div className="forma-pago">
                   <h3>Forma de Pago</h3>
                   <div className="metodos-pago">
-                    <div
+                    <button
+                      type="button"
                       className={`metodo-info ${metodoPago === 'Efectivo' ? 'active' : ''}`}
-                      aria-label={`Método de pago: ${metodoPago}`}
+                      onClick={() => {
+                        setMetodoPago('Efectivo');
+                        setMontoPagado((pedidoSeleccionado.subtotal * 0.9).toFixed(2));
+                      }}
                     >
                       <span>Efectivo</span>
                       <small>10% descuento</small>
-                    </div>
-                    <div
+                    </button>
+                    <button
+                      type="button"
                       className={`metodo-info ${metodoPago === 'Transferencia' ? 'active' : ''}`}
-                      aria-label={`Método de pago: ${metodoPago}`}
+                      onClick={() => {
+                        setMetodoPago('Transferencia');
+                        setMontoPagado(pedidoSeleccionado.subtotal.toFixed(2));
+                      }}
                     >
                       <span>Transferencia</span>
-                    </div>
+                    </button>
                   </div>
 
                   <div className="monto-input-group">
-                    <label>Monto Pagado</label>
-                    <p className="monto-value" aria-label={`Monto pagado: ${montoPagado}`}>
-                      ${montoPagado || '0,00'}
-                    </p>
+                    <label htmlFor="monto-pagado">Monto Pagado</label>
+                    <input
+                      id="monto-pagado"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={montoPagado}
+                      onChange={(event) => setMontoPagado(event.target.value)}
+                      aria-label="Monto pagado"
+                    />
                   </div>
 
                   {parseFloat(montoPagado) > calcularTotal() && (
                     <div className="cambio-info">
                       <span>Cambio:</span>
-                       <strong>${formatCurrency(calcularCambio())}</strong>
+                      <strong>${formatCurrency(calcularCambio())}</strong>
                     </div>
                   )}
                 </div>
@@ -628,44 +644,9 @@ const Caja = () => {
         onCierreCreado={(cierre) => {
           console.log('Cierre creado:', cierre);
           cargarPedidosPendientes();
-          cargarHistorialPedidos();
         }}
       />
 
-      <div className="historial-caja">
-        <div className="historial-caja-header">
-          <h2>Historial de Mesas</h2>
-          <p>Estado actual por pedido: Pendiente, Entregado o Pagada</p>
-        </div>
-
-        {historialPedidos.length === 0 ? (
-          <div className="historial-empty">No hay movimientos para mostrar todavía.</div>
-        ) : (
-          <div className="historial-lista">
-            {historialPedidos.map((pedido) => (
-              <div key={pedido._id} className="historial-item">
-                <div className="historial-item-main">
-                  <strong>{pedido.numeroPedido}</strong>
-                  <span>{pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa || 'N/A'}`}</span>
-                </div>
-                <div className="historial-item-side">
-                  <span className={`badge badge-${pedido.estado.toLowerCase().replace(' ', '-')}`}>
-                    {obtenerEstadoVisible(pedido.estado)}
-                  </span>
-                  <small>
-                    {new Date(pedido.fechaCobrado || pedido.fechaActualizacion || pedido.fechaCreacion).toLocaleString('es-AR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </small>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import './Mozo.css';
 import PedidoDetalle from '../components/mozo/PedidoDetalle';
@@ -12,7 +12,7 @@ import { formatCurrency } from '../utils/currencyFormatter';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 const Mozo = () => {
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUserStore();
   const { on, off } = useSocket('mozos', user?.role || 'Mozo', 'mozo');
   const isGerente = user?.role === 'Gerente' || user?.role === 'SuperAdministrador';
@@ -22,11 +22,26 @@ const Mozo = () => {
   const [loading, setLoading] = useState(true);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [mostrarCrearPedido, setMostrarCrearPedido] = useState(false);
+  const vistaInicial = ['pedidos', 'menu', 'cuenta'].includes(searchParams.get('vista'))
+    ? searchParams.get('vista')
+    : 'pedidos';
+  const [vistaActiva, setVistaActiva] = useState(vistaInicial);
   const [filtroEstado, setFiltroEstado] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
   const [error, setError] = useState(null);
-  const [vistaActiva, setVistaActiva] = useState('pedidos'); // pedidos, menu, cuenta
   const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    const vista = ['pedidos', 'menu', 'cuenta'].includes(searchParams.get('vista'))
+      ? searchParams.get('vista')
+      : 'pedidos';
+    setVistaActiva(vista);
+  }, [searchParams]);
+
+  const cambiarVista = (vista) => {
+    setVistaActiva(vista);
+    setSearchParams({ vista });
+  };
 
   // Obtener pedidos abiertos
   useEffect(() => {
@@ -206,6 +221,15 @@ const Mozo = () => {
     }
   };
 
+  const normalizarBusqueda = (valor) => String(valor ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+
+  const terminoBusqueda = normalizarBusqueda(busqueda);
+  const terminoMesaBusqueda = terminoBusqueda.replace(/^mesa\s+/, '');
+
   const pedidosFiltrados = pedidos.filter(pedido => {
     // Normalizar filtro: "En Cocina" debe buscar "En Preparación"
     let estadoBuscado = filtroEstado;
@@ -214,10 +238,31 @@ const Mozo = () => {
     }
     
     const cumpleFiltroEstado = filtroEstado === 'todos' || pedido.estado === estadoBuscado;
-    const cumpleBusqueda = busqueda === '' || 
-      pedido.numeroPedido?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      pedido.numeroMesa?.toString().includes(busqueda) ||
-      pedido.nombreMozo?.toLowerCase().includes(busqueda.toLowerCase());
+    const mesaNumero = normalizarBusqueda(pedido.numeroMesa || pedido.mesa?.numero);
+    const mozoNombre = normalizarBusqueda([
+      pedido.nombreMozo,
+      pedido.mozo?.nombre,
+      pedido.mozo?.apellido
+    ].filter(Boolean).join(' '));
+    const clienteNombre = normalizarBusqueda([
+      pedido.cliente?.nombre,
+      pedido.cliente?.apellido,
+      pedido.cliente?.nombreCompleto,
+      pedido.cliente?.email,
+      pedido.cliente?.telefono
+    ].filter(Boolean).join(' '));
+    const productosNombres = (pedido.productos || [])
+      .map((producto) => producto.nombre)
+      .filter(Boolean)
+      .join(' ');
+    const valoresBuscables = [
+      pedido.numeroPedido, pedido._id, pedido.tipoPedido, pedido.tipoServicio,
+      pedido.estado, mozoNombre, clienteNombre, productosNombres
+    ].map(normalizarBusqueda);
+    const cumpleBusqueda = !terminoBusqueda
+      || mesaNumero === terminoBusqueda
+      || mesaNumero === terminoMesaBusqueda
+      || valoresBuscables.some((valor) => valor.includes(terminoBusqueda));
     
     return cumpleFiltroEstado && cumpleBusqueda;
   });
@@ -300,52 +345,63 @@ const Mozo = () => {
       <div className="mozo-tabs">
         <button 
           className={`tab-button ${vistaActiva === 'pedidos' ? 'active' : ''}`}
-          onClick={() => setVistaActiva('pedidos')}
+          onClick={() => cambiarVista('pedidos')}
         >
           <span>Pedidos</span>
         </button>
         <button 
           className={`tab-button menu-tab ${vistaActiva === 'menu' ? 'active' : ''}`}
-          onClick={() => setVistaActiva('menu')}
+          onClick={() => cambiarVista('menu')}
         >
           <span>Menú</span>
         </button>
         <button 
           className={`tab-button cuenta-tab ${vistaActiva === 'cuenta' ? 'active' : ''}`}
-          onClick={() => setVistaActiva('cuenta')}
+          onClick={() => cambiarVista('cuenta')}
         >
           <span>Cuenta</span>
         </button>
       </div>
 
+      {/* Búsqueda disponible desde cualquier pestaña */}
+      <div className="mozo-toolbar">
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Buscar por mesa, pedido, mozo o producto..."
+            value={busqueda}
+            onChange={(e) => {
+              setBusqueda(e.target.value);
+              if (vistaActiva !== 'pedidos') {
+                cambiarVista('pedidos');
+              }
+            }}
+          />
+          {busqueda && (
+            <button
+              type="button"
+              className="btn-limpiar-busqueda"
+              aria-label="Limpiar búsqueda"
+              onClick={() => setBusqueda('')}
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Vista de Pedidos */}
       {vistaActiva === 'pedidos' && (
         <>
-          {/* Barra de búsqueda y filtros */}
-          <div className="mozo-toolbar">
-            <div className="search-container">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Buscar por mesa, pedido o mozo..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-              />
-              {!isGerente && (
-                <button className="btn-realizar-pedido" onClick={handleCrearPedido}>
-                  Realizar un pedido
-                </button>
-              )}
-            </div>
-          </div>
 
       {/* Filtros de estado */}
       <div className="filtros-container">
         <button
-          className={`filtro-chip ${filtroEstado === 'todos' ? 'active' : ''}`}
-          onClick={() => setFiltroEstado('todos')}
+          className={`filtro-chip ${filtroEstado === 'En Cocina' ? 'active' : ''}`}
+          onClick={() => setFiltroEstado('En Cocina')}
         >
-          Todos ({pedidos.length})
+          En Cocina ({pedidos.filter(p => p.estado === 'En Preparación').length})
         </button>
         <button
           className={`filtro-chip ${filtroEstado === 'Pendiente' ? 'active' : ''}`}
@@ -354,16 +410,16 @@ const Mozo = () => {
           Pendientes ({pedidos.filter(p => p.estado === 'Pendiente').length})
         </button>
         <button
-          className={`filtro-chip ${filtroEstado === 'En Cocina' ? 'active' : ''}`}
-          onClick={() => setFiltroEstado('En Cocina')}
-        >
-          En Cocina ({pedidos.filter(p => p.estado === 'En Preparación').length})
-        </button>
-        <button
           className={`filtro-chip ${filtroEstado === 'Listo' ? 'active' : ''}`}
           onClick={() => setFiltroEstado('Listo')}
         >
           Listos ({pedidos.filter(p => p.estado === 'Listo').length})
+        </button>
+        <button
+          className={`filtro-chip ${filtroEstado === 'todos' ? 'active' : ''}`}
+          onClick={() => setFiltroEstado('todos')}
+        >
+          Todos ({pedidos.length})
         </button>
       </div>
 

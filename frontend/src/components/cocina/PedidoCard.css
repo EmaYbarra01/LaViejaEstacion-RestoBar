@@ -232,6 +232,38 @@
   color: #75605a;
 }
 
+/* Acciones de cocina */
+.pedido-accion {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--panel-cream);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pedido-accion:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.pedido-accion:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.pedido-accion-iniciar {
+  background: var(--panel-gold);
+  color: var(--panel-dark);
+}
+
+.pedido-accion-finalizar {
+  background: var(--panel-wine);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .pedido-card {

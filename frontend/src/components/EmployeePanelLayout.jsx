@@ -26,17 +26,20 @@ const links = {
     ['/caja', 'Caja']
   ],
   Mozo: [
-    ['/mozo', 'Pedidos'],
-    ['/mozo', 'Menú'],
-    ['/mozo', 'Cuenta']
+    ['/mozo?vista=pedidos', 'Pedidos'],
+    ['/mozo?vista=menu', 'Menú'],
+    ['/mozo?vista=cuenta', 'Cuenta']
   ],
   EncargadoCocina: [
-    ['/encargado-cocina', 'Supervisión de cocina'],
-    ['/encargado-cocina', 'Pendientes'],
-    ['/encargado-cocina', 'En preparación'],
-    ['/encargado-cocina', 'Listos']
+    ['/encargado-cocina?vista=preparacion', 'En Cocina'],
+    ['/encargado-cocina?vista=pendientes', 'Pendientes'],
+    ['/encargado-cocina?vista=listos', 'Listos'],
+    ['/encargado-cocina?vista=todos', 'Todos']
   ],
-  Cajero: [['/caja', 'Cobros']]
+  Cajero: [
+    ['/caja', 'Cobros'],
+    ['/caja/historial-mesas', 'Historial Mesas']
+  ]
 };
 
 const normalizeRole = (value) => String(value || '').trim().toLowerCase();
@@ -51,6 +54,7 @@ const getPanelTitle = (pathname, roleType, role) => {
   if (pathname.startsWith('/supervision-pedidos')) return 'Supervisión de pedidos';
   if (pathname.startsWith('/encargado-cocina')) return 'Supervisión de cocina';
   if (pathname.startsWith('/caja/historial-cierres')) return 'Historial de cierres';
+  if (pathname.startsWith('/caja/historial-mesas')) return 'Historial Mesas';
   if (pathname.startsWith('/caja')) return 'Caja - Cobros';
   if (pathname.startsWith('/mozo')) return 'Pedidos';
 
@@ -111,7 +115,7 @@ function EmployeePanelLayout({
             <NavLink
               key={`${path}-${label}`}
               to={path}
-              end={path !== '/mozo' && path !== '/encargado-cocina'}
+              end
               className={({ isActive }) => `employee-nav-link${isActive ? ' active' : ''}`}
             >
               <span>{label}</span>

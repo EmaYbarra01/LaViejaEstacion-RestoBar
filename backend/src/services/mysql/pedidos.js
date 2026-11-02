@@ -127,10 +127,6 @@ export function pedidoService(pool){
     const order=await lockedOrder(c,id);
     const previous={'En Preparación':'Pendiente',Listo:'En Preparación',Entregado:'Listo'}[estado];
     ensure(order.estado===previous,`El pedido debe estar en ${previous}`);
-    if(estado==='Entregado' && user.rol==='Mozo') {
-     ensure(order.mozo_id===null || order.mozo_id===user.id,'El pedido pertenece a otro mozo',403);
-     if(order.mozo_id===null)await c.execute('UPDATE pedidos SET mozo_id=?,nombre_mozo_historico=? WHERE id=?',[user.id,`${user.nombre} ${user.apellido}`,order.id]);
-    }
     if(estado==='Entregado') await c.execute("UPDATE pedidos SET estado='Entregado',fecha_servido=NOW(3) WHERE id=?",[order.id]);
     else await c.execute(`UPDATE pedidos SET estado=?,estado_cocina=?,fecha_listo=IF(?='Listo',NOW(3),fecha_listo) WHERE id=?`,[estado,estado,estado,order.id]);
     await history(c,order.id,estado,user.id,observacion);

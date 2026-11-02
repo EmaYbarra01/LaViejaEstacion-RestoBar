@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import usePedidosCocina from '../hooks/usePedidosCocina';
 import PedidoCard from '../components/cocina/PedidoCard';
 import { fetchEstadisticasCocina } from '../api/cocinaAPI';
@@ -16,7 +17,11 @@ import './CocinaView.css';
  * - Interfaz intuitiva con indicadores visuales
  */
 const CocinaView = () => {
-  const [vistaActiva, setVistaActiva] = useState('todos'); // todos, pendientes, preparacion, listos
+  const [searchParams, setSearchParams] = useSearchParams();
+  const vistaInicial = ['preparacion', 'pendientes', 'listos', 'todos'].includes(searchParams.get('vista'))
+    ? searchParams.get('vista')
+    : 'todos';
+  const [vistaActiva, setVistaActiva] = useState(vistaInicial);
   const [estadisticas, setEstadisticas] = useState(null);
   
   // Hook personalizado para manejar pedidos
@@ -26,11 +31,22 @@ const CocinaView = () => {
     error,
     setFiltroEstado,
     cargarPedidos,
+    marcarEnPreparacion,
+    marcarListo,
+    pedidoActualizando,
   } = usePedidosCocina({
     estadoInicial: null,
     autoRefresh: true,
     refreshInterval: 30000
   });
+
+  useEffect(() => {
+    const vista = ['preparacion', 'pendientes', 'listos', 'todos'].includes(searchParams.get('vista'))
+      ? searchParams.get('vista')
+      : 'todos';
+    setVistaActiva(vista);
+    setFiltroEstado(vista === 'pendientes' ? 'Pendiente' : vista === 'preparacion' ? 'En Preparación' : vista === 'listos' ? 'Listo' : null);
+  }, [searchParams, setFiltroEstado]);
 
   /**
    * Cargar estadísticas
@@ -51,6 +67,7 @@ const CocinaView = () => {
    */
   const cambiarVista = (vista) => {
     setVistaActiva(vista);
+    setSearchParams(vista === 'todos' ? { vista: 'todos' } : { vista });
     
     switch (vista) {
       case 'pendientes':
@@ -138,11 +155,8 @@ const CocinaView = () => {
 
       {/* Filtros / Tabs */}
       <div className="filtros-tabs">
-        <button
-          className={`tab-btn ${vistaActiva === 'todos' ? 'active' : ''}`}
-          onClick={() => cambiarVista('todos')}
-        >
-          Todos
+        <button className={`tab-btn ${vistaActiva === 'preparacion' ? 'active' : ''}`} onClick={() => cambiarVista('preparacion')}>
+          En Cocina
         </button>
         <button
           className={`tab-btn ${vistaActiva === 'pendientes' ? 'active' : ''}`}
@@ -151,16 +165,13 @@ const CocinaView = () => {
           Pendientes
         </button>
         <button
-          className={`tab-btn ${vistaActiva === 'preparacion' ? 'active' : ''}`}
-          onClick={() => cambiarVista('preparacion')}
-        >
-          En Preparación
-        </button>
-        <button
           className={`tab-btn ${vistaActiva === 'listos' ? 'active' : ''}`}
           onClick={() => cambiarVista('listos')}
         >
           Listos
+        </button>
+        <button className={`tab-btn ${vistaActiva === 'todos' ? 'active' : ''}`} onClick={() => cambiarVista('todos')}>
+          Todos
         </button>
       </div>
 
@@ -194,6 +205,9 @@ const CocinaView = () => {
             <PedidoCard
               key={pedido._id}
               pedido={pedido}
+              onIniciar={marcarEnPreparacion}
+              onFinalizar={marcarListo}
+              actualizando={pedidoActualizando === pedido._id}
             />
           ))}
         </div>
