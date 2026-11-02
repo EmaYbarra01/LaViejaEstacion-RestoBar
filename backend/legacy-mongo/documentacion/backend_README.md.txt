@@ -24,8 +24,8 @@ Backend API REST construido con Node.js, Express y MongoDB para gestión de prod
 
 1. Clonar el repositorio:
 ```bash
-git clone https://github.com/NahuFed/Backend-Crud-com12.git
-cd Backend-Crud-com12
+git clone https://github.com/NahuFed/la-vieja-estacion-restobar.git
+cd la-vieja-estacion-restobar
 ```
 
 2. Instalar dependencias:
@@ -53,7 +53,7 @@ Luego edita el archivo `.env` con tus valores reales:
 
 ```env
 # Base de datos MongoDB
-MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/CRUD-COM12?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/la-vieja-estacion-restobar?retryWrites=true&w=majority
 
 # Configuración de Email (Nodemailer con Gmail)
 EMAIL_USER=tu.email@gmail.com
@@ -129,7 +129,7 @@ EMAIL_FROM=tu.email@gmail.com
 ## 📁 Estructura del proyecto
 
 ```
-Backend-Crud-com12/
+la-vieja-estacion-restobar/
 ├── src/
 │   ├── auth/                    # Autenticación y autorización
 │   │   ├── token-sign.js
@@ -246,7 +246,7 @@ node scripts/checkDb.js
 
 Deberías ver algo como:
 ```
-✅ Conectado a MongoDB. Base de datos: CRUD-COM12
+✅ Conectado a MongoDB. Base de datos: la-vieja-estacion-restobar
 Estado (readyState): 1 (1 = conectado)
 ```
 
@@ -268,7 +268,7 @@ Si MongoDB no se conecta:
 
 1. Verifica que MongoDB esté corriendo: `mongod --version`
 2. Comprueba la URI en `.env`: `MONGODB_URI`
-3. Para MongoDB local usa: `mongodb://localhost:27017/CRUD-COM12`
+3. Para MongoDB local usa: `mongodb://localhost:27017/la-vieja-estacion-restobar`
 4. Para MongoDB Atlas usa la URI completa con credenciales
 
 ## �📄 Licencia
