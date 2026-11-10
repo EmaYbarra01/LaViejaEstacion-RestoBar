@@ -8,7 +8,7 @@ import { formatClockDate, formatClockTime } from '../utils/clockFormat';
 const employeeNames = {
   SuperAdministrador: 'Lucas Ferreyra',
   Gerente: 'Valeria Medina',
-  Mozo: 'Mario García',
+  Mozo: 'Sofía López',
   EncargadoCocina: 'Diego Ruiz',
   Cajero: 'Lucía Pérez'
 };
@@ -88,6 +88,7 @@ function EmployeePanelLayout({
     ? managementLinks
     : (roleType === 'admin' ? managementLinks : links[role] || links[roleType] || []);
   const title = pageTitle || getPanelTitle(location.pathname, roleType, role);
+  const displayName = user?.nombreCompleto || user?.name || employeeNames[role] || 'Usuario';
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentDateTime(new Date()), 1000);
@@ -107,7 +108,7 @@ function EmployeePanelLayout({
           <span>Panel de gestión</span>
         </div>
         <div className="employee-user">
-          <strong>{employeeNames[role] || user?.nombreCompleto || user?.name || 'Usuario'}</strong>
+          <strong>{displayName}</strong>
           <span>{role}</span>
         </div>
         <nav aria-label="Opciones del panel" className="employee-nav">
@@ -141,7 +142,7 @@ function EmployeePanelLayout({
           <div className="employee-content-heading">
             <div>
               <h2>{title}</h2>
-              <p>{employeeNames[role] || user?.nombreCompleto || user?.name || 'Usuario'} · {role}</p>
+              <p>{displayName} · {role}</p>
             </div>
             <span>Panel de gestión</span>
           </div>

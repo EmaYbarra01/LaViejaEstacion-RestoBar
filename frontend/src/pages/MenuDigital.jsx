@@ -95,7 +95,6 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   const [showGoTop, setShowGoTop] = useState(false);
   const [goTopBusy, setGoTopBusy] = useState(false);
   const busyTimer = useRef(null);
-  const categoriaInicializada = useRef(false);
   const [datosEntrega, setDatosEntrega] = useState({
     tipoPedido: mesaNumero ? 'Local' : 'Domicilio',
     numeroMesa: mesaNumero || '',
@@ -143,15 +142,6 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   }, []);
 
   useEffect(() => {
-    // Expandir primera categoría cuando se carga el menú
-    if (productosDisponibles.length > 0 && !categoriaInicializada.current) {
-      setExpandedCategory('Comidas');
-      setCategoriaActiva('Comidas');
-      categoriaInicializada.current = true;
-    }
-  }, [productosDisponibles, setCategoriaActiva]);
-
-  useEffect(() => {
     if (!productoIdInicial || productoSeleccionado || productosDisponibles.length === 0) {
       return;
     }
@@ -169,21 +159,11 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   }, [productoIdInicial, productoSeleccionado, productosDisponibles]);
 
   const toggleCategory = (categoria) => {
-    if (expandedCategory === categoria) {
-      // Si ya está expandida, colapsarla
-      setExpandedCategory(null);
-      setCategoriaActiva(null);
-    } else {
-      // Expandir nueva categoría
-      setExpandedCategory(categoria);
-      setCategoriaActiva(categoria);
-      setTimeout(() => {
-        const element = document.getElementById(`accordion-${categoria.toLowerCase().replace(/\s+/g, '-')}`);
-        if (element) {
-          scrollPageTo(element.getBoundingClientRect().top + getScrollTop() - 30);
-        }
-      }, 100);
-    }
+    setExpandedCategory((current) => {
+      const nextValue = current === categoria ? null : categoria;
+      setCategoriaActiva(nextValue);
+      return nextValue;
+    });
   };
 
   const handleRefresh = async () => {

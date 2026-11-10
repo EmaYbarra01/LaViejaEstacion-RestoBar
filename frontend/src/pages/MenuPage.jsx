@@ -34,7 +34,7 @@ const MenuPage = ({ isNightMode, onToggleNightMode }) => {
     const navigate = useNavigate();
     const [productos, setProductos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [expandedCategory, setExpandedCategory] = useState('comida');
+    const [expandedCategory, setExpandedCategory] = useState(null);
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
     const [showGoTop, setShowGoTop] = useState(false);
     const [goTopBusy, setGoTopBusy] = useState(false);
@@ -95,18 +95,7 @@ const MenuPage = ({ isNightMode, onToggleNightMode }) => {
     ];
 
     const toggleCategory = (category) => {
-        if (expandedCategory === category) {
-            setExpandedCategory(null);
-            return;
-        }
-        setExpandedCategory(category);
-        setTimeout(() => {
-            const element = document.getElementById(`accordion-${category}`);
-            if (element) {
-                const offsetPosition = element.getBoundingClientRect().top + getScrollTop() - 30;
-                scrollerScrollTo(offsetPosition);
-            }
-        }, 100);
+        setExpandedCategory((current) => (current === category ? null : category));
     };
 
     const scrollToTop = () => scrollerScrollTo(0);

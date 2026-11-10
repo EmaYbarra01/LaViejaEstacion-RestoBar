@@ -70,7 +70,7 @@ async function ventas(db,query={}) {
       nombre:d.nombre_historico,categoria:d.categoria,cantidad:Number(d.cantidad),precioUnitario:Number(d.precio_unitario),subtotal:Number(d.subtotal),
       ingresoNeto:d.ingresoNeto,descuentoAsignado:d.descuentoAsignado}));
     return {id:p.id,_id:String(p.id),numeroPedido:p.numero_pedido,mesa:{numero:p.numero_mesa_historico},numeroMesa:p.numero_mesa_historico,
-      mozo:{id:p.mozo_id,_id:String(p.mozo_id),nombre:p.nombre||'Pedido público',apellido:p.apellido||'',email:p.email},nombreMozo:p.nombre_mozo_historico,
+      mozo:{id:p.mozo_id,_id:String(p.mozo_id),nombre:p.nombre||'Pedido público',apellido:p.apellido||'',email:p.email},nombreMozo:[p.nombre,p.apellido].filter(Boolean).join(' ') || p.nombre_mozo_historico || 'Sin mozo',
       estado:'Cobrado',subtotal:Number(p.subtotal),descuento:{monto:Number(p.descuento_monto),porcentaje:Number(p.descuento_porcentaje)},
       total:Number(p.monto_aplicado),metodoPago:p.metodo_pago,fechaCobrado:p.fecha_pago,fechaCreacion:p.fecha_creacion,productos};
   });

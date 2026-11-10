@@ -164,10 +164,19 @@ const ProductFormModal = (props) => {
                                 fullWidth
                                 name="stock"
                                 label="Stock Actual"
-                                type="number"
-                                value={form.stock || 0}
-                                onChange={handleChange}
-                                inputProps={{ min: 0 }}
+                                type="text"
+                                value={form.stock ?? 0}
+                                onChange={(event) => {
+                                    const nextValue = event.target.value.replace(/[^0-9]/g, '');
+                                    handleChange({ target: { name: 'stock', value: nextValue } });
+                                }}
+                                onKeyDown={(event) => {
+                                    if (['e', 'E', '+', '-', '.', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                                        event.preventDefault();
+                                    }
+                                }}
+                                onWheel={(event) => event.target.blur()}
+                                inputProps={{ min: 0, inputMode: 'numeric', pattern: '[0-9]*' }}
                                 helperText="Cantidad disponible en inventario"
                             />
                         </Grid>
@@ -178,10 +187,19 @@ const ProductFormModal = (props) => {
                                 fullWidth
                                 name="minimumStock"
                                 label="Stock Mínimo"
-                                type="number"
-                                value={form.minimumStock || 0}
-                                onChange={handleChange}
-                                inputProps={{ min: 0 }}
+                                type="text"
+                                value={form.minimumStock ?? 0}
+                                onChange={(event) => {
+                                    const nextValue = event.target.value.replace(/[^0-9]/g, '');
+                                    handleChange({ target: { name: 'minimumStock', value: nextValue } });
+                                }}
+                                onKeyDown={(event) => {
+                                    if (['e', 'E', '+', '-', '.', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                                        event.preventDefault();
+                                    }
+                                }}
+                                onWheel={(event) => event.target.blur()}
+                                inputProps={{ min: 0, inputMode: 'numeric', pattern: '[0-9]*' }}
                                 helperText="Alerta cuando llegue a este número"
                             />
                         </Grid>
