@@ -108,7 +108,8 @@ async function pedidosActivos(c, mesas) {
     _id: String(p.id), id: String(p.id), numeroPedido: p.numero_pedido,
     mesa: String(p.mesa_id), numeroMesa: p.numero_mesa_historico,
     mozo: p.mozo_id===null?null:{ _id: String(p.mozo_id), id: String(p.mozo_id), nombre: p.mozo_nombre, apellido: p.mozo_apellido },
-    nombreMozo: p.nombre_mozo_historico, estado: p.estado,
+    nombreMozo: [p.mozo_nombre, p.mozo_apellido].filter(Boolean).join(' ') || p.nombre_mozo_historico || 'Sin mozo',
+    estado: p.estado,
     estadoCocina: p.estado_cocina, estadoCaja: p.estado_caja,
     productos: detalles.filter(d => d.pedido_id === p.id).map(d => ({
       _id: String(d.id),

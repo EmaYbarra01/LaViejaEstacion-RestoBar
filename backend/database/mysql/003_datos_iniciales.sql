@@ -1,5 +1,7 @@
--- La Vieja Estación: datos iniciales ficticios para validación académica.
--- Ejecutar solamente sobre la base vacía; no incluye datos personales originales.
+-- Ejecutar solamente sobre una base vacía; no incluye datos personales originales.
+-- IMPORTANTE: los hashes de este archivo son heredados del seed académico.
+-- Tras una instalación NUEVA ejecutar el generador local de credenciales
+-- para establecer la contraseña acordada. NO incluir contraseñas en Git.
 USE la_vieja_estacion;
 SET time_zone = '+00:00';
 START TRANSACTION;
@@ -8,15 +10,15 @@ INSERT INTO roles (id,nombre) VALUES (2,'Gerente');
 INSERT INTO roles (id,nombre) VALUES (3,'Mozo');
 INSERT INTO roles (id,nombre) VALUES (4,'Cajero');
 INSERT INTO roles (id,nombre) VALUES (5,'EncargadoCocina');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (1,1,'Lucas','Ferreyra','lucas.ferreyra@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000001','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (2,2,'Valeria','Medina','valeria.medina@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000002','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (3,3,'Mario','García','mario.garcia@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000003','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (4,4,'Lucía','Pérez','lucia.perez@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000004','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (5,5,'Diego','Ruiz','diego.ruiz@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000005','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (6,3,'Sofía','López','sofia.lopez@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000006','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (7,3,'Tomás','Soria','tomas.soria@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000007','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (8,3,'Julieta','Ríos','julieta.rios@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000008','2026-10-01 12:00:00');
-INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso) VALUES (9,5,'Carla','Vega','carla.vega@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000009','2026-10-01 12:00:00');
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (1,1,'Lucas','Ferreyra','ferreyra@restobar.com','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000001','2026-10-01 12:00:00',1);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (2,2,'Valeria','Medina','medina@restobar.com','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000002','2026-10-01 12:00:00',1);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (3,3,'Mario','García','mario.garcia@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000003','2026-10-01 12:00:00',0);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (4,4,'Lucía','Pérez','perez@restobar.com','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000004','2026-10-01 12:00:00',1);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (5,5,'Diego','Ruiz','ruiz@restobar.com','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000005','2026-10-01 12:00:00',1);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (6,3,'Sofía','López','lopez@restobar.com','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000006','2026-10-01 12:00:00',1);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (7,3,'Tomás','Soria','soria@restobar.com','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000007','2026-10-01 12:00:00',1);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (8,3,'Julieta','Ríos','julieta.rios@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000008','2026-10-01 12:00:00',0);
+INSERT INTO usuarios (id,rol_id,nombre,apellido,email,password_hash,dni,fecha_ingreso,activo) VALUES (9,5,'Carla','Vega','carla.vega@laviejaestacion.example','$2b$10$dlIyzLhCuqeupmDm1Q63c.0ozCCGtZiSER2HOvYk2Nivtv36TaaWm','90000009','2026-10-01 12:00:00',0);
 INSERT INTO categorias (id,nombre) VALUES (1,'Bebidas');
 INSERT INTO categorias (id,nombre) VALUES (2,'Bebidas Alcohólicas');
 INSERT INTO categorias (id,nombre) VALUES (3,'Comidas');
@@ -64,7 +66,7 @@ INSERT INTO mesas (id,numero,capacidad,ubicacion,estado,codigo_qr) VALUES (5,5,2
 INSERT INTO mesas (id,numero,capacidad,ubicacion,estado,codigo_qr) VALUES (6,6,8,'Salón VIP','Libre','');
 INSERT INTO mesas (id,numero,capacidad,ubicacion,estado,codigo_qr) VALUES (7,7,4,'Salón VIP','Libre','');
 INSERT INTO mesas (id,numero,capacidad,ubicacion,estado,codigo_qr) VALUES (8,8,2,'Salón VIP','Libre','');
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (1,'PED-20261005-0001',1,3,1,'Mario García','Entregado','Listo',8000,10,800.00,'Descuento por pago en efectivo',7200.00,'2026-10-05 14:01:00.000','2026-10-05 14:01:00.000','2026-10-05 14:30:00.000','2026-10-05 14:40:00.000',NULL,NULL,NULL);
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (1,'PED-20261005-0001',1,6,1,'Sofía López','Entregado','Listo',8000,10,800.00,'Descuento por pago en efectivo',7200.00,'2026-10-05 14:01:00.000','2026-10-05 14:01:00.000','2026-10-05 14:30:00.000','2026-10-05 14:40:00.000',NULL,NULL,NULL);
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (1,1,1,'Cerveza Quilmes 1L',1,8000,8000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (1,3,'Pendiente','2026-10-05 14:01:00.000','Pedido registrado por el mozo');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (1,5,'En Preparación','2026-10-05 14:25:00.000','Cocina inició la preparación');
@@ -75,7 +77,7 @@ INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_
 UPDATE productos SET stock=stock-1 WHERE id=1;
 INSERT INTO pagos_pedido (id,pedido_id,cajero_id,metodo_pago,monto_aplicado,monto_recibido,cambio,fecha_pago) VALUES (1,1,4,'Efectivo',7200.00,8000,800.00,'2026-10-05 15:01:00.000');
 UPDATE pedidos SET estado='Cobrado',estado_caja='Cobrado',metodo_pago='Efectivo',fecha_cobrado='2026-10-05 15:01:00.000' WHERE id=1;
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (2,'PED-20261005-0002',2,3,2,'Mario García','Entregado','Listo',34000,0,0,'',34000,'2026-10-05 14:02:00.000','2026-10-05 14:02:00.000','2026-10-05 14:30:00.000','2026-10-05 14:40:00.000',NULL,NULL,NULL);
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (2,'PED-20261005-0002',2,6,2,'Sofía López','Entregado','Listo',34000,0,0,'',34000,'2026-10-05 14:02:00.000','2026-10-05 14:02:00.000','2026-10-05 14:30:00.000','2026-10-05 14:40:00.000',NULL,NULL,NULL);
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (2,2,1,'Milanesa Napolitana',2,17000,34000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (2,3,'Pendiente','2026-10-05 14:02:00.000','Pedido registrado por el mozo');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (2,5,'En Preparación','2026-10-05 14:25:00.000','Cocina inició la preparación');
@@ -86,20 +88,20 @@ INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_
 UPDATE productos SET stock=stock-2 WHERE id=2;
 INSERT INTO pagos_pedido (id,pedido_id,cajero_id,metodo_pago,monto_aplicado,monto_recibido,cambio,fecha_pago) VALUES (2,2,4,'Transferencia',34000,34000,0,'2026-10-05 15:02:00.000');
 UPDATE pedidos SET estado='Cobrado',estado_caja='Cobrado',metodo_pago='Transferencia',fecha_cobrado='2026-10-05 15:02:00.000' WHERE id=2;
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (3,'PED-20261006-0001',3,3,3,'Mario García','Pendiente','Pendiente',11000,0,0,'',11000,'2026-10-06 14:03:00.000','2026-10-06 14:03:00.000',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (3,'PED-20261006-0001',3,6,3,'Sofía López','Pendiente','Pendiente',11000,0,0,'',11000,'2026-10-06 14:03:00.000','2026-10-06 14:03:00.000',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (3,3,1,'Sandwich de Milanesa',1,11000,11000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (3,3,'Pendiente','2026-10-06 14:03:00.000','Pedido registrado por el mozo');
 INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_por_id,fecha) VALUES (3,3,-1,'Salida por pedido',3,'2026-10-06 14:03:00.000');
 UPDATE productos SET stock=stock-1 WHERE id=3;
 UPDATE mesas SET estado='Ocupada' WHERE id=3;
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (4,'PED-20261006-0002',4,3,4,'Mario García','En Preparación','En Preparación',11000,0,0,'',11000,'2026-10-06 14:04:00.000','2026-10-06 14:04:00.000',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (4,'PED-20261006-0002',4,6,4,'Sofía López','En Preparación','En Preparación',11000,0,0,'',11000,'2026-10-06 14:04:00.000','2026-10-06 14:04:00.000',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (4,4,1,'Ñoquis con Bolognesa (Sin TACC)',1,11000,11000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (4,3,'Pendiente','2026-10-06 14:04:00.000','Pedido registrado por el mozo');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (4,5,'En Preparación','2026-10-06 14:25:00.000','Cocina inició la preparación');
 INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_por_id,fecha) VALUES (4,4,-1,'Salida por pedido',3,'2026-10-06 14:04:00.000');
 UPDATE productos SET stock=stock-1 WHERE id=4;
 UPDATE mesas SET estado='Ocupada' WHERE id=4;
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (5,'PED-20261006-0003',5,3,5,'Mario García','Listo','Listo',12000,0,0,'',12000,'2026-10-06 14:05:00.000','2026-10-06 14:05:00.000','2026-10-06 14:30:00.000',NULL,NULL,NULL,NULL);
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (5,'PED-20261006-0003',5,6,5,'Sofía López','Listo','Listo',12000,0,0,'',12000,'2026-10-06 14:05:00.000','2026-10-06 14:05:00.000','2026-10-06 14:30:00.000',NULL,NULL,NULL,NULL);
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (5,5,1,'Pizza Muzzarella',1,12000,12000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (5,3,'Pendiente','2026-10-06 14:05:00.000','Pedido registrado por el mozo');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (5,5,'En Preparación','2026-10-06 14:25:00.000','Cocina inició la preparación');
@@ -107,7 +109,7 @@ INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observac
 INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_por_id,fecha) VALUES (5,5,-1,'Salida por pedido',3,'2026-10-06 14:05:00.000');
 UPDATE productos SET stock=stock-1 WHERE id=5;
 UPDATE mesas SET estado='Ocupada' WHERE id=5;
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (6,'PED-20261006-0004',6,3,6,'Mario García','Entregado','Listo',10000,0,0,'',10000,'2026-10-06 14:06:00.000','2026-10-06 14:06:00.000','2026-10-06 14:30:00.000','2026-10-06 14:40:00.000',NULL,NULL,NULL);
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (6,'PED-20261006-0004',6,6,6,'Sofía López','Entregado','Listo',10000,0,0,'',10000,'2026-10-06 14:06:00.000','2026-10-06 14:06:00.000','2026-10-06 14:30:00.000','2026-10-06 14:40:00.000',NULL,NULL,NULL);
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (6,6,1,'Flan con Dulce de Leche',2,5000,10000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (6,3,'Pendiente','2026-10-06 14:06:00.000','Pedido registrado por el mozo');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (6,5,'En Preparación','2026-10-06 14:25:00.000','Cocina inició la preparación');
@@ -116,14 +118,14 @@ INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observac
 INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_por_id,fecha) VALUES (6,6,-2,'Salida por pedido',3,'2026-10-06 14:06:00.000');
 UPDATE productos SET stock=stock-2 WHERE id=6;
 UPDATE mesas SET estado='Ocupada' WHERE id=6;
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (7,'PED-20261006-0005',7,3,7,'Mario García','Pendiente','Pendiente',6000,0,0,'',6000,'2026-10-06 14:07:00.000','2026-10-06 14:07:00.000',NULL,NULL,'Cliente solicitó cancelar el pedido',3,'2026-10-06 15:07:00.000');
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (7,'PED-20261006-0005',7,6,7,'Sofía López','Pendiente','Pendiente',6000,0,0,'',6000,'2026-10-06 14:07:00.000','2026-10-06 14:07:00.000',NULL,NULL,'Cliente solicitó cancelar el pedido',3,'2026-10-06 15:07:00.000');
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (7,7,1,'Helado (3 bochas)',1,6000,6000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (7,3,'Pendiente','2026-10-06 14:07:00.000','Pedido registrado por el mozo');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (7,3,'Cancelado','2026-10-06 15:07:00.000','Cliente solicitó cancelar el pedido');
 INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_por_id,fecha) VALUES (7,7,-1,'Salida por pedido',3,'2026-10-06 14:07:00.000');
 UPDATE pedidos SET estado='Cancelado' WHERE id=7;
 INSERT INTO movimientos_stock (producto_id,pedido_id,cantidad,motivo,registrado_por_id,fecha) VALUES (7,7,1,'Restitución por cancelación',3,'2026-10-06 15:07:00.000');
-INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (8,'PED-20261006-0006',8,3,8,'Mario García','Entregado','Listo',5000,10,500.00,'Descuento por pago en efectivo',4500.00,'2026-10-06 14:08:00.000','2026-10-06 14:08:00.000','2026-10-06 14:30:00.000','2026-10-06 14:40:00.000',NULL,NULL,NULL);
+INSERT INTO pedidos (id,numero_pedido,mesa_id,mozo_id,numero_mesa_historico,nombre_mozo_historico,estado,estado_cocina,subtotal,descuento_porcentaje,descuento_monto,descuento_motivo,total,fecha_creacion,created_at,fecha_listo,fecha_servido,cancelado_motivo,cancelado_por_id,cancelado_fecha) VALUES (8,'PED-20261006-0006',8,6,8,'Sofía López','Entregado','Listo',5000,10,500.00,'Descuento por pago en efectivo',4500.00,'2026-10-06 14:08:00.000','2026-10-06 14:08:00.000','2026-10-06 14:30:00.000','2026-10-06 14:40:00.000',NULL,NULL,NULL);
 INSERT INTO detalle_pedido (pedido_id,producto_id,orden,nombre_historico,cantidad,precio_unitario,subtotal,observaciones) VALUES (8,8,1,'Coca Cola 500ml',1,5000,5000,'');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (8,3,'Pendiente','2026-10-06 14:08:00.000','Pedido registrado por el mozo');
 INSERT INTO historial_estados_pedido (pedido_id,usuario_id,estado,fecha,observacion) VALUES (8,5,'En Preparación','2026-10-06 14:25:00.000','Cocina inició la preparación');

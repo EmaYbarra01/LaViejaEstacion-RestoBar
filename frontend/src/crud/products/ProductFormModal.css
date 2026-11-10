@@ -9,6 +9,21 @@
     margin-bottom: 0.5rem;
 }
 
+#product-form input[type='text'][inputmode='numeric'],
+#product-form input[type='number'] {
+    -moz-appearance: textfield;
+}
+
+#product-form input[type='number']::-webkit-outer-spin-button,
+#product-form input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#product-form input[type='text'][inputmode='numeric'] {
+    appearance: textfield;
+}
+
 .product-form-actions {
     display: flex;
     gap: 1rem;
