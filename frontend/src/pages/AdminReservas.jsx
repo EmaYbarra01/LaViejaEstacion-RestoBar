@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { FaSearch, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaClock, FaCalendarAlt, FaUsers, FaTable } from 'react-icons/fa';
+import { FaSearch, FaEdit, FaCheckCircle, FaTimes, FaTimesCircle, FaClock, FaCalendarAlt, FaUsers, FaTable } from 'react-icons/fa';
 import './AdminReservas.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
@@ -161,17 +161,16 @@ const AdminReservas = () => {
     );
   });
 
-  // Manejar eliminación
-  const handleEliminar = async (id) => {
+  const handleCancelarReserva = async (id) => {
     const result = await Swal.fire({
-      title: '¿Eliminar reserva?',
-      text: 'Esta acción no se puede deshacer',
+      title: '¿Cancelar reserva?',
+      text: 'La reserva cambiará al estado cancelada y no podrá modificarse.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'Sí, cancelar reserva',
+      cancelButtonText: 'Volver'
     });
 
     if (!result.isConfirmed) return;
@@ -182,17 +181,17 @@ const AdminReservas = () => {
       
       await Swal.fire({
         icon: 'success',
-        title: 'Reserva eliminada',
-        text: 'La reserva fue eliminada correctamente',
+        title: 'Reserva cancelada',
+        text: 'La reserva fue cancelada correctamente',
         timer: 2000,
         showConfirmButton: false
       });
     } catch (err) {
-      console.error('Error al eliminar reserva:', err);
+      console.error('Error al cancelar reserva:', err);
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo eliminar la reserva',
+        text: 'No se pudo cancelar la reserva',
         confirmButtonColor: '#3085d6'
       });
     }
@@ -510,11 +509,12 @@ const AdminReservas = () => {
                           <FaEdit />
                         </button>
                         <button
-                          className="btn-accion eliminar"
-                          onClick={() => handleEliminar(reserva._id)}
-                          title="Eliminar reserva"
+                          className="btn-accion cancelar-reserva"
+                          onClick={() => handleCancelarReserva(reserva._id)}
+                          title="Cancelar"
+                          aria-label="Cancelar reserva"
                         >
-                          <FaTrash />
+                          <FaTimes aria-hidden="true" />
                         </button>
                       </div>
                     </td>

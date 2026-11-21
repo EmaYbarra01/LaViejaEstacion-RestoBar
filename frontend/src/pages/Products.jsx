@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllProducts, createProduct, updateProduct, deleteProduct, checkProductNameExists } from "../helpers/queriesProductos";
+import { getAllProducts, createProduct, updateProduct, checkProductNameExists } from "../helpers/queriesProductos";
 import ProductFormModal from "../crud/products/ProductFormModal";
 import {
   Button,
@@ -189,38 +189,6 @@ const Products = () => {
       available: product?.available !== false
     });
     handleOpenModal();
-  };
-
-  const handleDeleteProduct = async (id) => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: "No podrás revertir esta acción",
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#642f3a',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await deleteProduct(id);
-        setProducts(products.filter((product) => product.id !== id));
-        await Swal.fire({
-          title: '¡Eliminado!',
-          text: 'Producto eliminado correctamente',
-          confirmButtonColor: '#642f3a',
-          timer: 2000
-        });
-      } catch (err) {
-        console.error("Error deleting product:", err);
-        await Swal.fire({
-          title: 'Error',
-          text: 'Error al eliminar el producto',
-          confirmButtonColor: '#642f3a'
-        });
-      }
-    }
   };
 
   const categories = [...new Set(
@@ -448,14 +416,6 @@ const Products = () => {
                           size="small"
                         >
                           Editar
-                        </Button>
-                        <Button
-                          variant="contained"
-                          className="delete-button"
-                          onClick={() => handleDeleteProduct(product.id)}
-                          size="small"
-                        >
-                          Eliminar
                         </Button>
                       </div>
                     ) : (

@@ -4,7 +4,6 @@ import {
   createEmpleado, 
   updateEmpleado, 
   desactivarEmpleado,
-  deleteEmpleado,
   registrarAsistencia,
   registrarPago,
   registrarInasistencia
@@ -32,13 +31,11 @@ import {
   ListItemText
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import EventIcon from '@mui/icons-material/Event';
 import PaymentIcon from '@mui/icons-material/Payment';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BlockIcon from '@mui/icons-material/Block';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Swal from 'sweetalert2';
 import { formatCurrency } from '../utils/currencyFormatter';
 import "./AdminPage.css";
@@ -415,45 +412,6 @@ const Empleados = () => {
     }
   };
 
-  const handleEliminar = async (empleado) => {
-    const result = await Swal.fire({
-      title: '⚠️ ¡ADVERTENCIA!',
-      html: `<p>Vas a <strong style="color: #d32f2f;">ELIMINAR PERMANENTEMENTE</strong> a:</p>
-             <p><strong>${empleado.usuario?.nombre} ${empleado.usuario?.apellido}</strong></p>
-             <p style="color: #d32f2f; font-weight: bold;">Esta acción NO se puede deshacer</p>
-             <p>Se eliminarán todos los datos del empleado y su usuario</p>`,
-      icon: 'error',
-      showCancelButton: true,
-      confirmButtonColor: '#d32f2f',
-      cancelButtonColor: '#757575',
-      confirmButtonText: 'Sí, eliminar permanentemente',
-      cancelButtonText: 'Cancelar',
-      focusCancel: true
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await deleteEmpleado(empleado._id);
-        await Swal.fire({
-          icon: 'success',
-          title: 'Eliminado',
-          text: 'Empleado eliminado permanentemente',
-          confirmButtonColor: '#667eea',
-          timer: 2000
-        });
-        loadEmpleados();
-      } catch (err) {
-        console.error("Error al eliminar empleado:", err);
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo eliminar el empleado',
-          confirmButtonColor: '#667eea'
-        });
-      }
-    }
-  };
-
   const handleOpenAsistencia = (empleado) => {
     setSelectedEmpleado(empleado);
     setAsistenciaForm({
@@ -670,7 +628,7 @@ const Empleados = () => {
                                </IconButton>
                              </span>
                            </Tooltip>
-                           <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - Eliminar" : "Más opciones"}>
+                           <Tooltip title="Más opciones">
                              <span>
                                <IconButton 
                                  onClick={(e) => {
@@ -765,19 +723,6 @@ const Empleados = () => {
             <BlockIcon fontSize="small" color="warning" />
           </ListItemIcon>
           <ListItemText>Desactivar</ListItemText>
-        </MenuItem>
-        <MenuItem 
-          onClick={() => {
-            handleEliminar(menuEmpleado);
-            setAnchorEl(null);
-            setMenuEmpleado(null);
-          }}
-          sx={{ color: '#d32f2f' }}
-        >
-          <ListItemIcon>
-            <DeleteForeverIcon fontSize="small" sx={{ color: '#d32f2f' }} />
-          </ListItemIcon>
-          <ListItemText>Eliminar Permanentemente</ListItemText>
         </MenuItem>
       </Menu>
     </div>
