@@ -80,21 +80,6 @@ export const desactivarEmpleado = async (id) => {
 };
 
 /**
- * Eliminar permanentemente un empleado
- */
-export const deleteEmpleado = async (id) => {
-  try {
-    const response = await axios.delete(`${URL_EMPLEADOS}/${id}`, {
-      withCredentials: true
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error al eliminar empleado:', error);
-    throw error;
-  }
-};
-
-/**
  * Registrar asistencia de un empleado
  */
 export const registrarAsistencia = async (id, asistenciaData) => {

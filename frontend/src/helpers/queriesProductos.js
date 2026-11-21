@@ -120,19 +120,6 @@ export const updateProduct = async (id, productData) => {
   }
 };
 
-// Eliminar producto
-export const deleteProduct = async (id) => {
-  try {
-    await apiClient.delete(`/productos/${id}`, {
-      withCredentials: true
-    });
-    return true;
-  } catch (error) {
-    console.error('Error al eliminar producto:', error);
-    throw error;
-  }
-};
-
 // Verificar si un código de producto ya existe
 export const checkProductCodeExists = async (code, excludeId = null) => {
   try {
