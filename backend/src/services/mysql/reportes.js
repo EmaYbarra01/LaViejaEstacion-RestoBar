@@ -151,6 +151,51 @@ async function cierres(db,query={}) {
   return {cierres:lista,resumen:{cantidadCierres:lista.length,totalVentas:total,totalDescuentos:sumar(lista,'totalDescuentos'),totalGastos:gastos,totalIngresos:ingresos,
     totalDiferencias:sumar(lista,'diferencia'),balanceGeneral:dinero(centavos(total)+centavos(ingresos)-centavos(gastos))}};
 }
+function periodoFecha(query, columna) {
+  const { where } = periodoReporte(query);
+  return {
+    where: where.map((condicion, index) => `${columna}${index === 0 && query.fechaInicio ? '>=' : '<='}?`),
+    args: [query.fechaInicio, query.fechaFin].filter(Boolean)
+  };
+}
+async function asistencias(db, query = {}) {
+  const {where, args} = periodoFecha(query, 'registro.fecha');
+  const [rows] = await db.execute(`SELECT u.nombre, u.apellido, COALESCE(e.cargo,r.nombre) cargo,
+    DATE_FORMAT(registro.fecha,'%Y-%m-%d') fecha, COALESCE(registro.estado,'Sin registros') estado,
+    registro.horaEntrada, registro.horaSalida, registro.motivo, registro.observaciones
+    FROM usuarios u JOIN roles r ON r.id=u.rol_id
+    LEFT JOIN empleados e ON e.usuario_id=u.id
+    LEFT JOIN (
+      SELECT empleado_id,fecha,IF(presente,'Presente','Ausente') estado,
+        TIME_FORMAT(hora_entrada,'%H:%i') horaEntrada,TIME_FORMAT(hora_salida,'%H:%i') horaSalida,
+        '' motivo,observaciones FROM asistencias
+      UNION ALL
+      SELECT empleado_id,fecha,'Ausente',NULL,NULL,motivo,observaciones FROM inasistencias
+    ) registro ON registro.empleado_id=e.id ${where.length ? 'AND '+where.join(' AND ') : ''}
+    ORDER BY u.apellido,u.nombre,u.id,registro.fecha`, args);
+  return rows;
+}
+async function reservas(db, query = {}) {
+  const {where, args} = periodoFecha(query, 'r.fecha');
+  const [rows] = await db.execute(`SELECT DATE_FORMAT(r.fecha,'%Y-%m-%d') fecha,
+    TIME_FORMAT(r.hora,'%H:%i') hora,r.estado,r.comensales,m.numero mesa
+    FROM reservas r LEFT JOIN mesas m ON m.id=r.mesa_id
+    ${where.length ? 'WHERE '+where.join(' AND ') : ''}
+    ORDER BY r.fecha,r.hora,r.id`, args);
+  return rows;
+}
+async function tiemposCocina(db, query = {}) {
+  const {where, args} = periodoReporte(query, 'p.fecha_listo');
+  where.unshift("p.fecha_listo IS NOT NULL", "p.estado <> 'Cancelado'");
+  const [rows] = await db.execute(`SELECT d.nombre_historico producto, COUNT(DISTINCT p.id) pedidos,
+    ROUND(AVG(TIMESTAMPDIFF(SECOND,inicio.fecha,p.fecha_listo))/60,2) minutosPromedioPedido
+    FROM pedidos p JOIN (SELECT DISTINCT pedido_id,producto_id,nombre_historico FROM detalle_pedido) d ON d.pedido_id=p.id
+    JOIN (SELECT pedido_id,MIN(fecha) fecha FROM historial_estados_pedido
+      WHERE estado='En Preparación' GROUP BY pedido_id) inicio ON inicio.pedido_id=p.id
+    WHERE ${where.join(' AND ')} AND inicio.fecha<=p.fecha_listo
+    GROUP BY d.producto_id,d.nombre_historico ORDER BY d.nombre_historico`, args);
+  return rows;
+}
 async function metricas(db,now) {
   const dia=diaArgentino(now), inicio=new Date(`${dia}T00:00:00-03:00`),fin=new Date(inicio.getTime()+86400000);
   const [[m]]=await db.execute(`SELECT
@@ -182,6 +227,9 @@ export function reportesService(pool) {
     productos:(usuario,query={})=>leer(usuario,async db=>agruparProductos(await ventas(db,query)).slice(0,limitar(query.limite))),
     categorias:(usuario,query)=>leer(usuario,async db=>agruparProductos(await ventas(db,query),'categoria')),
     inventario:(usuario,query)=>leer(usuario,db=>inventario(db,query)),
+    asistencias:(usuario,query)=>leer(usuario,db=>asistencias(db,query)),
+    reservas:(usuario,query)=>leer(usuario,db=>reservas(db,query)),
+    tiemposCocina:(usuario,query)=>leer(usuario,db=>tiemposCocina(db,query)),
     compras:(usuario,query)=>leer(usuario,db=>compras(db,query)),
     cierres:(usuario,query)=>leer(usuario,db=>cierres(db,query)),
     resumenDiario:(usuario,query={},now=new Date())=>leer(usuario,db=>resumenDia(db,query,now)),

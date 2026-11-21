@@ -32,6 +32,7 @@ import MisReservas from "./pages/MisReservas";
 import Empleados from "./pages/Empleados";
 import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
+import Reportes from "./pages/Reportes";
 import EmployeePanelLayout from "./components/EmployeePanelLayout";
 
 const employeePaths = ['/admin', '/mozo', '/supervision-pedidos', '/encargado-cocina', '/caja'];
@@ -178,6 +179,11 @@ function App() {
             <Route path="empleados" element={
               <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
                 <Empleados />
+              </ProtectedRoute>
+            } />
+            <Route path="reportes" element={
+              <ProtectedRoute role={["SuperAdministrador", "Gerente"]}>
+                <Reportes />
               </ProtectedRoute>
             } />
           </Route>

@@ -21,6 +21,7 @@
     "bootstrap": "^5.3.8",
     "dayjs": "^1.11.23",
     "framer-motion": "^12.43.0",
+    "html2pdf.js": "^0.14.0",
     "js-yaml": "^4.3.2",
     "jspdf": "^4.2.1",
     "react": "^19.3.1",
