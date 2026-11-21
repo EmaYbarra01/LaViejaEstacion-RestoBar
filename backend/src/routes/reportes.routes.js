@@ -4,6 +4,9 @@ import {
     reporteVentas,
     reporteVentasPorCategoria,
     reporteInventario,
+    reporteAsistencias,
+    reporteReservas,
+    reporteTiemposCocina,
     dashboard,
     reporteVentasPorProducto,
     reporteVentasPorMozo,
@@ -53,6 +56,9 @@ router.get('/reportes/ventas', verificarToken, verificarRol(['SuperAdministrador
 router.get('/reportes/ventas/categoria', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteVentasPorCategoria);
 router.get('/reportes/ventas/diarias', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteVentasDiario);
 router.get('/reportes/inventario', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteInventario);
+router.get('/reportes/empleados', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteAsistencias);
+router.get('/reportes/reservas', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteReservas);
+router.get('/reportes/cocina/tiempos', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), reporteTiemposCocina);
 router.get('/reportes/dashboard', verificarToken, verificarRol(['SuperAdministrador', 'Gerente']), dashboard);
 
 export default router;

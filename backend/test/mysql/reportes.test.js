@@ -19,6 +19,38 @@ test('reportes: descuento distribuido concilia centavos y preserva renglones gra
   assert.ok(result.every(r=>r.descuentoAsignado>=0));
   assert.throws(()=>distribuirNeto([{subtotal:1}],2),/concilia/);
 });
+test('reportes: asistencia, reservas y cocina aplican fechas y permisos',async()=>{
+  const calls=[];
+  let rol='Gerente';
+  const db={
+    query:async()=>[[]],beginTransaction:async()=>{},commit:async()=>{},rollback:async()=>{},release:()=>{},
+    execute:async(sql,args)=>{
+      if(sql.includes('WHERE u.id=? AND u.activo=TRUE'))return [[{id:2,rol}]];
+      calls.push({sql,args});
+      return [[{resultado:'registrado'}]];
+    }
+  };
+  const service=reportesService({getConnection:async()=>db});
+  const rango={fechaInicio:'2026-10-01',fechaFin:'2026-10-31'};
+  for(const name of ['asistencias','reservas','tiemposCocina']) {
+    assert.deepEqual(await service[name](2,rango),[{resultado:'registrado'}]);
+  }
+  assert.match(calls[0].sql,/FROM asistencias[\s\S]+FROM inasistencias/);
+  assert.match(calls[0].sql,/FROM usuarios u JOIN roles r[\s\S]+LEFT JOIN empleados e[\s\S]+LEFT JOIN \(/);
+  assert.match(calls[0].sql,/registro ON registro\.empleado_id=e\.id AND registro\.fecha>=\? AND registro\.fecha<=\?/);
+  assert.match(calls[0].sql,/registro\.fecha>=\? AND registro\.fecha<=\?/);
+  assert.deepEqual(calls[0].args,['2026-10-01','2026-10-31']);
+  assert.match(calls[1].sql,/r\.fecha>=\? AND r\.fecha<=\?/);
+  assert.deepEqual(calls[1].args,['2026-10-01','2026-10-31']);
+  assert.match(calls[2].sql,/historial_estados_pedido/);
+  assert.equal(calls[2].args[0].toISOString(),'2026-10-01T03:00:00.000Z');
+  assert.equal(calls[2].args[1].toISOString(),'2026-11-01T03:00:00.000Z');
+  await service.reservas(2,{fechaFin:'2026-10-31'});
+  assert.match(calls[3].sql,/r\.fecha<=\?/);
+  await assert.rejects(service.asistencias(2,{fechaInicio:'2026-11-01',fechaFin:'2026-10-31'}),/posterior/);
+  rol='Mozo';
+  await assert.rejects(service.reservas(2,rango),error=>error.status===403);
+});
 const enabled=process.env.MYSQL_TESTS==='1';
 let db,service,pedidos,compras;
 before(async()=>{
@@ -31,6 +63,20 @@ before(async()=>{
 after(async()=>{if(db)await db.end();});
 const scenario=(name,fn)=>test(name,{skip:!enabled},async()=>{
   await db.beginTransaction();try{await fn();}finally{await db.rollback();}
+});
+scenario('reportes: incluye todos los usuarios del listado de empleados aun sin registros en el período',async()=>{
+  const [usuarios]=await db.query('SELECT nombre,apellido FROM usuarios');
+  const rows=await service.asistencias(2,{fechaInicio:'1900-01-01',fechaFin:'1900-01-01'});
+  assert.equal(rows.length,usuarios.length);
+  assert.ok(rows.every(row=>row.estado==='Sin registros' && row.fecha===null));
+  const [fechas]=await db.query("SELECT DATE_FORMAT(fecha,'%Y-%m-%d') fecha FROM asistencias UNION SELECT DATE_FORMAT(fecha,'%Y-%m-%d') FROM inasistencias LIMIT 1");
+  if(fechas.length){
+    const fecha=fechas[0].fecha;
+    const conRegistros=await service.asistencias(2,{fechaInicio:fecha,fechaFin:fecha});
+    assert.ok(usuarios.every(usuario=>conRegistros.some(row=>row.nombre===usuario.nombre && row.apellido===usuario.apellido)));
+    assert.ok(conRegistros.some(row=>row.fecha===fecha && row.estado!=='Sin registros'));
+    assert.ok(conRegistros.every(row=>row.fecha===fecha || (row.fecha===null && row.estado==='Sin registros')));
+  }
 });
 scenario('reportes: solo cobros reales y agrupaciones concilian sin multiplicar cabeceras',async()=>{
   const ventas=await service.ventas(2),mozos=await service.mozos(2),metodos=await service.metodos(2);
@@ -98,7 +144,7 @@ test('reportes: rutas HTTP activas, permisos y contrato de estadísticas', {skip
   try {
     assert.equal((await fetch(`${base}/reportes/ventas`)).status,401);
     assert.equal((await fetch(`${base}/reportes/ventas`,{headers:token('Mozo')})).status,403);
-    for(const ruta of ['ventas','ventas/fecha','ventas/producto','ventas/mozo','ventas/metodo-pago','ventas/diario','ventas/mensual','ventas/categoria','inventario','compras','productos/mas-vendidos','productos/bajo-stock','cierres-caja','resumen-diario','dashboard']) {
+    for(const ruta of ['ventas','ventas/fecha','ventas/producto','ventas/mozo','ventas/metodo-pago','ventas/diario','ventas/mensual','ventas/categoria','inventario','compras','productos/mas-vendidos','productos/bajo-stock','cierres-caja','resumen-diario','dashboard','empleados','reservas','cocina/tiempos']) {
       const response=await fetch(`${base}/reportes/${ruta}`,{headers:token('Gerente')});assert.equal(response.status,200,ruta);
     }
     const d=await fetch(`${base}/dashboard/estadisticas`,{headers:token('Gerente')});

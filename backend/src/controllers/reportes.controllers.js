@@ -16,6 +16,9 @@ export const reporteProductosMasVendidos=endpoint('productos');
 export const reporteVentasPorProducto=reporteProductosMasVendidos;
 export const reporteVentasPorCategoria=endpoint('categorias');
 export const reporteInventario=endpoint('inventario');
+export const reporteAsistencias=endpoint('asistencias');
+export const reporteReservas=endpoint('reservas');
+export const reporteTiemposCocina=endpoint('tiemposCocina');
 export const reporteProductosBajoStock=async(req,res)=>{
   try {res.json(await service.inventario(req.user?.id||req.id,{...req.query,necesitaReposicion:'true'}));}
   catch(error){res.status(error.status||500).json({mensaje:error.status?error.message:'No se pudo consultar el inventario'});}
