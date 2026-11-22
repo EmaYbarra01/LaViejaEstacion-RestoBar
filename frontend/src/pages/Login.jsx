@@ -59,7 +59,7 @@ const handleSubmit = async (e) => {
             } else if (rol === 'Mozo') {
                 navigate('/mozo', { replace: true });
             } else if (rol === 'EncargadoCocina') {
-                navigate('/encargado-cocina', { replace: true });
+                navigate('/encargado-cocina?vista=pendientes', { replace: true });
             } else if (rol === 'Cajero') {
                 navigate('/caja', { replace: true });
             } else {

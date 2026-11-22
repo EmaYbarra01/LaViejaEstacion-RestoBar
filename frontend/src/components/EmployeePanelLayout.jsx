@@ -32,10 +32,11 @@ const links = {
     ['/mozo?vista=cuenta', 'Cuenta']
   ],
   EncargadoCocina: [
-    ['/encargado-cocina?vista=preparacion', 'En Cocina'],
     ['/encargado-cocina?vista=pendientes', 'Pendientes'],
+    ['/encargado-cocina?vista=preparacion', 'En Cocina'],
     ['/encargado-cocina?vista=listos', 'Listos'],
-    ['/encargado-cocina?vista=todos', 'Todos']
+    ['/encargado-cocina?vista=entregados', 'Entregados'],
+    ['/encargado-cocina?vista=pagados', 'Pagados']
   ],
   Cajero: [
     ['/caja', 'Cobros'],

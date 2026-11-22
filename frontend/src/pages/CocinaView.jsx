@@ -18,9 +18,9 @@ import './CocinaView.css';
  */
 const CocinaView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const vistaInicial = ['preparacion', 'pendientes', 'listos', 'todos'].includes(searchParams.get('vista'))
+  const vistaInicial = ['preparacion', 'pendientes', 'listos', 'entregados', 'pagados'].includes(searchParams.get('vista'))
     ? searchParams.get('vista')
-    : 'todos';
+    : 'pendientes';
   const [vistaActiva, setVistaActiva] = useState(vistaInicial);
   const [estadisticas, setEstadisticas] = useState(null);
   
@@ -41,12 +41,28 @@ const CocinaView = () => {
   });
 
   useEffect(() => {
-    const vista = ['preparacion', 'pendientes', 'listos', 'todos'].includes(searchParams.get('vista'))
+    const vista = ['preparacion', 'pendientes', 'listos', 'entregados', 'pagados'].includes(searchParams.get('vista'))
       ? searchParams.get('vista')
-      : 'todos';
+      : 'pendientes';
     setVistaActiva(vista);
-    setFiltroEstado(vista === 'pendientes' ? 'Pendiente' : vista === 'preparacion' ? 'En Preparación' : vista === 'listos' ? 'Listo' : null);
+    setFiltroEstado(
+      vista === 'pendientes'
+        ? 'Pendiente'
+        : vista === 'preparacion'
+          ? 'En Preparación'
+          : vista === 'listos'
+            ? 'Listo'
+            : vista === 'entregados'
+              ? 'Entregado'
+              : vista === 'pagados'
+                ? 'Cobrado'
+                : null
+    );
   }, [searchParams, setFiltroEstado]);
+
+  useEffect(() => {
+    cargarEstadisticas();
+  }, []);
 
   /**
    * Cargar estadísticas
@@ -67,7 +83,7 @@ const CocinaView = () => {
    */
   const cambiarVista = (vista) => {
     setVistaActiva(vista);
-    setSearchParams(vista === 'todos' ? { vista: 'todos' } : { vista });
+    setSearchParams({ vista });
     
     switch (vista) {
       case 'pendientes':
@@ -78,6 +94,12 @@ const CocinaView = () => {
         break;
       case 'listos':
         setFiltroEstado('Listo');
+        break;
+      case 'entregados':
+        setFiltroEstado('Entregado');
+        break;
+      case 'pagados':
+        setFiltroEstado('Cobrado');
         break;
       default:
         setFiltroEstado(null);
@@ -107,8 +129,12 @@ const CocinaView = () => {
         return pedidos.filter(p => p.estado === 'En Preparación');
       case 'listos':
         return pedidos.filter(p => p.estado === 'Listo');
+      case 'entregados':
+        return pedidos.filter(p => p.estado === 'Entregado');
+      case 'pagados':
+        return pedidos.filter(p => p.estado === 'Cobrado');
       default:
-        return pedidos.filter(p => !['Cancelado', 'Cobrado'].includes(p.estado));
+        return [];
     }
   };
 
@@ -147,22 +173,26 @@ const CocinaView = () => {
             <span className="stat-value listos">{estadisticas.listos || 0}</span>
           </div>
           <div className="stat-item">
-            <span className="stat-label">Total Hoy</span>
-            <span className="stat-value total">{estadisticas.totalHoy || 0}</span>
+            <span className="stat-label">Entregados</span>
+            <span className="stat-value total">{estadisticas.entregados || 0}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Pagados</span>
+            <span className="stat-value total">{estadisticas.pagados || 0}</span>
           </div>
         </div>
       )}
 
       {/* Filtros / Tabs */}
       <div className="filtros-tabs">
-        <button className={`tab-btn ${vistaActiva === 'preparacion' ? 'active' : ''}`} onClick={() => cambiarVista('preparacion')}>
-          En Cocina
-        </button>
         <button
           className={`tab-btn ${vistaActiva === 'pendientes' ? 'active' : ''}`}
           onClick={() => cambiarVista('pendientes')}
         >
           Pendientes
+        </button>
+        <button className={`tab-btn ${vistaActiva === 'preparacion' ? 'active' : ''}`} onClick={() => cambiarVista('preparacion')}>
+          En Cocina
         </button>
         <button
           className={`tab-btn ${vistaActiva === 'listos' ? 'active' : ''}`}
@@ -170,8 +200,17 @@ const CocinaView = () => {
         >
           Listos
         </button>
-        <button className={`tab-btn ${vistaActiva === 'todos' ? 'active' : ''}`} onClick={() => cambiarVista('todos')}>
-          Todos
+        <button
+          className={`tab-btn ${vistaActiva === 'entregados' ? 'active' : ''}`}
+          onClick={() => cambiarVista('entregados')}
+        >
+          Entregados
+        </button>
+        <button
+          className={`tab-btn ${vistaActiva === 'pagados' ? 'active' : ''}`}
+          onClick={() => cambiarVista('pagados')}
+        >
+          Pagados
         </button>
       </div>
 
@@ -195,7 +234,7 @@ const CocinaView = () => {
       <div className="pedidos-container">
         {!loading && pedidosFiltrados().length === 0 && (
           <div className="empty-state">
-            <h3>No hay pedidos {vistaActiva !== 'todos' ? `en estado "${vistaActiva}"` : 'en este momento'}</h3>
+            <h3>No hay pedidos en estado "{vistaActiva}"</h3>
             <p>Los nuevos pedidos aparecerán automáticamente aquí</p>
           </div>
         )}

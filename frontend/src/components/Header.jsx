@@ -79,7 +79,7 @@ export default function Header({ isNightMode, onToggleNightMode }) {
           )}
           
           {user?.role === 'EncargadoCocina' && (
-            <NavLink to="/encargado-cocina" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#f44336' }}>
+            <NavLink to="/encargado-cocina?vista=pendientes" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold', color: '#f44336' }}>
               MI MÓDULO
             </NavLink>
           )}

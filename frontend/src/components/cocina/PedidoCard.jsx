@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { formatCurrency } from '../../utils/currencyFormatter';
 import './PedidoCard.css';
 
 /**
@@ -65,15 +64,16 @@ const PedidoCard = ({ pedido, onIniciar, onFinalizar, actualizando }) => {
       {/* Header del pedido */}
       <div className="pedido-header">
         <div className="pedido-info-principal">
-          <h3 className="pedido-numero">{pedido.numeroPedido}</h3>
-          <span className="pedido-mesa">{pedido.tipoPedido === 'Domicilio' ? 'Domicilio' : `Mesa ${pedido.numeroMesa}`}</span>
+          <h3 className="pedido-numero">PEDIDO #{pedido.numeroPedido}</h3>
         </div>
         <div className="pedido-tiempo">
           <div className="tiempo-creacion">{formatearFecha(pedido.fechaCreacion)}</div>
-          <div className="tiempo-transcurrido">
-            {tiempoTranscurrido()}
-          </div>
         </div>
+      </div>
+
+      <div className="pedido-mesa-linea">
+        <span>{pedido.tipoPedido === 'Domicilio' ? 'DOMICILIO' : `MESA ${pedido.numeroMesa}`}</span>
+        <span className="tiempo-transcurrido">Hace {tiempoTranscurrido()}</span>
       </div>
 
       {/* Estado actual */}
@@ -81,15 +81,8 @@ const PedidoCard = ({ pedido, onIniciar, onFinalizar, actualizando }) => {
         <span className="estado-badge">{pedido.estado}</span>
       </div>
 
-      {/* Información del mozo */}
-      <div className="pedido-mozo">
-        <span className="label">Mozo:</span>
-        <span className="valor">{pedido.nombreMozo}</span>
-      </div>
-
       {/* Lista de productos */}
       <div className="pedido-productos">
-        <h4>Productos:</h4>
         {pedido.productos && pedido.productos.length > 0 ? (
           <ul>
             {pedido.productos.map((item, index) => {
@@ -97,18 +90,16 @@ const PedidoCard = ({ pedido, onIniciar, onFinalizar, actualizando }) => {
               const cantidad = item.cantidad || 0;
               const nombre = item.nombre || (item.producto?.nombre) || 'Producto sin nombre';
               const observaciones = item.observaciones || '';
-              const precioUnitario = item.precioUnitario || 0;
               
               return (
                 <li key={item._id || index} className="producto-item">
                   <div className="producto-info">
                     <span className="producto-cantidad">{cantidad}x</span>
                     <span className="producto-nombre">{nombre}</span>
-                     <span className="producto-precio">${formatCurrency(precioUnitario)}</span>
                   </div>
                   {observaciones && (
                     <p className="producto-observaciones">
-                      {observaciones}
+                      • {observaciones}
                     </p>
                   )}
                 </li>
@@ -123,10 +114,16 @@ const PedidoCard = ({ pedido, onIniciar, onFinalizar, actualizando }) => {
       {/* Observaciones generales */}
       {pedido.observacionesGenerales && (
         <div className="pedido-observaciones">
-          <strong>Observaciones:</strong>
+          <strong>Observación:</strong>
           <p>{pedido.observacionesGenerales}</p>
         </div>
       )}
+
+      {/* Información del mozo */}
+      <div className="pedido-mozo">
+        <span className="label">Mozo:</span>
+        <span className="valor">{pedido.nombreMozo}</span>
+      </div>
 
       {pedido.estado === 'Pendiente' && (
         <button
