@@ -6,7 +6,7 @@ import {
 } from './pedidos.controllers.js';
 import { positiveId, requireCondition as ensure } from '../database/mysql/transaction.js';
 
-const ESTADOS_COCINA = ['Pendiente', 'En Preparación', 'Listo'];
+const ESTADOS_COCINA = ['Pendiente', 'En Preparación', 'Listo', 'Entregado', 'Cobrado'];
 function manejar(operacion) {
   return async (req, res) => {
     try {
@@ -71,6 +71,8 @@ export const getEstadisticasCocina = manejar(async () => {
         COALESCE(SUM(p.estado = 'Pendiente'), 0) pendientes,
         COALESCE(SUM(p.estado = 'En Preparación'), 0) enPreparacion,
         COALESCE(SUM(p.estado = 'Listo'), 0) listos,
+        COALESCE(SUM(p.estado = 'Entregado'), 0) entregados,
+        COALESCE(SUM(p.estado = 'Cobrado'), 0) pagados,
         COALESCE(SUM(p.estado <> 'Cancelado' AND p.fecha_creacion >= dia.inicio
           AND p.fecha_creacion < DATE_ADD(dia.inicio, INTERVAL 1 DAY)), 0) totalHoy
       FROM pedidos p CROSS JOIN dia WHERE p.activo = TRUE
