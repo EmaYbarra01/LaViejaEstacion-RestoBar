@@ -359,3 +359,92 @@
     flex: 1;
   }
 }
+
+.employee-panel-night .cocina-view,
+.employee-panel-night .estadisticas-bar,
+.employee-panel-night .filtros-tabs,
+.employee-panel-night .footer-info,
+.employee-panel-night .empty-state,
+.employee-panel-night .loading-container,
+.employee-panel-night .pedidos-container {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+  background: #382a26 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22) !important;
+}
+.employee-panel-night .cocina-title,
+.employee-panel-night .cocina-subtitle,
+.employee-panel-night .stat-label,
+.employee-panel-night .ultimo-update,
+.employee-panel-night .conexion-status,
+.employee-panel-night .empty-state h3,
+.employee-panel-night .empty-state p {
+  color: #f3e7cd !important;
+}
+.employee-panel-night .estadisticas-bar .stat-item {
+  display: flex !important;
+  min-width: 120px;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  color: #f3e7cd !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.employee-panel-night .estadisticas-bar .stat-label {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  color: #f3e7cd !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  background: transparent !important;
+}
+.employee-panel-night .stat-value,
+.employee-panel-night .stat-value.pendientes,
+.employee-panel-night .stat-value.preparacion,
+.employee-panel-night .stat-value.listos,
+.employee-panel-night .stat-value.total {
+  color: #241a14 !important;
+  border-color: rgba(201, 169, 106, 0.34) !important;
+  background: #c9a96a !important;
+}
+.employee-panel-night .filtros-tabs .tab-btn {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.28) !important;
+  background: #2f2320 !important;
+}
+.employee-panel-night .filtros-tabs .tab-btn:hover,
+.employee-panel-night .filtros-tabs .tab-btn.active {
+  color: #241a14 !important;
+  border-color: #c9a96a !important;
+  background: #c9a96a !important;
+}
+
+:root[data-theme='night'] .cocina-view .footer-info,
+:root[data-theme='night'] .cocina-view .pedidos-container,
+:root[data-theme='night'] .cocina-view .loading-container,
+:root[data-theme='night'] .cocina-view .empty-state {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+  background: #382a26 !important;
+}
+
+.employee-panel-night .employee-page-content .footer-info,
+:root[data-theme='night'] .employee-panel-night .employee-page-content .footer-info {
+  color: #f3e7cd !important;
+  border: 1px solid rgba(201, 169, 106, 0.24) !important;
+  background: #382a26 !important;
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.22) !important;
+}
+.employee-panel-night .employee-page-content .footer-info .conexion-status,
+.employee-panel-night .employee-page-content .footer-info .ultimo-update {
+  color: #f3e7cd !important;
+}

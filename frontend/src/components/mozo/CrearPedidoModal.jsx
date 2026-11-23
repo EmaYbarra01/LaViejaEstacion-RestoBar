@@ -8,6 +8,7 @@ import './CrearPedidoModal.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 const BACKEND_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+const FILTROS_MENU = ['Comidas', 'Bebidas', 'Postres'];
 
 const CrearPedidoModal = ({ mesas, onClose }) => {
   const { user } = useUserStore();
@@ -15,7 +16,6 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
   const [paso, setPaso] = useState(1); // 1: Mesa, 2: Productos, 3: Confirmación
   const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [productos, setProductos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Comidas');
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -55,10 +55,6 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
       });
       
       setProductos(response.data);
-      
-      // Extraer categorías únicas (sin 'Todas')
-      const cats = [...new Set(response.data.map(p => p.categoria))];
-      setCategorias(cats);
     } catch (error) {
       console.error('Error al cargar productos:', error);
     }
@@ -267,8 +263,10 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
       return cumpleBusqueda && estaDisponible;
     }
     
-    // Si no hay búsqueda, filtrar solo por categoría
-    const cumpleCategoria = p.categoria === categoriaSeleccionada;
+    // Si no hay búsqueda, filtrar solo por una de las tres categorías principales
+    const cumpleCategoria = categoriaSeleccionada === 'Bebidas'
+      ? (p.categoria === 'Bebidas' || p.categoria === 'Bebidas Alcohólicas')
+      : p.categoria === categoriaSeleccionada;
     return cumpleCategoria && estaDisponible;
   });
 
@@ -328,11 +326,14 @@ const CrearPedidoModal = ({ mesas, onClose }) => {
               </div>
 
               <div className="categorias-tabs">
-                {categorias.map(cat => (
+                {FILTROS_MENU.map(cat => (
                   <button
                     key={cat}
                     className={`categoria-tab ${categoriaSeleccionada === cat ? 'active' : ''}`}
-                    onClick={() => setCategoriaSeleccionada(cat)}
+                    onClick={() => {
+                      setBusqueda('');
+                      setCategoriaSeleccionada(cat);
+                    }}
                   >
                     {cat}
                   </button>

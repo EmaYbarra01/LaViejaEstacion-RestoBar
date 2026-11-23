@@ -25,6 +25,13 @@
 .pd-toggle button.active { background: var(--mv-wine) !important; color: var(--mv-cream) !important; }
 
 .pd-tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 26px; }
+.pd-search { display: flex; align-items: center; max-width: 620px; margin: 0 auto 18px; border: 1px solid var(--mv-line); border-radius: 30px; background: var(--mv-card-soft); padding: 0 14px 0 18px; }
+.pd-search > svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--mv-wine-solid); }
+.mv-night .pd-search > svg { color: var(--mv-gold); }
+.pd-search input { flex: 1; min-width: 0; height: 48px; border: 0; outline: 0; background: transparent; color: var(--mv-text); font: 500 .95rem Montserrat, sans-serif; padding: 0 12px; }
+.pd-search input::placeholder { color: var(--mv-muted); }
+.pd-search button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: var(--mv-wine); color: var(--mv-cream); cursor: pointer; }
+.pd-search button svg { width: 12px; height: 12px; }
 .pd-tab { display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 24px; border: 1px solid var(--mv-line) !important; border-radius: 30px; background: var(--mv-card-soft) !important; color: var(--mv-text) !important; font: 600 .9rem Montserrat, sans-serif; cursor: pointer; box-shadow: none !important; }
 .pd-tab svg { width: 20px; height: 20px; color: var(--mv-wine-solid); }
 .mv-night .pd-tab svg { color: var(--mv-gold); }

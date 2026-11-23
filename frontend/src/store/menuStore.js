@@ -44,7 +44,10 @@ const useMenuStore = create((set, get) => ({
         return menuPorCategoria;
       }, {});
       const categorias = Object.keys(menu);
-      const primeraCategoria = categorias[0] || null;
+      const categoriasPrincipales = ['Comidas', 'Bebidas', 'Bebidas Alcohólicas', 'Postres'];
+      const primeraCategoria = categoriasPrincipales.find((categoria) =>
+        categorias.includes(categoria) && categoria !== 'Bebidas Alcohólicas'
+      ) || categorias[0] || null;
       // Aplanar productos para búsquedas
       const todosLosProductos = [];
       Object.entries(menu).forEach(([categoria, productos]) => {

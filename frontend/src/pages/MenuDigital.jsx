@@ -14,7 +14,6 @@ import {
   FaGlassMartiniAlt,
   FaIceCream,
   FaBreadSlice,
-  FaChevronDown,
   FaClock,
   FaCheckCircle,
   FaSync,
@@ -24,7 +23,8 @@ import {
   FaPlus,
   FaMoon,
   FaSun,
-  FaArrowUp
+  FaArrowUp,
+  FaSearch
 } from 'react-icons/fa';
 import useMenuStore from '../store/menuStore';
 import ProductoCard from '../components/menu/ProductoCard';
@@ -80,8 +80,7 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   } = useMenuStore();
 
   // Estado local para búsqueda y UI
-  const [expandedCategory, setExpandedCategory] = useState(null);
-  const [vistaActiva, setVistaActiva] = useState('categorias'); // 'categorias' o 'grid'
+  const [busqueda, setBusqueda] = useState('');
   const [pedido, setPedido] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1);
@@ -157,14 +156,6 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
       }
     }
   }, [productoIdInicial, productoSeleccionado, productosDisponibles]);
-
-  const toggleCategory = (categoria) => {
-    setExpandedCategory((current) => {
-      const nextValue = current === categoria ? null : categoria;
-      setCategoriaActiva(nextValue);
-      return nextValue;
-    });
-  };
 
   const handleRefresh = async () => {
     await refreshMenu();
@@ -319,34 +310,24 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
       );
     }
 
-    if (vistaActiva === 'categorias') {
-      return Object.entries(menuPrincipal).map(([categoria, productos]) => (
-        <div
-          key={categoria}
-          className="mv-accordion"
-          id={`accordion-${categoria.toLowerCase().replace(/\s+/g, '-')}`}
-        >
-          <button
-            type="button"
-            className={`mv-acc-header ${expandedCategory === categoria ? 'active' : ''}`}
-            onClick={() => toggleCategory(categoria)}
-            aria-expanded={expandedCategory === categoria}
-          >
-            <span className="mv-acc-title">
-              {renderCategoryIcon(categoria, 'mv-acc-icon')}
-              <span>{categoria}</span>
-              <span className="pd-count">({productos.length})</span>
-            </span>
-            <FaChevronDown className={`mv-chevron ${expandedCategory === categoria ? 'rotated' : ''}`} />
-          </button>
-          {expandedCategory === categoria && (
-            <div className="mv-acc-content">{renderProductos(productos)}</div>
-          )}
+    const termino = busqueda.trim().toLowerCase();
+    const productosAMostrar = termino
+      ? Object.values(menuPrincipal).flat().filter((producto) =>
+          producto.nombre?.toLowerCase().includes(termino)
+          || producto.descripcion?.toLowerCase().includes(termino)
+        )
+      : menuPrincipal[categoriaActiva] || [];
+
+    if (productosAMostrar.length === 0) {
+      return (
+        <div className="pd-state">
+          <h2>No se encontraron productos</h2>
+          <p>{termino ? `No hay coincidencias para "${busqueda.trim()}".` : 'No hay productos disponibles en esta categoría.'}</p>
         </div>
-      ));
+      );
     }
 
-    return renderProductos(menuPrincipal[categoriaActiva] || []);
+    return renderProductos(productosAMostrar);
   };
 
   return (
@@ -407,35 +388,44 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
               <span>Mi pedido</span>
               {pedido.length > 0 && <strong className="pd-btn-count">{pedido.length}</strong>}
             </button>
-            <div className="pd-toggle">
-              <button type="button" className={vistaActiva === 'categorias' ? 'active' : ''} onClick={() => setVistaActiva('categorias')}>
-                Categorías
-              </button>
-              <button type="button" className={vistaActiva === 'grid' ? 'active' : ''} onClick={() => setVistaActiva('grid')}>
-                Todo
-              </button>
-            </div>
           </div>
 
-          {vistaActiva === 'grid' && (
-            <div className="pd-tabs">
-              {Object.keys(menuPrincipal).map((categoria) => (
-                <button
-                  type="button"
-                  key={categoria}
-                  className={`pd-tab ${categoriaActiva === categoria ? 'active' : ''}`}
-                  onClick={() => setCategoriaActiva(categoria)}
-                >
-                  {renderCategoryIcon(categoria)}
-                  <span>{categoria}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="pd-search">
+            <FaSearch aria-hidden="true" />
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(event) => setBusqueda(event.target.value)}
+              placeholder="Buscar comida, bebida o postre..."
+              aria-label="Buscar productos"
+            />
+            {busqueda && (
+              <button type="button" onClick={() => setBusqueda('')} aria-label="Limpiar búsqueda">
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <div className="pd-tabs">
+            {Object.keys(menuPrincipal).map((categoria) => (
+              <button
+                type="button"
+                key={categoria}
+                className={`pd-tab ${!busqueda && categoriaActiva === categoria ? 'active' : ''}`}
+                onClick={() => {
+                  setBusqueda('');
+                  setCategoriaActiva(categoria);
+                }}
+              >
+                {renderCategoryIcon(categoria)}
+                <span>{categoria}</span>
+              </button>
+            ))}
+          </div>
 
           {renderContenido()}
 
-          <div className="pd-ready">¿Listo para ordenar? Llamá al mozo o acercate a la barra.</div>
+          <div className="pd-ready">¿Listo para ordenar? Llamá al mozo o hacé tu pedido desde el menú digital.</div>
         </div>
       </main>
 
