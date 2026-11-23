@@ -6,17 +6,17 @@
   overflow: hidden;
   color: #f3e7cd;
   font-family: Montserrat, Arial, sans-serif;
-  background: #241a14 url('/entrar-background.jpeg') center / cover no-repeat;
+  background: #241a14 url('/restaurant-ambient-light-food-photography-setup.jpg') center / cover no-repeat;
 }
 .enter-page-overlay { position: absolute; inset: 0; background: rgba(18, 12, 9, .25); }
-.enter-brand { position: absolute; top: 18px; left: 34px; z-index: 2; width: 140px; text-align: center; }
+.enter-brand { position: fixed; top: 18px; left: 34px; z-index: 2; width: 140px; text-align: center; }
 .enter-brand a { color: inherit; text-decoration: none; }
 .enter-brand img { display: block; width: 125px; height: 125px; margin: 0 auto; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 2px 5px #000); }
 .enter-brand span { display: block; margin-top: -7px; font: 500 15px "Cormorant Garamond", Georgia, serif; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
-.enter-navigation { position: absolute; top: 30px; right: 190px; left: 195px; z-index: 2; display: flex; justify-content: center; gap: clamp(14px, 2.4vw, 36px); }
+.enter-navigation { position: fixed; top: 30px; right: 190px; left: 195px; z-index: 2; display: flex; justify-content: center; gap: clamp(14px, 2.4vw, 36px); }
 .enter-navigation a { color: #fff; font-size: clamp(18px, 2vw, 24px); font-weight: 600; text-decoration: none; text-transform: uppercase; text-shadow: 0 2px 4px #000; white-space: nowrap; cursor: pointer; }
 .enter-navigation a:hover { color: #f3e7cd; }
-.enter-datetime { position: absolute; top: 20px; right: 14px; z-index: 2; min-width: 182px; padding: 14px 18px; border-radius: 8px 0 0 8px; background: rgba(25, 21, 17, .62); text-align: right; backdrop-filter: blur(8px); }
+.enter-datetime { position: fixed; top: 20px; right: 14px; z-index: 2; min-width: 182px; padding: 14px 18px; border-radius: 8px 0 0 8px; background: rgba(25, 21, 17, .62); text-align: right; backdrop-filter: blur(8px); }
 .enter-datetime div { font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; opacity: .86; }
 .enter-datetime strong { display: block; margin-top: 5px; color: #c9a96a; font: 600 22px "Courier New", monospace; white-space: nowrap; }
 .enter-actions { position: absolute; right: 18px; bottom: 30px; z-index: 2; display: grid; gap: 12px; }

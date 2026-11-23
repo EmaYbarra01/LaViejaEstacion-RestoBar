@@ -4,14 +4,14 @@
 
 .caja-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  background: linear-gradient(135deg, #f4ead7 0%, #eadbc3 100%);
   padding-top: 80px;
   padding-bottom: 2rem;
 }
 
 /* Header */
 .caja-header {
-  background: linear-gradient(135deg, var(--app-ink) 0%, #16213e 100%);
+  background: linear-gradient(135deg, #3b2428 0%, #4f222b 100%);
   color: white;
   padding: 1.5rem 2rem;
   display: flex;
@@ -264,8 +264,8 @@
 }
 
 .estado-servido {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #ead9b0;
+  color: #4f222b;
 }
 
 .pedido-item-info {
@@ -399,8 +399,8 @@
 }
 
 .badge-servido {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #ead9b0;
+  color: #4f222b;
 }
 
 .badge-pendiente {
@@ -409,8 +409,8 @@
 }
 
 .badge-entregado {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #ead9b0;
+  color: #4f222b;
 }
 
 .badge-cobrado {
@@ -612,8 +612,8 @@
 }
 
 .historial-caja-header {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #fffaf1;
+  border: 1px solid rgba(79, 34, 43, 0.16);
   border-radius: 12px 12px 0 0;
   padding: 1rem 1.25rem;
 }
@@ -634,8 +634,8 @@
   display: flex;
   gap: 0.75rem;
   align-items: end;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #fffaf1;
+  border: 1px solid rgba(79, 34, 43, 0.16);
   border-top: none;
   padding: 0.85rem 1.25rem;
   flex-wrap: wrap;
@@ -691,8 +691,8 @@
 }
 
 .historial-lista {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #fffaf1;
+  border: 1px solid rgba(79, 34, 43, 0.16);
   border-top: none;
   border-radius: 0 0 12px 12px;
   overflow: hidden;
@@ -716,7 +716,7 @@
   font-size: 0.82rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  background: linear-gradient(135deg, #eadbc3 0%, #ead9b0 100%);
 }
 
 .historial-dia-header::before,
@@ -969,4 +969,187 @@
   .historial-item-side {
     align-items: flex-start;
   }
+}
+
+.employee-panel-night .caja-container,
+.employee-panel-night .caja-toolbar,
+.employee-panel-night .pedidos-panel,
+.employee-panel-night .cobro-panel,
+.employee-panel-night .panel-header,
+.employee-panel-night .detalle-info,
+.employee-panel-night .detalle-totales,
+.employee-panel-night .pedido-detalle,
+.employee-panel-night .metodo-info,
+.employee-panel-night .monto-value,
+.employee-panel-night .panel-placeholder {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+  background: #382a26 !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24) !important;
+}
+.employee-panel-night .caja-header {
+  background: linear-gradient(135deg, #241a14 0%, #4f222b 100%) !important;
+  border-bottom: 1px solid rgba(201, 169, 106, 0.24);
+}
+.employee-panel-night .caja-toolbar {
+  border-bottom: 1px solid rgba(201, 169, 106, 0.24) !important;
+}
+.employee-panel-night .search-input,
+.employee-panel-night .monto-value {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.34) !important;
+  background: #2f2320 !important;
+}
+.employee-panel-night .search-input::placeholder {
+  color: rgba(243, 231, 205, 0.58) !important;
+}
+.employee-panel-night .pedido-item,
+.employee-panel-night .pedido-item.selected {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+  background: #2f2320 !important;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.20) !important;
+}
+.employee-panel-night .pedido-item:hover,
+.employee-panel-night .pedido-item.selected {
+  border-color: #c9a96a !important;
+}
+.employee-panel-night .pedido-numero,
+.employee-panel-night .pedido-item-info strong,
+.employee-panel-night .pedido-total,
+.employee-panel-night .panel-header h2,
+.employee-panel-night .detalle-productos h3,
+.employee-panel-night .forma-pago h3,
+.employee-panel-night .info-row strong,
+.employee-panel-night .total-linea,
+.employee-panel-night .monto-input-group label,
+.employee-panel-night .metodo-info {
+  color: #f3e7cd !important;
+}
+.employee-panel-night .pedido-item-info p,
+.employee-panel-night .pedido-hora,
+.employee-panel-night .info-row span,
+.employee-panel-night .observacion,
+.employee-panel-night .panel-placeholder h3,
+.employee-panel-night .panel-placeholder {
+  color: #d9c49a !important;
+}
+.employee-panel-night .pedido-item-footer,
+.employee-panel-night .info-row,
+.employee-panel-night .detalle-productos td,
+.employee-panel-night .detalle-totales,
+.employee-panel-night .total-linea.total {
+  border-color: rgba(201, 169, 106, 0.24) !important;
+}
+.employee-panel-night .detalle-productos thead,
+.employee-panel-night .detalle-productos th {
+  color: #d9c49a !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+  background: #2f2320 !important;
+}
+.employee-panel-night .detalle-productos td {
+  color: #f3e7cd !important;
+  background: transparent !important;
+}
+.employee-panel-night .metodo-info {
+  background: #2f2320 !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+}
+.employee-panel-night .metodo-info.active,
+.employee-panel-night .metodo-info:hover {
+  color: #241a14 !important;
+  border-color: #c9a96a !important;
+  background: #c9a96a !important;
+  box-shadow: none !important;
+}
+.employee-panel-night .metodo-info.active small,
+.employee-panel-night .metodo-info.active {
+  color: #241a14 !important;
+}
+.employee-panel-night .cambio-info {
+  color: #241a14 !important;
+  border: 1px solid rgba(201, 169, 106, 0.34);
+  background: #c9a96a !important;
+}
+.employee-panel-night .cambio-info strong {
+  color: #241a14 !important;
+}
+.employee-panel-night .estado-listo,
+.employee-panel-night .badge-listo,
+.employee-panel-night .badge-cobrado {
+  color: #241a14 !important;
+  background: #c9a96a !important;
+}
+.employee-panel-night .estado-servido,
+.employee-panel-night .badge-servido,
+.employee-panel-night .badge-entregado {
+  color: #f3e7cd !important;
+  background: #64303a !important;
+}
+
+.employee-panel-night .historial-caja,
+.employee-panel-night .historial-caja-header,
+.employee-panel-night .historial-busqueda,
+.employee-panel-night .historial-lista,
+.employee-panel-night .historial-empty {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+  background: #382a26 !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24) !important;
+}
+.employee-panel-night .historial-caja-header {
+  background: #382a26 !important;
+  border-radius: 12px 12px 0 0;
+}
+.employee-panel-night .historial-caja-header h2,
+.employee-panel-night .historial-caja-header p,
+.employee-panel-night .historial-fecha-range label,
+.employee-panel-night .historial-dia-header,
+.employee-panel-night .historial-item-main strong,
+.employee-panel-night .historial-item-main span,
+.employee-panel-night .historial-item-side small,
+.employee-panel-night .historial-empty {
+  color: #f3e7cd !important;
+}
+.employee-panel-night .historial-caja-header p,
+.employee-panel-night .historial-item-main span,
+.employee-panel-night .historial-item-side small {
+  color: #d9c49a !important;
+}
+.employee-panel-night .historial-busqueda-input,
+.employee-panel-night .historial-limpiar-filtro {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.34) !important;
+  background: #2f2320 !important;
+}
+.employee-panel-night .historial-busqueda-input::placeholder {
+  color: rgba(243, 231, 205, 0.58) !important;
+}
+.employee-panel-night .historial-dia-group,
+.employee-panel-night .historial-item {
+  border-color: rgba(201, 169, 106, 0.18) !important;
+}
+.employee-panel-night .historial-dia-header {
+  background: #2f2320 !important;
+  border-top: 1px solid rgba(201, 169, 106, 0.18) !important;
+  color: #d9c49a !important;
+}
+.employee-panel-night .historial-dia-header::before,
+.employee-panel-night .historial-dia-header::after {
+  background: linear-gradient(to right, rgba(201, 169, 106, 0.48), transparent) !important;
+}
+.employee-panel-night .historial-item:hover {
+  background: rgba(201, 169, 106, 0.06);
+}
+.employee-panel-night .historial-item-side .badge-pagada,
+.employee-panel-night .historial-item-side .badge-cobrado,
+.employee-panel-night .historial-item-side .badge-listo {
+  color: #241a14 !important;
+  background: #c9a96a !important;
+  border: 1px solid rgba(201, 169, 106, 0.34);
+}
+.employee-panel-night .historial-item-side .badge-pendiente {
+  color: #f3e7cd !important;
+  background: #64303a !important;
+  border: 1px solid rgba(201, 169, 106, 0.24);
 }

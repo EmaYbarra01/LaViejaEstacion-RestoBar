@@ -17,16 +17,16 @@
 }
 
 :root[data-theme='night'] {
-  --app-ink: #1d1410;
-  --app-ink-soft: #3a2229;
-  --app-surface: #2d211c;
+  --app-ink: #241a14;
+  --app-ink-soft: #382a26;
+  --app-surface: #382a26;
   --app-surface-muted: #241a14;
   --app-border: #5f463d;
   --app-text: #f3e7cd;
-  --app-text-muted: #cdb99a;
+  --app-text-muted: #d9c49a;
   --app-accent: #c9a96a;
-  --app-accent-dark: #dcc08a;
-  --app-accent-soft: #3d2a26;
+  --app-accent-dark: #64303a;
+  --app-accent-soft: #382a26;
   --app-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   color-scheme: dark;
 }
@@ -555,7 +555,17 @@ button:hover,
 .home-tagline {
   position: relative;
   z-index: 2;
-  color: var(--app-surface) !important;
+  color: #f3e7cd !important;
+}
+
+.home-title {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95) !important;
+}
+
+.home-tagline {
+  color: #f3e7cd !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95) !important;
 }
 
 .home-subtitle,

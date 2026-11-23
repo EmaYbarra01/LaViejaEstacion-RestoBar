@@ -286,6 +286,56 @@
   background: var(--panel-wine);
 }
 
+/* Night mode overrides for kitchen command cards. */
+.employee-panel-night .pedido-card,
+.employee-panel-night .pedido-card.urgente,
+.employee-panel-night .pedido-card.advertencia {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.38) !important;
+  background: #382a26 !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28) !important;
+}
+.employee-panel-night .pedido-card::after {
+  background: radial-gradient(circle at 4px 0, transparent 4px, rgba(201, 169, 106, 0.42) 4.5px) 0 0 / 8px 8px repeat-x;
+}
+.employee-panel-night .pedido-header,
+.employee-panel-night .pedido-estado,
+.employee-panel-night .pedido-mozo,
+.employee-panel-night .pedido-productos,
+.employee-panel-night .pedido-observaciones {
+  border-color: rgba(201, 169, 106, 0.28) !important;
+}
+.employee-panel-night .pedido-comanda,
+.employee-panel-night .pedido-tiempo,
+.employee-panel-night .pedido-mozo .label,
+.employee-panel-night .pedido-observaciones p,
+.employee-panel-night .sin-productos {
+  color: #d9c49a !important;
+}
+.employee-panel-night .pedido-numero,
+.employee-panel-night .pedido-mesa-linea,
+.employee-panel-night .pedido-mozo .valor,
+.employee-panel-night .producto-nombre,
+.employee-panel-night .producto-cantidad,
+.employee-panel-night .pedido-observaciones strong {
+  color: #f3e7cd !important;
+}
+.employee-panel-night .estado-badge,
+.employee-panel-night .estado-preparacion .estado-badge,
+.employee-panel-night .estado-pendiente .estado-badge,
+.employee-panel-night .estado-listo .estado-badge {
+  color: #241a14 !important;
+  background: #c9a96a !important;
+}
+.employee-panel-night .pedido-accion-finalizar {
+  color: #f3e7cd !important;
+  background: #64303a !important;
+}
+.employee-panel-night .pedido-accion-iniciar {
+  color: #241a14 !important;
+  background: #c9a96a !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .pedido-card {

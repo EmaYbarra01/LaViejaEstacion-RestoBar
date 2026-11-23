@@ -1,18 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
 
 .employee-panel {
-  --panel-wine: #642f3a;
-  --panel-dark: #47232d;
-  --panel-soft: #8e5960;
-  --panel-cream: #f4ead7;
-  --panel-beige: #eadbc3;
-  --panel-gold: #b89a64;
+  --panel-wine: #4f222b;
+  --panel-dark: #3b2428;
+  --panel-soft: #64303a;
+  --panel-cream: #f3e7cd;
+  --panel-beige: #ead9b0;
+  --panel-gold: #c9a96a;
   display: grid;
   grid-template-columns: 238px minmax(0, 1fr);
   height: 100vh;
   overflow: hidden;
   color: #3d3030;
-  background: linear-gradient(135deg, #f1e5d1, #dcc6b6 48%, #eadcca);
+  background:
+    linear-gradient(rgba(217, 196, 154, 0.78), rgba(217, 196, 154, 0.88)),
+    url('/menu-background.png') center / cover fixed no-repeat;
   font-family: Montserrat, Arial, sans-serif;
 }
 .employee-sidebar {
@@ -41,7 +43,7 @@
   overflow: hidden;
 }
 
-.employee-topbar { position: relative; display: flex; align-items: center; justify-content: center; padding: 0 26px; border-bottom: 1px solid rgba(100,47,58,.15); background: rgba(255,250,241,.52); }
+.employee-topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 0 26px; border-bottom: 1px solid rgba(100,47,58,.15); background: rgba(255,250,241,.96); backdrop-filter: blur(10px); }
 .employee-topbar h1 { margin: 0; color: var(--panel-dark); font: 700 30px "Playfair Display", Georgia, serif; letter-spacing: 2px; }
 .employee-top-actions { position: absolute; top: 8px; right: 22px; display: flex; align-items: center; gap: 8px; }
 .employee-clock { display: grid; gap: 2px; margin-right: 4px; color: var(--panel-wine); text-align: right; }
@@ -67,7 +69,48 @@
 .employee-content-heading > span { padding: 8px 12px; border-radius: 20px; color: var(--panel-dark); background: rgba(184,154,100,.22); font-size: 11px; }
 .employee-page-content > * { max-width: none; }
 .employee-footer { display: flex; align-items: center; justify-content: center; border-top: 1px solid rgba(71,35,45,.28); color: var(--panel-dark); background: rgba(255,250,241,.8); font-size: 12px; font-weight: 600; letter-spacing: .7px; }
-.employee-panel-night { filter: saturate(.82) brightness(.82); }
+.employee-panel-night {
+  --panel-wine: #64303a;
+  --panel-dark: #f3e7cd;
+  --panel-soft: #8a5a1f;
+  --panel-cream: #f3e7cd;
+  --panel-beige: #382a26;
+  --panel-gold: #c9a96a;
+  --app-ink: #241a14;
+  --app-ink-soft: #382a26;
+  --app-surface: #382a26;
+  --app-surface-muted: #241a14;
+  --app-border: #5f463d;
+  --app-text: #f3e7cd;
+  --app-text-muted: #d9c49a;
+  --app-accent: #64303a;
+  --app-accent-dark: #c9a96a;
+  --app-accent-soft: #382a26;
+  color: #f3e7cd;
+  background:
+    linear-gradient(rgba(36, 26, 20, 0.92), rgba(36, 26, 20, 0.94)),
+    url('/menu-background.png') center / cover fixed no-repeat;
+}
+.employee-panel-night .employee-content {
+  background: rgba(36, 26, 20, 0.38);
+}
+.employee-panel-night .employee-topbar {
+  color: var(--panel-cream);
+  border-bottom-color: rgba(201, 169, 106, 0.24);
+  background: rgba(36, 26, 20, 0.96);
+}
+.employee-panel-night .employee-topbar h1,
+.employee-panel-night .employee-content-heading h2,
+.employee-panel-night .employee-footer {
+  color: var(--panel-cream) !important;
+}
+.employee-panel-night .employee-content-heading p {
+  color: rgba(243, 231, 205, 0.78);
+}
+.employee-panel-night .employee-footer {
+  border-top-color: rgba(201, 169, 106, 0.24);
+  background: rgba(36, 26, 20, 0.96);
+}
 
 .employee-page-content > .superadmin-dashboard,
 .employee-page-content > .mozo-container,
@@ -758,4 +801,167 @@
   .employee-topbar h1 { font-size: 24px; }
   .employee-top-actions { right: 10px; transform: scale(.82); transform-origin: right top; }
   .approved-dashboard-grid { grid-template-columns: 1fr; }
+}
+
+/* Night mode: consistent, readable surfaces without changing the light theme. */
+.employee-panel-night .employee-sidebar {
+  background: linear-gradient(180deg, #241a14, #3b2428);
+  border-right: 1px solid rgba(201, 169, 106, 0.22);
+}
+.employee-panel-night .employee-nav-link {
+  color: #f3e7cd;
+}
+.employee-panel-night .employee-nav-link:hover,
+.employee-panel-night .employee-nav-link.active {
+  color: #241a14;
+  background: #c9a96a;
+}
+.employee-panel-night .employee-content-heading > span {
+  color: #f3e7cd;
+  background: rgba(201, 169, 106, 0.16);
+}
+.employee-panel-night .approved-info-card,
+.employee-panel-night .dashboard-card,
+.employee-panel-night .resumen-card,
+.employee-panel-night .pedido-card,
+.employee-panel-night .pedido-item,
+.employee-panel-night .supervision-pedido,
+.employee-panel-night .reserva-card,
+.employee-panel-night .modal-content,
+.employee-panel-night .table-container,
+.employee-panel-night .tabla-container,
+.employee-panel-night .employees-table-container,
+.employee-panel-night .calendario-grid-container,
+.employee-panel-night .lista-reservas-dia,
+.employee-panel-night .menu-section,
+.employee-panel-night .cuenta-pedido,
+.employee-panel-night .ticket-container,
+.employee-panel-night .admin-table-container,
+.employee-panel-night .products-filters,
+.employee-panel-night .admin-page-header,
+.employee-panel-night .panel-state,
+.employee-panel-night .empty-state,
+.employee-panel-night .loading-container {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.24) !important;
+  background: #382a26 !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24) !important;
+}
+.employee-panel-night .approved-info-card h3,
+.employee-panel-night .approved-rows strong,
+.employee-panel-night .approved-rows span,
+.employee-panel-night .employee-page-content h1,
+.employee-panel-night .employee-page-content h2,
+.employee-panel-night .employee-page-content h3,
+.employee-panel-night .employee-page-content h4,
+.employee-panel-night .employee-page-content p,
+.employee-panel-night .employee-page-content label,
+.employee-panel-night .employee-page-content td,
+.employee-panel-night .employee-page-content th,
+.employee-panel-night .employee-page-content span,
+.employee-panel-night .employee-page-content strong {
+  color: #f3e7cd !important;
+}
+.employee-panel-night .approved-info-card h3,
+.employee-panel-night .employee-page-content h1,
+.employee-panel-night .employee-page-content h2,
+.employee-panel-night .employee-page-content h3,
+.employee-panel-night .employee-page-content h4 {
+  color: #d9c49a !important;
+}
+.employee-panel-night .approved-rows {
+  border-bottom-color: rgba(201, 169, 106, 0.16);
+}
+.employee-panel-night .admin-table thead,
+.employee-panel-night .admin-table th,
+.employee-panel-night .tabla-reservas thead,
+.employee-panel-night .tabla-reservas th,
+.employee-panel-night .employees-table-container .MuiTableCell-head,
+.employee-panel-night .employee-page-content .table-header,
+.employee-panel-night .employee-page-content .tabla-header {
+  color: #d9c49a !important;
+  border-bottom-color: rgba(201, 169, 106, 0.24) !important;
+  background: #2f2320 !important;
+}
+.employee-panel-night .admin-table td,
+.employee-panel-night .tabla-reservas td,
+.employee-panel-night .employees-table-container .MuiTableCell-root,
+.employee-panel-night .employee-page-content .data-table > * {
+  color: #f3e7cd !important;
+  border-bottom-color: rgba(201, 169, 106, 0.14) !important;
+  background: transparent !important;
+}
+.employee-panel-night .admin-table tbody tr:hover,
+.employee-panel-night .tabla-reservas tbody tr:hover,
+.employee-panel-night .employees-table-container .MuiTableRow-hover:hover,
+.employee-panel-night .employee-page-content .reserva-card:hover {
+  background: rgba(201, 169, 106, 0.08) !important;
+}
+.employee-panel-night .employee-page-content input,
+.employee-panel-night .employee-page-content select,
+.employee-panel-night .employee-page-content textarea {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.34) !important;
+  background: #2f2320 !important;
+}
+.employee-panel-night .employee-page-content input::placeholder,
+.employee-panel-night .employee-page-content textarea::placeholder {
+  color: rgba(243, 231, 205, 0.58) !important;
+}
+.employee-panel-night .employee-page-content select option {
+  color: #f3e7cd;
+  background: #382a26;
+}
+.employee-panel-night .employee-page-content .admin-controls,
+.employee-panel-night .employee-page-content .filtros-container,
+.employee-panel-night .employee-page-content .calendario-navegacion,
+.employee-panel-night .employee-page-content .admin-header,
+.employee-panel-night .employee-page-content .admin-page-header,
+.employee-panel-night .employee-page-content .admin-reservas-header,
+.employee-panel-night .employee-page-content .calendario-header,
+.employee-panel-night .employee-page-content .mozo-toolbar,
+.employee-panel-night .employee-page-content .caja-toolbar,
+.employee-panel-night .employee-page-content .filtros-tabs,
+.employee-panel-night .employee-page-content .estadisticas-bar {
+  color: #f3e7cd !important;
+  border-color: rgba(201, 169, 106, 0.22) !important;
+  background: #382a26 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18) !important;
+}
+.employee-panel-night .employee-page-content button:not(.tab-button):not(.tab-btn) {
+  color: #f3e7cd;
+  border-color: rgba(201, 169, 106, 0.38) !important;
+  background: #64303a !important;
+}
+.employee-panel-night .employee-page-content button.active,
+.employee-panel-night .employee-page-content button:hover {
+  color: #241a14 !important;
+  border-color: #c9a96a !important;
+  background: #c9a96a !important;
+}
+.employee-panel-night .badge,
+.employee-panel-night .estado-badge,
+.employee-panel-night .status-badge,
+.employee-panel-night .pill,
+.employee-panel-night .alert,
+.employee-panel-night .stat-value {
+  color: #d9c49a !important;
+  border-color: rgba(201, 169, 106, 0.26) !important;
+  background: #4f222b !important;
+}
+.employee-panel-night .employee-page-content .admin-table tbody tr,
+.employee-panel-night .employee-page-content .tabla-reservas tbody tr,
+.employee-panel-night .employee-page-content .employees-table-container .MuiTableRow-root {
+  background: #382a26 !important;
+}
+.employee-panel-night .employee-page-content .admin-table tbody tr:nth-child(even),
+.employee-panel-night .employee-page-content .tabla-reservas tbody tr:nth-child(even),
+.employee-panel-night .employee-page-content .employees-table-container .MuiTableRow-root:nth-child(even) {
+  background: #2f2320 !important;
+}
+.employee-panel-night .employee-page-content .admin-table tbody tr td,
+.employee-panel-night .employee-page-content .tabla-reservas tbody tr td,
+.employee-panel-night .employee-page-content .employees-table-container .MuiTableCell-body {
+  color: #f3e7cd !important;
+  background: transparent !important;
 }
