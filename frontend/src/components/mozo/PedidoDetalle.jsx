@@ -7,6 +7,13 @@ import './PedidoDetalle.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
+const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
 const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) => {
   const [pedidoActual, setPedidoActual] = useState(pedido);
   const [loading, setLoading] = useState(false);
@@ -289,66 +296,95 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
     }
   };
   
-  const handlePagar = async () => {
-    if (isReadOnly) {
+  const imprimirCuenta = () => {
+    const ventana = window.open('', '_blank', 'width=420,height=700');
+
+    if (!ventana) {
       Swal.fire({
-        title: 'Modo Supervisión',
-        text: 'No puedes procesar pagos en modo solo lectura',
-        icon: 'info',
-        confirmButtonText: 'Entendido'
+        title: 'No se pudo abrir la impresión',
+        text: 'Permití las ventanas emergentes para imprimir la cuenta.',
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
       });
       return;
     }
-    
-    const result = await Swal.fire({
-      title: '¿Procesar pago?',
-      text: `Total a cobrar: ${formatCurrency(pedidoActual.total) || '0,00'}`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, procesar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#642f3a',
-      cancelButtonColor: '#6c757d'
-    });
-    
-    if (!result.isConfirmed) return;
-    
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      
-      // Cambiar estado a Cobrado
-      await axios.patch(
-        `${API_URL}/pedidos/${pedidoActual._id}/estado`,
-        { estado: 'Cobrado' },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-      
-      await Swal.fire({
-        title: '¡Pago procesado!',
-        text: 'El pedido ha sido marcado como cobrado',
-        icon: 'success',
-        confirmButtonText: 'Aceptar',
-        timer: 2000
-      });
-      
-      // Cerrar el modal y recargar la lista
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-    } catch (error) {
-      console.error('Error al procesar pago:', error);
-      Swal.fire({
-        title: 'Error',
-        text: 'Error al procesar el pago',
-        icon: 'error',
-        confirmButtonText: 'Aceptar'
-      });
-    } finally {
-      setLoading(false);
-    }
+
+    const productosHtml = (pedidoActual.productos || []).map((item) => `
+      <tr>
+        <td>${escapeHtml(item.cantidad)}</td>
+        <td>
+          ${escapeHtml(item.nombre)}
+          ${item.observaciones ? `<small>${escapeHtml(item.observaciones)}</small>` : ''}
+        </td>
+        <td>$${escapeHtml(formatCurrency(item.precioUnitario))}</td>
+        <td>$${escapeHtml(formatCurrency(item.precioUnitario * item.cantidad))}</td>
+      </tr>
+    `).join('');
+    const fecha = pedidoActual.fechaCreacion
+      ? new Date(pedidoActual.fechaCreacion).toLocaleString('es-AR')
+      : new Date().toLocaleString('es-AR');
+
+    ventana.document.open();
+    ventana.document.write(`
+      <!doctype html>
+      <html lang="es">
+        <head>
+          <meta charset="utf-8">
+          <title>Cuenta - Pedido ${escapeHtml(pedidoActual.numeroPedido || pedidoActual._id)}</title>
+          <style>
+            @page { size: 80mm auto; margin: 4mm; }
+            * { box-sizing: border-box; }
+            body { width: 72mm; margin: 0 auto; color: #111; font: 12px Arial, sans-serif; }
+            h1, p { margin: 0; }
+            header, footer { text-align: center; }
+            header { margin-bottom: 12px; }
+            h1 { font-size: 18px; }
+            .subtitulo { margin-top: 3px; }
+            .datos { margin: 10px 0; line-height: 1.5; }
+            .separador { border-top: 1px dashed #555; margin: 10px 0; }
+            table { width: 100%; border-collapse: collapse; font-size: 10px; }
+            th, td { padding: 4px 2px; text-align: left; vertical-align: top; }
+            th { border-bottom: 1px solid #555; }
+            td:first-child, th:first-child { width: 10%; }
+            td:nth-child(3), th:nth-child(3) { text-align: right; }
+            td:last-child, th:last-child { text-align: right; }
+            small { display: block; margin-top: 3px; }
+            .total { display: flex; justify-content: space-between; font-size: 15px; font-weight: bold; }
+            footer { margin-top: 14px; font-size: 10px; }
+          </style>
+        </head>
+        <body>
+          <header>
+            <h1>La Vieja Estación</h1>
+            <p class="subtitulo">Resto-Bar · Cuenta</p>
+          </header>
+          <div class="separador"></div>
+          <div class="datos">
+            <p><strong>Pedido:</strong> ${escapeHtml(pedidoActual.numeroPedido || pedidoActual._id)}</p>
+            <p><strong>${pedidoActual.tipoPedido === 'Domicilio' ? 'Servicio' : 'Mesa'}:</strong> ${escapeHtml(pedidoActual.tipoPedido === 'Domicilio' ? 'Domicilio' : pedidoActual.numeroMesa || 'S/N')}</p>
+            <p><strong>Mozo:</strong> ${escapeHtml(pedidoActual.nombreMozo || pedidoActual.mozo?.nombre || 'Sin mozo')}</p>
+            <p><strong>Fecha:</strong> ${escapeHtml(fecha)}</p>
+          </div>
+          <div class="separador"></div>
+          <table>
+            <thead>
+              <tr><th>Cant.</th><th>Producto</th><th>P. Unit.</th><th>Subtotal</th></tr>
+            </thead>
+            <tbody>${productosHtml}</tbody>
+          </table>
+          <div class="separador"></div>
+          <p class="total"><span>Total</span><span>$${escapeHtml(formatCurrency(pedidoActual.total))}</span></p>
+          <footer>
+            <div class="separador"></div>
+            <p>Pre-cuenta - No representa un pago</p>
+            <p>¡Gracias por su visita!</p>
+          </footer>
+        </body>
+      </html>
+    `);
+    ventana.document.close();
+    ventana.focus();
+    ventana.print();
   };
   
   const agregarItem = async () => {
@@ -591,21 +627,30 @@ const PedidoDetalle = ({ pedido, productos = [], onClose, isReadOnly = false }) 
         </div>
 
         {/* Footer con acciones */}
-        {pedidoActual.estado !== 'Entregado' && (
+        {pedidoActual.estado !== 'Cobrado' && (
           <div className="detalle-footer">
-            {pedidoActual.estado === 'Listo' && (
-              <button className="footer-btn" onClick={marcarComoEntregado} disabled={isReadOnly || loading}>
-                <span className="btn-icon">✓</span>
-                <span>Entrega</span>
-              </button>
+            {pedidoActual.estado !== 'Entregado' && (
+              <>
+                {pedidoActual.estado === 'Listo' && (
+                  <button className="footer-btn" onClick={marcarComoEntregado} disabled={isReadOnly || loading}>
+                    <span className="btn-icon">✓</span>
+                    <span>Entrega</span>
+                  </button>
+                )}
+
+                {puedeEditarPedido && (
+                  <button className="footer-btn" onClick={agregarItem} disabled={loading}>
+                    <span className="btn-icon">+</span>
+                    <span>Agregar Item</span>
+                  </button>
+                )}
+              </>
             )}
 
-            {puedeEditarPedido && (
-              <button className="footer-btn" onClick={agregarItem} disabled={loading}>
-                <span className="btn-icon">+</span>
-                <span>Agregar Item</span>
-              </button>
-            )}
+            <button className="footer-btn" onClick={imprimirCuenta}>
+              <span className="btn-icon">🧾</span>
+              <span>Cuenta</span>
+            </button>
           </div>
         )}
 

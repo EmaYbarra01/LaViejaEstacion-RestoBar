@@ -251,6 +251,88 @@
   gap: 2rem;
 }
 
+.top-products-card {
+  grid-column: 1 / -1;
+}
+
+.top-products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.top-product-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(100, 47, 58, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 250, 241, 0.88);
+}
+
+.top-product-rank {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--panel-wine);
+  color: var(--panel-cream);
+  font-weight: 700;
+}
+
+.top-product-image {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(100, 47, 58, 0.15);
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--panel-beige);
+}
+
+.top-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.top-product-name {
+  overflow: hidden;
+  color: var(--panel-dark);
+  font-weight: 700;
+  text-overflow: ellipsis;
+}
+
+.top-product-sold {
+  color: #75605a;
+  font-size: 0.875rem;
+}
+
+.top-products-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--panel-dark);
+  text-align: center;
+}
+
+.employee-panel-night .top-product-item {
+  border-color: rgba(201, 169, 106, 0.24);
+  background: rgba(36, 26, 20, 0.55);
+}
+
+.employee-panel-night .top-product-image {
+  border-color: rgba(201, 169, 106, 0.24);
+}
+
+.employee-panel-night .top-product-sold {
+  color: var(--panel-gold) !important;
+}
+
 .stat {
   display: flex;
   flex-direction: column;

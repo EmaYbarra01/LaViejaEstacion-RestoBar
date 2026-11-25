@@ -240,10 +240,16 @@ export function reportesService(pool) {
       const inv=await inventario(db,{necesitaReposicion:'true'});
       const alertas=inv.productos.filter(p=>p.disponible).sort((a,b)=>a.stock-b.stock||a.id-b.id).slice(0,10);
       const mensual=agruparVentas(anual,'mensual');
+      const topProductos=agruparProductos(delMes).slice(0,10);
+      const idsTopProductos=topProductos.map(p=>Number(p._id));
+      const [imagenesTopProductos]=idsTopProductos.length
+        ? await db.execute(`SELECT id, imagen_url FROM productos WHERE id IN (${idsTopProductos.map(()=>'?').join(',')})`,idsTopProductos)
+        : [[]];
+      const imagenesPorProducto=new Map(imagenesTopProductos.map(p=>[String(p.id),p.imagen_url]));
       return {success:true,data:{
         ventasMensuales:MESES.map((label,index)=>{const m=mensual.find(x=>x.fecha===`${anio}-${String(index+1).padStart(2,'0')}`);return {mes:label,total:m?.totalVentas||0,cantidad:m?.cantidadPedidos||0};}),
         ventasPorCategoria:agruparProductos(delMes,'categoria').map(c=>({categoria:c.categoria,total:c.ingresoTotal,cantidad:c.cantidadVendida})),
-        top10Productos:agruparProductos(delMes).slice(0,10).map(p=>({nombre:p.nombreProducto,categoria:p.categoria,cantidadVendida:p.cantidadVendida,totalVentas:p.ingresoTotal})),
+        top10Productos:topProductos.map(p=>({nombre:p.nombreProducto,categoria:p.categoria,cantidadVendida:p.cantidadVendida,totalVentas:p.ingresoTotal,imagenUrl:imagenesPorProducto.get(String(p._id))||''})),
         alertasStock:alertas.map(p=>({producto:p.nombre,categoria:p.categoria,stockActual:p.stock,stockMinimo:p.stockMinimo,urgencia:p.stock===0?'CRÍTICO':p.stock<p.stockMinimo/2?'URGENTE':'MEDIO'})),
         resumenMes:{totalVentas:r.total,cantidadPedidos:r.cantidadPedidos,promedioVenta:r.cantidadPedidos?r.total/r.cantidadPedidos:0},
         ventasPorMetodoPago:porMetodo(delMes),metricas:await metricas(db,now),fecha:dia
