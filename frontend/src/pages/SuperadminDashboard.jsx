@@ -4,6 +4,8 @@ import { formatCurrency } from '../utils/currencyFormatter';
 import './SuperadminDashboard.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+const FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="120"%3E%3Crect fill="%234f222b" width="160" height="120"/%3E%3Ctext fill="%23f3e7cd" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="12"%3ESin imagen%3C/text%3E%3C/svg%3E';
 
 function SuperadminDashboard() {
   const [estadisticas, setEstadisticas] = useState(null);
@@ -42,6 +44,11 @@ function SuperadminDashboard() {
   const pagos = estadisticas.ventasPorMetodoPago || [];
   const categorias = estadisticas.ventasPorCategoria || [];
   const productos = estadisticas.top10Productos || [];
+  const obtenerImagenProducto = (imagenUrl) => {
+    if (!imagenUrl) return FALLBACK_IMAGE;
+    if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://')) return imagenUrl;
+    return `${BACKEND_URL}${imagenUrl.startsWith('/') ? '' : '/'}${imagenUrl}`;
+  };
 
   return (
     <div className="approved-dashboard">
@@ -71,9 +78,30 @@ function SuperadminDashboard() {
           <h3>Ventas por categoría</h3>
           {categorias.map((categoria) => <div className="approved-rows" key={categoria.categoria}><span>{categoria.categoria}</span><strong>{categoria.cantidad || categoria.total}</strong></div>)}
         </section>
-        <section className="approved-info-card">
+        <section className="approved-info-card top-products-card">
           <h3>Top 10 productos más vendidos</h3>
-          {productos.slice(0, 10).map((producto) => <div className="approved-rows" key={producto.nombre}><span>{producto.nombre}</span><strong>{producto.cantidadVendida}</strong></div>)}
+          <div className="top-products-list">
+            {productos.slice(0, 10).map((producto, index) => (
+              <article className="top-product-item" key={`${producto.nombre}-${index}`}>
+                <span className="top-product-rank">{index + 1}</span>
+                <img
+                  className="top-product-image"
+                  src={obtenerImagenProducto(producto.imagenUrl)}
+                  alt={producto.nombre}
+                  loading="lazy"
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = FALLBACK_IMAGE;
+                  }}
+                />
+                <div className="top-product-info">
+                  <span className="top-product-name">{producto.nombre}</span>
+                  <span className="top-product-sold">{producto.cantidadVendida} vendidos</span>
+                </div>
+              </article>
+            ))}
+            {productos.length === 0 && <p className="top-products-empty">Aún no hay ventas de productos este mes.</p>}
+          </div>
         </section>
       </div>
     </div>

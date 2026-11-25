@@ -465,6 +465,11 @@
   box-shadow: 0 8px 16px rgba(31, 74, 168, 0.12);
 }
 
+.detalle-footer .footer-btn:last-child {
+  border-color: rgba(100, 47, 58, 0.25);
+  color: var(--app-accent-dark);
+}
+
 .btn-icon {
   font-size: 1.5rem;
 }
