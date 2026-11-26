@@ -62,7 +62,7 @@ const ForgotPassword = ({ isNightMode, onToggleNightMode }) => {
             <p className="fp-sub">No te preocupes, te enviaremos instrucciones para restablecerla</p>
             <form onSubmit={handleSubmit} className="fp-form">
               {message.text && (
-                <div className={`ps-msg fp-msg ${message.type}`}>{message.text}</div>
+                <div className={`ps-msg fp-msg ${message.type}`} role={message.type === 'error' ? 'alert' : 'status'}>{message.text}</div>
               )}
               <div className="ps-field">
                 <label htmlFor="fp-email">Correo electrónico</label>

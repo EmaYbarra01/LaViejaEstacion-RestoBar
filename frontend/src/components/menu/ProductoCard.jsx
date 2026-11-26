@@ -52,6 +52,7 @@ const ProductoCard = ({ producto, onSelect }) => {
         <button
           type="button"
           className="pd-add"
+          data-accessibility-description={`Abre la selección de ${producto.nombre}`}
           onClick={(event) => {
             event.stopPropagation();
             onSelect && onSelect(producto);

@@ -5,6 +5,7 @@ import { formatClockDate, formatClockTime } from '../utils/clockFormat';
 import { getScrollTop, scrollPageTo } from '../utils/pageScroll';
 import '../pages/MenuPage.css';
 import './PublicShell.css';
+import { AccessibilityTrigger } from './AccessibilityWidget';
 
 const navigation = [
     ['Inicio', '/'],
@@ -15,15 +16,6 @@ const navigation = [
     ['Equipo de desarrollo', '/equipo-desarrollo'],
     ['Acceso empleados', '/login']
 ];
-
-function AccessibilityIcon() {
-    return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="4.5" r="2" />
-            <path d="M5.5 8.5h13M12 7v6.5M12 10.5 7.5 18M12 10.5 16.5 18M8.5 13.5 5 11M15.5 13.5 19 11" />
-        </svg>
-    );
-}
 
 // Estructura común (logo, navegación, reloj, copyright y botones flotantes) de las páginas públicas rediseñadas
 const PublicShell = ({ isNightMode, onToggleNightMode, pageClass = '', mainClass = '', children }) => {
@@ -90,9 +82,7 @@ const PublicShell = ({ isNightMode, onToggleNightMode, pageClass = '', mainClass
                 <button type="button" className="mv-round mv-moon" onClick={onToggleNightMode} aria-label="Modo nocturno" title="Modo nocturno">
                     {isNightMode ? <FaSun /> : <FaMoon />}
                 </button>
-                <button type="button" className="mv-round" aria-label="Accesibilidad">
-                    <AccessibilityIcon />
-                </button>
+                <AccessibilityTrigger className="mv-round" />
             </div>
         </div>
     );

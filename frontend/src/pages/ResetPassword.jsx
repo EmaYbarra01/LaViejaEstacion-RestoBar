@@ -211,7 +211,7 @@ const ResetPassword = () => {
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                tabIndex="-1"
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
                 <i className={`bi bi-eye${showPassword ? '-slash' : ''}`}></i>
               </button>
@@ -250,7 +250,7 @@ const ResetPassword = () => {
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                tabIndex="-1"
+                aria-label={showConfirmPassword ? 'Ocultar confirmación de contraseña' : 'Mostrar confirmación de contraseña'}
               >
                 <i className={`bi bi-eye${showConfirmPassword ? '-slash' : ''}`}></i>
               </button>

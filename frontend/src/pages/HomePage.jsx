@@ -3,15 +3,7 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 import { formatClockDate, formatClockTime } from '../utils/clockFormat';
-
-function AccessibilityIcon() {
-    return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="4.5" r="2" />
-            <path d="M5.5 8.5h13M12 7v6.5M12 10.5 7.5 18M12 10.5 16.5 18M8.5 13.5 5 11M15.5 13.5 19 11" />
-        </svg>
-    );
-}
+import { AccessibilityTrigger } from '../components/AccessibilityWidget';
 
 const HomePage = ({ isNightMode, onToggleNightMode }) => {
     const navigate = useNavigate();
@@ -33,6 +25,7 @@ const HomePage = ({ isNightMode, onToggleNightMode }) => {
             <button
                 type="button"
                 className="home-enter-button"
+                data-accessibility-description="Abre la navegación principal"
                 onClick={() => navigate('/entrar')}
             >
                 ENTRAR
@@ -52,7 +45,7 @@ const HomePage = ({ isNightMode, onToggleNightMode }) => {
                     “Porque alrededor de una buena mesa siempre hay algo para celebrar,
                     una historia para contar y un motivo para quedarse un rato más”
                 </p>
-                <button type="button" className="home-cta-button" onClick={() => navigate('/menu')}>
+                <button type="button" className="home-cta-button" data-accessibility-description="Abre el menú del restaurante" onClick={() => navigate('/menu')}>
                     Ver menú
                 </button>
             </main>
@@ -67,9 +60,7 @@ const HomePage = ({ isNightMode, onToggleNightMode }) => {
                 >
                     {isNightMode ? <FaSun /> : <FaMoon />}
                 </button>
-                <button type="button" className="home-round-button home-accessibility-button" aria-label="Accesibilidad">
-                    <AccessibilityIcon />
-                </button>
+                <AccessibilityTrigger className="home-round-button home-accessibility-button" />
             </div>
 
             <div className="home-copyright">

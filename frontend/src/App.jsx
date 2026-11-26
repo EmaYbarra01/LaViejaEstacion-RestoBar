@@ -34,8 +34,11 @@ import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
 import Reportes from "./pages/Reportes";
 import EmployeePanelLayout from "./components/EmployeePanelLayout";
+import { AccessibilityProvider, AccessibilityTrigger } from "./components/AccessibilityWidget";
 
 const employeePaths = ['/admin', '/mozo', '/supervision-pedidos', '/encargado-cocina', '/caja'];
+const customerPaths = ['/', '/entrar', '/menu', '/menu-digital', '/reservas', '/servicios', '/quienes-somos', '/equipo-desarrollo', '/login', '/forgot-password', '/reset-password', '/register', '/mis-reservas'];
+const standaloneTriggerPaths = ['/reset-password', '/register', '/mis-reservas'];
 
 function App() {
   const location = useLocation();
@@ -47,7 +50,9 @@ function App() {
   const toggleNightMode = () => setIsNightMode((current) => !current);
 
   // Inicializar la autenticación al cargar la aplicación
-  useAuthInitializer();
+  const { authReady, isAuthenticated, user, isLoading } = useAuthInitializer();
+  const accessibilityAvailable = authReady && !isAuthenticated && !user && !isLoading
+    && customerPaths.includes(location.pathname);
 
   useEffect(() => {
     const theme = isNightMode ? "night" : "day";
@@ -57,7 +62,7 @@ function App() {
   }, [isNightMode]);
 
   return (
-    <>
+    <AccessibilityProvider available={accessibilityAvailable}>
       {/* Mostrar Header siempre, la navegación se oculta por rol en Header.jsx */}
       {!hideChrome && (
         <Header
@@ -191,7 +196,10 @@ function App() {
         </Routes>
       </div>
       {!hideChrome && <Footer />}
-    </>
+      {standaloneTriggerPaths.includes(location.pathname) && (
+        <AccessibilityTrigger className="accessibility-standalone-trigger" />
+      )}
+    </AccessibilityProvider>
   );
 }
 

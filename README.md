@@ -130,6 +130,14 @@ Sistema web integral que permite:
 - **SweetAlert2** - Alertas
 - **jsPDF** - Generación de PDFs
 
+### Accesibilidad para clientes
+
+En las páginas públicas, el botón de accesibilidad abre herramientas de lectura y apoyo visual. Activar el modo no inicia la voz automáticamente: la lectura y los anuncios de cambios se habilitan por separado para evitar interferencias con lectores de pantalla. Las preferencias se guardan en el navegador cuando está disponible y no se aplican mientras hay una sesión autenticada.
+
+El panel permite navegar con Tab y Mayús+Tab, activar controles con Enter o Espacio y cerrarlo con Escape. El recorrido auditivo no desplaza el foco; «Ir al elemento» enfoca el control actual. Las voces y los idiomas disponibles dependen del dispositivo y no traducen el contenido.
+
+El lector integrado complementa, pero no sustituye, un lector de pantalla. Su reconocimiento depende de la semántica y de los elementos contemplados en cada página; algunos textos o tablas pueden requerir mejoras adicionales. El aumento de texto puede no afectar a todos los tamaños definidos en píxeles. Cuando se habilitan los anuncios por voz, se conserva como máximo un aviso pendiente mientras se reproduce otro, dando prioridad a las alertas.
+
 ### DevOps
 - **Docker** - Contenedorización
 - **Docker Compose** - Orquestación

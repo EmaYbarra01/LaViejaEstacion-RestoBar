@@ -142,8 +142,9 @@ const MisReservas = () => {
           <div className="email-form-container">
             <form onSubmit={handleSubmitEmail} className="email-form">
               <div className="form-grupo">
-                <label>Email</label>
+                <label htmlFor="reservas-email">Email</label>
                 <input
+                  id="reservas-email"
                   type="email"
                   placeholder="tucorreo@ejemplo.com"
                   value={email}
@@ -211,7 +212,7 @@ const MisReservas = () => {
           </div>
         )}
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message" role="alert">{error}</div>}
 
         {reservas.length === 0 ? (
           <div className="no-reservas">

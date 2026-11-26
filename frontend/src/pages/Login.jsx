@@ -85,7 +85,7 @@ const handleSubmit = async (e) => {
                 <div className="mv-divider" />
                 <form onSubmit={handleSubmit} id="ae-form" className="ae-form">
                     {(localError || error) && (
-                        <div className="ps-msg ae-msg">{localError || error}</div>
+                        <div className="ps-msg ae-msg" role="alert">{localError || error}</div>
                     )}
                     <div className="ps-field">
                         <label htmlFor="login-email">Email</label>

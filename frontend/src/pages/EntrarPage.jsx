@@ -3,15 +3,7 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './EntrarPage.css';
 import { formatClockDate, formatClockTime } from '../utils/clockFormat';
-
-function AccessibilityIcon() {
-    return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="4.5" r="2" />
-            <path d="M5.5 8.5h13M12 7v6.5M12 10.5 7.5 18M12 10.5 16.5 18M8.5 13.5 5 11M15.5 13.5 19 11" />
-        </svg>
-    );
-}
+import { AccessibilityTrigger } from '../components/AccessibilityWidget';
 
 function EntrarPage({ isNightMode, onToggleNightMode }) {
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -50,9 +42,7 @@ function EntrarPage({ isNightMode, onToggleNightMode }) {
                 <button type="button" className="enter-round-button" onClick={onToggleNightMode} aria-label="Modo nocturno" title="Modo nocturno">
                     {isNightMode ? <FaSun /> : <FaMoon />}
                 </button>
-                <button type="button" className="enter-round-button enter-accessibility-button" aria-label="Accesibilidad">
-                    <AccessibilityIcon />
-                </button>
+                <AccessibilityTrigger className="enter-round-button enter-accessibility-button" />
             </div>
             <p className="enter-copyright">© 2026 La Vieja Estación. Todos los derechos reservados.</p>
         </main>

@@ -6,6 +6,7 @@ import axios from 'axios';
 import { formatClockDate, formatClockTime } from '../utils/clockFormat';
 import { getScrollTop, scrollPageTo as scrollerScrollTo } from '../utils/pageScroll';
 import './MenuPage.css';
+import { AccessibilityTrigger } from '../components/AccessibilityWidget';
 
 const navigation = [
     ['Inicio', '/'],
@@ -18,15 +19,6 @@ const navigation = [
 ];
 
 const FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%234f222b" width="300" height="200"/%3E%3Ctext fill="%23f3e7cd" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="16"%3EImagen No Disponible%3C/text%3E%3C/svg%3E';
-
-function AccessibilityIcon() {
-    return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="4.5" r="2" />
-            <path d="M5.5 8.5h13M12 7v6.5M12 10.5 7.5 18M12 10.5 16.5 18M8.5 13.5 5 11M15.5 13.5 19 11" />
-        </svg>
-    );
-}
 
 const MotionDiv = motion.div;
 
@@ -124,7 +116,7 @@ const MenuPage = ({ isNightMode, onToggleNightMode }) => {
                     <h1>Nuestro Menú</h1>
                     <div className="mv-divider"></div>
                     <p>La Vieja Estación - Sabores que cuentan historias</p>
-                    <button type="button" className="mv-order" onClick={() => navigate('/menu-digital')}>
+                    <button type="button" className="mv-order" data-accessibility-description="Abre el menú digital para realizar un pedido" onClick={() => navigate('/menu-digital')}>
                         Pedir ahora
                     </button>
                 </div>
@@ -218,9 +210,7 @@ const MenuPage = ({ isNightMode, onToggleNightMode }) => {
                 <button type="button" className="mv-round mv-moon" onClick={onToggleNightMode} aria-label="Modo nocturno" title="Modo nocturno">
                     {isNightMode ? <FaSun /> : <FaMoon />}
                 </button>
-                <button type="button" className="mv-round" aria-label="Accesibilidad">
-                    <AccessibilityIcon />
-                </button>
+                <AccessibilityTrigger className="mv-round" />
             </div>
         </div>
     );

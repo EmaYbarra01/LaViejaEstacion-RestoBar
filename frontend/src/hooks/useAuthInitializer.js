@@ -1,24 +1,31 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useUserStore from '../store/useUserStore';
 import { getValidStoredAuthToken } from '../auth/authToken';
 
 // Hook personalizado para inicializar la autenticación
 const useAuthInitializer = () => {
   const { initializeAuth, isLoading, user, isAuthenticated } = useUserStore();
+  const [authReady, setAuthReady] = useState(() => !getValidStoredAuthToken());
+  const initialization = useRef(null);
 
   useEffect(() => {
-    console.log('useAuthInitializer ejecutado, user:', user);
-    // Solo inicializar si no tenemos datos del usuario
-    if (!user && getValidStoredAuthToken()) {
-      console.log('useAuthInitializer: No hay user, inicializando auth...');
-      initializeAuth();
+    let active = true;
+    if (!useUserStore.getState().user && getValidStoredAuthToken()) {
+      if (!initialization.current) initialization.current = initializeAuth();
+      initialization.current.catch((error) => {
+        console.error('Error al inicializar la autenticación:', error);
+      }).finally(() => {
+        if (active) setAuthReady(true);
+      });
     } else {
-      console.log('useAuthInitializer: Ya hay user o no hay token');
+      setAuthReady(true);
     }
-  }, []); // Solo ejecutar una vez al montar el componente
+    return () => { active = false; };
+  }, [initializeAuth]);
 
   return {
     isLoading,
+    authReady,
     user,
     isAuthenticated
   };

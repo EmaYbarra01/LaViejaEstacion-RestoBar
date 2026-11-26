@@ -1,0 +1,101 @@
+.accessibility-panel {
+  position: fixed;
+  z-index: 11000;
+  right: 88px;
+  bottom: 30px;
+  width: min(390px, calc(100vw - 32px));
+  max-height: min(80vh, 760px);
+  overflow: auto;
+  padding: 20px;
+  border: 2px solid #c9a96a;
+  border-radius: 14px;
+  background: #fffaf0;
+  color: #3b2428;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .35);
+  font: 500 .875rem/1.5 Montserrat, "Segoe UI", sans-serif;
+}
+.accessibility-panel[hidden] { display: none; }
+.accessibility-panel-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.accessibility-panel h2 { margin: 0; color: #4f222b; font: 700 1.8rem "Cormorant Garamond", Georgia, serif; }
+.accessibility-panel p { margin: 6px 0 10px; }
+.accessibility-panel fieldset { display: grid; gap: 9px; margin: 14px 0; padding: 12px; border: 1px solid #9a7a65; border-radius: 8px; }
+.accessibility-panel legend { padding: 0 5px; font-weight: 700; }
+.accessibility-panel label { display: grid; gap: 4px; font-weight: 600; }
+.accessibility-panel .accessibility-check { display: flex; align-items: center; gap: 8px; }
+.accessibility-panel input[type="checkbox"] { width: 20px; height: 20px; margin: 0; }
+.accessibility-panel input[type="range"] { width: 100%; }
+.accessibility-panel select { min-height: 40px; width: 100%; padding: 5px; color: #241a14; background: #fff; border: 1px solid #77594d; }
+.accessibility-panel button { min-height: 40px; padding: 7px 10px; border: 1px solid #4f222b; border-radius: 6px; background: #4f222b; color: #fff; font: inherit; cursor: pointer; }
+.accessibility-panel button:disabled { opacity: .55; cursor: not-allowed; }
+.accessibility-panel .accessibility-close { min-width: 40px; font-size: 1.4rem; line-height: 1; }
+.accessibility-panel .accessibility-toggle, .accessibility-panel .accessibility-help { width: 100%; text-align: left; }
+.accessibility-panel .accessibility-note { font-size: .85rem; }
+.accessibility-panel :is(button, input, select):focus-visible, .accessibility-panel:focus-visible { outline: 3px solid #1261a0; outline-offset: 3px; }
+[data-accessibility-trigger]:focus-visible {
+  outline: 3px solid #1261a0 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px #fff !important;
+}
+.accessibility-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.accessibility-message { padding: 8px; border-left: 4px solid #8f2323; background: #fff; }
+.accessibility-standalone-trigger {
+  position: fixed;
+  z-index: 100;
+  right: 18px;
+  bottom: 30px;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 50%;
+  background: #4f222b;
+  color: #f3e7cd;
+  cursor: pointer;
+}
+.accessibility-standalone-trigger svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+html.customer-accessibility { font-size: var(--customer-text-scale, 100%); }
+.customer-accessibility .enter-navigation,
+.customer-accessibility .mv-navigation { flex-wrap: wrap; }
+.customer-accessibility .enter-navigation a { font-size: calc(clamp(18px, 2vw, 24px) * var(--customer-text-factor, 1)); white-space: normal; }
+.customer-accessibility .mv-navigation a { font-size: calc(clamp(14px, 1.5vw, 19px) * var(--customer-text-factor, 1)); white-space: normal; }
+.customer-accessibility :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid #1261a0 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px #fff !important;
+}
+.customer-accessibility a { text-decoration: underline; }
+.customer-accessibility .accessibility-reading-highlight {
+  outline: 4px solid #1261a0 !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 7px #fff !important;
+}
+.customer-high-contrast body,
+.customer-high-contrast #root,
+.customer-high-contrast :is(.mv-page, .enter-page, .home-container, .mis-reservas-page, .login-container, .reset-password-container) {
+  background: #000 !important;
+  color: #fff !important;
+}
+.customer-high-contrast :is(.home-background, .home-overlay, .enter-page-overlay, .mv-background),
+.customer-high-contrast .mv-page::before { display: none !important; }
+.customer-high-contrast :is(main, nav, section, article, form, header, footer, p, h1, h2, h3, h4, h5, h6, label, li, span, strong, th, td) {
+  color: #fff !important;
+  text-shadow: none !important;
+}
+.customer-high-contrast :is(.ps-panel, .mv-card, .mv-accordion, .pd-modal, .pd-side) { background: #000 !important; border: 2px solid #fff !important; }
+.customer-high-contrast :is(.rs-info, .rs-aviso, .rs-contact-item, .rs-note, .pd-ready, .pd-state, .pd-search, .pd-btn-count, .accessibility-message) {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+.customer-high-contrast :is(a, button) { color: #ffec70 !important; }
+.customer-high-contrast :is(button, input, select, textarea) { background: #000 !important; color: #fff !important; border: 2px solid #fff !important; }
+.customer-high-contrast :is(input, textarea)::placeholder { color: #fff !important; opacity: 1; }
+.customer-high-contrast .accessibility-panel { background: #000 !important; color: #fff !important; }
+@media (max-width: 600px) {
+  .accessibility-panel { right: 12px; bottom: 12px; width: calc(100vw - 24px); max-height: 85vh; }
+}
+@media (max-width: 800px) {
+  .customer-accessibility .enter-navigation a,
+  .customer-accessibility .mv-navigation a { font-size: calc(11px * var(--customer-text-factor, 1)); }
+}

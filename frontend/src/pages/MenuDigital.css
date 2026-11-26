@@ -64,6 +64,8 @@
 .pd-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(20, 12, 10, .62); backdrop-filter: blur(3px); }
 .pd-backdrop-side { justify-content: flex-end; align-items: stretch; padding: 0; }
 .pd-modal, .pd-side { position: relative; padding: 34px 32px; color: var(--mv-text); background: #f3e7cd; border: 1px solid var(--mv-line); box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+.pd-dialog-accessibility { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 12px; border: 1px solid var(--mv-line); border-radius: 50%; color: var(--mv-cream); background: var(--mv-wine); cursor: pointer; }
+.pd-dialog-accessibility svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .mv-night .pd-modal, .mv-night .pd-side { background: var(--mv-bg); }
 .pd-modal { width: min(460px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; border-radius: 15px; }
 .pd-modal-wide { width: min(520px, 100%); }

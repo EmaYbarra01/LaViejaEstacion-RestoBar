@@ -32,6 +32,7 @@ import { formatClockDate, formatClockTime } from '../utils/clockFormat';
 import { getScrollTop, scrollPageTo } from '../utils/pageScroll';
 import './MenuPage.css';
 import './MenuDigital.css';
+import { AccessibilityTrigger } from '../components/AccessibilityWidget';
 
 const navigation = [
   ['Inicio', '/'],
@@ -51,15 +52,6 @@ const categoryIcons = {
   'Entradas': FaBreadSlice,
   'Guarniciones': FaBreadSlice
 };
-
-function AccessibilityIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="4.5" r="2" />
-      <path d="M5.5 8.5h13M12 7v6.5M12 10.5 7.5 18M12 10.5 16.5 18M8.5 13.5 5 11M15.5 13.5 19 11" />
-    </svg>
-  );
-}
 
 const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   const [searchParams] = useSearchParams();
@@ -90,10 +82,14 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
   const [checkoutAbierto, setCheckoutAbierto] = useState(false);
   const [enviandoPedido, setEnviandoPedido] = useState(false);
   const [pedidoEnviado, setPedidoEnviado] = useState(null);
+  const activeDialog = pedidoEnviado ? 'success' : checkoutAbierto ? 'checkout' : pedidoAbierto ? 'order' : productoSeleccionado ? 'product' : null;
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [showGoTop, setShowGoTop] = useState(false);
   const [goTopBusy, setGoTopBusy] = useState(false);
   const busyTimer = useRef(null);
+  const dialogOrigin = useRef(null);
+  const previousDialog = useRef(null);
+  const checkoutOrigin = useRef(null);
   const [datosEntrega, setDatosEntrega] = useState({
     tipoPedido: mesaNumero ? 'Local' : 'Domicilio',
     numeroMesa: mesaNumero || '',
@@ -113,6 +109,49 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
     ],
     Postres: menu.Postres || []
   }), [menu]);
+
+  useEffect(() => {
+    if (!activeDialog) {
+      if (dialogOrigin.current?.isConnected) dialogOrigin.current.focus();
+      dialogOrigin.current = null;
+      previousDialog.current = null;
+      checkoutOrigin.current = null;
+      return undefined;
+    }
+    if (!dialogOrigin.current) dialogOrigin.current = document.activeElement;
+    if (activeDialog === 'checkout' && previousDialog.current === 'order') checkoutOrigin.current = document.activeElement;
+    const dialog = document.querySelector(`[data-order-dialog="${activeDialog}"]`);
+    if (activeDialog === 'order' && previousDialog.current === 'checkout' && checkoutOrigin.current?.isConnected) {
+      checkoutOrigin.current.focus();
+    } else {
+      dialog?.focus();
+    }
+    previousDialog.current = activeDialog;
+    const onKeyDown = (event) => {
+      if (!dialog || !dialog.contains(document.activeElement)) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        if (activeDialog === 'success') setPedidoEnviado(null);
+        else if (activeDialog === 'checkout') setCheckoutAbierto(false);
+        else if (activeDialog === 'order') setPedidoAbierto(false);
+        else setProductoSeleccionado(null);
+      }
+      if (event.key !== 'Tab') return;
+      const controls = Array.from(dialog.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])'))
+        .filter((element) => element.getClientRects().length > 0);
+      if (!controls.length) {
+        event.preventDefault();
+      } else if (event.shiftKey && (document.activeElement === controls[0] || document.activeElement === dialog)) {
+        event.preventDefault();
+        controls[controls.length - 1].focus();
+      } else if (!event.shiftKey && document.activeElement === controls[controls.length - 1]) {
+        event.preventDefault();
+        controls[0].focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [activeDialog]);
 
   useEffect(() => {
     // Cargar menú al montar componente
@@ -282,12 +321,12 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
 
   const renderContenido = () => {
     if (loading) {
-      return <p className="mv-loading">Cargando menú...</p>;
+      return <p className="mv-loading" role="status">Cargando menú...</p>;
     }
 
     if (error) {
       return (
-        <div className="pd-state">
+        <div className="pd-state" role="alert">
           <h2>Error al cargar el menú</h2>
           <p>{error}</p>
           <div className="pd-state-actions">
@@ -412,6 +451,7 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
                 type="button"
                 key={categoria}
                 className={`pd-tab ${!busqueda && categoriaActiva === categoria ? 'active' : ''}`}
+                aria-pressed={!busqueda && categoriaActiva === categoria}
                 onClick={() => {
                   setBusqueda('');
                   setCategoriaActiva(categoria);
@@ -431,20 +471,21 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
 
       {productoSeleccionado && (
         <div className="pd-backdrop" onClick={() => setProductoSeleccionado(null)}>
-          <form className="pd-modal" onSubmit={handleAddToOrder} onClick={(event) => event.stopPropagation()}>
+          <form className="pd-modal" role="dialog" aria-modal="true" aria-labelledby="product-dialog-title" tabIndex="-1" data-order-dialog="product" onSubmit={handleAddToOrder} onClick={(event) => event.stopPropagation()}>
+            <AccessibilityTrigger className="pd-dialog-accessibility" />
             <button type="button" className="pd-close" onClick={() => setProductoSeleccionado(null)} aria-label="Cerrar selección">
               <FaTimes />
             </button>
             <span className="pd-kicker">Personalizá tu pedido</span>
-            <h2>{productoSeleccionado.nombre}</h2>
+            <h2 id="product-dialog-title">{productoSeleccionado.nombre}</h2>
             <p className="pd-price">{formatPrice(productoSeleccionado.precio)}</p>
 
-            <label className="pd-label" htmlFor="quantity">¿Cuántos querés?</label>
+            <span className="pd-label" id="quantity-label">¿Cuántos querés?</span>
             <div className="pd-qty">
               <button type="button" onClick={() => setCantidad((value) => Math.max(1, value - 1))} aria-label="Disminuir cantidad">
                 <FaMinus />
               </button>
-              <output id="quantity">{cantidad}</output>
+              <output id="quantity" aria-labelledby="quantity-label" aria-live="polite">{cantidad}</output>
               <button
                 type="button"
                 disabled={cantidad >= Number(productoSeleccionado.stock || 0)}
@@ -480,13 +521,14 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
       )}
 
       {pedidoAbierto && (
-        <div className="pd-backdrop pd-backdrop-side" onClick={() => setPedidoAbierto(false)}>
-          <aside className="pd-side" onClick={(event) => event.stopPropagation()}>
+        <div className="pd-backdrop pd-backdrop-side" inert={activeDialog !== 'order' ? true : undefined} onClick={() => setPedidoAbierto(false)}>
+          <aside className="pd-side" role="dialog" aria-modal={activeDialog === 'order' ? 'true' : undefined} aria-labelledby="order-dialog-title" tabIndex="-1" data-order-dialog="order" onClick={(event) => event.stopPropagation()}>
+            <AccessibilityTrigger className="pd-dialog-accessibility" />
             <button type="button" className="pd-close" onClick={() => setPedidoAbierto(false)} aria-label="Cerrar pedido">
               <FaTimes />
             </button>
             <span className="pd-kicker">Tu selección</span>
-            <h2>Mi pedido</h2>
+            <h2 id="order-dialog-title">Mi pedido</h2>
 
             {pedido.length === 0 ? (
               <div className="pd-empty">
@@ -505,7 +547,7 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
                       </div>
                       <div className="pd-item-actions">
                         <strong>{formatOrderPrice(item.precio * item.cantidad)}</strong>
-                        <button type="button" onClick={() => removeFromOrder(item.id)}>Quitar</button>
+                        <button type="button" onClick={() => removeFromOrder(item.id)} aria-label={`Quitar ${item.nombre} del pedido`}>Quitar</button>
                       </div>
                     </div>
                   ))}
@@ -526,18 +568,20 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
 
       {checkoutAbierto && (
         <div className="pd-backdrop" onClick={() => setCheckoutAbierto(false)}>
-          <form className="pd-modal pd-modal-wide" onSubmit={handleCheckoutSubmit} onClick={(event) => event.stopPropagation()}>
+          <form className="pd-modal pd-modal-wide" role="dialog" aria-modal="true" aria-labelledby="checkout-dialog-title" tabIndex="-1" data-order-dialog="checkout" onSubmit={handleCheckoutSubmit} onClick={(event) => event.stopPropagation()}>
+            <AccessibilityTrigger className="pd-dialog-accessibility" />
             <button type="button" className="pd-close" onClick={() => setCheckoutAbierto(false)} aria-label="Cerrar datos del pedido">
               <FaTimes />
             </button>
             <span className="pd-kicker">Enviar pedido</span>
-            <h2>¿Dónde lo recibís?</h2>
+            <h2 id="checkout-dialog-title">¿Dónde lo recibís?</h2>
             <div className="pd-delivery">
               {['Local', 'Domicilio'].map((tipo) => (
                 <button
                   type="button"
                   key={tipo}
                   className={datosEntrega.tipoPedido === tipo ? 'active' : ''}
+                  aria-pressed={datosEntrega.tipoPedido === tipo}
                   onClick={() => setDatosEntrega((datos) => ({ ...datos, tipoPedido: tipo }))}
                 >
                   {tipo}
@@ -583,9 +627,10 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
 
       {pedidoEnviado && (
         <div className="pd-backdrop">
-          <div className="pd-modal pd-success">
+          <div className="pd-modal pd-success" role="dialog" aria-modal="true" aria-labelledby="success-dialog-title" tabIndex="-1" data-order-dialog="success">
+            <AccessibilityTrigger className="pd-dialog-accessibility" />
             <span className="pd-kicker">¡Pedido recibido!</span>
-            <h2>Pedido {pedidoEnviado.pedido.numeroPedido}</h2>
+            <h2 id="success-dialog-title">Pedido {pedidoEnviado.pedido.numeroPedido}</h2>
             <p>El restaurante ya recibió tu pedido y comenzará a prepararlo.</p>
             {pedidoEnviado.whatsappUrl && (
               <a className="pd-btn pd-btn-full" href={pedidoEnviado.whatsappUrl} target="_blank" rel="noreferrer">
@@ -613,9 +658,7 @@ const MenuDigital = ({ isNightMode, onToggleNightMode }) => {
         <button type="button" className="mv-round mv-moon" onClick={onToggleNightMode} aria-label="Modo nocturno" title="Modo nocturno">
           {isNightMode ? <FaSun /> : <FaMoon />}
         </button>
-        <button type="button" className="mv-round" aria-label="Accesibilidad">
-          <AccessibilityIcon />
-        </button>
+        <AccessibilityTrigger className="mv-round" />
       </div>
     </div>
   );
