@@ -71,13 +71,24 @@ if (process.env.EMAIL_SMTP_VERIFY === 'true') {
 }
 
 // Función para enviar email de recuperación de contraseña
-export const sendPasswordResetEmail = async (email, token, username) => {
+const escapeHtml = value => String(value || '').replace(/[&<>"']/g, character => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+}[character]));
+
+export const sendPasswordResetEmail = async (email, token, username, requestedAccount) => {
   if (!EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) throw new Error('SMTP no configurado');
   const destino = process.env.FRONTEND_URL || 'http://localhost:5173';
   const enlace = new URL('/reset-password', destino);
   enlace.searchParams.set('token', token);
   const resetUrl = enlace.toString().replaceAll('&','&amp;');
-  username = String(username || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  username = escapeHtml(username);
+  const accountNotice = requestedAccount
+    ? `<p>Cuenta de prueba solicitante: <strong>${escapeHtml(requestedAccount)}</strong></p>`
+    : '';
   
   const mailOptions = {
     from: `"La Vieja Estación Resto-Bar" <${process.env.EMAIL_FROM}>`,
@@ -104,8 +115,8 @@ export const sendPasswordResetEmail = async (email, token, username) => {
             padding: 30px;
           }
           .header {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #642f3a;
+            color: #f5efe6;
             padding: 20px;
             text-align: center;
             border-radius: 10px 10px 0 0;
@@ -119,14 +130,14 @@ export const sendPasswordResetEmail = async (email, token, username) => {
             display: inline-block;
             padding: 12px 30px;
             margin: 20px 0;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #642f3a;
+            color: #f5efe6;
             text-decoration: none;
             border-radius: 5px;
             font-weight: bold;
           }
           .button:hover {
-            background-color: #45a049;
+            background-color: #47232d;
           }
           .footer {
             margin-top: 20px;
@@ -151,6 +162,7 @@ export const sendPasswordResetEmail = async (email, token, username) => {
             <p>Hola <strong>${username}</strong>,</p>
             
             <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
+            ${accountNotice}
             
             <p>Si realizaste esta solicitud, haz clic en el siguiente botón para crear una nueva contraseña:</p>
             
@@ -223,8 +235,8 @@ export const sendPasswordChangedEmail = async (email, username) => {
             padding: 30px;
           }
           .header {
-            background-color: #28a745;
-            color: white;
+            background-color: #642f3a;
+            color: #f5efe6;
             padding: 20px;
             text-align: center;
             border-radius: 10px 10px 0 0;

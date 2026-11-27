@@ -1,4 +1,14 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_BASE } from '../config/api';
+
+const API_URL = (import.meta.env.VITE_API_BASE_URL || API_BASE).replace(/\/+$/, '');
+
+const readResponse = async (response) => {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+};
 
 /**
  * Solicitar recuperación de contraseña
@@ -15,7 +25,7 @@ export const requestPasswordReset = async (email) => {
       body: JSON.stringify({ email })
     });
 
-    const data = await response.json();
+    const data = await readResponse(response);
 
     return {
       success: response.ok,
@@ -26,7 +36,7 @@ export const requestPasswordReset = async (email) => {
     console.error('Error al solicitar recuperación de contraseña:', error);
     return {
       success: false,
-      error: 'Error de conexión'
+      error: 'Error de conexión. Por favor, intenta de nuevo más tarde.'
     };
   }
 };
@@ -38,8 +48,8 @@ export const requestPasswordReset = async (email) => {
  */
 export const verifyResetToken = async (token) => {
   try {
-    const response = await fetch(`${API_URL}/auth/verify-reset-token/${token}`);
-    const data = await response.json();
+    const response = await fetch(`${API_URL}/auth/verify-reset-token/${encodeURIComponent(token)}`);
+    const data = await readResponse(response);
 
     return {
       success: response.ok,
@@ -50,7 +60,7 @@ export const verifyResetToken = async (token) => {
     console.error('Error al verificar token:', error);
     return {
       success: false,
-      error: 'Error de conexión'
+      error: 'Error de conexión. Por favor, intenta de nuevo más tarde.'
     };
   }
 };
@@ -71,7 +81,7 @@ export const resetPassword = async (token, newPassword) => {
       body: JSON.stringify({ token, newPassword })
     });
 
-    const data = await response.json();
+    const data = await readResponse(response);
 
     return {
       success: response.ok,
@@ -82,7 +92,7 @@ export const resetPassword = async (token, newPassword) => {
     console.error('Error al restablecer contraseña:', error);
     return {
       success: false,
-      error: 'Error de conexión'
+      error: 'Error de conexión. Por favor, intenta de nuevo más tarde.'
     };
   }
 };

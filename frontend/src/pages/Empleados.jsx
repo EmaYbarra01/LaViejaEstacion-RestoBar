@@ -16,6 +16,7 @@ import InasistenciaModal from "../crud/empleados/InasistenciaModal";
 import useUserStore from '../store/useUserStore';
 import {
   Button,
+  Box,
   TableContainer,
   TableHead,
   TableRow,
@@ -23,13 +24,17 @@ import {
   TableBody,
   Table,
   Chip,
-  IconButton,
-  Tooltip,
   Paper,
   Menu,
   MenuItem,
+  Divider,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import EventIcon from '@mui/icons-material/Event';
@@ -37,6 +42,8 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BlockIcon from '@mui/icons-material/Block';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import Swal from 'sweetalert2';
 import { formatCurrency } from '../utils/currencyFormatter';
 import "./AdminPage.css";
@@ -57,6 +64,9 @@ const Empleados = () => {
   const [openAsistenciaModal, setOpenAsistenciaModal] = useState(false);
   const [openPagoModal, setOpenPagoModal] = useState(false);
   const [openInasistenciaModal, setOpenInasistenciaModal] = useState(false);
+  const [openInformePago, setOpenInformePago] = useState(false);
+  const [openDetalleModal, setOpenDetalleModal] = useState(false);
+  const [empleadoDetalle, setEmpleadoDetalle] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -75,6 +85,11 @@ const Empleados = () => {
       return empleado.salarioMensual;
     }
     return SALARIOS_POR_CARGO[empleado.cargo] || 0;
+  };
+
+  const getSalarioInforme = (empleado) => {
+    const salario = Number(empleado?.sueldo ?? empleado?.salarioMensual ?? empleado?.salario ?? 0);
+    return Number.isFinite(salario) && salario >= 0 ? salario : 0;
   };
 
   const [form, setForm] = useState({
@@ -148,7 +163,7 @@ const Empleados = () => {
         icon: 'error',
         title: 'Error',
         text: 'No se pudieron cargar los empleados',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#4f222b'
       });
     }
   };
@@ -208,7 +223,7 @@ const Empleados = () => {
             icon: 'success',
             title: '¡Actualizado!',
             text: 'Empleado creado correctamente',
-            confirmButtonColor: '#667eea',
+            confirmButtonColor: '#4f222b',
             timer: 2000
           });
         } else {
@@ -222,7 +237,7 @@ const Empleados = () => {
             icon: 'success',
             title: '¡Actualizado!',
             text: 'Empleado actualizado correctamente',
-            confirmButtonColor: '#667eea',
+            confirmButtonColor: '#4f222b',
             timer: 2000
           });
         }
@@ -242,7 +257,7 @@ const Empleados = () => {
           icon: 'success',
           title: '¡Creado!',
           text: 'Empleado agregado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#4f222b',
           timer: 2000
         });
       }
@@ -256,7 +271,7 @@ const Empleados = () => {
         icon: 'error',
         title: 'Error',
         text: err.response?.data?.message || err.response?.data?.error || 'Error al guardar el empleado',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#4f222b'
       });
     }
   };
@@ -284,7 +299,7 @@ const Empleados = () => {
         icon: 'error',
         title: 'Error',
         text: err.response?.data?.message || 'Error al registrar la asistencia',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#4f222b'
       });
     }
   };
@@ -327,7 +342,7 @@ const Empleados = () => {
         icon: 'success',
         title: '💰 Pago Registrado',
         text: 'El pago se registró correctamente',
-        confirmButtonColor: '#ff9800',
+        confirmButtonColor: '#4f222b',
         timer: 2000
       });
       
@@ -339,7 +354,7 @@ const Empleados = () => {
         icon: 'error',
         title: 'Error',
         text: err.response?.data?.message || 'Error al registrar el pago',
-        confirmButtonColor: '#ff9800'
+        confirmButtonColor: '#4f222b'
       });
     }
   };
@@ -410,8 +425,8 @@ const Empleados = () => {
       html: `Se desactivará a <strong>${empleado.usuario?.nombre} ${empleado.usuario?.apellido}</strong><br><small>Podrás reactivarlo después editándolo</small>`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ff9800',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#4f222b',
+      cancelButtonColor: '#3b2428',
       confirmButtonText: 'Sí, desactivar',
       cancelButtonText: 'Cancelar'
     });
@@ -423,7 +438,7 @@ const Empleados = () => {
           icon: 'success',
           title: 'Desactivado',
           text: 'Empleado desactivado correctamente',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#4f222b',
           timer: 2000
         });
         loadEmpleados();
@@ -433,9 +448,31 @@ const Empleados = () => {
           icon: 'error',
           title: 'Error',
           text: 'No se pudo desactivar el empleado',
-          confirmButtonColor: '#667eea'
+          confirmButtonColor: '#4f222b'
         });
       }
+    }
+  };
+
+  const handleActivar = async (empleado) => {
+    try {
+      await updateEmpleado(empleado._id, { activo: true });
+      await Swal.fire({
+        icon: 'success',
+        title: 'Activado',
+        text: 'Empleado activado correctamente',
+        confirmButtonColor: '#4f222b',
+        timer: 2000
+      });
+      loadEmpleados();
+    } catch (err) {
+      console.error("Error al activar empleado:", err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo activar el empleado',
+        confirmButtonColor: '#4f222b'
+      });
     }
   };
 
@@ -496,7 +533,7 @@ const Empleados = () => {
         icon: 'error',
         title: 'Error',
         text: err.response?.data?.message || 'Error al registrar la inasistencia',
-        confirmButtonColor: '#667eea'
+        confirmButtonColor: '#4f222b'
       });
     }
   };
@@ -513,30 +550,78 @@ const Empleados = () => {
   const empleadosFiltrados = empleadosVisibles.filter((empleado) => (
     !isSuperAdmin || filtroEstado === "todos" || empleado.activo === (filtroEstado === "activos")
   ));
+  const pagosInforme = (Array.isArray(empleados) ? empleados : [])
+    .filter((empleado) => Boolean(empleado?.activo))
+    .map((empleado) => ({
+      empleado,
+      monto: getSalarioInforme(empleado)
+    }));
+  const totalPagoInforme = pagosInforme.reduce((total, { monto }) => total + monto, 0);
   const hoyArgentina = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const cerrarMenuEmpleado = () => {
+    setAnchorEl(null);
+    setMenuEmpleado(null);
+  };
+  const abrirDetalleEmpleado = (empleado) => {
+    setEmpleadoDetalle(empleado);
+    setOpenDetalleModal(true);
+    cerrarMenuEmpleado();
+  };
 
   return (
     <div className="admin-container employees-panel-page">
       {console.log('RENDER Empleados, count:', empleados.length)}
-      <div className="admin-header">
+      <div className="admin-header" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
         <h1 className="admin-title">
           {isGerente ? 'Supervisión de Empleados' : 'Gestión de Empleados'}
-          {isGerente && <Chip label="Solo Lectura" size="small" color="info" sx={{ ml: 2 }} />}
+          {isGerente && (
+            <Chip
+              label="Solo lectura"
+              size="small"
+              sx={{
+                ml: 2,
+                color: 'var(--panel-wine, #4f222b)',
+                backgroundColor: 'rgba(243, 231, 205, 0.9)',
+                border: '1px solid rgba(100, 47, 58, 0.25)',
+                fontWeight: 700
+              }}
+            />
+          )}
         </h1>
-        {canEdit && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Button
             variant="contained"
-            onClick={handleOpenCreate}
+            startIcon={<PaymentIcon />}
+            onClick={() => setOpenInformePago(true)}
             sx={{
-              bgcolor: '#667eea',
-              '&:hover': { bgcolor: '#5568d3' },
-              fontWeight: 'bold',
-              boxShadow: 3
+              backgroundColor: 'var(--panel-wine, #4f222b)',
+              color: '#f5efe6',
+              fontWeight: 700,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: 'var(--panel-dark, #3b2428)',
+                color: '#f5efe6'
+              }
             }}
           >
-            ➕ Agregar Empleado
+            Informe de pago total
           </Button>
-        )}
+          {canEdit && (
+            <Button
+              variant="contained"
+              onClick={handleOpenCreate}
+              sx={{
+                bgcolor: 'var(--panel-wine, #4f222b)',
+                color: '#f5efe6',
+                '&:hover': { bgcolor: 'var(--panel-dark, #3b2428)' },
+                fontWeight: 'bold',
+                boxShadow: 3
+              }}
+            >
+              ➕ Agregar Empleado
+            </Button>
+          )}
+        </div>
       </div>
 
       {isSuperAdmin && (
@@ -578,148 +663,165 @@ const Empleados = () => {
         </>
       )}
 
-      <Paper className="employees-table-container" elevation={3} sx={{ mt: 3 }}>
-        <TableContainer>
-          <Table>
+      <Paper className="employees-table-container" elevation={3} sx={{ mt: 2, width: '100%', overflow: 'hidden' }}>
+        <TableContainer sx={{ width: '100%', overflowX: 'hidden' }}>
+          <Table
+            size="small"
+            sx={{
+              width: '100%',
+              tableLayout: 'fixed',
+              '& .MuiTableCell-root': {
+                boxSizing: 'border-box',
+                px: { xs: 0.75, sm: 1, md: 1.25 },
+                py: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }
+            }}
+          >
             <TableHead>
-              <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                <TableCell sx={{ fontWeight: 'bold' }}>Nombre</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Cargo</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Salario</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }} align="center">Asistencias</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }} align="center">Inasistencias</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }} align="center">Pago Mes</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }} align="center">Estado</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }} align="center">Acciones</TableCell>
+              <TableRow sx={{ bgcolor: 'var(--panel-wine, #4f222b)' }}>
+                <TableCell sx={{ width: { xs: '56%', sm: '40%', md: '16%', xl: '15%' }, fontWeight: 'bold' }}>Nombre</TableCell>
+                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, width: { md: '19%', xl: '17%' }, fontWeight: 'bold' }}>Email</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: { sm: '24%', md: '12%', xl: '10%' }, fontWeight: 'bold' }}>Cargo</TableCell>
+                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, width: { md: '10%', xl: '9%' }, fontWeight: 'bold' }}>Salario</TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ display: { xs: 'none', xl: 'table-cell' }, width: '15%', fontWeight: 'bold' }}
+                >
+                  Asistencia
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ display: { xs: 'none', md: 'table-cell' }, width: { md: '13%', xl: '12%' }, fontWeight: 'bold' }}
+                >
+                  Pago Mes
+                </TableCell>
+                <TableCell align="center" sx={{ width: { xs: '20%', sm: '16%', md: '11%', xl: '10%' }, fontWeight: 'bold' }}>Estado</TableCell>
+                <TableCell align="center" sx={{ width: { xs: '24%', sm: '20%', md: '19%', xl: '12%' }, fontWeight: 'bold' }}>Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {empleadosFiltrados.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                     {esHistorico && (cargandoHistorial || errorHistorial) ? "Historial no disponible" : empleadosVisibles.length === 0 ? (esHistorico ? "No hay información histórica para esta fecha" : "No hay empleados registrados") : "No hay empleados con este estado"}
                   </TableCell>
                 </TableRow>
               ) : (
                 empleadosFiltrados.map((empleado) => (
                   <TableRow key={empleado._id} hover>
-                    <TableCell>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{empleado.usuario?.nombre} {empleado.usuario?.apellido}</span>
+                    <TableCell sx={{ width: { xs: '56%', sm: '40%', md: '16%', xl: '15%' } }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {empleado.usuario?.nombre} {empleado.usuario?.apellido}
+                        </span>
                         {empleado.esUsuarioMadre && (
                           <Chip 
                             label="BASE" 
                             size="small" 
-                            color="secondary"
                             sx={{ 
-                              fontWeight: 'bold',
-                              backgroundColor: '#ffc107',
-                              color: '#000'
+                              flexShrink: 0,
+                              height: 20,
+                              fontWeight: 700,
+                              backgroundColor: 'rgba(243, 231, 205, 0.9)',
+                              color: 'var(--panel-wine, #4f222b)'
                             }}
                           />
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{empleado.usuario?.email}</TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={empleado.cargo} 
-                        size="small" 
-                        color="primary" 
+                    <TableCell
+                      title={empleado.usuario?.email || ''}
+                      sx={{ display: { xs: 'none', md: 'table-cell' }, width: { md: '19%', xl: '17%' } }}
+                    >
+                      {empleado.usuario?.email || '—'}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        display: { xs: 'none', sm: 'table-cell' },
+                        width: { sm: '24%', md: '12%', xl: '10%' },
+                        color: 'var(--panel-dark, #3b2428)'
+                      }}
+                    >
+                      {empleado.cargo || '—'}
+                    </TableCell>
+                    <TableCell
+                      sx={{ display: { xs: 'none', md: 'table-cell' }, width: { md: '10%', xl: '9%' } }}
+                    >
+                      {esHistorico ? "—" : `$${formatCurrency(getSalarioEmpleado(empleado))}`}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ display: { xs: 'none', xl: 'table-cell' }, width: '15%' }}
+                    >
+                      {esHistorico
+                        ? "—"
+                        : `${Number(empleado.diasTrabajados ?? 0)} presentes · ${Number(empleado.diasInasistencias ?? 0)} ausencias`}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ display: { xs: 'none', md: 'table-cell' }, width: { md: '13%', xl: '12%' } }}
+                    >
+                      {esHistorico ? "—" : (
+                        <Typography
+                          component="span"
+                          sx={{
+                            color: 'var(--panel-dark, #3b2428)',
+                            fontSize: '0.75rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          {empleado.pagadoMesActual ? 'Pagado' : 'Pendiente'}
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell align="center" sx={{ width: { xs: '20%', sm: '16%', md: '11%', xl: '10%' } }}>
+                      <Typography
+                        component="span"
+                        sx={{
+                          color: 'var(--panel-dark, #3b2428)',
+                          fontSize: '0.75rem',
+                          fontWeight: 700
+                        }}
+                      >
+                        {empleado.activo ? 'Activo' : 'Inactivo'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center" sx={{ width: { xs: '24%', sm: '20%', md: '19%', xl: '12%' } }}>
+                      <Button
                         variant="outlined"
-                      />
+                        size="small"
+                        startIcon={<MoreVertIcon />}
+                        aria-haspopup="menu"
+                        aria-label={`Acciones de ${empleado.usuario?.nombre || 'empleado'}`}
+                        title={canEdit && !esHistorico ? 'Acciones del empleado' : 'Ver detalle (solo lectura)'}
+                        onClick={(event) => {
+                          setAnchorEl(event.currentTarget);
+                          setMenuEmpleado(empleado);
+                        }}
+                        sx={{
+                          minWidth: 0,
+                          px: { xs: 0.5, sm: 1 },
+                          borderColor: 'rgba(100, 47, 58, 0.35)',
+                          color: 'var(--panel-wine, #4f222b)',
+                          textTransform: 'none',
+                          '& .MuiButton-startIcon': {
+                            mr: { xs: 0, sm: 0.75 }
+                          },
+                          '&:hover': {
+                            borderColor: 'var(--panel-wine, #4f222b)',
+                            color: '#f5efe6',
+                            backgroundColor: 'var(--panel-wine, #4f222b)'
+                          }
+                        }}
+                      >
+                        <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                          Acciones
+                        </Box>
+                      </Button>
                     </TableCell>
-                     <TableCell>
-                       {esHistorico ? "—" : `$${formatCurrency(getSalarioEmpleado(empleado))}`}
-                     </TableCell>
-                    <TableCell align="center">
-                      {esHistorico ? "—" : <Chip
-                        label={empleado.diasTrabajados || 0} 
-                        size="small" 
-                        color="success"
-                      />}
-                    </TableCell>
-                    <TableCell align="center">
-                      {esHistorico ? "—" : <Chip
-                        label={empleado.diasInasistencias || 0} 
-                        size="small" 
-                        color="error"
-                      />}
-                    </TableCell>
-                    <TableCell align="center">
-                      {esHistorico ? "—" : empleado.pagadoMesActual ? (
-                        <Chip label="✅ Pagado" size="small" color="success" />
-                      ) : (
-                        <Chip label="⏳ Pendiente" size="small" color="warning" />
-                      )}
-                    </TableCell>
-                    <TableCell align="center">
-                      {empleado.activo ? (
-                        <Chip label="Activo" size="small" color="success" />
-                      ) : (
-                        <Chip label="Inactivo" size="small" color="error" />
-                      )}
-                    </TableCell>
-                     <TableCell align="center">
-                       {canEdit && !esHistorico ? (
-                         <>
-                           <Tooltip title="Registrar Asistencia">
-                             <IconButton 
-                               onClick={() => handleOpenAsistencia(empleado)}
-                               color="success"
-                               size="small"
-                             >
-                               <EventIcon />
-                             </IconButton>
-                           </Tooltip>
-                           <Tooltip title="Registrar Inasistencia">
-                             <IconButton 
-                               onClick={() => handleOpenInasistencia(empleado)}
-                               color="error"
-                               size="small"
-                             >
-                               <EventBusyIcon />
-                             </IconButton>
-                           </Tooltip>
-                           <Tooltip title="Registrar Pago">
-                             <IconButton 
-                               onClick={() => handleOpenPago(empleado)}
-                               color="warning"
-                               size="small"
-                             >
-                               <PaymentIcon />
-                             </IconButton>
-                           </Tooltip>
-                           <Tooltip title={empleado.esUsuarioMadre ? "Usuario BASE - Editar/Crear registro" : "Editar"}>
-                             <span>
-                               <IconButton 
-                                 onClick={() => handleEdit(empleado)}
-                                 color="primary"
-                                 size="small"
-                               >
-                                 <EditIcon />
-                               </IconButton>
-                             </span>
-                           </Tooltip>
-                           <Tooltip title="Más opciones">
-                             <span>
-                               <IconButton 
-                                 onClick={(e) => {
-                                   setAnchorEl(e.currentTarget);
-                                   setMenuEmpleado(empleado);
-                                 }}
-                                 size="small"
-                               >
-                                 <MoreVertIcon />
-                               </IconButton>
-                             </span>
-                           </Tooltip>
-                         </>
-                       ) : (
-                         <Chip label="Solo visualización" size="small" color="default" variant="outlined" />
-                       )}
-                     </TableCell>
                   </TableRow>
                 ))
               )}
@@ -727,6 +829,180 @@ const Empleados = () => {
           </Table>
         </TableContainer>
       </Paper>
+
+      <Dialog
+        open={openDetalleModal}
+        onClose={() => {
+          setOpenDetalleModal(false);
+          setEmpleadoDetalle(null);
+        }}
+        aria-labelledby="detalle-empleado-title"
+        fullWidth
+        maxWidth="xs"
+        PaperProps={{
+          sx: {
+            border: '1px solid rgba(100, 47, 58, 0.2)',
+            borderRadius: 2,
+            backgroundColor: 'var(--panel-cream, #f3e7cd)',
+            color: 'var(--panel-dark, #3b2428)'
+          }
+        }}
+      >
+        <DialogTitle id="detalle-empleado-title" sx={{ color: 'var(--panel-wine, #4f222b)', fontWeight: 700 }}>
+          Detalle del empleado
+        </DialogTitle>
+        <DialogContent dividers sx={{ borderColor: 'rgba(100, 47, 58, 0.16)' }}>
+          {empleadoDetalle && (
+            <Box>
+              <Typography sx={{ mb: 1.5, color: 'var(--panel-wine, #4f222b)', fontWeight: 700 }}>
+                {[empleadoDetalle.usuario?.nombre, empleadoDetalle.usuario?.apellido]
+                  .filter(Boolean).join(' ') || 'Empleado sin nombre'}
+              </Typography>
+              {[
+                ['Correo', empleadoDetalle.usuario?.email || 'No registrado'],
+                ['Cargo', empleadoDetalle.cargo || 'No especificado'],
+                ['Salario mensual', `$${formatCurrency(getSalarioEmpleado(empleadoDetalle))}`],
+                ['Asistencias', Number(empleadoDetalle.diasTrabajados ?? 0) || 0],
+                ['Inasistencias', Number(empleadoDetalle.diasInasistencias ?? 0) || 0],
+                ['Pago del mes', empleadoDetalle.pagadoMesActual ? 'Pagado' : 'Pendiente'],
+                ['Estado', empleadoDetalle.activo ? 'Activo' : 'Inactivo']
+              ].map(([label, value], index, details) => (
+                <Box
+                  key={label}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: 2,
+                    py: 1,
+                    borderBottom: index < details.length - 1
+                      ? '1px solid rgba(100, 47, 58, 0.12)'
+                      : 'none'
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: 'var(--panel-dark, #3b2428)' }}>
+                    {label}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'var(--panel-wine, #4f222b)', fontWeight: 600, textAlign: 'right' }}>
+                    {value}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 2, py: 1.5 }}>
+          <Button
+            onClick={() => {
+              setOpenDetalleModal(false);
+              setEmpleadoDetalle(null);
+            }}
+            sx={{
+              color: '#f5efe6',
+              backgroundColor: 'var(--panel-wine, #4f222b)',
+              '&:hover': { backgroundColor: 'var(--panel-dark, #3b2428)' }
+            }}
+          >
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openInformePago}
+        onClose={() => setOpenInformePago(false)}
+        aria-labelledby="informe-pago-total-title"
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            border: '1px solid rgba(100, 47, 58, 0.2)',
+            borderRadius: 2,
+            backgroundColor: 'var(--panel-cream, #f3e7cd)',
+            color: 'var(--panel-dark, #3b2428)'
+          }
+        }}
+      >
+        <DialogTitle id="informe-pago-total-title" sx={{ color: 'var(--panel-wine, #4f222b)', fontWeight: 700 }}>
+          Informe de pago total
+        </DialogTitle>
+        <DialogContent dividers sx={{ borderColor: 'rgba(100, 47, 58, 0.16)' }}>
+          <Typography variant="body2" sx={{ mb: 1.5, color: 'var(--panel-dark, #3b2428)' }}>
+            Nómina mensual estimada de todos los empleados activos.
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              mb: 1.5,
+              p: 1.5,
+              borderRadius: 1.5,
+              color: 'var(--panel-cream, #f3e7cd)',
+              backgroundColor: 'var(--panel-wine, #4f222b)'
+            }}
+          >
+            <Typography variant="body2" sx={{ color: '#f5efe6' }}>
+              {pagosInforme.length} empleados activos
+            </Typography>
+            <Typography variant="h6" sx={{ color: '#f5efe6', fontWeight: 700, whiteSpace: 'nowrap' }}>
+              ${formatCurrency(totalPagoInforme)}
+            </Typography>
+          </Box>
+          {pagosInforme.length > 0 ? (
+            pagosInforme.map(({ empleado, monto }, index) => {
+              const nombre = [
+                empleado?.usuario?.nombre,
+                empleado?.usuario?.apellido
+              ].filter(Boolean).join(' ') || 'Empleado sin nombre';
+
+              return (
+                <Box
+                  key={empleado?._id || empleado?.id || `${nombre}-${index}`}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 2,
+                    py: 1.1,
+                    borderBottom: index < pagosInforme.length - 1
+                      ? '1px solid rgba(100, 47, 58, 0.12)'
+                      : 'none'
+                  }}
+                >
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ color: 'var(--panel-dark, #3b2428)', fontWeight: 600 }}>
+                      {nombre}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+                      {empleado?.cargo || 'Cargo sin especificar'}
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ color: 'var(--panel-wine, #4f222b)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    ${formatCurrency(monto)}
+                  </Typography>
+                </Box>
+              );
+            })
+          ) : (
+            <Typography variant="body2" sx={{ py: 2, color: 'var(--panel-dark, #3b2428)', textAlign: 'center' }}>
+              No hay empleados activos para incluir en el informe.
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 2, py: 1.5 }}>
+          <Button
+            onClick={() => setOpenInformePago(false)}
+            sx={{
+              color: 'var(--panel-cream, #f3e7cd)',
+              backgroundColor: 'var(--panel-wine, #4f222b)',
+              '&:hover': { backgroundColor: 'var(--panel-dark, #3b2428)' }
+            }}
+          >
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <EmpleadoFormModal
         form={form}
@@ -779,25 +1055,75 @@ const Empleados = () => {
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        onClose={() => {
-          setAnchorEl(null);
-          setMenuEmpleado(null);
-        }}
+        onClose={cerrarMenuEmpleado}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        PaperProps={{
+          sx: {
+            border: '1px solid rgba(100, 47, 58, 0.18)',
+            backgroundColor: 'var(--panel-cream, #f3e7cd)',
+            color: 'var(--panel-dark, #3b2428)'
+          }
+        }}
       >
-        <MenuItem 
-          onClick={() => {
-            handleDesactivar(menuEmpleado);
-            setAnchorEl(null);
-            setMenuEmpleado(null);
-          }}
-        >
-          <ListItemIcon>
-            <BlockIcon fontSize="small" color="warning" />
+        <MenuItem onClick={() => abrirDetalleEmpleado(menuEmpleado)}>
+          <ListItemIcon sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+            <VisibilityIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Desactivar</ListItemText>
+          <ListItemText>Ver detalle</ListItemText>
         </MenuItem>
+        <Box role="presentation" sx={{ px: 2, py: 1 }}>
+          <Typography variant="caption" sx={{ display: 'block', color: 'var(--panel-dark, #3b2428)' }}>
+            Estado: {menuEmpleado?.activo ? 'Activo' : 'Inactivo'}
+          </Typography>
+          <Typography variant="caption" sx={{ display: 'block', color: 'var(--panel-dark, #3b2428)' }}>
+            Pago del mes: {menuEmpleado?.pagadoMesActual ? 'Pagado' : 'Pendiente'}
+          </Typography>
+        </Box>
+        <Divider sx={{ borderColor: 'rgba(100, 47, 58, 0.18)' }} />
+        {canEdit && !esHistorico && (
+          <>
+            <MenuItem onClick={() => { handleEdit(menuEmpleado); cerrarMenuEmpleado(); }}>
+              <ListItemIcon sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>{menuEmpleado?.esUsuarioMadre ? "Usuario BASE - Editar/Crear registro" : "Editar"}</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => { handleOpenAsistencia(menuEmpleado); cerrarMenuEmpleado(); }}>
+              <ListItemIcon sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+                <EventIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Registrar asistencia</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => { handleOpenInasistencia(menuEmpleado); cerrarMenuEmpleado(); }}>
+              <ListItemIcon sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+                <EventBusyIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Registrar inasistencia</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => { handleOpenPago(menuEmpleado); cerrarMenuEmpleado(); }}>
+              <ListItemIcon sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+                <PaymentIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Registrar / actualizar pago</ListItemText>
+            </MenuItem>
+            {menuEmpleado?.activo ? (
+              <MenuItem onClick={() => { handleDesactivar(menuEmpleado); cerrarMenuEmpleado(); }}>
+                <ListItemIcon sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+                  <BlockIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Desactivar</ListItemText>
+              </MenuItem>
+            ) : (
+              <MenuItem onClick={() => { handleActivar(menuEmpleado); cerrarMenuEmpleado(); }}>
+                <ListItemIcon sx={{ color: 'var(--panel-wine, #4f222b)' }}>
+                  <CheckCircleIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Activar</ListItemText>
+              </MenuItem>
+            )}
+          </>
+        )}
       </Menu>
     </div>
   );

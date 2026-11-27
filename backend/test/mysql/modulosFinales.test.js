@@ -7,6 +7,7 @@ import {statements} from '../../scripts/mysql/sqlFile.js';
 import {empleadosService} from '../../src/services/mysql/empleados.js';
 import {mensajesService} from '../../src/services/mysql/mensajes.js';
 import {passwordResetService} from '../../src/services/mysql/passwordReset.js';
+import {getPasswordResetDelivery,isTestResetAccount} from '../../src/services/passwordResetEnvironment.js';
 import {ventasLegacyService} from '../../src/services/mysql/ventasLegacy.js';
 import {importarPendientes} from '../../src/services/mysql/importPendientes.js';
 import {instalarHistorialEmpleados} from '../../scripts/mysql/historialEmpleados.js';
@@ -15,6 +16,16 @@ let admin,pool,empleados,mensajes,password,ventas,tokens=[],globalPool,httpServe
 const dbname=`final_prueba_${process.pid}_${Date.now()}`;
 const options={host:process.env.MYSQL_HOST||'127.0.0.1',port:Number(process.env.MYSQL_PORT||3306),user:process.env.MYSQL_USER||'root',password:process.env.MYSQL_PASSWORD||'',decimalNumbers:true,timezone:'Z'};
 const previous={MYSQL_DATABASE:process.env.MYSQL_DATABASE,PORT:process.env.PORT,JWT_SECRET_KEY:process.env.JWT_SECRET_KEY,MONGODB_URI:process.env.MONGODB_URI};
+test('recuperación de prueba redirige solo la cuenta autorizada y nunca en producción',()=>{
+ const env={NODE_ENV:'staging',MAIL_OVERRIDE_TO:'admin@example.test',TEST_RESET_EMAIL:'Demo@example.test',TEST_RESET_PASSWORD:'placeholder-test-only'};
+ assert.deepEqual(getPasswordResetDelivery('demo@example.test',env),{to:'admin@example.test',requestedAccount:'demo@example.test'});
+ assert.deepEqual(getPasswordResetDelivery('otra@example.test',env),{to:'otra@example.test',requestedAccount:undefined});
+ assert.equal(isTestResetAccount('DEMO@example.test',env),true);
+ assert.deepEqual(getPasswordResetDelivery('demo@example.test',{...env,TEST_RESET_EMAIL:''}),{to:'demo@example.test',requestedAccount:undefined});
+ assert.equal(isTestResetAccount('demo@example.test',{...env,TEST_RESET_EMAIL:''}),false);
+ assert.deepEqual(getPasswordResetDelivery('demo@example.test',{...env,NODE_ENV:'production'}),{to:'demo@example.test',requestedAccount:undefined});
+ assert.equal(isTestResetAccount('demo@example.test',{...env,NODE_ENV:'production'}),false);
+});
 before(async()=>{if(!enabled)return;
  admin=await mysql.createConnection(options);await admin.query(`CREATE DATABASE ${dbname}`);await admin.query(`USE ${dbname}`);
  for(const file of ['001_schema.sql','002_integridad.sql','003_datos_iniciales.sql','005_compras_pagos.sql','006_pedidos_publicos.sql','007_modulos_restantes.sql']){

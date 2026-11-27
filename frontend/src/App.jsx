@@ -46,7 +46,7 @@ function App() {
     localStorage.getItem("app-theme") === "night"
   ));
   const isEmployeePath = employeePaths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
-  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/equipo-desarrollo", "/login", "/forgot-password"].includes(location.pathname) || isEmployeePath;
+  const hideChrome = ["/", "/entrar", "/menu", "/menu-digital", "/reservas", "/servicios", "/quienes-somos", "/equipo-desarrollo", "/login", "/forgot-password", "/reset-password"].includes(location.pathname) || isEmployeePath;
   const toggleNightMode = () => setIsNightMode((current) => !current);
 
   // Inicializar la autenticación al cargar la aplicación

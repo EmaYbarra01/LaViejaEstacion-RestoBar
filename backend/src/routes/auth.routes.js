@@ -87,7 +87,7 @@ router.post(
         body('token')
             .notEmpty().withMessage('El token es requerido'),
         body('newPassword')
-            .notEmpty().withMessage('La nueva contraseña es requerida')
+            .optional({ values: 'falsy' })
             .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
         resultadoValidacion
     ],
