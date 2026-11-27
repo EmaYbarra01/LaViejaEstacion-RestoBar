@@ -53,7 +53,9 @@ const getPanelTitle = (pathname, roleType, role) => {
   if (pathname.startsWith('/admin/calendario')) return 'Calendario';
   if (pathname.startsWith('/admin/empleados')) return 'Empleados';
   if (pathname.startsWith('/admin/reportes')) return 'Reportes';
-  if (pathname.startsWith('/admin/dashboard') || pathname === '/admin') return 'Gerencia';
+  if (pathname.startsWith('/admin/dashboard') || pathname === '/admin') {
+    return normalizeRole(role) === 'superadministrador' ? 'Administración' : 'Gerencia';
+  }
   if (pathname.startsWith('/supervision-pedidos')) return 'Supervisión de pedidos';
   if (pathname.startsWith('/encargado-cocina')) return 'Supervisión de cocina';
   if (pathname.startsWith('/caja/historial-cierres')) return 'Historial de cierres';
@@ -61,7 +63,7 @@ const getPanelTitle = (pathname, roleType, role) => {
   if (pathname.startsWith('/caja')) return 'Caja - Cobros';
   if (pathname.startsWith('/mozo')) return 'Pedidos';
 
-  if (roleType === 'admin') return 'Gerencia';
+  if (roleType === 'admin') return normalizeRole(role) === 'superadministrador' ? 'Administración' : 'Gerencia';
   if (role === 'Mozo') return 'Pedidos';
   if (role === 'EncargadoCocina') return 'Cocina';
   if (role === 'Cajero') return 'Caja - Cobros';
