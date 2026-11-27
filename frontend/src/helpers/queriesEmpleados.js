@@ -19,6 +19,15 @@ export const getAllEmpleados = async () => {
   }
 };
 
+export const getEstadosEmpleadosPorDia = async (fecha, signal) => {
+  const response = await axios.get(`${URL_EMPLEADOS}/historial-estados`, {
+    params: { fecha },
+    signal,
+    withCredentials: true
+  });
+  return response.data;
+};
+
 /**
  * Obtener un empleado por ID
  */

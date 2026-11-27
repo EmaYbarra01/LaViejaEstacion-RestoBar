@@ -3,6 +3,7 @@ import { empleadosService } from '../services/mysql/empleados.js';
 import { endpoint } from '../services/mysql/modulosHelpers.js';
 const s=empleadosService(pool),uid=req=>req.user?.id??req.id;
 export const obtenerEmpleados=endpoint(async req=>({body:await s.listar(uid(req))}));
+export const obtenerEstadosPorDia=endpoint(async req=>({body:await s.estadosPorDia(uid(req),req.query.fecha)}));
 export const obtenerEmpleadoPorId=endpoint(async req=>({body:await s.obtener(uid(req),req.params.id)}));
 export const crearEmpleado=endpoint(async req=>({status:201,body:{message:'Empleado creado o vinculado exitosamente',empleado:await s.crear(uid(req),req.body||{})}}));
 export const actualizarEmpleado=endpoint(async req=>({body:{message:'Empleado actualizado exitosamente',empleado:await s.actualizar(uid(req),req.params.id,req.body||{})}}));

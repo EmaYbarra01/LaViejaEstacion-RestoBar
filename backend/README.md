@@ -9,12 +9,15 @@ Conservar el .env actual y hacer un respaldo de MySQL. En backend:
 ```powershell
 npm ci
 npm run db:mysql:migrate:final
+npm run db:mysql:migrate:historial-empleados
 npm run db:mysql:audit
 npm run db:mysql:check
 npm run dev
 ```
 
 No ejecutar db:mysql:setup ni INSTALAR_BASE_DATOS.sql en una base con datos. La migración final aplica las actualizaciones 005, 006 y 007; no recarga datos iniciales.
+
+La migración del historial de empleados debe ejecutarse con la aplicación detenida y sin otras escrituras en las tablas de usuarios o empleados. Crea un estado inicial y registra los cambios posteriores; no reconstruye estados previos. La instalación puede repetirse sin reiniciar el historial.
 
 ## Base nueva de desarrollo
 
@@ -35,6 +38,8 @@ MYSQL_HOST (127.0.0.1), MYSQL_PORT (3306), MYSQL_USER (root), MYSQL_PASSWORD, MY
 Usuarios/login, productos, mesas, pedidos internos/públicos, cocina, reservas, compras, caja, cierres, reportes, dashboard, empleados, asistencias, inasistencias, pagos del personal, mensajes entre gerente y superadministrador, recuperación de contraseña y sales.
 
 El identificador público de un empleado corresponde al ID del usuario. Su ID de legajo SQL se utiliza internamente al relacionar jornadas y pagos. No se expone password_hash en las respuestas. Los usuarios con historial relacionado se desactivan: las claves foráneas bloquean una eliminación que destruiría referencias.
+
+El filtro histórico de estados es exclusivo de SuperAdministrador. Usa el estado al cierre del día en horario UTC-03:00; para el día actual usa lo registrado hasta ese momento. Las fechas anteriores al inicio no tienen información y el primer día está cubierto solo desde la hora indicada. El historial conserva nombre, apellido, correo, cargo y estado incluso si el usuario se elimina, y la vista histórica es de solo lectura. Los empleados eliminados se muestran en las fechas en que existían, no después de su eliminación. La retención de esos datos requiere políticas de acceso y conservación adecuadas.
 
 Sales conserva la API heredada y sus tablas ventas/detalle_venta. No se suma a reportes de caja: no hay una acreditación de pago equivalente a pagos_pedido. El POS y el menú público siguen el circuito pedidos → entrega → cobro. No mezclar ambos circuitos ni registrar dos veces una venta.
 

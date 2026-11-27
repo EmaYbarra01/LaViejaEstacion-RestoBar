@@ -1,5 +1,6 @@
 import { connect } from './connection.js';
 import { executeFile } from './sqlFile.js';
+import { instalarHistorialEmpleados } from './historialEmpleados.js';
 
 const connection = await connect();
 try {
@@ -11,6 +12,7 @@ try {
     await executeFile(connection, new URL(`../../database/mysql/${file}`, import.meta.url));
     console.log(`OK ${file}`);
   }
+  await instalarHistorialEmpleados(connection);
   const [incidents] = await connection.query('SELECT * FROM v_incidencias_integridad');
   if (incidents.length) throw new Error(`Incidencias: ${JSON.stringify(incidents)}`);
   console.log(`Base creada y verificada en MySQL ${server.version}. MongoDB permanece sin cambios.`);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { 
   getAllEmpleados, 
+  getEstadosEmpleadosPorDia,
   createEmpleado, 
   updateEmpleado, 
   desactivarEmpleado,
@@ -47,6 +48,11 @@ const Empleados = () => {
   const canEdit = isSuperAdmin; // Solo SuperAdministrador puede editar
   
   const [empleados, setEmpleados] = useState([]);
+  const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [fechaEstado, setFechaEstado] = useState("");
+  const [historialEstados, setHistorialEstados] = useState(null);
+  const [errorHistorial, setErrorHistorial] = useState("");
+  const [cargandoHistorial, setCargandoHistorial] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openAsistenciaModal, setOpenAsistenciaModal] = useState(false);
   const [openPagoModal, setOpenPagoModal] = useState(false);
@@ -109,6 +115,27 @@ const Empleados = () => {
     console.log('Empleados montado, cargando...');
     loadEmpleados();
   }, []);
+
+  useEffect(() => {
+    if (!isSuperAdmin || !fechaEstado) return;
+    const controller = new AbortController();
+    setCargandoHistorial(true);
+    setHistorialEstados(null);
+    setErrorHistorial("");
+    getEstadosEmpleadosPorDia(fechaEstado, controller.signal)
+      .then((resultado) => {
+        if (!controller.signal.aborted) setHistorialEstados(resultado);
+      })
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        console.error("Error al consultar el historial de empleados:", error);
+        setErrorHistorial(error.response?.data?.message || "No se pudo consultar el historial de empleados");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCargandoHistorial(false);
+      });
+    return () => controller.abort();
+  }, [fechaEstado, isSuperAdmin]);
 
   const loadEmpleados = async () => {
     try {
@@ -480,6 +507,14 @@ const Empleados = () => {
     setOpenModal(true);
   };
 
+  const esHistorico = isSuperAdmin && Boolean(fechaEstado);
+  const empleadosVisibles = esHistorico ? (historialEstados?.empleados || []) : empleados;
+  const empleadosActivos = empleadosVisibles.filter((empleado) => empleado.activo).length;
+  const empleadosFiltrados = empleadosVisibles.filter((empleado) => (
+    !isSuperAdmin || filtroEstado === "todos" || empleado.activo === (filtroEstado === "activos")
+  ));
+  const hoyArgentina = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
   return (
     <div className="admin-container employees-panel-page">
       {console.log('RENDER Empleados, count:', empleados.length)}
@@ -504,6 +539,45 @@ const Empleados = () => {
         )}
       </div>
 
+      {isSuperAdmin && (
+        <>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+            <div className="products-filter-field" style={{ flex: "0 1 220px" }}>
+              <label htmlFor="empleados-filtro-estado">Estado</label>
+              <select
+                id="empleados-filtro-estado"
+                className="select-filtro"
+                value={filtroEstado}
+                onChange={(event) => setFiltroEstado(event.target.value)}
+              >
+                <option value="todos">Todos{!esHistorico || historialEstados ? ` · ${empleadosVisibles.length}` : ""}</option>
+                <option value="activos">Activos{!esHistorico || historialEstados ? ` · ${empleadosActivos}` : ""}</option>
+                <option value="inactivos">Inactivos{!esHistorico || historialEstados ? ` · ${empleadosVisibles.length - empleadosActivos}` : ""}</option>
+              </select>
+            </div>
+            <div className="products-filter-field" style={{ flex: "0 1 220px" }}>
+              <label htmlFor="empleados-fecha-estado">Fecha</label>
+              <input
+                id="empleados-fecha-estado"
+                type="date"
+                max={hoyArgentina}
+                value={fechaEstado}
+                onChange={(event) => {
+                  setHistorialEstados(null);
+                  setErrorHistorial("");
+                  setFechaEstado(event.target.value);
+                }}
+              />
+            </div>
+          </div>
+          {esHistorico && (
+            <p role={errorHistorial ? "alert" : "status"} style={{ color: "var(--app-text-muted)", fontSize: "0.8rem", margin: "0.5rem 0 0" }}>
+              {errorHistorial || (cargandoHistorial ? "Cargando historial..." : historialEstados && `Vista histórica de solo lectura. Registro disponible desde ${historialEstados.inicio} (hora argentina).`)}
+            </p>
+          )}
+        </>
+      )}
+
       <Paper className="employees-table-container" elevation={3} sx={{ mt: 3 }}>
         <TableContainer>
           <Table>
@@ -521,14 +595,14 @@ const Empleados = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {empleados.length === 0 ? (
+              {empleadosFiltrados.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                    No hay empleados registrados
+                    {esHistorico && (cargandoHistorial || errorHistorial) ? "Historial no disponible" : empleadosVisibles.length === 0 ? (esHistorico ? "No hay información histórica para esta fecha" : "No hay empleados registrados") : "No hay empleados con este estado"}
                   </TableCell>
                 </TableRow>
               ) : (
-                empleados.map((empleado) => (
+                empleadosFiltrados.map((empleado) => (
                   <TableRow key={empleado._id} hover>
                     <TableCell>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -557,24 +631,24 @@ const Empleados = () => {
                       />
                     </TableCell>
                      <TableCell>
-                       ${formatCurrency(getSalarioEmpleado(empleado))}
+                       {esHistorico ? "—" : `$${formatCurrency(getSalarioEmpleado(empleado))}`}
                      </TableCell>
                     <TableCell align="center">
-                      <Chip 
+                      {esHistorico ? "—" : <Chip
                         label={empleado.diasTrabajados || 0} 
                         size="small" 
                         color="success"
-                      />
+                      />}
                     </TableCell>
                     <TableCell align="center">
-                      <Chip 
+                      {esHistorico ? "—" : <Chip
                         label={empleado.diasInasistencias || 0} 
                         size="small" 
                         color="error"
-                      />
+                      />}
                     </TableCell>
                     <TableCell align="center">
-                      {empleado.pagadoMesActual ? (
+                      {esHistorico ? "—" : empleado.pagadoMesActual ? (
                         <Chip label="✅ Pagado" size="small" color="success" />
                       ) : (
                         <Chip label="⏳ Pendiente" size="small" color="warning" />
@@ -588,7 +662,7 @@ const Empleados = () => {
                       )}
                     </TableCell>
                      <TableCell align="center">
-                       {canEdit ? (
+                       {canEdit && !esHistorico ? (
                          <>
                            <Tooltip title="Registrar Asistencia">
                              <IconButton 
