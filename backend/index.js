@@ -46,6 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(join(__dirname, 'public')));
 
 // Registrar todas las rutas bajo el prefijo /api
+app.use('/api/auth', authRoutes);
 app.use('/api', authRoutes);
 app.use('/api', usuariosRoutes);
 app.use('/api', productosRoutes);

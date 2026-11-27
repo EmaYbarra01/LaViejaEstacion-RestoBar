@@ -33,6 +33,8 @@ Setup requiere una base vacía y carga datos de demostración. No es un importad
 
 MYSQL_HOST (127.0.0.1), MYSQL_PORT (3306), MYSQL_USER (root), MYSQL_PASSWORD, MYSQL_DATABASE (la_vieja_estacion), JWT_SECRET_KEY y PORT (4000). Los scripts de instalación y migración utilizan la base la_vieja_estacion. SMTP: EMAIL_USER, EMAIL_PASS, EMAIL_FROM y FRONTEND_URL para recuperación de contraseña. No subir .env ni exportaciones de datos a GitHub.
 
+En desarrollo/staging se puede configurar `MAIL_OVERRIDE_TO` para recibir los correos de recuperación de una única cuenta de prueba indicada en `TEST_RESET_EMAIL`. `TEST_RESET_PASSWORD` permite restablecer esa cuenta con la contraseña predeterminada si se omite `newPassword`, siempre presentando un token válido. Estas opciones no se aplican en producción; el resto de las cuentas sigue recibiendo el enlace en su correo registrado.
+
 ## Funciones migradas
 
 Usuarios/login, productos, mesas, pedidos internos/públicos, cocina, reservas, compras, caja, cierres, reportes, dashboard, empleados, asistencias, inasistencias, pagos del personal, mensajes entre gerente y superadministrador, recuperación de contraseña y sales.

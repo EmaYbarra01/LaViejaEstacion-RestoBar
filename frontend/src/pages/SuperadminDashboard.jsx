@@ -6,6 +6,10 @@ import './SuperadminDashboard.css';
 const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 const FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="120"%3E%3Crect fill="%234f222b" width="160" height="120"/%3E%3Ctext fill="%23f3e7cd" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="12"%3ESin imagen%3C/text%3E%3C/svg%3E';
+const toFiniteNumber = (value) => {
+  const number = Number(value ?? 0);
+  return Number.isFinite(number) ? number : 0;
+};
 
 function SuperadminDashboard() {
   const [estadisticas, setEstadisticas] = useState(null);
@@ -43,11 +47,18 @@ function SuperadminDashboard() {
   const resumen = estadisticas.resumenMes;
   const pagos = estadisticas.ventasPorMetodoPago || [];
   const categorias = estadisticas.ventasPorCategoria || [];
-  const productos = estadisticas.top10Productos || [];
-  const obtenerImagenProducto = (imagenUrl) => {
-    if (!imagenUrl) return FALLBACK_IMAGE;
-    if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://')) return imagenUrl;
-    return `${BACKEND_URL}${imagenUrl.startsWith('/') ? '' : '/'}${imagenUrl}`;
+  const productos = (Array.isArray(estadisticas?.top10Productos) ? estadisticas.top10Productos : [])
+    .filter((producto) => producto && typeof producto === 'object')
+    .slice()
+    .sort((a, b) => toFiniteNumber(b?.cantidadVendida) - toFiniteNumber(a?.cantidadVendida))
+    .slice(0, 10);
+  const obtenerImagenProducto = (producto) => {
+    const imagenUrl = producto?.imagenUrl || producto?.imagen || producto?.img || producto?.foto;
+    if (typeof imagenUrl !== 'string' || !imagenUrl.trim()) return FALLBACK_IMAGE;
+    const imagen = imagenUrl.trim();
+    if (/^(https?:|data:image\/)/i.test(imagen)) return imagen;
+    const backendUrl = BACKEND_URL.replace(/\/$/, '');
+    return `${backendUrl}${imagen.startsWith('/') ? '' : '/'}${imagen}`;
   };
 
   return (
@@ -79,15 +90,23 @@ function SuperadminDashboard() {
           {categorias.map((categoria) => <div className="approved-rows" key={categoria.categoria}><span>{categoria.categoria}</span><strong>{categoria.cantidad || categoria.total}</strong></div>)}
         </section>
         <section className="approved-info-card top-products-card">
-          <h3>Top 10 productos más vendidos</h3>
+          <div className="top-products-heading">
+            <div>
+              <h3>Top 10 productos más vendidos</h3>
+              <p>Ranking mensual por unidades vendidas</p>
+            </div>
+            <span className="top-products-period">Este mes</span>
+          </div>
           <div className="top-products-list">
             {productos.slice(0, 10).map((producto, index) => (
-              <article className="top-product-item" key={`${producto.nombre}-${index}`}>
-                <span className="top-product-rank">{index + 1}</span>
+              <article className="top-product-item" key={`${producto?.nombre || producto?.nombreProducto || 'producto'}-${index}`}>
+                <span className="top-product-rank" aria-label={`Puesto ${index + 1}`}>
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 <img
                   className="top-product-image"
-                  src={obtenerImagenProducto(producto.imagenUrl)}
-                  alt={producto.nombre}
+                  src={obtenerImagenProducto(producto)}
+                  alt={producto?.nombre || producto?.nombreProducto || 'Producto'}
                   loading="lazy"
                   onError={(event) => {
                     event.currentTarget.onerror = null;
@@ -95,8 +114,9 @@ function SuperadminDashboard() {
                   }}
                 />
                 <div className="top-product-info">
-                  <span className="top-product-name">{producto.nombre}</span>
-                  <span className="top-product-sold">{producto.cantidadVendida} vendidos</span>
+                  <span className="top-product-name">{producto?.nombre || producto?.nombreProducto || 'Producto sin nombre'}</span>
+                  <span className="top-product-sold">{toFiniteNumber(producto?.cantidadVendida)} vendidos</span>
+                  <span className="top-product-revenue">${formatCurrency(toFiniteNumber(producto?.totalVentas))} recaudados</span>
                 </div>
               </article>
             ))}

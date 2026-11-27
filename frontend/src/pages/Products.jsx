@@ -228,9 +228,12 @@ const Products = () => {
         {isGerente && (
           <Chip 
             label="Gestión completa"
-            color="success"
             size="small" 
-            style={{ marginLeft: '10px' }}
+            style={{
+              marginLeft: '10px',
+              color: 'var(--panel-cream)',
+              backgroundColor: 'var(--panel-wine)'
+            }}
           />
         )}
         {canEdit && (

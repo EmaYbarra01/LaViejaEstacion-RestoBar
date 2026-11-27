@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PublicShell from '../components/PublicShell';
+import { requestPasswordReset } from '../helpers/queriesPasswordReset';
 import './ForgotPassword.css';
 
 const ForgotPassword = ({ isNightMode, onToggleNightMode }) => {
@@ -16,32 +17,23 @@ const ForgotPassword = ({ isNightMode, onToggleNightMode }) => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      const result = await requestPasswordReset(email.trim());
+      if (result.success) {
         setMessage({
           type: 'success',
-          text: data.mensaje
+          text: result.data?.mensaje || 'Si el email existe, recibirás un correo con las instrucciones para restablecer tu contraseña.'
         });
         setEmailSent(true);
-        setSentTo(email);
+        setSentTo(email.trim());
         setEmail('');
       } else {
         setMessage({
           type: 'error',
-          text: data.mensaje || 'Error al enviar el correo de recuperación'
+          text: result.data?.mensaje || result.error || 'Error al enviar el correo de recuperación'
         });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error al solicitar recuperación de contraseña:', error);
       setMessage({
         type: 'error',
         text: 'Error de conexión. Por favor, intenta de nuevo más tarde.'
@@ -70,6 +62,7 @@ const ForgotPassword = ({ isNightMode, onToggleNightMode }) => {
                   type="email"
                   id="fp-email"
                   placeholder="tu@email.com"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -84,11 +77,11 @@ const ForgotPassword = ({ isNightMode, onToggleNightMode }) => {
           </>
         ) : (
           <div className="fp-sent">
-            <h3>¡Correo enviado!</h3>
-            <p>
-              Si existe una cuenta con el email <strong>{sentTo}</strong>,
-              recibirás un correo con las instrucciones para restablecer tu contraseña.
-            </p>
+            <h3>Solicitud recibida</h3>
+            <p>Procesamos la solicitud para <strong>{sentTo}</strong>.</p>
+            {message.text && (
+              <div className={`ps-msg fp-msg ${message.type}`} role="status">{message.text}</div>
+            )}
             <div className="fp-info">
               <b>¿No recibiste el correo?</b>
               <ul>

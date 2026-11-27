@@ -169,139 +169,147 @@ const CalendarioReservas = () => {
           <p>Vista mensual de todas las reservas del restaurante</p>
         </header>
 
-        <div className="calendario-navegacion">
-          <button className="btn-nav" onClick={() => cambiarMes(-1)}>
-            <FaChevronLeft />
-          </button>
-          <h2 className="mes-año">
-            {meses[currentDate.getMonth()]} {currentDate.getFullYear()}
-          </h2>
-          <button className="btn-nav" onClick={() => cambiarMes(1)}>
-            <FaChevronRight />
-          </button>
-        </div>
+        <div className="calendario-layout">
+          <section className="calendario-panel" aria-label="Calendario mensual">
+            <div className="calendario-navegacion">
+              <button className="btn-nav" onClick={() => cambiarMes(-1)}>
+                <FaChevronLeft />
+              </button>
+              <h2 className="mes-año">
+                {meses[currentDate.getMonth()]} {currentDate.getFullYear()}
+              </h2>
+              <button className="btn-nav" onClick={() => cambiarMes(1)}>
+                <FaChevronRight />
+              </button>
+            </div>
 
-        <div className="calendario-grid-container">
-          {/* Días de la semana */}
-          <div className="dias-semana">
-            {diasSemana.map(dia => (
-              <div key={dia} className="dia-semana-header">
-                {dia}
+            <div className="calendario-grid-container">
+              <div className="dias-semana">
+                {diasSemana.map(dia => (
+                  <div key={dia} className="dia-semana-header">
+                    {dia}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Días del mes */}
-          <div className="dias-grid">
-            {dias.map((fecha, index) => {
-              const stats = obtenerEstadisticasDia(fecha);
-              const isHoy = esHoy(fecha);
-              const isSelected = selectedDate && fecha && 
-                fecha.toDateString() === selectedDate.toDateString();
+              <div className="dias-grid">
+                {dias.map((fecha, index) => {
+                  const stats = obtenerEstadisticasDia(fecha);
+                  const isHoy = esHoy(fecha);
+                  const isSelected = selectedDate && fecha &&
+                    fecha.toDateString() === selectedDate.toDateString();
 
-              return (
-                <div
-                  key={index}
-                  className={`dia-celda ${!fecha ? 'vacio' : ''} ${isHoy ? 'hoy' : ''} ${isSelected ? 'selected' : ''} ${stats ? 'con-reservas' : ''}`}
-                  onClick={() => seleccionarDia(fecha)}
-                >
-                  {fecha && (
-                    <>
-                      <div className="dia-numero">{fecha.getDate()}</div>
-                      {stats && (
-                        <div className="dia-stats">
-                          <div className="stats-badges">
-                            {stats.pendientes > 0 && (
-                              <span className="badge badge-warning" title="Pendientes">
-                                {stats.pendientes}
-                              </span>
-                            )}
-                            {stats.confirmadas > 0 && (
-                              <span className="badge badge-success" title="Confirmadas">
-                                {stats.confirmadas}
-                              </span>
-                            )}
-                            {stats.completadas > 0 && (
-                              <span className="badge badge-info" title="Completadas">
-                                {stats.completadas}
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                  return (
+                    <div
+                      key={index}
+                      className={`dia-celda ${!fecha ? 'vacio' : ''} ${isHoy ? 'hoy' : ''} ${isSelected ? 'selected' : ''} ${stats ? 'con-reservas' : ''}`}
+                      onClick={() => seleccionarDia(fecha)}
+                    >
+                      {fecha && (
+                        <>
+                          <div className="dia-numero">{fecha.getDate()}</div>
+                          {stats && (
+                            <div className="dia-stats">
+                              <div className="stats-badges">
+                                {stats.pendientes > 0 && (
+                                  <span className="badge badge-warning" title="Pendientes">
+                                    {stats.pendientes}
+                                  </span>
+                                )}
+                                {stats.confirmadas > 0 && (
+                                  <span className="badge badge-success" title="Confirmadas">
+                                    {stats.confirmadas}
+                                  </span>
+                                )}
+                                {stats.completadas > 0 && (
+                                  <span className="badge badge-info" title="Completadas">
+                                    {stats.completadas}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
 
-        {/* Panel de detalles del día seleccionado */}
-        {selectedDate && (
-          <div className="detalles-dia">
-            <h3>
-              <FaCalendarAlt /> {formatearFecha(selectedDate)}
-            </h3>
-            
-            {reservasDelDia.length === 0 ? (
-              <p className="no-reservas-dia">No hay reservas para este día</p>
-            ) : (
-              <>
-                <div className="resumen-dia">
-                  <div className="stat-card">
-                    <span className="stat-numero">{reservasDelDia.length}</span>
-                    <span className="stat-label">Total</span>
-                  </div>
-                  <div className="stat-card warning">
-                    <span className="stat-numero">
-                      {reservasDelDia.filter(r => r.estado === 'Pendiente').length}
-                    </span>
-                    <span className="stat-label">Pendientes</span>
-                  </div>
-                  <div className="stat-card success">
-                    <span className="stat-numero">
-                      {reservasDelDia.filter(r => r.estado === 'Confirmada').length}
-                    </span>
-                    <span className="stat-label">Confirmadas</span>
-                  </div>
-                </div>
+          <aside className="detalles-panel" aria-label="Detalle de reservas">
+            {selectedDate ? (
+              <div className="detalles-dia">
+                <h3>
+                  <FaCalendarAlt /> {formatearFecha(selectedDate)}
+                </h3>
 
-                <div className="lista-reservas-dia">
-                  {reservasDelDia
-                    .sort((a, b) => a.hora.localeCompare(b.hora))
-                    .map(reserva => (
-                      <div key={reserva._id} className={`reserva-card ${reserva.estado.toLowerCase()}`}>
-                        <div className="reserva-hora">
-                          <FaClock />
-                          <span>{reserva.hora}</span>
-                        </div>
-                        <div className="reserva-info">
-                          <h4>{reserva.cliente}</h4>
-                          <div className="reserva-detalles">
-                            <span>
-                              <FaUsers /> {reserva.comensales} personas
-                            </span>
-                            {reserva.mesa && (
-                              <span>Mesa {reserva.mesa.numero}</span>
-                            )}
-                          </div>
-                          <div className="reserva-contacto">
-                            <small>{reserva.email}</small>
-                            <small>{reserva.telefono}</small>
-                          </div>
-                        </div>
-                        <div className="reserva-estado">
-                          {getEstadoIcon(reserva.estado)}
-                          <span>{reserva.estado}</span>
-                        </div>
+                {reservasDelDia.length === 0 ? (
+                  <p className="no-reservas-dia">No hay reservas para este día</p>
+                ) : (
+                  <>
+                    <div className="resumen-dia">
+                      <div className="stat-card">
+                        <span className="stat-numero">{reservasDelDia.length}</span>
+                        <span className="stat-label">Total</span>
                       </div>
-                    ))}
-                </div>
-              </>
+                      <div className="stat-card warning">
+                        <span className="stat-numero">
+                          {reservasDelDia.filter(r => r.estado === 'Pendiente').length}
+                        </span>
+                        <span className="stat-label">Pendientes</span>
+                      </div>
+                      <div className="stat-card success">
+                        <span className="stat-numero">
+                          {reservasDelDia.filter(r => r.estado === 'Confirmada').length}
+                        </span>
+                        <span className="stat-label">Confirmadas</span>
+                      </div>
+                    </div>
+
+                    <div className="lista-reservas-dia">
+                      {reservasDelDia
+                        .sort((a, b) => a.hora.localeCompare(b.hora))
+                        .map(reserva => (
+                          <div key={reserva._id} className={`reserva-card ${reserva.estado.toLowerCase()}`}>
+                            <div className="reserva-hora">
+                              <FaClock />
+                              <span>{reserva.hora}</span>
+                            </div>
+                            <div className="reserva-info">
+                              <h4>{reserva.cliente}</h4>
+                              <div className="reserva-detalles">
+                                <span>
+                                  <FaUsers /> {reserva.comensales} personas
+                                </span>
+                                {reserva.mesa && (
+                                  <span>Mesa {reserva.mesa.numero}</span>
+                                )}
+                              </div>
+                              <div className="reserva-contacto">
+                                <small>{reserva.email}</small>
+                                <small>{reserva.telefono}</small>
+                              </div>
+                            </div>
+                            <div className="reserva-estado">
+                              {getEstadoIcon(reserva.estado)}
+                              <span>{reserva.estado}</span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="detalles-dia detalles-dia-vacio">
+                <h3><FaCalendarAlt /> Detalle del día</h3>
+                <p className="no-reservas-dia">Selecciona un día para consultar sus reservas.</p>
+              </div>
             )}
-          </div>
-        )}
+          </aside>
+        </div>
 
         {loading && (
           <div className="calendario-loading">

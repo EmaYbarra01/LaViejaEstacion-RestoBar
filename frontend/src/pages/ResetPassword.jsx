@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { resetPassword as submitPasswordReset, verifyResetToken } from '../helpers/queriesPasswordReset';
 import './ResetPassword.css';
 
 const ResetPassword = () => {
@@ -20,44 +21,42 @@ const ResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState('');
 
-  // Verificar token al cargar
   useEffect(() => {
+    let active = true;
+
     if (!token) {
       setMessage({
         type: 'error',
         text: 'Token no proporcionado. El enlace es inválido.'
       });
       setVerifying(false);
-      return;
+      return () => {
+        active = false;
+      };
     }
 
-    verifyToken();
-  }, [token]);
+    setVerifying(true);
+    const verify = async () => {
+      const result = await verifyResetToken(token);
+      if (!active) return;
 
-  const verifyToken = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/verify-reset-token/${token}`);
-      const data = await response.json();
-
-      if (data.valid) {
+      if (result.success && result.data?.valid && typeof result.data.email === 'string') {
         setTokenValid(true);
-        setUserEmail(data.email);
+        setUserEmail(result.data.email);
       } else {
         setMessage({
           type: 'error',
-          text: data.mensaje || 'El enlace ha expirado o es inválido'
+          text: result.data?.mensaje || result.error || 'El enlace ha expirado o es inválido'
         });
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setMessage({
-        type: 'error',
-        text: 'Error al verificar el token. Por favor, intenta de nuevo.'
-      });
-    } finally {
       setVerifying(false);
-    }
-  };
+    };
+
+    verify();
+    return () => {
+      active = false;
+    };
+  }, [token]);
 
   const calculatePasswordStrength = (password) => {
     if (!password) return '';
@@ -88,6 +87,14 @@ const ResetPassword = () => {
       return;
     }
 
+    if (new TextEncoder().encode(passwords.newPassword).length > 72) {
+      setMessage({
+        type: 'error',
+        text: 'La contraseña no puede superar los 72 bytes'
+      });
+      return;
+    }
+
     if (passwords.newPassword !== passwords.confirmPassword) {
       setMessage({
         type: 'error',
@@ -99,23 +106,11 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token,
-          newPassword: passwords.newPassword
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      const result = await submitPasswordReset(token, passwords.newPassword);
+      if (result.success) {
         setMessage({
           type: 'success',
-          text: data.mensaje
+          text: result.data?.mensaje || 'Contraseña actualizada exitosamente'
         });
         setTimeout(() => {
           navigate('/login');
@@ -123,11 +118,11 @@ const ResetPassword = () => {
       } else {
         setMessage({
           type: 'error',
-          text: data.mensaje || 'Error al restablecer la contraseña'
+          text: result.data?.mensaje || result.error || 'Error al restablecer la contraseña'
         });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error al restablecer la contraseña:', error);
       setMessage({
         type: 'error',
         text: 'Error de conexión. Por favor, intenta de nuevo.'
@@ -282,7 +277,7 @@ const ResetPassword = () => {
           </div>
 
           {message.text && (
-            <div className={`alert alert-${message.type}`}>
+            <div className={`alert alert-${message.type}`} role={message.type === 'error' ? 'alert' : 'status'}>
               <i className={`bi bi-${message.type === 'success' ? 'check-circle' : 'exclamation-circle'}`}></i>
               {message.text}
             </div>
@@ -291,7 +286,7 @@ const ResetPassword = () => {
           <button
             type="submit"
             className="btn btn-primary btn-block"
-            disabled={loading || !passwords.newPassword || !passwords.confirmPassword}
+            disabled={loading || message.type === 'success' || !passwords.newPassword || !passwords.confirmPassword}
           >
             {loading ? (
               <>
