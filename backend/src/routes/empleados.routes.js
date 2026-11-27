@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   obtenerEmpleados,
+  obtenerEstadosPorDia,
   obtenerEmpleadoPorId,
   crearEmpleado,
   actualizarEmpleado,
@@ -30,6 +31,13 @@ router.get(
   verificarToken,
   verificarRol(['SuperAdministrador', 'Gerente']),
   obtenerEmpleados
+);
+
+router.get(
+  '/historial-estados',
+  verificarToken,
+  verificarRol(['SuperAdministrador']),
+  obtenerEstadosPorDia
 );
 
 // Obtener un empleado por ID

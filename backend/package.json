@@ -13,6 +13,7 @@
         "db:mysql:migrate:compras": "node scripts/mysql/migrateCompras.js",
         "db:mysql:migrate:publicos": "node scripts/mysql/migratePublicos.js",
         "db:mysql:migrate:final": "node scripts/mysql/migrateFinal.js",
+        "db:mysql:migrate:historial-empleados": "node scripts/mysql/migrateHistorialEmpleados.js",
         "db:mysql:audit": "node scripts/mysql/auditRuntime.js",
         "db:mysql:import:pendientes": "node scripts/mysql/importPendientes.js"
     },

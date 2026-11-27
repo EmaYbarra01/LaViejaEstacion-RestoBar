@@ -282,6 +282,21 @@
   grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
 }
 
+.employee-page-content .admin-reservas-page .filtros-container {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  overflow: visible;
+}
+
+.employee-page-content .admin-reservas-page .filtro-grupo {
+  min-width: 0;
+}
+
+.employee-page-content .admin-reservas-page .filtro-grupo input,
+.employee-page-content .admin-reservas-page .filtro-grupo select {
+  width: 100%;
+  min-width: 0;
+}
+
 .employee-page-content .filter-btn,
 .employee-page-content .btn-limpiar-filtros,
 .employee-page-content .btn-nav,
@@ -355,6 +370,74 @@
 .employee-page-content .tabla-reservas {
   width: 100%;
   border-collapse: collapse;
+}
+
+.employee-page-content .admin-reservas-page .tabla-container {
+  overflow: visible;
+}
+
+.employee-page-content .admin-reservas-page .tabla-reservas {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.employee-page-content .admin-reservas-page .tabla-reservas th,
+.employee-page-content .admin-reservas-page .tabla-reservas td {
+  padding: 0.65rem 0.4rem;
+  overflow-wrap: anywhere;
+}
+
+.employee-page-content .admin-reservas-page .tabla-reservas .td-contacto {
+  display: table-cell;
+}
+
+.employee-page-content .admin-reservas-page .tabla-reservas tbody tr:hover {
+  transform: none;
+}
+
+.employee-page-content .admin-reservas-page .estado-badge {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .employee-page-content .admin-reservas-page .tabla-reservas,
+  .employee-page-content .admin-reservas-page .tabla-reservas tbody,
+  .employee-page-content .admin-reservas-page .tabla-reservas tr,
+  .employee-page-content .admin-reservas-page .tabla-reservas td,
+  .employee-page-content .admin-reservas-page .tabla-reservas .td-contacto {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .employee-page-content .admin-reservas-page .tabla-reservas thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .employee-page-content .admin-reservas-page .tabla-reservas tbody tr {
+    padding: 0.5rem;
+  }
+
+  .employee-page-content .admin-reservas-page .tabla-reservas td {
+    box-sizing: border-box;
+    text-align: left;
+  }
+
+  .employee-page-content .admin-reservas-page .tabla-reservas td::before {
+    content: attr(data-label) ": ";
+    display: block;
+    font-weight: 700;
+  }
+
+  .employee-page-content .admin-reservas-page .acciones-grupo {
+    justify-content: flex-start;
+    flex-direction: row;
+  }
 }
 
 .employee-page-content .admin-table thead,

@@ -13,6 +13,21 @@ async function registro(c,id,crear=false){
 }
 async function permiso(c,usuario,escritura=false){return actor(c,usuario,escritura?['SuperAdministrador']:admin);}
 export function empleadosService(pool){return {
+ async estadosPorDia(usuario,fecha){return transaction(pool,async c=>{
+ await actor(c,usuario,['SuperAdministrador']);
+ check(typeof fecha==='string' && /^\d{4}-\d{2}-\d{2}$/.test(fecha) && dia(fecha)===fecha,'Fecha inválida');
+ check(fecha<=dia(),'No se pueden consultar fechas futuras');
+ let inicio;
+ try{[[inicio]]=await c.query("SELECT DATE_FORMAT(DATE_SUB(fecha, INTERVAL 3 HOUR),'%Y-%m-%d %H:%i:%s') inicio FROM historial_empleados_inicio WHERE id=1");}
+ catch(error){if(error.code==='ER_NO_SUCH_TABLE')check(false,'El historial de estados requiere la migración de empleados',503);throw error;}
+ check(inicio,'El historial de estados aún no está inicializado',503);
+ if(fecha<inicio.inicio.slice(0,10))return {inicio:inicio.inicio,empleados:[]};
+ const [rows]=await c.execute(`SELECT h.usuario_id,h.nombre,h.apellido,h.email,h.cargo,h.activo
+ FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY usuario_id ORDER BY fecha DESC,id DESC) AS posicion
+ FROM historial_estados_empleados WHERE fecha < DATE_ADD(TIMESTAMP(?, '03:00:00'), INTERVAL 1 DAY)) h
+ WHERE h.posicion=1 AND h.existente=TRUE ORDER BY h.usuario_id`,[fecha]);
+ return {inicio:inicio.inicio,empleados:rows.map(r=>({_id:String(r.usuario_id),usuario:{nombre:r.nombre,apellido:r.apellido,email:r.email},cargo:r.cargo,activo:!!r.activo}))};
+ });},
  async listar(usuario){return transaction(pool,async c=>{await permiso(c,usuario);const [rows]=await c.query(`${base} ORDER BY u.fecha_ingreso,u.id`);
  const mes=dia().slice(0,7);const [j]=await c.execute(`SELECT e.usuario_id,SUM(a.presente=1) diasTrabajados,0 diasInasistencias FROM asistencias a JOIN empleados e ON e.id=a.empleado_id WHERE DATE_FORMAT(a.fecha,'%Y-%m')=? GROUP BY e.usuario_id`,[mes]);
  const [faltas]=await c.execute(`SELECT e.usuario_id,COUNT(*) n FROM inasistencias a JOIN empleados e ON e.id=a.empleado_id WHERE DATE_FORMAT(a.fecha,'%Y-%m')=? GROUP BY e.usuario_id`,[mes]);

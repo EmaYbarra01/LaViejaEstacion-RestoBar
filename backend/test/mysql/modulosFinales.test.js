@@ -9,6 +9,7 @@ import {mensajesService} from '../../src/services/mysql/mensajes.js';
 import {passwordResetService} from '../../src/services/mysql/passwordReset.js';
 import {ventasLegacyService} from '../../src/services/mysql/ventasLegacy.js';
 import {importarPendientes} from '../../src/services/mysql/importPendientes.js';
+import {instalarHistorialEmpleados} from '../../scripts/mysql/historialEmpleados.js';
 const enabled=process.env.MYSQL_TESTS==='1',op={skip:!enabled};
 let admin,pool,empleados,mensajes,password,ventas,tokens=[],globalPool,httpServer,io;
 const dbname=`final_prueba_${process.pid}_${Date.now()}`;
@@ -20,8 +21,35 @@ before(async()=>{if(!enabled)return;
  const sql=(await readFile(new URL(`../../database/mysql/${file}`,import.meta.url),'utf8')).replaceAll('la_vieja_estacion',dbname);for(const statement of statements(sql))await admin.query(statement);
  }
  const incremental=(await readFile(new URL('../../database/mysql/007_modulos_restantes.sql',import.meta.url),'utf8')).replaceAll('la_vieja_estacion',dbname);for(const statement of statements(incremental))await admin.query(statement);
+ await instalarHistorialEmpleados(admin);
  pool=mysql.createPool({...options,database:dbname});empleados=empleadosService(pool);mensajes=mensajesService(pool);ventas=ventasLegacyService(pool);
  password=passwordResetService(pool,{sendReset:async(email,token)=>tokens.push({email,token}),sendChanged:async()=>{}});
+});
+test('historial de estados conserva cambios y empleados eliminados sin inventar el pasado',op,async()=>{
+ await pool.query("UPDATE historial_empleados_inicio SET fecha='2026-01-01 03:00:00' WHERE id=1");
+ const [[inicial]]=await pool.query('SELECT COUNT(*) n FROM historial_estados_empleados');
+ await instalarHistorialEmpleados(admin);
+ assert.equal((await pool.query('SELECT COUNT(*) n FROM historial_estados_empleados'))[0][0].n,inicial.n);
+ const empleado=await empleados.crear(1,{nombre:'Historial',apellido:'Prueba',email:'estados@prueba.example',dni:'99000091',password:'Prueba2026!',cargo:'Mozo',salarioMensual:1});
+ const id=empleado._id;
+ await pool.execute("UPDATE historial_estados_empleados SET fecha='2026-01-02 12:00:00' WHERE usuario_id=?",[id]);
+ await pool.execute('UPDATE usuarios SET activo=FALSE WHERE id=?',[id]);
+ await pool.execute("UPDATE historial_estados_empleados SET fecha='2026-01-04 02:59:59.999' WHERE usuario_id=? AND fecha>'2026-01-02 23:59:59'",[id]);
+ const c=await pool.getConnection();try{
+ await c.beginTransaction();await c.execute('UPDATE usuarios SET activo=TRUE WHERE id=?',[id]);await c.rollback();
+ }finally{c.release();}
+ assert.equal((await pool.execute('SELECT activo FROM usuarios WHERE id=?',[id]))[0][0].activo,0);
+ await pool.execute('UPDATE usuarios SET activo=TRUE WHERE id=?',[id]);
+ await pool.execute("UPDATE historial_estados_empleados SET fecha='2026-01-04 03:00:00' WHERE usuario_id=? AND fecha>'2026-01-04 02:59:59.999'",[id]);
+ await empleados.eliminar(1,id);
+ await pool.execute("UPDATE historial_estados_empleados SET fecha='2026-01-05 12:00:00' WHERE usuario_id=? AND fecha>'2026-01-04 03:00:00'",[id]);
+ assert.equal((await empleados.estadosPorDia(1,'2025-12-31')).empleados.length,0);
+ assert.equal((await empleados.estadosPorDia(1,'2026-01-02')).empleados.find(e=>e._id===id).activo,true);
+ assert.equal((await empleados.estadosPorDia(1,'2026-01-03')).empleados.find(e=>e._id===id).activo,false);
+ assert.equal((await empleados.estadosPorDia(1,'2026-01-04')).empleados.find(e=>e._id===id).activo,true);
+ assert.equal((await empleados.estadosPorDia(1,'2026-01-05')).empleados.some(e=>e._id===id),false);
+ await assert.rejects(empleados.estadosPorDia(2,'2026-01-04'),e=>e.status===403);
+ await assert.rejects(empleados.estadosPorDia(1,'2026-02-30'),e=>e.status===400);
 });
 after(async()=>{if(!enabled)return;await io?.close();await new Promise(r=>{if(httpServer?.listening)httpServer.close(r);else r();});await globalPool?.end();await pool?.end();if(admin){await admin.query(`DROP DATABASE IF EXISTS ${dbname}`);await admin.end();}for(const [k,v] of Object.entries(previous))if(v===undefined)delete process.env[k];else process.env[k]=v;});
 test('final: empleados SQL, vincular usuarios, legajo estable y permisos reales',op,async()=>{
@@ -98,6 +126,12 @@ test('final: servidor completo arranca sin Mongo, HTTP login, empleados y mensaj
  assert.equal((await (await fetch(url)).json()).estado,'Activo');
  const [[gerente]]=await pool.execute('SELECT email FROM usuarios WHERE id=2');const login=await fetch(`${url}/api/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:gerente.email,password:'RestoBar2026!'})});assert.equal(login.status,200);const sesion=await login.json(),headers={Authorization:`Bearer ${sesion.token}`,'Content-Type':'application/json'};
  const emp=await fetch(`${url}/api/empleados`,{headers});assert.equal(emp.status,200);assert.ok((await emp.json()).length>=9);
+ assert.equal((await fetch(`${url}/api/empleados/historial-estados?fecha=2026-01-04`,{headers})).status,403);
+ const [[superadmin]]=await pool.execute('SELECT email FROM usuarios WHERE id=1');
+ const loginAdmin=await fetch(`${url}/api/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:superadmin.email,password:'RestoBar2026!'})});
+ const adminHeaders={Authorization:`Bearer ${(await loginAdmin.json()).token}`};
+ const historico=await fetch(`${url}/api/empleados/historial-estados?fecha=2026-01-04`,{headers:adminHeaders});
+ assert.equal(historico.status,200);assert.ok(Array.isArray((await historico.json()).empleados));
  const post=await fetch(`${url}/api/mensajes`,{method:'POST',headers,body:JSON.stringify({texto:'Verificación HTTP sin Mongo'})});assert.equal(post.status,201);
  const denied=await fetch(`${url}/api/empleados`,{method:'POST',headers,body:'{}'});assert.equal(denied.status,403);
  const sales=await fetch(`${url}/api/sales/all`,{headers});assert.equal(sales.status,200);

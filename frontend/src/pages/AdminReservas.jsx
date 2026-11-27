@@ -469,19 +469,19 @@ const AdminReservas = () => {
               <tbody>
                 {reservasFiltradas.map((reserva) => (
                   <tr key={reserva._id}>
-                    <td className="td-cliente">{reserva.cliente}</td>
-                    <td className="td-contacto">
+                    <td className="td-cliente" data-label="Cliente">{reserva.cliente}</td>
+                    <td className="td-contacto" data-label="Contacto">
                       <div>{reserva.email}</div>
                       <div className="telefono">{reserva.telefono}</div>
                     </td>
-                    <td>{formatearFecha(reserva.fecha)}</td>
-                    <td className="td-hora">{reserva.hora}</td>
-                    <td className="td-center">{reserva.comensales}</td>
-                    <td className="td-center">
+                    <td data-label="Fecha">{formatearFecha(reserva.fecha)}</td>
+                    <td className="td-hora" data-label="Hora">{reserva.hora}</td>
+                    <td className="td-center" data-label="Comensales">{reserva.comensales}</td>
+                    <td className="td-center" data-label="Mesa">
                       {reserva.mesa ? `Mesa ${reserva.mesa.numero}` : 'Sin asignar'}
                     </td>
-                    <td>{getEstadoBadge(reserva.estado)}</td>
-                    <td className="td-acciones">
+                    <td data-label="Estado">{getEstadoBadge(reserva.estado)}</td>
+                    <td className="td-acciones" data-label="Acciones">
                       <div className="acciones-grupo">
                         {reserva.estado === 'Pendiente' && (
                           <button
